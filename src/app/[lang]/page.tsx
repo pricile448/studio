@@ -33,13 +33,13 @@ export default async function HomePage({ params: { lang } }: { params: { lang: L
           <Link href="#features" className="text-foreground/80 transition-colors hover:text-foreground">
             {dict.homePage.nav.features}
           </Link>
-          <Link href={`/${lang}/register`} className="text-foreground/80 transition-colors hover:text-foreground">
-            {dict.homePage.nav.openAccount}
-          </Link>
         </nav>
         <div className="flex items-center gap-4">
           <Button variant="outline" asChild>
             <Link href={`/${lang}/login`}>{dict.homePage.nav.login}</Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/${lang}/register`}>{dict.homePage.nav.openAccount}</Link>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
