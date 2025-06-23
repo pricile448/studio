@@ -1,7 +1,27 @@
+
 {
     "logo": "AmCbunq",
+    "homePage": {
+      "slogan": "Your mutual credit bank",
+      "nav": {
+        "home": "Home",
+        "features": "Features",
+        "openAccount": "Open an Account",
+        "login": "Login"
+      },
+      "hero": {
+        "title": "Banking, simplified and intelligent.",
+        "subtitle": "Manage your finances with powerful tools, instant transactions, and top-tier security.",
+        "ctaPrimary": "Get Started Today",
+        "ctaSecondary": "Learn More"
+      },
+      "footer": {
+        "legal": "Legal Notice",
+        "copyright": "© 2024 AmCbunq. All rights reserved."
+      }
+    },
     "login": {
-      "title": "Welcome Back!",
+      "title": "Login",
       "description": "Enter your credentials to access your account.",
       "emailLabel": "Email",
       "emailPlaceholder": "name@example.com",

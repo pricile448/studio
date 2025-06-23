@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 export default async function DashboardLayout({
   children,
@@ -68,9 +69,13 @@ export default async function DashboardLayout({
               <DropdownMenuSeparator />
               <DropdownMenuItem>{dict.sidebar.userMenu.profile}</DropdownMenuItem>
               <DropdownMenuItem>{dict.sidebar.userMenu.billing}</DropdownMenuItem>
-              <DropdownMenuItem>{dict.sidebar.userMenu.settings}</DropdownMenuItem>
+              <Link href={`/${lang}/settings`}>
+                <DropdownMenuItem>{dict.sidebar.userMenu.settings}</DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>{dict.sidebar.userMenu.logout}</DropdownMenuItem>
+               <Link href={`/${lang}/login`}>
+                <DropdownMenuItem>{dict.sidebar.userMenu.logout}</DropdownMenuItem>
+              </Link>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarFooter>

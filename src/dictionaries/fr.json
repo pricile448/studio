@@ -1,7 +1,27 @@
+
 {
     "logo": "AmCbunq",
+    "homePage": {
+      "slogan": "Votre banque de crédit mutuel",
+      "nav": {
+        "home": "Accueil",
+        "features": "Fonctionnalités",
+        "openAccount": "Ouvrir un compte",
+        "login": "Connexion"
+      },
+      "hero": {
+        "title": "La banque, simplifiée et intelligente.",
+        "subtitle": "Gérez vos finances avec des outils puissants, des transactions instantanées et une sécurité de pointe.",
+        "ctaPrimary": "Commencez aujourd'hui",
+        "ctaSecondary": "En savoir plus"
+      },
+      "footer": {
+        "legal": "Mentions Légales",
+        "copyright": "© 2024 AmCbunq. Tous droits réservés."
+      }
+    },
     "login": {
-      "title": "Content de vous revoir !",
+      "title": "Connexion",
       "description": "Entrez vos identifiants pour accéder à votre compte.",
       "emailLabel": "E-mail",
       "emailPlaceholder": "nom@exemple.com",
