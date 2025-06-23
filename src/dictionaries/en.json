@@ -1,0 +1,172 @@
+{
+    "logo": "AmCbunq",
+    "login": {
+      "title": "Welcome Back!",
+      "description": "Enter your credentials to access your account.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "loginButton": "Login",
+      "registerPrompt": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "title": "Create an Account",
+      "description": "Sign up to start managing your finances."
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "accounts": "Accounts",
+      "iban": "My IBAN",
+      "transfers": "Transfers",
+      "cards": "Cards",
+      "history": "History",
+      "budgets": "Budgets",
+      "settings": "Settings",
+      "more": "More",
+      "userMenu": {
+        "profile": "Profile",
+        "billing": "Billing",
+        "settings": "Settings",
+        "logout": "Log out"
+      }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "greeting": "Hello",
+      "accountSummary": "Account Summary",
+      "checkingAccount": "Checking Account",
+      "savingsAccount": "Savings Account",
+      "creditCard": "Credit Card",
+      "recentTransactions": "Recent Transactions",
+      "transaction": {
+        "description": "Description",
+        "category": "Category",
+        "date": "Date",
+        "amount": "Amount"
+      },
+      "expenseChart": "Expense Overview",
+      "aiAssistant": {
+        "title": "AI Financial Assistant",
+        "description": "Get personalized insights and recommendations based on your transaction history.",
+        "button": "Get AI Insights",
+        "loading": "Analyzing your finances...",
+        "insightsTitle": "Your Financial Insights",
+        "overspendingAlert": "Overspending Alert!",
+        "savingsAlert": "Savings Opportunity!",
+        "noInsights": "Could not generate insights at this time."
+      }
+    },
+    "accounts": {
+      "title": "My Accounts",
+      "addAccount": "Add Account",
+      "details": "View Details",
+      "checking": "Checking Account",
+      "savings": "Savings Account",
+      "credit": "Credit Card"
+    },
+    "transfers": {
+      "title": "Make a Transfer",
+      "newTransfer": "New Transfer",
+      "newTransferDescription": "Send money to any bank account.",
+      "from": "From",
+      "selectAccount": "Select an account",
+      "to": "To (IBAN / Recipient)",
+      "toPlaceholder": "FR76...",
+      "amount": "Amount",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "e.g., Rent payment",
+      "submit": "Send Transfer",
+      "recentTransfers": "Recent Transfers",
+      "noRecentTransfers": "No recent transfers found."
+    },
+    "cards": {
+      "title": "My Cards",
+      "orderCard": "Order a New Card",
+      "cardBankName": "AmCbunq Bank",
+      "cardHolder": "Card Holder",
+      "validThru": "Valid Thru",
+      "settings": "Card Settings",
+      "settingsDescription": "Manage your card settings and security.",
+      "freeze": "Freeze Card",
+      "freezeDescription": "Temporarily block your card.",
+      "setLimit": "Set Spending Limits",
+      "setLimitDescription": "Control your monthly spending.",
+      "viewPin": "View PIN",
+      "viewPinDescription": "Securely view your card PIN."
+    },
+    "history": {
+      "title": "Transaction History",
+      "filters": "Filters",
+      "dateRange": "Select a date range",
+      "transactionType": "Transaction Type",
+      "all": "All",
+      "income": "Income",
+      "expense": "Expense",
+      "applyFilters": "Apply Filters",
+      "noTransactions": "No transactions found for the selected period.",
+      "table": {
+        "date": "Date",
+        "description": "Description",
+        "category": "Category",
+        "status": "Status",
+        "amount": "Amount",
+        "statuses": {
+          "completed": "Completed",
+          "pending": "Pending",
+          "failed": "Failed"
+        }
+      }
+    },
+    "budgets": {
+      "title": "My Budgets",
+      "createBudget": "Create Budget",
+      "spentOf": "Spent {spent} of {total}",
+      "groceries": "Groceries",
+      "transport": "Transport",
+      "entertainment": "Entertainment"
+    },
+    "iban": {
+      "title": "My IBAN Details",
+      "description": "Use these details to receive money from other accounts.",
+      "accountDetails": "Account Details",
+      "accountHolder": "Account Holder",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "copiedDescription": "has been copied to your clipboard."
+    },
+    "more": {
+      "title": "More Options",
+      "help": "Help & Support",
+      "documents": "Documents",
+      "exchange": "Currency Exchange",
+      "referrals": "Refer a Friend"
+    },
+    "settings": {
+      "title": "Settings",
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize the look and feel of your dashboard.",
+        "theme": "Theme",
+        "themeLight": "Light",
+        "themeDark": "Dark",
+        "themeSystem": "System",
+        "language": "Language",
+        "languageEn": "English",
+        "languageFr": "French",
+        "saveButton": "Save Changes"
+      }
+    },
+    "placeholders": {
+      "title": "Coming Soon",
+      "description": "This page is under construction. Check back later!"
+    },
+    "notFound": {
+      "title": "Oops! Page not found.",
+      "description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
+      "button": "Go to Homepage"
+    }
+  }

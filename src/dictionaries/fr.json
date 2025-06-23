@@ -1,0 +1,172 @@
+{
+    "logo": "AmCbunq",
+    "login": {
+      "title": "Content de vous revoir !",
+      "description": "Entrez vos identifiants pour accéder à votre compte.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "nom@exemple.com",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "loginButton": "Connexion",
+      "registerPrompt": "Vous n'avez pas de compte ?",
+      "registerLink": "S'inscrire"
+    },
+    "register": {
+      "title": "Créer un Compte",
+      "description": "Inscrivez-vous pour commencer à gérer vos finances."
+    },
+    "sidebar": {
+      "dashboard": "Tableau de bord",
+      "accounts": "Comptes",
+      "iban": "Mon IBAN",
+      "transfers": "Virements",
+      "cards": "Cartes",
+      "history": "Historique",
+      "budgets": "Budgets",
+      "settings": "Paramètres",
+      "more": "Plus",
+      "userMenu": {
+        "profile": "Profil",
+        "billing": "Facturation",
+        "settings": "Paramètres",
+        "logout": "Déconnexion"
+      }
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "greeting": "Bonjour",
+      "accountSummary": "Résumé des comptes",
+      "checkingAccount": "Compte Courant",
+      "savingsAccount": "Compte Épargne",
+      "creditCard": "Carte de Crédit",
+      "recentTransactions": "Transactions Récentes",
+      "transaction": {
+        "description": "Description",
+        "category": "Catégorie",
+        "date": "Date",
+        "amount": "Montant"
+      },
+      "expenseChart": "Aperçu des Dépenses",
+      "aiAssistant": {
+        "title": "Assistant Financier IA",
+        "description": "Obtenez des informations et des recommandations personnalisées basées sur votre historique de transactions.",
+        "button": "Obtenir des conseils IA",
+        "loading": "Analyse de vos finances...",
+        "insightsTitle": "Vos Perspectives Financières",
+        "overspendingAlert": "Alerte de Dépassement !",
+        "savingsAlert": "Opportunité d'Épargne !",
+        "noInsights": "Impossible de générer des informations pour le moment."
+      }
+    },
+    "accounts": {
+      "title": "Mes Comptes",
+      "addAccount": "Ajouter un compte",
+      "details": "Voir les détails",
+      "checking": "Compte Courant",
+      "savings": "Compte Épargne",
+      "credit": "Carte de Crédit"
+    },
+    "transfers": {
+      "title": "Effectuer un Virement",
+      "newTransfer": "Nouveau Virement",
+      "newTransferDescription": "Envoyez de l'argent vers n'importe quel compte bancaire.",
+      "from": "Depuis",
+      "selectAccount": "Sélectionner un compte",
+      "to": "Vers (IBAN / Bénéficiaire)",
+      "toPlaceholder": "FR76...",
+      "amount": "Montant",
+      "description": "Description (optionnel)",
+      "descriptionPlaceholder": "ex: Loyer, facture...",
+      "submit": "Envoyer le virement",
+      "recentTransfers": "Virements Récents",
+      "noRecentTransfers": "Aucun virement récent récent."
+    },
+    "cards": {
+      "title": "Mes Cartes",
+      "orderCard": "Commander une nouvelle carte",
+      "cardBankName": "Banque AmCbunq",
+      "cardHolder": "Titulaire",
+      "validThru": "Expire fin",
+      "settings": "Paramètres de la carte",
+      "settingsDescription": "Gérez les paramètres et la sécurité de votre carte.",
+      "freeze": "Bloquer la carte",
+      "freezeDescription": "Bloquez temporairement votre carte.",
+      "setLimit": "Définir les plafonds",
+      "setLimitDescription": "Contrôlez vos dépenses mensuelles.",
+      "viewPin": "Voir le code PIN",
+      "viewPinDescription": "Consultez votre code PIN en toute sécurité."
+    },
+    "history": {
+      "title": "Historique des Transactions",
+      "filters": "Filtres",
+      "dateRange": "Sélectionner une période",
+      "transactionType": "Type de transaction",
+      "all": "Toutes",
+      "income": "Revenus",
+      "expense": "Dépenses",
+      "applyFilters": "Appliquer les filtres",
+      "noTransactions": "Aucune transaction trouvée pour la période sélectionnée.",
+      "table": {
+        "date": "Date",
+        "description": "Description",
+        "category": "Catégorie",
+        "status": "Statut",
+        "amount": "Montant",
+        "statuses": {
+          "completed": "Terminé",
+          "pending": "En attente",
+          "failed": "Échoué"
+        }
+      }
+    },
+    "budgets": {
+      "title": "Mes Budgets",
+      "createBudget": "Créer un budget",
+      "spentOf": "Dépensé {spent} sur {total}",
+      "groceries": "Courses",
+      "transport": "Transport",
+      "entertainment": "Loisirs"
+    },
+    "iban": {
+      "title": "Détails de mon IBAN",
+      "description": "Utilisez ces informations pour recevoir de l'argent.",
+      "accountDetails": "Détails du compte",
+      "accountHolder": "Titulaire du compte",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "copiedDescription": "a été copié dans votre presse-papiers."
+    },
+    "more": {
+      "title": "Plus d'options",
+      "help": "Aide & Support",
+      "documents": "Documents",
+      "exchange": "Change de devises",
+      "referrals": "Parrainer un ami"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "appearance": {
+        "title": "Apparence",
+        "description": "Personnalisez l'apparence de votre tableau de bord.",
+        "theme": "Thème",
+        "themeLight": "Clair",
+        "themeDark": "Sombre",
+        "themeSystem": "Système",
+        "language": "Langue",
+        "languageEn": "Anglais",
+        "languageFr": "Français",
+        "saveButton": "Enregistrer"
+      }
+    },
+    "placeholders": {
+      "title": "Bientôt Disponible",
+      "description": "Cette page est en cours de construction. Revenez plus tard !"
+    },
+    "notFound": {
+      "title": "Oups! Page introuvable.",
+      "description": "La page que vous recherchez a peut-être été supprimée, a changé de nom ou est temporairement indisponible.",
+      "button": "Retour à l'accueil"
+    }
+  }
