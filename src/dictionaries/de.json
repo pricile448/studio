@@ -90,7 +90,7 @@
         "title": "Schnellaktionen",
         "makeTransfer": "Überweisung tätigen",
         "payBill": "Rechnung bezahlen",
-        "manageBudget": "Budget verwalten",
+        "addBeneficiary": "Empfänger hinzufügen",
         "viewHistory": "Verlauf anzeigen"
       }
     },
@@ -115,6 +115,7 @@
       "descriptionPlaceholder": "z.B. Mietzahlung",
       "submit": "Überweisung senden",
       "recentTransfers": "Letzte Überweisungen",
+      "addBeneficiary": "Empfänger hinzufügen",
       "noRecentTransfers": "Keine letzten Überweisungen gefunden."
     },
     "cards": {
@@ -172,7 +173,8 @@
       "bic": "BIC / SWIFT",
       "copy": "Kopieren",
       "copied": "Kopiert!",
-      "copiedDescription": "wurde in Ihre Zwischenablage kopiert."
+      "copiedDescription": "wurde in Ihre Zwischenablage kopiert.",
+      "downloadIban": "IBAN herunterladen"
     },
     "more": {
       "title": "Weitere Optionen",

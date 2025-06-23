@@ -90,7 +90,7 @@
         "title": "Acciones Rápidas",
         "makeTransfer": "Hacer una Transferencia",
         "payBill": "Pagar una Factura",
-        "manageBudget": "Gestionar Presupuesto",
+        "addBeneficiary": "Añadir Beneficiario",
         "viewHistory": "Ver Historial"
       }
     },
@@ -115,6 +115,7 @@
       "descriptionPlaceholder": "p. ej., pago de alquiler",
       "submit": "Enviar Transferencia",
       "recentTransfers": "Transferencias Recientes",
+      "addBeneficiary": "Añadir Beneficiario",
       "noRecentTransfers": "No se encontraron transferencias recientes."
     },
     "cards": {
@@ -172,7 +173,8 @@
       "bic": "BIC / SWIFT",
       "copy": "Copiar",
       "copied": "¡Copiado!",
-      "copiedDescription": "ha sido copiado a su portapapeles."
+      "copiedDescription": "ha sido copiado a su portapapeles.",
+      "downloadIban": "Descargar IBAN"
     },
     "more": {
       "title": "Más Opciones",

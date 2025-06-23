@@ -3,7 +3,7 @@ import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, PiggyBank, CreditCard, PlusCircle } from 'lucide-react';
+import { DollarSign, PiggyBank, CreditCard } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const mockAccounts = [
@@ -35,10 +35,6 @@ export default async function AccountsPage({ params: { lang } }: { params: { lan
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{accountsDict.title}</h1>
-        <Button>
-          <PlusCircle className="mr-2" />
-          {accountsDict.addAccount}
-        </Button>
       </div>
       <Separator />
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">

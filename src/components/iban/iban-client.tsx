@@ -2,11 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, FileDown } from 'lucide-react';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,6 +31,24 @@ export function IbanClient({ dict, details }: IbanClientProps) {
       description: `${fieldName} ${dict.copiedDescription}`,
     });
     setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const handleDownload = () => {
+    const fileContent = `
+Account Holder: ${details.holder}
+IBAN: ${details.iban}
+BIC/SWIFT: ${details.bic}
+    `.trim();
+
+    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'iban_details.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -77,6 +95,12 @@ export function IbanClient({ dict, details }: IbanClientProps) {
             </div>
           </div>
         </CardContent>
+        <CardFooter>
+            <Button onClick={handleDownload} variant="outline">
+                <FileDown className="mr-2" />
+                {dict.downloadIban}
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );

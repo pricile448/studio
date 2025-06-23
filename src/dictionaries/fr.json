@@ -90,7 +90,7 @@
         "title": "Actions Rapides",
         "makeTransfer": "Faire un virement",
         "payBill": "Payer une facture",
-        "manageBudget": "Gérer le budget",
+        "addBeneficiary": "Ajouter un bénéficiaire",
         "viewHistory": "Voir l'historique"
       }
     },
@@ -115,6 +115,7 @@
       "descriptionPlaceholder": "ex: Loyer, facture...",
       "submit": "Envoyer le virement",
       "recentTransfers": "Virements Récents",
+      "addBeneficiary": "Ajouter un bénéficiaire",
       "noRecentTransfers": "Aucun virement récent récent."
     },
     "cards": {
@@ -172,7 +173,8 @@
       "bic": "BIC / SWIFT",
       "copy": "Copier",
       "copied": "Copié !",
-      "copiedDescription": "a été copié dans votre presse-papiers."
+      "copiedDescription": "a été copié dans votre presse-papiers.",
+      "downloadIban": "Télécharger l'IBAN"
     },
     "more": {
       "title": "Plus d'options",

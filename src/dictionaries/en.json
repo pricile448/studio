@@ -90,7 +90,7 @@
         "title": "Quick Actions",
         "makeTransfer": "Make a Transfer",
         "payBill": "Pay a Bill",
-        "manageBudget": "Manage Budget",
+        "addBeneficiary": "Add Beneficiary",
         "viewHistory": "View History"
       }
     },
@@ -115,6 +115,7 @@
       "descriptionPlaceholder": "e.g., Rent payment",
       "submit": "Send Transfer",
       "recentTransfers": "Recent Transfers",
+      "addBeneficiary": "Add Beneficiary",
       "noRecentTransfers": "No recent transfers found."
     },
     "cards": {
@@ -172,7 +173,8 @@
       "bic": "BIC / SWIFT",
       "copy": "Copy",
       "copied": "Copied!",
-      "copiedDescription": "has been copied to your clipboard."
+      "copiedDescription": "has been copied to your clipboard.",
+      "downloadIban": "Download IBAN"
     },
     "more": {
       "title": "More Options",

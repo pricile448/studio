@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, ReceiptText, PieChart, History } from 'lucide-react';
+import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, ReceiptText, UserPlus, History } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -60,7 +60,7 @@ export function DashboardClient({ dict, accounts, transactions }: DashboardClien
   const quickActions = [
     { href: `/${lang}/transfers`, label: dict.quickActions.makeTransfer, icon: ArrowRightLeft },
     { href: `/${lang}/transfers`, label: dict.quickActions.payBill, icon: ReceiptText },
-    { href: `/${lang}/budgets`, label: dict.quickActions.manageBudget, icon: PieChart },
+    { href: `/${lang}/transfers`, label: dict.quickActions.addBeneficiary, icon: UserPlus },
     { href: `/${lang}/history`, label: dict.quickActions.viewHistory, icon: History },
   ];
 

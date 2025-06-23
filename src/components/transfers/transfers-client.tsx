@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRightLeft } from 'lucide-react';
+import { ArrowRightLeft, UserPlus } from 'lucide-react';
 
 
 type TransfersClientProps = {
@@ -73,8 +73,12 @@ export function TransfersClient({ dict, accounts, recentTransfers, lang }: Trans
         </div>
         <div className="lg:col-span-1">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="font-headline">{dict.recentTransfers}</CardTitle>
+               <Button variant="outline">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    {dict.addBeneficiary}
+                </Button>
             </CardHeader>
             <CardContent>
               {recentTransfers.length > 0 ? (
