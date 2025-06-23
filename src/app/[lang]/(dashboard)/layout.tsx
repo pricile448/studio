@@ -9,6 +9,9 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { SidebarNav } from '@/components/dashboard/sidebar-nav';
@@ -23,6 +26,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
+import { Bell, LogOut } from 'lucide-react';
 
 export default async function DashboardLayout({
   children,
@@ -48,37 +52,16 @@ export default async function DashboardLayout({
           <SidebarNav lang={lang} dict={dict} />
         </SidebarContent>
         <SidebarFooter>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="justify-start gap-2 w-full px-2 h-12">
-                  <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar" />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                <span className="group-data-[collapsible=icon]:hidden">User</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">User</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    user@example.com
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>{dict.sidebar.userMenu.profile}</DropdownMenuItem>
-              <DropdownMenuItem>{dict.sidebar.userMenu.billing}</DropdownMenuItem>
-              <Link href={`/${lang}/settings`}>
-                <DropdownMenuItem>{dict.sidebar.userMenu.settings}</DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-               <Link href={`/${lang}/login`}>
-                <DropdownMenuItem>{dict.sidebar.userMenu.logout}</DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton asChild size="lg" tooltip={dict.sidebar.userMenu.logout}>
+                        <Link href={`/${lang}/login`}>
+                            <LogOut />
+                            <span>{dict.sidebar.userMenu.logout}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -86,6 +69,45 @@ export default async function DashboardLayout({
           <SidebarTrigger className="md:hidden" />
           <div className="w-full flex-1">
             {/* Future search bar could go here */}
+          </div>
+          <div className="flex items-center gap-4">
+             <Button variant="ghost" size="icon" asChild>
+                <Link href="#">
+                    <Bell className="h-5 w-5" />
+                    <span className="sr-only">Notifications</span>
+                </Link>
+             </Button>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar" />
+                            <AvatarFallback>U</AvatarFallback>
+                        </Avatar>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">User</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                            user@example.com
+                        </p>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href={`/${lang}/settings`}>
+                           {dict.sidebar.userMenu.profile}
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link href={`/${lang}/settings`}>
+                            {dict.sidebar.userMenu.settings}
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
