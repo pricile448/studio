@@ -25,7 +25,14 @@ export function TransfersClient({ dict, accounts, recentTransfers, lang }: Trans
   
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
+        <Button>
+          <UserPlus className="mr-2" />
+          {dict.addBeneficiary}
+        </Button>
+      </div>
+      <Separator />
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card>
@@ -72,12 +79,8 @@ export function TransfersClient({ dict, accounts, recentTransfers, lang }: Trans
         </div>
         <div className="lg:col-span-1">
           <Card>
-            <CardHeader className="flex flex-row items-start justify-between">
+            <CardHeader>
               <CardTitle className="font-headline">{dict.recentTransfers}</CardTitle>
-               <Button variant="outline">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    {dict.addBeneficiary}
-                </Button>
             </CardHeader>
             <CardContent>
               {recentTransfers.length > 0 ? (
