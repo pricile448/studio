@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppearanceForm } from '@/components/settings/appearance-form';
 import { User, Lock, Bell, Paintbrush } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProfileForm } from './profile-form';
+import { SecurityForm } from './security-form';
+import { NotificationsForm } from './notifications-form';
 
 type SettingsClientProps = {
   dict: Dictionary;
@@ -14,10 +17,9 @@ type SettingsClientProps = {
 
 export function SettingsClient({ dict, lang }: SettingsClientProps) {
   const settingsDict = dict.settings;
-  const placeholdersDict = dict.placeholders;
 
   return (
-    <Tabs defaultValue="appearance" className="w-full">
+    <Tabs defaultValue="profile" className="w-full">
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="profile">
           <User className="mr-2 h-4 w-4" />
@@ -39,33 +41,33 @@ export function SettingsClient({ dict, lang }: SettingsClientProps) {
       <TabsContent value="profile">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">{settingsDict.tabs.profile}</CardTitle>
-            <CardDescription>{placeholdersDict.description}</CardDescription>
+            <CardTitle className="font-headline">{settingsDict.profile.title}</CardTitle>
+            <CardDescription>{settingsDict.profile.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{placeholdersDict.title}</p>
+            <ProfileForm dict={settingsDict.profile} />
           </CardContent>
         </Card>
       </TabsContent>
       <TabsContent value="security">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">{settingsDict.tabs.security}</CardTitle>
-            <CardDescription>{placeholdersDict.description}</CardDescription>
+            <CardTitle className="font-headline">{settingsDict.security.title}</CardTitle>
+            <CardDescription>{settingsDict.security.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{placeholdersDict.title}</p>
+            <SecurityForm dict={settingsDict.security} />
           </CardContent>
         </Card>
       </TabsContent>
       <TabsContent value="notifications">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">{settingsDict.tabs.notifications}</CardTitle>
-            <CardDescription>{placeholdersDict.description}</CardDescription>
+            <CardTitle className="font-headline">{settingsDict.notifications.title}</CardTitle>
+            <CardDescription>{settingsDict.notifications.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{placeholdersDict.title}</p>
+            <NotificationsForm dict={settingsDict.notifications} />
           </CardContent>
         </Card>
       </TabsContent>

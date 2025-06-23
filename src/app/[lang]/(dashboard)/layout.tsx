@@ -55,7 +55,7 @@ export default async function DashboardLayout({
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton asChild size="lg" tooltip={dict.sidebar.userMenu.logout}>
-                        <Link href={`/${lang}/login`}>
+                        <Link href={`/${lang}`}>
                             <LogOut />
                             <span>{dict.sidebar.userMenu.logout}</span>
                         </Link>
@@ -113,6 +113,13 @@ export default async function DashboardLayout({
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
           {children}
         </main>
+        <footer className="border-t bg-card/50">
+            <div className="container mx-auto flex items-center justify-center p-4">
+              <p className="text-sm text-muted-foreground">
+                {dict.homePage.footer.copyright}
+              </p>
+            </div>
+        </footer>
       </SidebarInset>
     </SidebarProvider>
   );

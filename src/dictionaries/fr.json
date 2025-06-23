@@ -189,6 +189,38 @@
         "notifications": "Notifications",
         "appearance": "Apparence"
       },
+      "profile": {
+        "title": "Profil",
+        "description": "C'est ainsi que les autres vous verront sur le site.",
+        "nameLabel": "Nom",
+        "emailLabel": "E-mail",
+        "saveButton": "Enregistrer le profil"
+      },
+      "security": {
+        "title": "Sécurité",
+        "description": "Mettez à jour votre mot de passe et gérez la sécurité de votre compte.",
+        "currentPasswordLabel": "Mot de passe actuel",
+        "newPasswordLabel": "Nouveau mot de passe",
+        "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+        "saveButton": "Mettre à jour le mot de passe"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Configurez la manière dont vous recevez les notifications.",
+        "email": {
+          "title": "Notifications par e-mail",
+          "description": "Recevez des e-mails concernant l'activité de votre compte."
+        },
+        "promotions": {
+          "title": "E-mails marketing",
+          "description": "Recevez des e-mails sur les nouveaux produits, fonctionnalités et promotions."
+        },
+        "security": {
+          "title": "Alertes de sécurité",
+          "description": "Recevez des e-mails concernant les alertes de sécurité sur votre compte."
+        },
+        "saveButton": "Enregistrer les préférences"
+      },
       "appearance": {
         "title": "Apparence",
         "description": "Personnalisez l'apparence de votre tableau de bord.",
@@ -207,10 +239,6 @@
     },
     "help": {
       "title": "Aide & Support"
-    },
-    "placeholders": {
-      "title": "Bientôt Disponible",
-      "description": "Cette page est en cours de construction. Revenez plus tard !"
     },
     "notFound": {
       "title": "Oups! Page introuvable.",

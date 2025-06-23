@@ -189,6 +189,38 @@
         "notifications": "Notificaciones",
         "appearance": "Apariencia"
       },
+      "profile": {
+        "title": "Perfil",
+        "description": "Así es como te verán los demás en el sitio.",
+        "nameLabel": "Nombre",
+        "emailLabel": "Correo electrónico",
+        "saveButton": "Guardar perfil"
+      },
+      "security": {
+        "title": "Seguridad",
+        "description": "Actualice su contraseña y gestione la seguridad de su cuenta.",
+        "currentPasswordLabel": "Contraseña actual",
+        "newPasswordLabel": "Nueva contraseña",
+        "confirmPasswordLabel": "Confirmar nueva contraseña",
+        "saveButton": "Actualizar contraseña"
+      },
+      "notifications": {
+        "title": "Notificaciones",
+        "description": "Configure cómo recibe las notificaciones.",
+        "email": {
+          "title": "Notificaciones por correo electrónico",
+          "description": "Reciba correos electrónicos sobre la actividad de su cuenta."
+        },
+        "promotions": {
+          "title": "Correos de marketing",
+          "description": "Reciba correos electrónicos sobre nuevos productos, funciones y promociones."
+        },
+        "security": {
+          "title": "Alertas de seguridad",
+          "description": "Reciba correos electrónicos sobre alertas de seguridad en su cuenta."
+        },
+        "saveButton": "Guardar preferencias"
+      },
       "appearance": {
         "title": "Apariencia",
         "description": "Personalice el aspecto de su panel.",
@@ -207,10 +239,6 @@
     },
     "help": {
       "title": "Ayuda y Soporte"
-    },
-    "placeholders": {
-      "title": "Próximamente",
-      "description": "Esta página está en construcción. ¡Vuelva más tarde!"
     },
     "notFound": {
       "title": "¡Vaya! Página no encontrada.",

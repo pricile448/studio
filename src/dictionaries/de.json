@@ -189,6 +189,38 @@
         "notifications": "Benachrichtigungen",
         "appearance": "Erscheinungsbild"
       },
+      "profile": {
+        "title": "Profil",
+        "description": "So sehen Sie andere auf der Website.",
+        "nameLabel": "Name",
+        "emailLabel": "E-Mail",
+        "saveButton": "Profil speichern"
+      },
+      "security": {
+        "title": "Sicherheit",
+        "description": "Aktualisieren Sie Ihr Passwort und verwalten Sie die Sicherheit Ihres Kontos.",
+        "currentPasswordLabel": "Aktuelles Passwort",
+        "newPasswordLabel": "Neues Passwort",
+        "confirmPasswordLabel": "Neues Passwort bestätigen",
+        "saveButton": "Passwort aktualisieren"
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "description": "Konfigurieren Sie, wie Sie Benachrichtigungen erhalten.",
+        "email": {
+          "title": "E-Mail-Benachrichtigungen",
+          "description": "Erhalten Sie E-Mails über Ihre Kontoaktivität."
+        },
+        "promotions": {
+          "title": "Marketing-E-Mails",
+          "description": "Erhalten Sie E-Mails über neue Produkte, Funktionen und Werbeaktionen."
+        },
+        "security": {
+          "title": "Sicherheitswarnungen",
+          "description": "Erhalten Sie E-Mails zu Sicherheitswarnungen für Ihr Konto."
+        },
+        "saveButton": "Einstellungen speichern"
+      },
       "appearance": {
         "title": "Erscheinungsbild",
         "description": "Passen Sie das Aussehen Ihres Dashboards an.",
@@ -207,10 +239,6 @@
     },
     "help": {
       "title": "Hilfe & Support"
-    },
-    "placeholders": {
-      "title": "Demnächst verfügbar",
-      "description": "Diese Seite befindet sich im Aufbau. Schauen Sie später wieder vorbei!"
     },
     "notFound": {
       "title": "Hoppla! Seite nicht gefunden.",

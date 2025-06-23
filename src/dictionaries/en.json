@@ -189,6 +189,38 @@
         "notifications": "Notifications",
         "appearance": "Appearance"
       },
+      "profile": {
+        "title": "Profile",
+        "description": "This is how others will see you on the site.",
+        "nameLabel": "Name",
+        "emailLabel": "Email",
+        "saveButton": "Save Profile"
+      },
+      "security": {
+        "title": "Security",
+        "description": "Update your password and manage your account security.",
+        "currentPasswordLabel": "Current Password",
+        "newPasswordLabel": "New Password",
+        "confirmPasswordLabel": "Confirm New Password",
+        "saveButton": "Update Password"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Configure how you receive notifications.",
+        "email": {
+          "title": "Email Notifications",
+          "description": "Receive emails about your account activity."
+        },
+        "promotions": {
+          "title": "Marketing emails",
+          "description": "Receive emails about new products, features, and promotions."
+        },
+        "security": {
+          "title": "Security alerts",
+          "description": "Receive emails about security alerts on your account."
+        },
+        "saveButton": "Save Preferences"
+      },
       "appearance": {
         "title": "Appearance",
         "description": "Customize the look and feel of your dashboard.",
@@ -207,10 +239,6 @@
     },
     "help": {
       "title": "Help & Support"
-    },
-    "placeholders": {
-      "title": "Coming Soon",
-      "description": "This page is under construction. Check back later!"
     },
     "notFound": {
       "title": "Oops! Page not found.",
