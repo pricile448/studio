@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   )
 
   if (pathnameHasLocale) {
-    return
+    return NextResponse.next()
   }
 
   // Redirect to the default locale
