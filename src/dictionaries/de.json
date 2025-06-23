@@ -63,6 +63,7 @@
     },
     "dashboard": {
       "title": "Dashboard",
+      "totalBalance": "Gesamtsaldo",
       "greeting": "Hallo",
       "accountSummary": "Kontenübersicht",
       "checkingAccount": "Girokonto",
@@ -101,6 +102,8 @@
     },
     "accounts": {
       "title": "Meine Konten",
+      "totalBalance": "Gesamtsaldo",
+      "totalBalanceDescription": "Gesamtvermögen über alle Ihre Konten.",
       "addAccount": "Konto hinzufügen",
       "details": "Details anzeigen",
       "checking": "Girokonto",
@@ -123,8 +126,9 @@
       "newTransferDescription": "Senden Sie Geld an ein beliebiges Bankkonto.",
       "from": "Von",
       "selectAccount": "Wählen Sie ein Konto",
-      "to": "An (IBAN / Empfänger)",
-      "toPlaceholder": "DE89...",
+      "to": "An",
+      "selectBeneficiary": "Wählen Sie einen Empfänger",
+      "toPlaceholder": "Wählen Sie einen Empfänger",
       "amount": "Betrag",
       "description": "Beschreibung (optional)",
       "descriptionPlaceholder": "z.B. Mietzahlung",

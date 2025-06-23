@@ -63,6 +63,7 @@
     },
     "dashboard": {
       "title": "Dashboard",
+      "totalBalance": "Total Balance",
       "greeting": "Hello",
       "accountSummary": "Account Summary",
       "checkingAccount": "Checking Account",
@@ -101,6 +102,8 @@
     },
     "accounts": {
       "title": "My Accounts",
+      "totalBalance": "Total Balance",
+      "totalBalanceDescription": "Total assets across all your accounts.",
       "addAccount": "Add Account",
       "details": "View Details",
       "checking": "Checking Account",
@@ -123,8 +126,9 @@
       "newTransferDescription": "Send money to any bank account.",
       "from": "From",
       "selectAccount": "Select an account",
-      "to": "To (IBAN / Recipient)",
-      "toPlaceholder": "FR76...",
+      "to": "To",
+      "selectBeneficiary": "Select a beneficiary",
+      "toPlaceholder": "Select a beneficiary",
       "amount": "Amount",
       "description": "Description (optional)",
       "descriptionPlaceholder": "e.g., Rent payment",

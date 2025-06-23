@@ -6,7 +6,7 @@ import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, PiggyBank, CreditCard, ArrowLeftRight, Activity } from 'lucide-react';
+import { DollarSign, PiggyBank, CreditCard, ArrowLeftRight, Activity, Scale } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -95,6 +95,7 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccou
 
 export default function AccountsPage({ params: { lang } }: { params: { lang: Locale } }) {
   const [dict, setDict] = useState<Dictionary | null>(null);
+  const totalBalance = mockAccounts.reduce((acc, account) => acc + account.balance, 0);
 
   useEffect(() => {
     getDictionary(lang).then(setDict);
@@ -109,6 +110,7 @@ export default function AccountsPage({ params: { lang } }: { params: { lang: Loc
       <div className="space-y-6">
         <Skeleton className="h-8 w-1/4" />
         <Separator />
+        <Skeleton className="h-28" />
         <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40" />)}
         </div>
@@ -131,6 +133,18 @@ export default function AccountsPage({ params: { lang } }: { params: { lang: Loc
         <h1 className="text-3xl font-bold font-headline">{accountsDict.title}</h1>
       </div>
       <Separator />
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-base font-medium font-headline">{accountsDict.totalBalance}</CardTitle>
+          <Scale className="h-5 w-5 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold">{formatCurrency(totalBalance)}</div>
+          <p className="text-xs text-muted-foreground">{accountsDict.totalBalanceDescription}</p>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         {mockAccounts.map((account) => {
           const Icon = accountIcons[account.name] || DollarSign;

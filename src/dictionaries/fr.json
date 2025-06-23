@@ -63,6 +63,7 @@
     },
     "dashboard": {
       "title": "Tableau de bord",
+      "totalBalance": "Solde Total",
       "greeting": "Bonjour",
       "accountSummary": "Résumé des comptes",
       "checkingAccount": "Compte Courant",
@@ -101,6 +102,8 @@
     },
     "accounts": {
       "title": "Mes Comptes",
+      "totalBalance": "Solde Total",
+      "totalBalanceDescription": "Actifs totaux sur l'ensemble de vos comptes.",
       "addAccount": "Ajouter un compte",
       "details": "Voir les détails",
       "checking": "Compte Courant",
@@ -123,8 +126,9 @@
       "newTransferDescription": "Envoyez de l'argent vers n'importe quel compte bancaire.",
       "from": "Depuis",
       "selectAccount": "Sélectionner un compte",
-      "to": "Vers (IBAN / Bénéficiaire)",
-      "toPlaceholder": "FR76...",
+      "to": "Vers",
+      "selectBeneficiary": "Sélectionner un bénéficiaire",
+      "toPlaceholder": "Sélectionner un bénéficiaire",
       "amount": "Montant",
       "description": "Description (optionnel)",
       "descriptionPlaceholder": "ex: Loyer, facture...",

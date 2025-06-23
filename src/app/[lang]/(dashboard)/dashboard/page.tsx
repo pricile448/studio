@@ -19,12 +19,15 @@ const mockTransactions = [
 
 export default async function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
+  const totalBalance = mockAccounts.reduce((acc, account) => acc + account.balance, 0);
 
   return (
     <DashboardClient
       dict={dict.dashboard}
+      accountsDict={dict.accounts}
       accounts={mockAccounts}
       transactions={mockTransactions}
+      totalBalance={totalBalance}
     />
   );
 }

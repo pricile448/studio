@@ -63,6 +63,7 @@
     },
     "dashboard": {
       "title": "Panel",
+      "totalBalance": "Saldo Total",
       "greeting": "Hola",
       "accountSummary": "Resumen de cuenta",
       "checkingAccount": "Cuenta Corriente",
@@ -101,6 +102,8 @@
     },
     "accounts": {
       "title": "Mis Cuentas",
+      "totalBalance": "Saldo Total",
+      "totalBalanceDescription": "Activos totales en todas sus cuentas.",
       "addAccount": "Añadir Cuenta",
       "details": "Ver Detalles",
       "checking": "Cuenta Corriente",
@@ -123,8 +126,9 @@
       "newTransferDescription": "Envíe dinero a cualquier cuenta bancaria.",
       "from": "Desde",
       "selectAccount": "Seleccione una cuenta",
-      "to": "Para (IBAN / Destinatario)",
-      "toPlaceholder": "ES91...",
+      "to": "Para",
+      "selectBeneficiary": "Seleccione un beneficiario",
+      "toPlaceholder": "Seleccione un beneficiario",
       "amount": "Monto",
       "description": "Descripción (opcional)",
       "descriptionPlaceholder": "p. ej., pago de alquiler",

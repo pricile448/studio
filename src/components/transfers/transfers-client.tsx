@@ -15,16 +15,23 @@ import { AddBeneficiaryDialog } from './add-beneficiary-dialog';
 
 type TransfersClientProps = {
   dict: Dictionary['transfers'];
+  accountsDict: Dictionary['accounts'];
   accounts: { id: string; name: string; balance: number }[];
   recentTransfers: { id: string; date: string; description: string; amount: number }[];
+  beneficiaries: { id: string; name: string; iban: string }[];
   lang: Locale;
 };
 
-export function TransfersClient({ dict, accounts, recentTransfers, lang }: TransfersClientProps) {
+export function TransfersClient({ dict, accountsDict, accounts, recentTransfers, beneficiaries, lang }: TransfersClientProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
   };
   
+  const getAccountName = (name: string) => {
+    const key = name as keyof typeof accountsDict;
+    return accountsDict[key] || name;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -50,15 +57,29 @@ export function TransfersClient({ dict, accounts, recentTransfers, lang }: Trans
                     <SelectContent>
                       {accounts.map(account => (
                         <SelectItem key={account.id} value={account.id}>
-                          {account.name.charAt(0).toUpperCase() + account.name.slice(1)} - {formatCurrency(account.balance)}
+                          {getAccountName(account.name)} - {formatCurrency(account.balance)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                  <div className="space-y-2">
-                  <Label htmlFor="to">{dict.to}</Label>
-                  <Input id="to" placeholder={dict.toPlaceholder} />
+                   <Label htmlFor="to">{dict.to}</Label>
+                   <Select>
+                    <SelectTrigger id="to">
+                      <SelectValue placeholder={dict.selectBeneficiary} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {beneficiaries.map(beneficiary => (
+                        <SelectItem key={beneficiary.id} value={beneficiary.id}>
+                           <div className="flex flex-col">
+                            <span>{beneficiary.name}</span>
+                            <span className="text-xs text-muted-foreground">{beneficiary.iban}</span>
+                           </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="space-y-2">

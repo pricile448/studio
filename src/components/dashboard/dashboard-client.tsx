@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, Settings, Leaf, HeartPulse } from 'lucide-react';
+import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, Settings, Leaf, HeartPulse, Scale } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -15,8 +15,10 @@ import { usePathname } from 'next/navigation';
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
+  accountsDict: Dictionary['accounts'];
   accounts: { id: string; name: string; balance: number; currency: string }[];
   transactions: { id: string; date: string; description: string; category: string; amount: number; currency: string }[];
+  totalBalance: number;
 };
 
 const chartData = [
@@ -41,7 +43,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
   credit: CreditCard,
 };
 
-export function DashboardClient({ dict, accounts, transactions }: DashboardClientProps) {
+export function DashboardClient({ dict, accountsDict, accounts, transactions, totalBalance }: DashboardClientProps) {
   const pathname = usePathname();
   const lang = pathname.split('/')[1];
 
@@ -50,12 +52,8 @@ export function DashboardClient({ dict, accounts, transactions }: DashboardClien
   };
 
   const getAccountName = (name: string) => {
-    switch (name) {
-      case 'checking': return dict.checkingAccount;
-      case 'savings': return dict.savingsAccount;
-      case 'credit': return dict.creditCard;
-      default: return name;
-    }
+    const key = name as keyof typeof accountsDict;
+    return accountsDict[key] || name;
   }
 
   const quickActions = [
@@ -70,7 +68,16 @@ export function DashboardClient({ dict, accounts, transactions }: DashboardClien
       <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
       
       {/* Account Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+         <Card className="sm:col-span-2">
+             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{dict.totalBalance}</CardTitle>
+                <Scale className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(totalBalance)}</div>
+              </CardContent>
+        </Card>
         {accounts.map((account) => {
           const Icon = accountIcons[account.name] || DollarSign;
           return (
