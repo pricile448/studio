@@ -179,7 +179,7 @@ const dictionaries = {
   fr: {
     logo: 'AmCbunq',
     login: {
-      title: 'Content de vous revoir !',
+      title: 'Content de te revoir!',
       description: 'Entrez vos identifiants pour accéder à votre compte.',
       emailLabel: 'E-mail',
       emailPlaceholder: 'nom@exemple.com',
