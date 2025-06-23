@@ -1,6 +1,5 @@
 
 import 'server-only'
-import { cache } from 'react'
 
 export type Locale = 'en' | 'fr';
 
@@ -180,7 +179,7 @@ const dictionaries = {
   fr: {
     logo: 'AmCbunq',
     login: {
-      title: 'Content de te revoir!',
+      title: 'Content de vous revoir !',
       description: 'Entrez vos identifiants pour accéder à votre compte.',
       emailLabel: 'E-mail',
       emailPlaceholder: 'nom@exemple.com',
@@ -258,7 +257,7 @@ const dictionaries = {
       descriptionPlaceholder: 'ex: Loyer, facture...',
       submit: 'Envoyer le virement',
       recentTransfers: 'Virements Récents',
-      noRecentTransfers: 'Aucun virement récent trouvé.',
+      noRecentTransfers: 'Aucun virement récent récent.',
     },
     cards: {
       title: 'Mes Cartes',
@@ -352,8 +351,8 @@ const dictionaries = {
 } as const;
 
 
-export const getDictionary = cache((locale: Locale) => {
+export const getDictionary = async (locale: Locale) => {
     return dictionaries[locale] ?? dictionaries.en;
-});
+};
 
 export type Dictionary = Awaited<ReturnType<typeof getDictionary>>;
