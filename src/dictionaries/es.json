@@ -33,7 +33,7 @@
       "backToHome": "Volver al inicio"
     },
     "register": {
-      "title": "Crear una cuenta",
+      "title": "Abrir una cuenta en AmCbunq",
       "description": "Regístrese para comenzar a administrar sus finanzas.",
       "firstNameLabel": "Nombre",
       "firstNamePlaceholder": "Juan",
@@ -42,9 +42,17 @@
       "confirmPasswordLabel": "Confirmar contraseña",
       "termsPrompt": "Al crear una cuenta, usted acepta nuestros",
       "termsLink": "Términos y Condiciones",
-      "createAccountButton": "Crear cuenta",
+      "createAccountButton": "Abrir mi cuenta",
       "loginPrompt": "¿Ya tiene una cuenta?",
-      "loginLink": "Iniciar sesión"
+      "loginLink": "Iniciar sesión",
+      "dobLabel": "Fecha de nacimiento",
+      "pobLabel": "Lugar de nacimiento",
+      "nationalityLabel": "Nacionalidad",
+      "residenceCountryLabel": "País de residencia",
+      "addressLabel": "Dirección de residencia",
+      "professionLabel": "Profesión",
+      "salaryLabel": "Ingresos mensuales (aprox.)",
+      "dobPlaceholder": "Seleccione una fecha"
     },
     "sidebar": {
       "dashboard": "Panel",

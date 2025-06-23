@@ -33,7 +33,7 @@
       "backToHome": "Back to Home"
     },
     "register": {
-      "title": "Create an Account",
+      "title": "Open an account with AmCbunq",
       "description": "Sign up to start managing your finances.",
       "firstNameLabel": "First name",
       "firstNamePlaceholder": "John",
@@ -42,9 +42,17 @@
       "confirmPasswordLabel": "Confirm Password",
       "termsPrompt": "By creating an account, you agree to our",
       "termsLink": "Terms & Conditions",
-      "createAccountButton": "Create Account",
+      "createAccountButton": "Open my account",
       "loginPrompt": "Already have an account?",
-      "loginLink": "Login"
+      "loginLink": "Login",
+      "dobLabel": "Date of Birth",
+      "pobLabel": "Place of Birth",
+      "nationalityLabel": "Nationality",
+      "residenceCountryLabel": "Country of Residence",
+      "addressLabel": "Residential Address",
+      "professionLabel": "Profession",
+      "salaryLabel": "Monthly Income (approx.)",
+      "dobPlaceholder": "Select a date"
     },
     "sidebar": {
       "dashboard": "Dashboard",
