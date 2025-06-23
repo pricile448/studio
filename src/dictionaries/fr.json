@@ -55,7 +55,9 @@
       "professionLabel": "Profession",
       "salaryLabel": "Revenu mensuel (approximatif)",
       "dobPlaceholder": "Sélectionnez une date",
-      "registerErrorTitle": "Échec de l'inscription"
+      "registerErrorTitle": "Échec de l'inscription",
+      "registerErrorDescription": "Une erreur inattendue est survenue lors de l'inscription.",
+      "emailInUseError": "Cette adresse e-mail est déjà utilisée par un autre compte."
     },
     "verifyEmail": {
         "title": "Vérifiez votre adresse e-mail",

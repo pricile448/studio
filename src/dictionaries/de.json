@@ -55,7 +55,9 @@
       "professionLabel": "Beruf",
       "salaryLabel": "Monatliches Einkommen (ca.)",
       "dobPlaceholder": "Datum auswählen",
-      "registerErrorTitle": "Registrierung fehlgeschlagen"
+      "registerErrorTitle": "Registrierung fehlgeschlagen",
+      "registerErrorDescription": "Bei der Registrierung ist ein unerwarteter Fehler aufgetreten.",
+      "emailInUseError": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet."
     },
     "verifyEmail": {
         "title": "Bestätigen Sie Ihre E-Mail-Adresse",

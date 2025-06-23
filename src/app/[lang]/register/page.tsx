@@ -83,10 +83,17 @@ export default function RegisterPage() {
       await signup(userData, password);
       router.push(`/${lang}/verify-email`);
     } catch (error: any) {
+        const registerDict = dict?.register;
+        let description = registerDict?.registerErrorDescription || 'An unexpected error occurred.';
+
+        if (error.code === 'auth/email-already-in-use') {
+            description = registerDict?.emailInUseError || 'This email is already in use by another account.';
+        }
+
         toast({
             variant: 'destructive',
-            title: dict?.register.registerErrorTitle || 'Registration Failed',
-            description: error.message || 'An unexpected error occurred.',
+            title: registerDict?.registerErrorTitle || 'Registration Failed',
+            description: description,
         });
     } finally {
         setIsSubmitting(false);

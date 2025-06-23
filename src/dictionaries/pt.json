@@ -55,7 +55,9 @@
       "professionLabel": "Profissão",
       "salaryLabel": "Renda Mensal (aprox.)",
       "dobPlaceholder": "Selecione uma data",
-      "registerErrorTitle": "Falha no Registro"
+      "registerErrorTitle": "Falha no Registro",
+      "registerErrorDescription": "Ocorreu um erro inesperado durante o registro.",
+      "emailInUseError": "Este endereço de e-mail já está em uso por outra conta."
     },
     "verifyEmail": {
         "title": "Verifique o seu endereço de e-mail",

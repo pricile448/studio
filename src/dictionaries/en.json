@@ -55,7 +55,9 @@
       "professionLabel": "Profession",
       "salaryLabel": "Monthly Income (approx.)",
       "dobPlaceholder": "Select a date",
-      "registerErrorTitle": "Registration Failed"
+      "registerErrorTitle": "Registration Failed",
+      "registerErrorDescription": "An unexpected error occurred.",
+      "emailInUseError": "This email address is already in use by another account."
     },
     "verifyEmail": {
         "title": "Verify Your Email Address",
