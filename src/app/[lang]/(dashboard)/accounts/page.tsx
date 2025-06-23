@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const mockAccounts = [
   { id: '1', name: 'checking', balance: 4850.75, currency: 'USD' },
@@ -94,7 +95,9 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccou
   );
 }
 
-export default function AccountsPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function AccountsPage() {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] as Locale;
   const [dict, setDict] = useState<Dictionary | null>(null);
   const totalBalance = mockAccounts.reduce((acc, account) => acc + account.balance, 0);
 

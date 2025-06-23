@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -27,7 +28,9 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function LoginPage() {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] as Locale;
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { login } = useAuth();
   const { toast } = useToast();

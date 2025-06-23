@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
@@ -36,11 +36,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardLayout({
   children,
-  params: { lang },
 }: {
   children: React.ReactNode;
-  params: { lang: Locale };
 }) {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] as Locale;
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [dict, setDict] = useState<Dictionary | null>(null);

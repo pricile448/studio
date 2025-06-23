@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
@@ -13,7 +13,9 @@ import { MailCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function VerifyEmailPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function VerifyEmailPage() {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] as Locale;
   const { user, loading, resendVerificationEmail, logout } = useAuth();
   const router = useRouter();
   const [dict, setDict] = useState<Dictionary | null>(null);
