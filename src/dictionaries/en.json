@@ -190,11 +190,19 @@
         "appearance": "Appearance"
       },
       "profile": {
-        "title": "Profile",
-        "description": "This is how others will see you on the site.",
-        "nameLabel": "Name",
-        "emailLabel": "Email",
-        "saveButton": "Save Profile"
+        "title": "Personal Information",
+        "description": "Update your personal details here. This information is required for account verification.",
+        "nameLabel": "Full Name",
+        "emailLabel": "Email Address",
+        "phoneLabel": "Phone Number",
+        "dobLabel": "Date of Birth",
+        "dobPlaceholder": "Pick a date",
+        "addressGroupTitle": "Mailing Address",
+        "streetLabel": "Street Address",
+        "cityLabel": "City",
+        "postalCodeLabel": "Postal/ZIP Code",
+        "countryLabel": "Country",
+        "saveButton": "Save Changes"
       },
       "security": {
         "title": "Security",

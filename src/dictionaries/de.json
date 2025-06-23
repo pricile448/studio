@@ -190,11 +190,19 @@
         "appearance": "Erscheinungsbild"
       },
       "profile": {
-        "title": "Profil",
-        "description": "So sehen Sie andere auf der Website.",
-        "nameLabel": "Name",
-        "emailLabel": "E-Mail",
-        "saveButton": "Profil speichern"
+        "title": "Persönliche Informationen",
+        "description": "Aktualisieren Sie hier Ihre persönlichen Daten. Diese Informationen sind für die Kontobestätigung erforderlich.",
+        "nameLabel": "Vollständiger Name",
+        "emailLabel": "E-Mail-Adresse",
+        "phoneLabel": "Telefonnummer",
+        "dobLabel": "Geburtsdatum",
+        "dobPlaceholder": "Wählen Sie ein Datum",
+        "addressGroupTitle": "Postanschrift",
+        "streetLabel": "Straße",
+        "cityLabel": "Stadt",
+        "postalCodeLabel": "Postleitzahl",
+        "countryLabel": "Land",
+        "saveButton": "Änderungen speichern"
       },
       "security": {
         "title": "Sicherheit",

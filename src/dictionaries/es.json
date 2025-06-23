@@ -190,11 +190,19 @@
         "appearance": "Apariencia"
       },
       "profile": {
-        "title": "Perfil",
-        "description": "Así es como te verán los demás en el sitio.",
-        "nameLabel": "Nombre",
-        "emailLabel": "Correo electrónico",
-        "saveButton": "Guardar perfil"
+        "title": "Información Personal",
+        "description": "Actualice sus datos personales aquí. Esta información es necesaria para la verificación de la cuenta.",
+        "nameLabel": "Nombre completo",
+        "emailLabel": "Dirección de correo electrónico",
+        "phoneLabel": "Número de teléfono",
+        "dobLabel": "Fecha de nacimiento",
+        "dobPlaceholder": "Seleccione una fecha",
+        "addressGroupTitle": "Dirección Postal",
+        "streetLabel": "Dirección",
+        "cityLabel": "Ciudad",
+        "postalCodeLabel": "Código Postal",
+        "countryLabel": "País",
+        "saveButton": "Guardar cambios"
       },
       "security": {
         "title": "Seguridad",
