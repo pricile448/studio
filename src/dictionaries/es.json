@@ -34,7 +34,17 @@
     },
     "register": {
       "title": "Crear una cuenta",
-      "description": "Regístrese para comenzar a administrar sus finanzas."
+      "description": "Regístrese para comenzar a administrar sus finanzas.",
+      "firstNameLabel": "Nombre",
+      "firstNamePlaceholder": "Juan",
+      "lastNameLabel": "Apellido",
+      "lastNamePlaceholder": "Pérez",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "termsPrompt": "Al crear una cuenta, usted acepta nuestros",
+      "termsLink": "Términos y Condiciones",
+      "createAccountButton": "Crear cuenta",
+      "loginPrompt": "¿Ya tiene una cuenta?",
+      "loginLink": "Iniciar sesión"
     },
     "sidebar": {
       "dashboard": "Panel",

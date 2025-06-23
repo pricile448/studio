@@ -34,28 +34,17 @@
     },
     "register": {
       "title": "Créer un Compte",
-      "description": "Inscrivez-vous pour commencer à gérer vos finances."
-    },
-    "sidebar": {
-      "dashboard": "Tableau de bord",
-      "accounts": "Comptes",
-      "iban": "Mon IBAN",
-      "transfers": "Virements",
-      "cards": "Cartes",
-      "history": "Historique",
-      "budgets": "Budgets",
-      "settings": "Paramètres",
-      "more": "Plus",
-      "help": "Aide & Support",
-      "documents": "Mes Documents",
-      "exchange": "Change de devises",
-      "referrals": "Parrainer un ami",
-      "userMenu": {
-        "profile": "Profil",
-        "billing": "Facturation",
-        "settings": "Paramètres",
-        "logout": "Déconnexion"
-      }
+      "description": "Inscrivez-vous pour commencer à gérer vos finances.",
+      "firstNameLabel": "Prénom",
+      "firstNamePlaceholder": "Jean",
+      "lastNameLabel": "Nom de famille",
+      "lastNamePlaceholder": "Dupont",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "termsPrompt": "En créant un compte, vous acceptez nos",
+      "termsLink": "Termes et Conditions",
+      "createAccountButton": "Créer un compte",
+      "loginPrompt": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter"
     },
      "sidebarGroups": {
         "account": "Mon Compte",
@@ -319,6 +308,27 @@
     },
     "help": {
       "title": "Aide & Support"
+    },
+    "sidebar": {
+      "dashboard": "Tableau de bord",
+      "accounts": "Comptes",
+      "iban": "Mon IBAN",
+      "transfers": "Virements",
+      "cards": "Cartes",
+      "history": "Historique",
+      "budgets": "Budgets",
+      "settings": "Paramètres",
+      "more": "Plus",
+      "help": "Aide & Support",
+      "documents": "Mes Documents",
+      "exchange": "Change de devises",
+      "referrals": "Parrainer un ami",
+      "userMenu": {
+        "profile": "Profil",
+        "billing": "Facturation",
+        "settings": "Paramètres",
+        "logout": "Déconnexion"
+      }
     },
     "notFound": {
       "title": "Oups! Page introuvable.",

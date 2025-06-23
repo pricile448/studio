@@ -34,7 +34,17 @@
     },
     "register": {
       "title": "Create an Account",
-      "description": "Sign up to start managing your finances."
+      "description": "Sign up to start managing your finances.",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "John",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Doe",
+      "confirmPasswordLabel": "Confirm Password",
+      "termsPrompt": "By creating an account, you agree to our",
+      "termsLink": "Terms & Conditions",
+      "createAccountButton": "Create Account",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Login"
     },
     "sidebar": {
       "dashboard": "Dashboard",

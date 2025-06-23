@@ -34,7 +34,17 @@
     },
     "register": {
       "title": "Konto erstellen",
-      "description": "Registrieren Sie sich, um Ihre Finanzen zu verwalten."
+      "description": "Registrieren Sie sich, um Ihre Finanzen zu verwalten.",
+      "firstNameLabel": "Vorname",
+      "firstNamePlaceholder": "Max",
+      "lastNameLabel": "Nachname",
+      "lastNamePlaceholder": "Mustermann",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "termsPrompt": "Durch die Erstellung eines Kontos stimmen Sie unseren",
+      "termsLink": "Allgemeinen Geschäftsbedingungen",
+      "createAccountButton": "Konto erstellen",
+      "loginPrompt": "Haben Sie bereits ein Konto?",
+      "loginLink": "Anmelden"
     },
     "sidebar": {
       "dashboard": "Dashboard",
