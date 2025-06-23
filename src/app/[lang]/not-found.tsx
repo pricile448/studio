@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { getDictionary, type Locale } from '@/lib/dictionaries';
 
-export default async function NotFound({ params }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(params.lang);
+export default function NotFound({ params }: { params: { lang: Locale } }) {
+  const dict = getDictionary(params.lang);
   
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">
