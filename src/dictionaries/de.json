@@ -57,7 +57,8 @@
       "dobPlaceholder": "Datum auswählen",
       "registerErrorTitle": "Registrierung fehlgeschlagen",
       "registerErrorDescription": "Bei der Registrierung ist ein unerwarteter Fehler aufgetreten.",
-      "emailInUseError": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet."
+      "emailInUseError": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet.",
+      "permissionDeniedError": "Fehlende oder unzureichende Berechtigungen. Bitte überprüfen Sie Ihre Firestore-Sicherheitsregeln."
     },
     "verifyEmail": {
         "title": "Bestätigen Sie Ihre E-Mail-Adresse",

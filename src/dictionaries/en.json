@@ -57,7 +57,8 @@
       "dobPlaceholder": "Select a date",
       "registerErrorTitle": "Registration Failed",
       "registerErrorDescription": "An unexpected error occurred.",
-      "emailInUseError": "This email address is already in use by another account."
+      "emailInUseError": "This email address is already in use by another account.",
+      "permissionDeniedError": "Missing or insufficient permissions. Please check your Firestore security rules."
     },
     "verifyEmail": {
         "title": "Verify Your Email Address",

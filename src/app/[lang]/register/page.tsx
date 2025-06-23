@@ -88,6 +88,10 @@ export default function RegisterPage() {
 
         if (error.code === 'auth/email-already-in-use') {
             description = registerDict?.emailInUseError || 'This email is already in use by another account.';
+        } else if (error.code === 'permission-denied') {
+             description = registerDict?.permissionDeniedError || 'Missing or insufficient permissions. Please check your Firestore security rules.';
+        } else if (error.message) {
+            description = error.message;
         }
 
         toast({
