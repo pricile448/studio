@@ -116,7 +116,12 @@
       "ourServicesTitle": "Nuestros Servicios",
       "ourServicesDescription": "Descubra nuestra gama de servicios diseñados para ayudarle a hacer crecer su patrimonio.",
       "carbonFootprintTitle": "Su Huella de Carbono",
-      "carbonFootprintDescription": "Siga el impacto ambiental de sus gastos y contribuya a un planeta más verde."
+      "carbonFootprintDescription": "Siga el impacto ambiental de sus gastos y contribuya a un planeta más verde.",
+      "verificationBanner": {
+        "title": "Verificación Pendiente",
+        "description": "Complete su verificación de identidad",
+        "button": "Verificar ahora"
+      }
     },
     "accounts": {
       "title": "Mis Cuentas",
@@ -148,7 +153,6 @@
       "selectAccount": "Seleccione una cuenta",
       "to": "Para",
       "selectBeneficiary": "Seleccione un beneficiario",
-      "toPlaceholder": "Seleccione un beneficiario",
       "amount": "Monto",
       "description": "Descripción (opcional)",
       "descriptionPlaceholder": "p. ej., pago de alquiler",

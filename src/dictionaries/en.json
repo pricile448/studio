@@ -116,7 +116,12 @@
       "ourServicesTitle": "Our Services",
       "ourServicesDescription": "Discover our range of services designed to help you grow your wealth.",
       "carbonFootprintTitle": "Your Carbon Footprint",
-      "carbonFootprintDescription": "Track the environmental impact of your spending and contribute to a greener planet."
+      "carbonFootprintDescription": "Track the environmental impact of your spending and contribute to a greener planet.",
+      "verificationBanner": {
+        "title": "Verification Pending",
+        "description": "Complete your identity verification",
+        "button": "Verify Now"
+      }
     },
     "accounts": {
       "title": "My Accounts",
@@ -148,7 +153,6 @@
       "selectAccount": "Select an account",
       "to": "To",
       "selectBeneficiary": "Select a beneficiary",
-      "toPlaceholder": "Select a beneficiary",
       "amount": "Amount",
       "description": "Description (optional)",
       "descriptionPlaceholder": "e.g., Rent payment",

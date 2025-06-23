@@ -95,7 +95,12 @@
       "ourServicesTitle": "Nos Services",
       "ourServicesDescription": "Découvrez notre gamme de services conçus pour vous aider à faire fructifier votre patrimoine.",
       "carbonFootprintTitle": "Votre Empreinte Carbone",
-      "carbonFootprintDescription": "Suivez l'impact environnemental de vos dépenses et contribuez à une planète plus verte."
+      "carbonFootprintDescription": "Suivez l'impact environnemental de vos dépenses et contribuez à une planète plus verte.",
+      "verificationBanner": {
+        "title": "Vérification en attente",
+        "description": "Complétez votre vérification d'identité",
+        "button": "Vérifier maintenant"
+      }
     },
     "accounts": {
       "title": "Mes Comptes",
@@ -127,7 +132,6 @@
       "selectAccount": "Sélectionner un compte",
       "to": "Vers",
       "selectBeneficiary": "Sélectionner un bénéficiaire",
-      "toPlaceholder": "Sélectionner un bénéficiaire",
       "amount": "Montant",
       "description": "Description (optionnel)",
       "descriptionPlaceholder": "ex: Loyer, facture...",

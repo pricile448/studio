@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import type { Dictionary } from '@/lib/dictionaries';
+import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { VerificationBanner } from './verification-banner';
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
@@ -45,7 +46,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 
 export function DashboardClient({ dict, accountsDict, accounts, transactions, totalBalance }: DashboardClientProps) {
   const pathname = usePathname();
-  const lang = pathname.split('/')[1];
+  const lang = pathname.split('/')[1] as Locale;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -65,6 +66,7 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
 
   return (
     <div className="flex flex-col gap-6">
+      <VerificationBanner dict={dict.verificationBanner} lang={lang} />
       <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
       
       {/* Account Summary Cards */}
