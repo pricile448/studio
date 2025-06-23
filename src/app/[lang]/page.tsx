@@ -1,7 +1,7 @@
 
 import { redirect } from 'next/navigation'
-import type { Locale } from '@/lib/dictionaries'
 
-export default function RootPage({ params }: { params: { lang: Locale } }) {
-  redirect(`/${params.lang}/login`)
+// This root page now performs a relative redirect to the login page.
+export default function RootPage() {
+  redirect(`login`)
 }

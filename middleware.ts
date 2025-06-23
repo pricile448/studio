@@ -24,7 +24,8 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next) and static assets
-    '/((?!_next|images|api|favicon.ico|.*\\..*).*)',
+    // Skip all internal paths (_next) and static assets.
+    // This simplified matcher follows the official Next.js recommendation.
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
