@@ -28,7 +28,7 @@ export default async function MorePage({ params: { lang } }: { params: { lang: L
                     <Card className="hover:bg-accent/10 hover:border-primary transition-colors">
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-4">
                             <Icon className="h-10 w-10 text-primary" />
-                            <span className="text-lg font-semibold font-headline">{moreDict[key]}</span>
+                            <span className="text-lg font-semibold font-headline">{moreDict[key as keyof typeof moreDict]}</span>
                         </CardContent>
                     </Card>
                  </Link>

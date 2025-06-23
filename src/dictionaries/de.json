@@ -46,12 +46,20 @@
       "budgets": "Budgets",
       "settings": "Einstellungen",
       "more": "Mehr",
+      "help": "Hilfe & Support",
+      "documents": "Meine Dokumente",
+      "exchange": "Währungsumtausch",
+      "referrals": "Einen Freund empfehlen",
       "userMenu": {
         "profile": "Profil",
         "billing": "Abrechnung",
         "settings": "Einstellungen",
         "logout": "Abmelden"
       }
+    },
+    "sidebarGroups": {
+        "account": "Mein Konto",
+        "settingsAndMore": "Einstellungen & Mehr"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -162,7 +170,7 @@
     "more": {
       "title": "Weitere Optionen",
       "help": "Hilfe & Support",
-      "documents": "Dokumente",
+      "documents": "Meine Dokumente",
       "exchange": "Währungsumtausch",
       "referrals": "Einen Freund empfehlen"
     },

@@ -36,7 +36,7 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider key={lang}>
       <Sidebar>
-        <SidebarHeader>
+        <SidebarHeader className="bg-sidebar">
           <div className="flex items-center gap-2">
             <Logo text={dict.logo} />
             <h1 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
@@ -45,7 +45,7 @@ export default async function DashboardLayout({
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarNav lang={lang} dict={dict.sidebar} />
+          <SidebarNav lang={lang} dict={dict} />
         </SidebarContent>
         <SidebarFooter>
           <DropdownMenu>

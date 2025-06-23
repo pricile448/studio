@@ -46,12 +46,20 @@
       "budgets": "Presupuestos",
       "settings": "Configuración",
       "more": "Más",
+      "help": "Ayuda y Soporte",
+      "documents": "Mis Documentos",
+      "exchange": "Cambio de Divisas",
+      "referrals": "Recomendar a un Amigo",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Facturación",
         "settings": "Configuración",
         "logout": "Cerrar sesión"
       }
+    },
+    "sidebarGroups": {
+        "account": "Mi Cuenta",
+        "settingsAndMore": "Configuración y Más"
     },
     "dashboard": {
       "title": "Panel",
@@ -162,7 +170,7 @@
     "more": {
       "title": "Más Opciones",
       "help": "Ayuda y Soporte",
-      "documents": "Documentos",
+      "documents": "Mis Documentos",
       "exchange": "Cambio de Divisas",
       "referrals": "Recomendar a un Amigo"
     },

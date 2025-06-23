@@ -46,12 +46,20 @@
       "budgets": "Orçamentos",
       "settings": "Configurações",
       "more": "Mais",
+      "help": "Ajuda e Suporte",
+      "documents": "Meus Documentos",
+      "exchange": "Câmbio de Moedas",
+      "referrals": "Indique um Amigo",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Faturamento",
         "settings": "Configurações",
         "logout": "Sair"
       }
+    },
+    "sidebarGroups": {
+        "account": "Minha Conta",
+        "settingsAndMore": "Configurações e Mais"
     },
     "dashboard": {
       "title": "Painel",
@@ -162,7 +170,7 @@
     "more": {
       "title": "Mais Opções",
       "help": "Ajuda e Suporte",
-      "documents": "Documentos",
+      "documents": "Meus Documentos",
       "exchange": "Câmbio de Moedas",
       "referrals": "Indique um Amigo"
     },

@@ -46,12 +46,20 @@
       "budgets": "Budgets",
       "settings": "Paramètres",
       "more": "Plus",
+      "help": "Aide & Support",
+      "documents": "Mes Documents",
+      "exchange": "Change de devises",
+      "referrals": "Parrainer un ami",
       "userMenu": {
         "profile": "Profil",
         "billing": "Facturation",
         "settings": "Paramètres",
         "logout": "Déconnexion"
       }
+    },
+     "sidebarGroups": {
+        "account": "Mon Compte",
+        "settingsAndMore": "Paramètres & Plus"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -162,7 +170,7 @@
     "more": {
       "title": "Plus d'options",
       "help": "Aide & Support",
-      "documents": "Documents",
+      "documents": "Mes Documents",
       "exchange": "Change de devises",
       "referrals": "Parrainer un ami"
     },

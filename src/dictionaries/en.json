@@ -46,12 +46,20 @@
       "budgets": "Budgets",
       "settings": "Settings",
       "more": "More",
+      "help": "Help & Support",
+      "documents": "My Documents",
+      "exchange": "Currency Exchange",
+      "referrals": "Refer a Friend",
       "userMenu": {
         "profile": "Profile",
         "billing": "Billing",
         "settings": "Settings",
         "logout": "Log out"
       }
+    },
+    "sidebarGroups": {
+        "account": "My Account",
+        "settingsAndMore": "Settings & More"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -162,7 +170,7 @@
     "more": {
       "title": "More Options",
       "help": "Help & Support",
-      "documents": "Documents",
+      "documents": "My Documents",
       "exchange": "Currency Exchange",
       "referrals": "Refer a Friend"
     },
