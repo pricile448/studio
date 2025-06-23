@@ -1,18 +1,16 @@
-
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { type Locale } from '@/lib/dictionaries';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, File, Camera, ArrowLeft, ShieldCheck, ListChecks, Selfie, FileCheck2 } from 'lucide-react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { useRouter, usePathname } from 'next/navigation';
+import { UploadCloud, ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 interface KycClientProps {
@@ -25,50 +23,17 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const [docType, setDocType] = useState('');
   const [frontDocName, setFrontDocName] = useState('');
   const [backDocName, setBackDocName] = useState('');
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [selfieName, setSelfieName] = useState('');
   
-  const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const { toast } = useToast();
 
   const totalSteps = 4;
-  const progress = (step / totalSteps) * 100;
-  
-  useEffect(() => {
-    if (step === 3) {
-      const getCameraPermission = async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          setHasCameraPermission(true);
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (error) {
-          console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: dict.step3_camera_error_title,
-            description: dict.step3_camera_error_desc,
-          });
-        }
-      };
-      getCameraPermission();
-    } else {
-       if (videoRef.current?.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
-    }
-  }, [step, toast, dict.step3_camera_error_title, dict.step3_camera_error_desc]);
-
 
   const handleNext = () => {
-    if (step === 2 && !docType) return;
-    if (step === 2 && !frontDocName) return;
-    if (step === 2 && docType === 'id' && !backDocName) return;
-    setStep(prev => prev + 1);
+    if (step < totalSteps -1) {
+       setStep(prev => prev + 1);
+    }
   };
   
   const handleBack = () => setStep(prev => prev - 1);
@@ -79,11 +44,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
     setBackDocName('');
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back' | 'selfie') => {
     const file = e.target.files?.[0];
     if (file) {
       if (side === 'front') setFrontDocName(file.name);
-      else setBackDocName(file.name);
+      else if (side === 'back') setBackDocName(file.name);
+      else setSelfieName(file.name);
     }
   };
 
@@ -108,7 +74,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                 <span>{dict.step1_item1}</span>
               </li>
               <li className="flex items-start gap-4">
-                <div className="flex-shrink-0 mt-1"><Selfie className="h-5 w-5 text-primary" /></div>
+                <div className="flex-shrink-0 mt-1"><User className="h-5 w-5 text-primary" /></div>
                 <span>{dict.step1_item2}</span>
               </li>
             </ul>
@@ -140,7 +106,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                   <span className="block text-xs text-muted-foreground">
                     {frontDocName ? dict.step2_file_selected.replace('{fileName}', frontDocName) : dict.step2_file_select}
                   </span>
-                  <Input id="front-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'front')} />
+                  <Input id="front-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'front')} accept="image/*,.pdf"/>
                 </Label>
 
                 {docType === 'id' && (
@@ -150,7 +116,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                     <span className="block text-xs text-muted-foreground">
                         {backDocName ? dict.step2_file_selected.replace('{fileName}', backDocName) : dict.step2_file_select}
                     </span>
-                    <Input id="back-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'back')} />
+                    <Input id="back-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'back')} accept="image/*,.pdf"/>
                   </Label>
                 )}
               </div>
@@ -158,26 +124,18 @@ export function KycClient({ dict, lang }: KycClientProps) {
           </div>
         );
       case 3:
-        return (
-          <div className="space-y-4 text-center">
+         return (
+          <div className="space-y-6 w-full">
             <h2 className="text-xl font-bold font-headline">{dict.step3_title}</h2>
             <p className="text-muted-foreground">{dict.step3_desc}</p>
-            <div className="relative w-full aspect-video bg-muted rounded-md overflow-hidden flex items-center justify-center">
-              <video ref={videoRef} className={cn("w-full h-full object-cover", hasCameraPermission === false && 'hidden')} autoPlay muted playsInline />
-              {hasCameraPermission === false && (
-                <Alert variant="destructive" className="w-auto">
-                  <Camera className="h-4 w-4" />
-                  <AlertTitle>{dict.step3_camera_error_title}</AlertTitle>
-                </Alert>
-              )}
-               {hasCameraPermission === null && (
-                <Camera className="h-12 w-12 text-muted-foreground" />
-              )}
-            </div>
-            <Button onClick={handleNext} disabled={!hasCameraPermission} className="w-full">
-              <Camera className="mr-2" />
-              {dict.step3_take_photo}
-            </Button>
+            <Label htmlFor="selfie-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
+              <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
+              <span className="mt-2 block text-sm font-semibold">{dict.step3_upload_selfie}</span>
+              <span className="block text-xs text-muted-foreground">
+                {selfieName ? dict.step2_file_selected.replace('{fileName}', selfieName) : dict.step2_file_select}
+              </span>
+              <Input id="selfie-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'selfie')} accept="image/*" />
+            </Label>
           </div>
         );
       case 4:
@@ -205,7 +163,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
             </>
           )}
         </CardHeader>
-        <CardContent className="min-h-[400px] flex items-center justify-center">
+        <CardContent className="min-h-[400px] w-full flex items-center justify-center">
           {renderStep()}
         </CardContent>
         {step > 1 && step < totalSteps && (
@@ -214,9 +172,18 @@ export function KycClient({ dict, lang }: KycClientProps) {
               <ArrowLeft className="mr-2" />
               {dict.button_back}
             </Button>
-            <Button onClick={handleNext} disabled={step === 2 && (!docType || !frontDocName || (docType === 'id' && !backDocName))}>
-              {dict.button_next}
-            </Button>
+
+            {step === 2 && (
+              <Button onClick={handleNext} disabled={!docType || !frontDocName || (docType === 'id' && !backDocName)}>
+                {dict.button_next}
+              </Button>
+            )}
+
+            {step === 3 && (
+              <Button onClick={handleSubmission} disabled={!selfieName}>
+                {dict.button_submit}
+              </Button>
+            )}
           </CardFooter>
         )}
       </Card>
