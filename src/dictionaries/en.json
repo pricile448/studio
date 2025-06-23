@@ -29,7 +29,8 @@
       "forgotPassword": "Forgot password?",
       "loginButton": "Login",
       "registerPrompt": "Don't have an account?",
-      "registerLink": "Sign up"
+      "registerLink": "Sign up",
+      "backToHome": "Back to Home"
     },
     "register": {
       "title": "Create an Account",

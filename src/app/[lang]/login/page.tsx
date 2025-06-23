@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 import { getDictionary } from '@/lib/get-dictionary';
+import { Separator } from '@/components/ui/separator';
 
 export default async function LoginPage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
@@ -50,6 +51,14 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
             <Link href={`/${lang}/register`} className="underline">
               {dict.login.registerLink}
             </Link>
+          </div>
+          <Separator className="my-4" />
+          <div className="text-center">
+            <Button variant="link" asChild className="px-0">
+              <Link href={`/${lang}`}>
+                {dict.login.backToHome}
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

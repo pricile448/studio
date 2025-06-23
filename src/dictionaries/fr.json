@@ -29,7 +29,8 @@
       "forgotPassword": "Mot de passe oublié ?",
       "loginButton": "Connexion",
       "registerPrompt": "Vous n'avez pas de compte ?",
-      "registerLink": "S'inscrire"
+      "registerLink": "S'inscrire",
+      "backToHome": "Retour à l'accueil"
     },
     "register": {
       "title": "Créer un Compte",
