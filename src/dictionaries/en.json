@@ -31,7 +31,8 @@
       "registerPrompt": "Don't have an account?",
       "registerLink": "Sign up",
       "backToHome": "Back to Home",
-      "loginErrorTitle": "Login Failed"
+      "loginErrorTitle": "Login Failed",
+      "verifyEmailError": "Please verify your email before logging in."
     },
     "register": {
       "title": "Open an account with AmCbunq",
@@ -55,6 +56,16 @@
       "salaryLabel": "Monthly Income (approx.)",
       "dobPlaceholder": "Select a date",
       "registerErrorTitle": "Registration Failed"
+    },
+    "verifyEmail": {
+        "title": "Verify Your Email Address",
+        "description": "We've sent a verification link to {email}. Please click the link to activate your account.",
+        "resendButton": "Resend Email",
+        "backToLogin": "Back to Login",
+        "emailSent": "Email Sent!",
+        "emailSentDescription": "A new verification email has been sent to your address.",
+        "verificationSuccess": "Success!",
+        "verificationSuccessDescription": "Your email has been verified. Redirecting..."
     },
     "sidebar": {
       "dashboard": "Dashboard",

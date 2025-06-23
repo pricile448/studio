@@ -50,10 +50,18 @@ export default function LoginPage({ params: { lang } }: { params: { lang: Locale
     try {
       await login(values.email, values.password);
     } catch (error: any) {
+      const loginDict = dict?.login;
+      let description = 'An unexpected error occurred.';
+      if (error.message === 'auth/email-not-verified') {
+        description = loginDict?.verifyEmailError || 'Please verify your email before logging in.';
+      } else if (error.message) {
+        description = error.message;
+      }
+       
       toast({
         variant: 'destructive',
-        title: dict?.login.loginErrorTitle || 'Login Failed',
-        description: error.message || 'An unexpected error occurred.',
+        title: loginDict?.loginErrorTitle || 'Login Failed',
+        description,
       });
     } finally {
       setIsSubmitting(false);

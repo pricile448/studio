@@ -31,7 +31,8 @@
       "registerPrompt": "¿No tiene una cuenta?",
       "registerLink": "Regístrese",
       "backToHome": "Volver al inicio",
-      "loginErrorTitle": "Error de inicio de sesión"
+      "loginErrorTitle": "Error de inicio de sesión",
+      "verifyEmailError": "Por favor, verifique su correo electrónico antes de iniciar sesión."
     },
     "register": {
       "title": "Abrir una cuenta en AmCbunq",
@@ -55,6 +56,16 @@
       "salaryLabel": "Ingresos mensuales (aprox.)",
       "dobPlaceholder": "Seleccione una fecha",
       "registerErrorTitle": "Error de registro"
+    },
+     "verifyEmail": {
+        "title": "Verifique su dirección de correo electrónico",
+        "description": "Hemos enviado un enlace de verificación a {email}. Por favor, haga clic en el enlace para activar su cuenta.",
+        "resendButton": "Reenviar correo electrónico",
+        "backToLogin": "Volver a iniciar sesión",
+        "emailSent": "¡Correo electrónico enviado!",
+        "emailSentDescription": "Se ha enviado un nuevo correo electrónico de verificación a su dirección.",
+        "verificationSuccess": "¡Éxito!",
+        "verificationSuccessDescription": "Su correo electrónico ha sido verificado. Redirigiendo..."
     },
     "sidebar": {
       "dashboard": "Panel",

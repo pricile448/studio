@@ -50,12 +50,16 @@ export default function DashboardLayout({
   }, [lang]);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+
+    if (!user) {
       router.push(`/${lang}/login`);
+    } else if (!user.emailVerified) {
+      router.push(`/${lang}/verify-email`);
     }
   }, [user, loading, router, lang]);
 
-  if (loading || !user || !dict) {
+  if (loading || !user || !user.emailVerified || !dict) {
     return (
         <div className="flex h-screen w-full bg-background">
             <div className="hidden md:block">

@@ -31,7 +31,8 @@
       "registerPrompt": "Haben Sie noch kein Konto?",
       "registerLink": "Registrieren",
       "backToHome": "Zurück zur Startseite",
-      "loginErrorTitle": "Anmeldung fehlgeschlagen"
+      "loginErrorTitle": "Anmeldung fehlgeschlagen",
+      "verifyEmailError": "Bitte bestätigen Sie Ihre E-Mail-Adresse, bevor Sie sich anmelden."
     },
     "register": {
       "title": "Kontoeröffnung bei AmCbunq",
@@ -55,6 +56,16 @@
       "salaryLabel": "Monatliches Einkommen (ca.)",
       "dobPlaceholder": "Datum auswählen",
       "registerErrorTitle": "Registrierung fehlgeschlagen"
+    },
+    "verifyEmail": {
+        "title": "Bestätigen Sie Ihre E-Mail-Adresse",
+        "description": "Wir haben einen Bestätigungslink an {email} gesendet. Bitte klicken Sie auf diesen Link, um Ihr Konto zu aktivieren.",
+        "resendButton": "E-Mail erneut senden",
+        "backToLogin": "Zurück zum Login",
+        "emailSent": "E-Mail gesendet!",
+        "emailSentDescription": "Eine neue Bestätigungs-E-Mail wurde an Ihre Adresse gesendet.",
+        "verificationSuccess": "Erfolg!",
+        "verificationSuccessDescription": "Ihre E-Mail wurde bestätigt. Sie werden weitergeleitet..."
     },
     "sidebar": {
       "dashboard": "Dashboard",

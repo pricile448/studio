@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -52,6 +53,7 @@ export default function RegisterPage({ params: { lang } }: { params: { lang: Loc
   const { signup } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     getDictionary(lang).then(setDict);
@@ -79,6 +81,7 @@ export default function RegisterPage({ params: { lang } }: { params: { lang: Loc
     try {
       const { password, confirmPassword, terms, ...userData } = data;
       await signup(userData, password);
+      router.push(`/${lang}/verify-email`);
     } catch (error: any) {
         toast({
             variant: 'destructive',
