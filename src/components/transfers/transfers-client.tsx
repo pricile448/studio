@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Dictionary, Locale } from '@/lib/dictionaries';
@@ -73,7 +72,7 @@ export function TransfersClient({ dict, accounts, recentTransfers, lang }: Trans
         </div>
         <div className="lg:col-span-1">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-start justify-between">
               <CardTitle className="font-headline">{dict.recentTransfers}</CardTitle>
                <Button variant="outline">
                     <UserPlus className="mr-2 h-4 w-4" />
