@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -89,6 +88,7 @@ export default function RegisterPage() {
             title: dict?.register.registerErrorTitle || 'Registration Failed',
             description: error.message || 'An unexpected error occurred.',
         });
+    } finally {
         setIsSubmitting(false);
     }
   };
