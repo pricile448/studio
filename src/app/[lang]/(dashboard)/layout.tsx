@@ -32,7 +32,7 @@ export default async function DashboardLayout({
   const dict = await getDictionary(lang);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider key={lang}>
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2">
