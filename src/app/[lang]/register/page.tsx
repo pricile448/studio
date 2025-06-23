@@ -85,7 +85,6 @@ export default function RegisterPage({ params: { lang } }: { params: { lang: Loc
             title: dict?.register.registerErrorTitle || 'Registration Failed',
             description: error.message || 'An unexpected error occurred.',
         });
-    } finally {
         setIsSubmitting(false);
     }
   };
