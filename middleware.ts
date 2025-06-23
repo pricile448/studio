@@ -8,7 +8,7 @@ const defaultLocale = 'en'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Check if the pathname already has a locale prefix
+  // Check if there is any supported locale in the pathname
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
@@ -17,15 +17,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect to the default locale
-  request.nextUrl.pathname = `/${defaultLocale}${pathname}`
-  return NextResponse.redirect(request.nextUrl)
+  // Redirect if there is no locale
+  const newUrl = new URL(`/${defaultLocale}${pathname}`, request.url)
+  return NextResponse.redirect(newUrl)
 }
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next) and static assets.
-    // This simplified matcher follows the official Next.js recommendation.
+    // Skip all internal paths (_next) and static assets
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
