@@ -85,6 +85,13 @@
         "overspendingAlert": "Overspending Alert!",
         "savingsAlert": "Savings Opportunity!",
         "noInsights": "Could not generate insights at this time."
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "makeTransfer": "Make a Transfer",
+        "payBill": "Pay a Bill",
+        "manageBudget": "Manage Budget",
+        "viewHistory": "View History"
       }
     },
     "accounts": {
@@ -197,6 +204,9 @@
         "languagePt": "Portuguese",
         "saveButton": "Save Changes"
       }
+    },
+    "help": {
+      "title": "Help & Support"
     },
     "placeholders": {
       "title": "Coming Soon",

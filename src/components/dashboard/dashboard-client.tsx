@@ -6,16 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { AiAssistant } from './ai-assistant';
-import type { FinancialInsightsInput } from '@/ai/flows/financial-insights';
-import { CreditCard, DollarSign, PiggyBank } from 'lucide-react';
+import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, ReceiptText, PieChart, History } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
   accounts: { id: string; name: string; balance: number; currency: string }[];
   transactions: { id: string; date: string; description: string; category: string; amount: number; currency: string }[];
-  aiFinancialData: FinancialInsightsInput;
 };
 
 const chartData = [
@@ -40,7 +40,10 @@ const accountIcons: { [key: string]: React.ElementType } = {
   credit: CreditCard,
 };
 
-export function DashboardClient({ dict, accounts, transactions, aiFinancialData }: DashboardClientProps) {
+export function DashboardClient({ dict, accounts, transactions }: DashboardClientProps) {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1];
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
   };
@@ -54,9 +57,18 @@ export function DashboardClient({ dict, accounts, transactions, aiFinancialData 
     }
   }
 
+  const quickActions = [
+    { href: `/${lang}/transfers`, label: dict.quickActions.makeTransfer, icon: ArrowRightLeft },
+    { href: `/${lang}/transfers`, label: dict.quickActions.payBill, icon: ReceiptText },
+    { href: `/${lang}/budgets`, label: dict.quickActions.manageBudget, icon: PieChart },
+    { href: `/${lang}/history`, label: dict.quickActions.viewHistory, icon: History },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
+      
+      {/* Account Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {accounts.map((account) => {
           const Icon = accountIcons[account.name] || DollarSign;
@@ -73,6 +85,27 @@ export function DashboardClient({ dict, accounts, transactions, aiFinancialData 
           );
         })}
       </div>
+
+      {/* Quick Actions Card */}
+       <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">{dict.quickActions.title}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {quickActions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <Button key={index} variant="outline" className="h-20 flex-col gap-2" asChild>
+                <Link href={action.href}>
+                  <Icon className="h-6 w-6 text-primary" />
+                  <span className="text-center">{action.label}</span>
+                </Link>
+              </Button>
+            );
+          })}
+        </CardContent>
+      </Card>
+      
       <div className="grid gap-6 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
@@ -144,7 +177,6 @@ export function DashboardClient({ dict, accounts, transactions, aiFinancialData 
           </CardContent>
         </Card>
       </div>
-      <AiAssistant dict={dict.aiAssistant} financialData={aiFinancialData} />
     </div>
   );
 }

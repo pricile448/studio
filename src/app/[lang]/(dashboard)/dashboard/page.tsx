@@ -17,20 +17,6 @@ const mockTransactions = [
   { id: 't5', date: '2024-07-24', description: 'Restaurant Dinner', category: 'Food', amount: -85.50, currency: 'USD' },
 ];
 
-const mockFinancialDataForAI = {
-  transactionHistory: [
-    { date: '2024-07-27', description: 'Groceries', amount: -124.32, category: 'Food' },
-    { date: '2024-07-26', description: 'Salary', amount: 2500, category: 'Income' },
-    { date: '2024-07-25', description: 'Gasoline', amount: -55.60, category: 'Transportation' },
-    { date: '2024-07-24', description: 'Restaurant', amount: -85.50, category: 'Food' },
-    { date: '2024-07-20', description: 'Movie tickets', amount: -30.00, category: 'Entertainment' },
-    { date: '2024-07-15', description: 'Online shopping', amount: -200.00, category: 'Shopping' },
-    { date: '2024-07-01', description: 'Rent', amount: -1500, category: 'Housing' },
-  ],
-  income: 5000,
-  expenses: 3200,
-};
-
 export default async function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
 
@@ -39,7 +25,6 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
       dict={dict.dashboard}
       accounts={mockAccounts}
       transactions={mockTransactions}
-      aiFinancialData={mockFinancialDataForAI}
     />
   );
 }

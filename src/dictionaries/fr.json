@@ -85,6 +85,13 @@
         "overspendingAlert": "Alerte de Dépassement !",
         "savingsAlert": "Opportunité d'Épargne !",
         "noInsights": "Impossible de générer des informations pour le moment."
+      },
+      "quickActions": {
+        "title": "Actions Rapides",
+        "makeTransfer": "Faire un virement",
+        "payBill": "Payer une facture",
+        "manageBudget": "Gérer le budget",
+        "viewHistory": "Voir l'historique"
       }
     },
     "accounts": {
@@ -197,6 +204,9 @@
         "languagePt": "Portugais",
         "saveButton": "Enregistrer"
       }
+    },
+    "help": {
+      "title": "Aide & Support"
     },
     "placeholders": {
       "title": "Bientôt Disponible",

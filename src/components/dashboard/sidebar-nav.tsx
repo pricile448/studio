@@ -44,7 +44,7 @@ const accountNavItems = [
 
 const otherNavItems = [
     { href: '/settings', icon: Settings, labelKey: 'settings' },
-    { href: '/more', icon: HelpCircle, labelKey: 'help' },
+    { href: '/help', icon: HelpCircle, labelKey: 'help' },
     { href: '/more', icon: FileText, labelKey: 'documents' },
     { href: '/more', icon: Globe, labelKey: 'exchange' },
     { href: '/more', icon: Gift, labelKey: 'referrals' },

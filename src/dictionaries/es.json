@@ -85,6 +85,13 @@
         "overspendingAlert": "¡Alerta de Gasto Excesivo!",
         "savingsAlert": "¡Oportunidad de Ahorro!",
         "noInsights": "No se pudieron generar perspectivas en este momento."
+      },
+      "quickActions": {
+        "title": "Acciones Rápidas",
+        "makeTransfer": "Hacer una Transferencia",
+        "payBill": "Pagar una Factura",
+        "manageBudget": "Gestionar Presupuesto",
+        "viewHistory": "Ver Historial"
       }
     },
     "accounts": {
@@ -197,6 +204,9 @@
         "languagePt": "Portugués",
         "saveButton": "Guardar Cambios"
       }
+    },
+    "help": {
+      "title": "Ayuda y Soporte"
     },
     "placeholders": {
       "title": "Próximamente",
