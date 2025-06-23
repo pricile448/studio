@@ -118,7 +118,9 @@
       "accountingTitle": "Kontobuch",
       "creditLedger": "Haben",
       "debitLedger": "Soll",
-      "balanceLedger": "Saldo"
+      "balanceLedger": "Saldo",
+      "accountNumber": "Kontonummer",
+      "accountDetailsDescription": "Letzte Transaktionen für dieses Konto."
     },
     "transfers": {
       "title": "Eine Überweisung tätigen",
@@ -213,7 +215,8 @@
       "copy": "Kopieren",
       "copied": "Kopiert!",
       "copiedDescription": "wurde in Ihre Zwischenablage kopiert.",
-      "downloadIban": "IBAN herunterladen"
+      "downloadIban": "IBAN herunterladen",
+      "clientAddress": "Kundenadresse"
     },
     "more": {
       "title": "Weitere Optionen",

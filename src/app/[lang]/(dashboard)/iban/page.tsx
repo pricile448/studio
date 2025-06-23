@@ -10,7 +10,17 @@ export default async function IbanPage({ params: { lang } }: { params: { lang: L
     holder: 'User Name',
     iban: 'FR76 3000 4000 0412 3456 7890 185',
     bic: 'BNPAFRPPXXX',
+    bankName: dict.cards.cardBankName,
+    bankAddress: '123 Banking Avenue, 75008 Paris, France',
+    clientAddress: '123 Main St, 75001 Paris, France',
   }
 
-  return <IbanClient dict={dict.iban} details={ibanDetails} />;
+  return (
+     <div className="flex flex-col space-y-6">
+       <h1 className="text-3xl font-bold font-headline">{dict.iban.title}</h1>
+       <div className="flex flex-1 items-center justify-center">
+            <IbanClient dict={dict.iban} details={ibanDetails} />
+       </div>
+    </div>
+  );
 }

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const mockAccounts = [
   { id: '1', name: 'checking', balance: 4850.75, currency: 'USD' },
@@ -134,14 +135,14 @@ export default function AccountsPage({ params: { lang } }: { params: { lang: Loc
       </div>
       <Separator />
 
-      <Card>
+      <Card className="bg-primary text-primary-foreground">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-base font-medium font-headline">{accountsDict.totalBalance}</CardTitle>
-          <Scale className="h-5 w-5 text-muted-foreground" />
+          <Scale className="h-5 w-5 text-primary-foreground/80" />
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">{formatCurrency(totalBalance)}</div>
-          <p className="text-xs text-muted-foreground">{accountsDict.totalBalanceDescription}</p>
+          <p className="text-xs text-primary-foreground/80">{accountsDict.totalBalanceDescription}</p>
         </CardContent>
       </Card>
 
@@ -156,8 +157,10 @@ export default function AccountsPage({ params: { lang } }: { params: { lang: Loc
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-3xl font-bold">{formatCurrency(account.balance)}</div>
-                <Button variant="outline" className="w-full">
-                  {accountsDict.details}
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href={`/${lang}/accounts/${account.id}`}>
+                    {accountsDict.details}
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

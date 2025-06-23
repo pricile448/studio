@@ -118,7 +118,9 @@
       "accountingTitle": "Account Ledger",
       "creditLedger": "Credit",
       "debitLedger": "Debit",
-      "balanceLedger": "Balance"
+      "balanceLedger": "Balance",
+      "accountNumber": "Account Number",
+      "accountDetailsDescription": "Recent transactions for this account."
     },
     "transfers": {
       "title": "Make a Transfer",
@@ -213,7 +215,8 @@
       "copy": "Copy",
       "copied": "Copied!",
       "copiedDescription": "has been copied to your clipboard.",
-      "downloadIban": "Download IBAN"
+      "downloadIban": "Download IBAN",
+      "clientAddress": "Client Address"
     },
     "more": {
       "title": "More Options",

@@ -118,7 +118,9 @@
       "accountingTitle": "Grand Livre des Comptes",
       "creditLedger": "Crédit",
       "debitLedger": "Débit",
-      "balanceLedger": "Solde"
+      "balanceLedger": "Solde",
+      "accountNumber": "Numéro de Compte",
+      "accountDetailsDescription": "Transactions récentes pour ce compte."
     },
     "transfers": {
       "title": "Effectuer un Virement",
@@ -213,7 +215,8 @@
       "copy": "Copier",
       "copied": "Copié !",
       "copiedDescription": "a été copié dans votre presse-papiers.",
-      "downloadIban": "Télécharger l'IBAN"
+      "downloadIban": "Télécharger l'IBAN",
+      "clientAddress": "Adresse du Client"
     },
     "more": {
       "title": "Plus d'options",

@@ -118,7 +118,9 @@
       "accountingTitle": "Livro Razão da Conta",
       "creditLedger": "Crédito",
       "debitLedger": "Débito",
-      "balanceLedger": "Saldo"
+      "balanceLedger": "Saldo",
+      "accountNumber": "Número da Conta",
+      "accountDetailsDescription": "Transações recentes para esta conta."
     },
     "transfers": {
       "title": "Fazer uma Transferência",
@@ -213,7 +215,8 @@
       "copy": "Copiar",
       "copied": "Copiado!",
       "copiedDescription": "foi copiado para a sua área de transferência.",
-      "downloadIban": "Baixar IBAN"
+      "downloadIban": "Baixar IBAN",
+      "clientAddress": "Endereço do Cliente"
     },
     "more": {
       "title": "Mais Opções",

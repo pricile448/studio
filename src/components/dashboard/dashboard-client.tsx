@@ -69,10 +69,10 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
       
       {/* Account Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-         <Card className="sm:col-span-2">
+         <Card className="sm:col-span-2 bg-primary text-primary-foreground">
              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{dict.totalBalance}</CardTitle>
-                <Scale className="h-4 w-4 text-muted-foreground" />
+                <Scale className="h-4 w-4 text-primary-foreground/80" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatCurrency(totalBalance)}</div>

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import jsPDF from 'jspdf';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -16,6 +17,9 @@ type IbanClientProps = {
     holder: string;
     iban: string;
     bic: string;
+    bankName: string;
+    bankAddress: string;
+    clientAddress: string;
   };
 };
 
@@ -34,27 +38,51 @@ export function IbanClient({ dict, details }: IbanClientProps) {
   };
 
   const handleDownload = () => {
-    const fileContent = `
-Account Holder: ${details.holder}
-IBAN: ${details.iban}
-BIC/SWIFT: ${details.bic}
-    `.trim();
+    const doc = new jsPDF();
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text(details.bankName, 20, 20);
 
-    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'iban_details.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(details.bankAddress, 20, 30);
+    
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(dict.title, 20, 50);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    let y = 65;
+    doc.text(`${dict.accountHolder}:`, 20, y);
+    doc.text(details.holder, 70, y);
+    y += 10;
+    
+    doc.text(`${dict.iban}:`, 20, y);
+    doc.text(details.iban, 70, y);
+    y += 10;
+    
+    doc.text(`${dict.bic}:`, 20, y);
+    doc.text(details.bic, 70, y);
+    y += 15;
+    
+    doc.line(20, y-5, 190, y-5);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(dict.clientAddress, 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(details.clientAddress, 20, y + 7);
+    
+    doc.save('AmCbunq_IBAN_Details.pdf');
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
-      <Card className="max-w-2xl">
+      <Card className="max-w-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">{dict.accountDetails}</CardTitle>
           <CardDescription>{dict.description}</CardDescription>
@@ -102,6 +130,5 @@ BIC/SWIFT: ${details.bic}
             </Button>
         </CardFooter>
       </Card>
-    </div>
   );
 }
