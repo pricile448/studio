@@ -116,7 +116,18 @@
       "submit": "Send Transfer",
       "recentTransfers": "Recent Transfers",
       "addBeneficiary": "Add Beneficiary",
-      "noRecentTransfers": "No recent transfers found."
+      "noRecentTransfers": "No recent transfers found.",
+      "addBeneficiaryTitle": "Add a new beneficiary",
+      "addBeneficiaryDescription": "Enter the details of the new beneficiary. This will save them for future transfers.",
+      "beneficiaryNameLabel": "Beneficiary Name",
+      "beneficiaryNamePlaceholder": "John Doe",
+      "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryNicknameLabel": "Nickname (optional)",
+      "beneficiaryNicknamePlaceholder": "e.g., Landlord",
+      "saveBeneficiaryButton": "Save Beneficiary",
+      "beneficiaryAdded": "Beneficiary Added!",
+      "beneficiaryAddedDescription": "has been successfully added to your beneficiaries list.",
+      "cancelButton": "Cancel"
     },
     "cards": {
       "title": "My Cards",

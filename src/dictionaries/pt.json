@@ -116,7 +116,18 @@
       "submit": "Enviar Transferência",
       "recentTransfers": "Transferências Recentes",
       "addBeneficiary": "Adicionar Beneficiário",
-      "noRecentTransfers": "Nenhuma transferência recente encontrada."
+      "noRecentTransfers": "Nenhuma transferência recente encontrada.",
+      "addBeneficiaryTitle": "Adicionar um novo beneficiário",
+      "addBeneficiaryDescription": "Introduza os detalhes do novo beneficiário. Estes serão guardados para transferências futuras.",
+      "beneficiaryNameLabel": "Nome do Beneficiário",
+      "beneficiaryNamePlaceholder": "João Ninguém",
+      "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryNicknameLabel": "Apelido (opcional)",
+      "beneficiaryNicknamePlaceholder": "ex: Senhorio",
+      "saveBeneficiaryButton": "Guardar Beneficiário",
+      "beneficiaryAdded": "Beneficiário Adicionado!",
+      "beneficiaryAddedDescription": "foi adicionado com sucesso à sua lista de beneficiários.",
+      "cancelButton": "Cancelar"
     },
     "cards": {
       "title": "Meus Cartões",

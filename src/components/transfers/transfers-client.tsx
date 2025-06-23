@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Dictionary, Locale } from '@/lib/dictionaries';
@@ -8,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRightLeft, UserPlus } from 'lucide-react';
+import { ArrowRightLeft } from 'lucide-react';
+import { AddBeneficiaryDialog } from './add-beneficiary-dialog';
 
 
 type TransfersClientProps = {
@@ -27,10 +29,7 @@ export function TransfersClient({ dict, accounts, recentTransfers, lang }: Trans
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
-        <Button>
-          <UserPlus className="mr-2" />
-          {dict.addBeneficiary}
-        </Button>
+        <AddBeneficiaryDialog dict={dict} />
       </div>
       <Separator />
       <div className="grid gap-8 lg:grid-cols-3">

@@ -116,7 +116,18 @@
       "submit": "Envoyer le virement",
       "recentTransfers": "Virements Récents",
       "addBeneficiary": "Ajouter un bénéficiaire",
-      "noRecentTransfers": "Aucun virement récent récent."
+      "noRecentTransfers": "Aucun virement récent récent.",
+      "addBeneficiaryTitle": "Ajouter un nouveau bénéficiaire",
+      "addBeneficiaryDescription": "Saisissez les informations du nouveau bénéficiaire. Il sera enregistré pour vos futurs virements.",
+      "beneficiaryNameLabel": "Nom du bénéficiaire",
+      "beneficiaryNamePlaceholder": "Jean Dupont",
+      "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryNicknameLabel": "Surnom (optionnel)",
+      "beneficiaryNicknamePlaceholder": "ex: Propriétaire",
+      "saveBeneficiaryButton": "Enregistrer le bénéficiaire",
+      "beneficiaryAdded": "Bénéficiaire ajouté !",
+      "beneficiaryAddedDescription": "a été ajouté avec succès à votre liste de bénéficiaires.",
+      "cancelButton": "Annuler"
     },
     "cards": {
       "title": "Mes Cartes",

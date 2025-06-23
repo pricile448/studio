@@ -116,7 +116,18 @@
       "submit": "Enviar Transferencia",
       "recentTransfers": "Transferencias Recientes",
       "addBeneficiary": "Añadir Beneficiario",
-      "noRecentTransfers": "No se encontraron transferencias recientes."
+      "noRecentTransfers": "No se encontraron transferencias recientes.",
+      "addBeneficiaryTitle": "Añadir un nuevo beneficiario",
+      "addBeneficiaryDescription": "Introduzca los datos del nuevo beneficiario. Se guardarán para futuras transferencias.",
+      "beneficiaryNameLabel": "Nombre del beneficiario",
+      "beneficiaryNamePlaceholder": "Juan Pérez",
+      "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryNicknameLabel": "Apodo (opcional)",
+      "beneficiaryNicknamePlaceholder": "ej: Propietario",
+      "saveBeneficiaryButton": "Guardar beneficiario",
+      "beneficiaryAdded": "¡Beneficiario añadido!",
+      "beneficiaryAddedDescription": "ha sido añadido correctamente a su lista de beneficiarios.",
+      "cancelButton": "Cancelar"
     },
     "cards": {
       "title": "Mis Tarjetas",

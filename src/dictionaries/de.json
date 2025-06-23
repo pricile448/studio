@@ -116,7 +116,18 @@
       "submit": "Überweisung senden",
       "recentTransfers": "Letzte Überweisungen",
       "addBeneficiary": "Empfänger hinzufügen",
-      "noRecentTransfers": "Keine letzten Überweisungen gefunden."
+      "noRecentTransfers": "Keine letzten Überweisungen gefunden.",
+      "addBeneficiaryTitle": "Neuen Empfänger hinzufügen",
+      "addBeneficiaryDescription": "Geben Sie die Daten des neuen Empfängers ein. Diese werden für zukünftige Überweisungen gespeichert.",
+      "beneficiaryNameLabel": "Name des Empfängers",
+      "beneficiaryNamePlaceholder": "Max Mustermann",
+      "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryNicknameLabel": "Spitzname (optional)",
+      "beneficiaryNicknamePlaceholder": "z.B. Vermieter",
+      "saveBeneficiaryButton": "Empfänger speichern",
+      "beneficiaryAdded": "Empfänger hinzugefügt!",
+      "beneficiaryAddedDescription": "wurde erfolgreich zu Ihrer Empfängerliste hinzugefügt.",
+      "cancelButton": "Abbrechen"
     },
     "cards": {
       "title": "Meine Karten",
