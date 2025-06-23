@@ -15,10 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Logo } from '@/components/logo';
 import { Separator } from '@/components/ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -159,25 +156,32 @@ export default function RegisterPage({ params: { lang } }: { params: { lang: Loc
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField control={form.control} name="dob" render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                        <FormLabel>{registerDict.dobLabel}</FormLabel>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {field.value ? format(field.value, 'PPP') : <span>{registerDict.dobPlaceholder}</span>}
-                                    </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus/>
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
+                <FormField
+                  control={form.control}
+                  name="dob"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{registerDict.dobLabel}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              // Using replace to avoid timezone issues with `new Date('YYYY-MM-DD')`
+                              field.onChange(new Date(e.target.value.replace(/-/g, '/')));
+                            } else {
+                              field.onChange(undefined);
+                            }
+                          }}
+                          max={format(new Date(), 'yyyy-MM-dd')}
+                          min="1900-01-01"
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
-                )}/>
+                  )}
+                />
                 <FormField control={form.control} name="pob" render={({ field }) => (
                   <FormItem>
                     <FormLabel>{registerDict.pobLabel}</FormLabel>
