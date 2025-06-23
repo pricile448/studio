@@ -30,7 +30,8 @@
       "loginButton": "Anmelden",
       "registerPrompt": "Haben Sie noch kein Konto?",
       "registerLink": "Registrieren",
-      "backToHome": "Zurück zur Startseite"
+      "backToHome": "Zurück zur Startseite",
+      "loginErrorTitle": "Anmeldung fehlgeschlagen"
     },
     "register": {
       "title": "Kontoeröffnung bei AmCbunq",
@@ -52,7 +53,8 @@
       "addressLabel": "Wohnadresse",
       "professionLabel": "Beruf",
       "salaryLabel": "Monatliches Einkommen (ca.)",
-      "dobPlaceholder": "Datum auswählen"
+      "dobPlaceholder": "Datum auswählen",
+      "registerErrorTitle": "Registrierung fehlgeschlagen"
     },
     "sidebar": {
       "dashboard": "Dashboard",

@@ -1,5 +1,10 @@
 
-import { type Locale } from '@/lib/dictionaries';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
+import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import {
   SidebarProvider,
@@ -27,15 +32,45 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Bell, LogOut } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
   params: { lang },
 }: {
   children: React.ReactNode;
   params: { lang: Locale };
 }) {
-  const dict = await getDictionary(lang);
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+  const [dict, setDict] = useState<Dictionary | null>(null);
+
+  useEffect(() => {
+    getDictionary(lang).then(setDict);
+  }, [lang]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push(`/${lang}/login`);
+    }
+  }, [user, loading, router, lang]);
+
+  if (loading || !user || !dict) {
+    return (
+        <div className="flex h-screen w-full bg-background">
+            <div className="hidden md:block">
+                 <Skeleton className="h-full w-[16rem] bg-muted" />
+            </div>
+            <div className="flex-1 flex flex-col">
+                <Skeleton className="h-14 lg:h-[60px] border-b" />
+                <div className="flex-1 p-4 lg:p-6">
+                    <Skeleton className="h-full w-full" />
+                </div>
+                 <Skeleton className="h-14 border-t" />
+            </div>
+        </div>
+    );
+  }
 
   return (
     <SidebarProvider key={lang}>
@@ -54,11 +89,9 @@ export default async function DashboardLayout({
         <SidebarFooter>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild size="lg" tooltip={dict.sidebar.userMenu.logout}>
-                        <Link href={`/${lang}`}>
-                            <LogOut />
-                            <span>{dict.sidebar.userMenu.logout}</span>
-                        </Link>
+                    <SidebarMenuButton onClick={() => logout()} size="lg" tooltip={dict.sidebar.userMenu.logout}>
+                        <LogOut />
+                        <span>{dict.sidebar.userMenu.logout}</span>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
@@ -81,17 +114,17 @@ export default async function DashboardLayout({
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="user avatar" />
-                            <AvatarFallback>U</AvatarFallback>
+                            <AvatarImage src={user.photoURL || "https://placehold.co/100x100.png"} alt={user.displayName || 'User'} data-ai-hint="user avatar" />
+                            <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">User</p>
+                        <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
                         <p className="text-xs leading-none text-muted-foreground">
-                            user@example.com
+                            {user.email}
                         </p>
                         </div>
                     </DropdownMenuLabel>

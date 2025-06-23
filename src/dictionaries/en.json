@@ -30,7 +30,8 @@
       "loginButton": "Login",
       "registerPrompt": "Don't have an account?",
       "registerLink": "Sign up",
-      "backToHome": "Back to Home"
+      "backToHome": "Back to Home",
+      "loginErrorTitle": "Login Failed"
     },
     "register": {
       "title": "Open an account with AmCbunq",
@@ -52,7 +53,8 @@
       "addressLabel": "Residential Address",
       "professionLabel": "Profession",
       "salaryLabel": "Monthly Income (approx.)",
-      "dobPlaceholder": "Select a date"
+      "dobPlaceholder": "Select a date",
+      "registerErrorTitle": "Registration Failed"
     },
     "sidebar": {
       "dashboard": "Dashboard",

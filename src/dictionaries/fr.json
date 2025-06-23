@@ -30,7 +30,8 @@
       "loginButton": "Connexion",
       "registerPrompt": "Vous n'avez pas de compte ?",
       "registerLink": "S'inscrire",
-      "backToHome": "Retour à l'accueil"
+      "backToHome": "Retour à l'accueil",
+      "loginErrorTitle": "Échec de la connexion"
     },
     "register": {
       "title": "Ouverture d'un compte chez AmCbunq",
@@ -52,7 +53,8 @@
       "addressLabel": "Adresse de résidence",
       "professionLabel": "Profession",
       "salaryLabel": "Revenu mensuel (approximatif)",
-      "dobPlaceholder": "Sélectionnez une date"
+      "dobPlaceholder": "Sélectionnez une date",
+      "registerErrorTitle": "Échec de l'inscription"
     },
      "sidebarGroups": {
         "account": "Mon Compte",

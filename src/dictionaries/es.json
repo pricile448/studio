@@ -30,7 +30,8 @@
       "loginButton": "Iniciar sesión",
       "registerPrompt": "¿No tiene una cuenta?",
       "registerLink": "Regístrese",
-      "backToHome": "Volver al inicio"
+      "backToHome": "Volver al inicio",
+      "loginErrorTitle": "Error de inicio de sesión"
     },
     "register": {
       "title": "Abrir una cuenta en AmCbunq",
@@ -52,7 +53,8 @@
       "addressLabel": "Dirección de residencia",
       "professionLabel": "Profesión",
       "salaryLabel": "Ingresos mensuales (aprox.)",
-      "dobPlaceholder": "Seleccione una fecha"
+      "dobPlaceholder": "Seleccione una fecha",
+      "registerErrorTitle": "Error de registro"
     },
     "sidebar": {
       "dashboard": "Panel",
