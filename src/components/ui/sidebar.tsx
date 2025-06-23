@@ -146,6 +146,7 @@ const SidebarProvider = React.forwardRef<
             )}
             ref={ref}
             {...props}
+            suppressHydrationWarning
           >
             {children}
           </div>
