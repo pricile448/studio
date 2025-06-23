@@ -1,6 +1,6 @@
-
 'use client';
 
+import * as React from 'react';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,6 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { AiAssistant } from './ai-assistant';
 import type { FinancialInsightsInput } from '@/ai/flows/financial-insights';
 import { CreditCard, DollarSign, PiggyBank } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
@@ -56,7 +57,7 @@ export function DashboardClient({ dict, accounts, transactions, aiFinancialData 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {accounts.map((account) => {
           const Icon = accountIcons[account.name] || DollarSign;
           return (
@@ -72,36 +73,58 @@ export function DashboardClient({ dict, accounts, transactions, aiFinancialData 
           );
         })}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-6 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle className="font-headline">{dict.recentTransactions}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{dict.transaction.description}</TableHead>
-                  <TableHead className="hidden sm:table-cell">{dict.transaction.category}</TableHead>
-                  <TableHead className="hidden md:table-cell">{dict.transaction.date}</TableHead>
-                  <TableHead className="text-right">{dict.transaction.amount}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell>
-                      <div className="font-medium">{tx.description}</div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">{tx.category}</TableCell>
-                    <TableCell className="hidden md:table-cell">{tx.date}</TableCell>
-                    <TableCell className={`text-right ${tx.amount > 0 ? 'text-accent' : ''}`}>
-                      {formatCurrency(tx.amount)}
-                    </TableCell>
+          <CardContent className="p-0">
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{dict.transaction.description}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{dict.transaction.category}</TableHead>
+                    <TableHead className="hidden lg:table-cell">{dict.transaction.date}</TableHead>
+                    <TableHead className="text-right">{dict.transaction.amount}</TableHead>
                   </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((tx) => (
+                    <TableRow key={tx.id}>
+                      <TableCell>
+                        <div className="font-medium">{tx.description}</div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">{tx.category}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{tx.date}</TableCell>
+                      <TableCell className={`text-right ${tx.amount > 0 ? 'text-accent' : ''}`}>
+                        {formatCurrency(tx.amount)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            {/* Mobile list */}
+            <div className="md:hidden px-6 pb-6">
+              <div className="space-y-4">
+                {transactions.map((tx, index) => (
+                  <div key={tx.id}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{tx.description}</p>
+                        <p className="text-sm text-muted-foreground">{tx.category}</p>
+                      </div>
+                      <p className={`font-semibold ${tx.amount > 0 ? 'text-accent' : ''}`}>
+                        {formatCurrency(tx.amount)}
+                      </p>
+                    </div>
+                    {index < transactions.length - 1 && <Separator className="my-4" />}
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </div>
           </CardContent>
         </Card>
         <Card className="lg:col-span-3">
@@ -110,9 +133,9 @@ export function DashboardClient({ dict, accounts, transactions, aiFinancialData 
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-              <BarChart accessibilityLayer data={chartData}>
+              <BarChart accessibilityLayer data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="category" tickLine={false} tickMargin={10} axisLine={false} />
+                <XAxis dataKey="category" tickLine={false} tickMargin={10} axisLine={false} tick={false} />
                 <YAxis hide />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
