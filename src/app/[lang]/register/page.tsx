@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Logo } from '@/components/logo';
 import { getDictionary } from '@/lib/get-dictionary';
+import { Separator } from '@/components/ui/separator';
 
 export default async function RegisterPage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
@@ -72,6 +73,14 @@ export default async function RegisterPage({ params: { lang } }: { params: { lan
             <Link href={`/${lang}/login`} className="underline">
               {' '}{registerDict.loginLink}
             </Link>
+          </div>
+          <Separator className="my-4" />
+          <div className="text-center">
+            <Button variant="link" asChild className="px-0">
+              <Link href={`/${lang}`}>
+                {dict.login.backToHome}
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
