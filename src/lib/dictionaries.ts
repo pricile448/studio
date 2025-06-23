@@ -82,6 +82,11 @@ const dictionaries = {
     placeholders: {
       title: 'Coming Soon',
       description: 'This page is under construction. Check back later!',
+    },
+    notFound: {
+      title: 'Oops! Page not found.',
+      description: 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.',
+      button: 'Go to Homepage'
     }
   },
   fr: {
@@ -162,6 +167,11 @@ const dictionaries = {
     placeholders: {
       title: 'Bientôt Disponible',
       description: 'Cette page est en cours de construction. Revenez plus tard !',
+    },
+    notFound: {
+      title: 'Oups! Page introuvable.',
+      description: 'La page que vous recherchez a peut-être été supprimée, a changé de nom ou est temporairement indisponible.',
+      button: "Retour à l'accueil"
     }
   }
 } as const;
