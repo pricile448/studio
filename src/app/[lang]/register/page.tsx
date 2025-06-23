@@ -21,7 +21,7 @@ export default async function RegisterPage({ params: { lang } }: { params: { lan
         <CardContent>
           <p className="text-muted-foreground mb-4">Coming soon!</p>
           <Button variant="outline" asChild>
-            <Link href={`/${lang}/login`}>Back to Login</Link>
+            <Link href={`/${lang}`}>Back to Login</Link>
           </Button>
         </CardContent>
       </Card>
