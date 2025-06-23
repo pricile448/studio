@@ -69,8 +69,13 @@
         "emailSentDescription": "Un nouvel e-mail de vérification a été envoyé à votre adresse.",
         "checkSpam": "Pensez également à vérifier votre dossier de courriers indésirables (spam).",
         "verificationSuccessTitle": "E-mail Vérifié !",
-        "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Veuillez vous connecter pour accéder à votre compte.",
-        "proceedToLoginButton": "Aller à la connexion"
+        "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Veuillez vous connecter avec vos nouveaux identifiants pour profiter de votre expérience bancaire.",
+        "proceedToLoginButton": "Aller à la connexion",
+        "verifyingTitle": "Vérification en cours...",
+        "verifyingDescription": "Veuillez patienter un instant.",
+        "verificationErrorTitle": "Erreur de vérification",
+        "invalidAction": "L'action demandée est invalide.",
+        "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien."
     },
      "sidebarGroups": {
         "account": "Mon Compte",

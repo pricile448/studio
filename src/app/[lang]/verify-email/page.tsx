@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,15 +12,6 @@ import { Button } from '@/components/ui/button';
 import { MailCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 
 export default function VerifyEmailPage() {
   const pathname = usePathname();
@@ -29,7 +21,6 @@ export default function VerifyEmailPage() {
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { toast } = useToast();
   const [isResending, setIsResending] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     getDictionary(lang).then(setDict);
@@ -37,29 +28,15 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (loading) return;
+    // If there's no user, they should be at the login page.
     if (!user) {
       router.replace(`/${lang}/login`);
-    } else if (user.emailVerified && !isVerified) {
-      setIsVerified(true);
+    } 
+    // If the user is somehow already verified, send them to the dashboard.
+    else if (user.emailVerified) {
+      router.replace(`/${lang}/dashboard`);
     }
-  }, [user, loading, router, lang, isVerified]);
-  
-  useEffect(() => {
-    if (isVerified || !user || user.emailVerified) return;
-
-    const interval = setInterval(async () => {
-      if (user) {
-        await user.reload();
-        if (user.emailVerified) {
-          clearInterval(interval);
-          setIsVerified(true);
-        }
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [user, isVerified]);
-
+  }, [user, loading, router, lang]);
 
   const handleResendEmail = async () => {
     setIsResending(true);
@@ -78,10 +55,6 @@ export default function VerifyEmailPage() {
     } finally {
         setIsResending(false);
     }
-  }
-  
-  const handleProceedToLogin = async () => {
-    await logout();
   }
 
   if (loading || !dict || !user) {
@@ -130,23 +103,6 @@ export default function VerifyEmailPage() {
             </Button>
         </CardContent>
       </Card>
-      
-      <AlertDialog open={isVerified}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{verifyDict.verificationSuccessTitle}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {verifyDict.verificationSuccessDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={handleProceedToLogin}>
-                {verifyDict.proceedToLoginButton}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
     </div>
   );
 }

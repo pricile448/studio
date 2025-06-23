@@ -69,8 +69,13 @@
         "emailSentDescription": "Se ha enviado un nuevo correo electrónico de verificación a su dirección.",
         "checkSpam": "Recuerde también revisar su carpeta de correo no deseado (spam).",
         "verificationSuccessTitle": "¡Correo electrónico verificado!",
-        "verificationSuccessDescription": "Su dirección de correo electrónico ha sido verificada con éxito. Por favor, inicie sesión para acceder a su cuenta.",
-        "proceedToLoginButton": "Proceder a iniciar sesión"
+        "verificationSuccessDescription": "Su dirección de correo electrónico ha sido verificada con éxito. Por favor, inicie sesión con sus nuevas credenciales para disfrutar de su experiencia bancaria.",
+        "proceedToLoginButton": "Proceder a iniciar sesión",
+        "verifyingTitle": "Verificando su correo electrónico...",
+        "verifyingDescription": "Por favor, espere un momento.",
+        "verificationErrorTitle": "Error de verificación",
+        "invalidAction": "La acción solicitada no es válida.",
+        "expiredLinkError": "El enlace de verificación no es válido o ha caducado. Por favor, solicite un nuevo enlace."
     },
     "sidebar": {
       "dashboard": "Panel",

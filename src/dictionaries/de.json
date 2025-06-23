@@ -69,8 +69,13 @@
         "emailSentDescription": "Eine neue Bestätigungs-E-Mail wurde an Ihre Adresse gesendet.",
         "checkSpam": "Denken Sie auch daran, Ihren Spam-Ordner zu überprüfen.",
         "verificationSuccessTitle": "E-Mail bestätigt!",
-        "verificationSuccessDescription": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Bitte melden Sie sich an, um auf Ihr Konto zuzugreifen.",
-        "proceedToLoginButton": "Zur Anmeldung"
+        "verificationSuccessDescription": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Bitte melden Sie sich mit Ihren neuen Zugangsdaten an, um Ihr Bankerlebnis zu genießen.",
+        "proceedToLoginButton": "Zur Anmeldung",
+        "verifyingTitle": "E-Mail wird verifiziert...",
+        "verifyingDescription": "Bitte warten Sie einen Moment.",
+        "verificationErrorTitle": "Verifizierungsfehler",
+        "invalidAction": "Die angeforderte Aktion ist ungültig.",
+        "expiredLinkError": "Der Bestätigungslink ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an."
     },
     "sidebar": {
       "dashboard": "Dashboard",

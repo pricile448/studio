@@ -69,8 +69,13 @@
         "emailSentDescription": "Um novo e-mail de verificação foi enviado para o seu endereço.",
         "checkSpam": "Lembre-se também de verificar a sua pasta de spam.",
         "verificationSuccessTitle": "E-mail Verificado!",
-        "verificationSuccessDescription": "O seu e-mail foi verificado com sucesso. Por favor, inicie sessão para aceder à sua conta.",
-        "proceedToLoginButton": "Prosseguir para o Login"
+        "verificationSuccessDescription": "O seu e-mail foi verificado com sucesso. Por favor, inicie sessão com as suas novas credenciais para desfrutar da sua experiência bancária.",
+        "proceedToLoginButton": "Prosseguir para o Login",
+        "verifyingTitle": "A verificar o seu e-mail...",
+        "verifyingDescription": "Por favor, aguarde um momento.",
+        "verificationErrorTitle": "Erro de Verificação",
+        "invalidAction": "A ação solicitada é inválida.",
+        "expiredLinkError": "O link de verificação é inválido ou expirou. Por favor, solicite um novo link."
     },
     "sidebar": {
       "dashboard": "Painel",
