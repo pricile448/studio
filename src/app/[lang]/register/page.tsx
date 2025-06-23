@@ -67,6 +67,8 @@ export default function RegisterPage({ params: { lang } }: { params: { lang: Loc
       residenceCountry: '',
       address: '',
       profession: '',
+      salary: undefined,
+      dob: undefined,
       password: '',
       confirmPassword: '',
       terms: false,
@@ -226,7 +228,7 @@ export default function RegisterPage({ params: { lang } }: { params: { lang: Loc
                 <FormField control={form.control} name="salary" render={({ field }) => (
                     <FormItem>
                         <FormLabel>{registerDict.salaryLabel}</FormLabel>
-                        <FormControl><Input type="number" placeholder="2000" {...field} /></FormControl>
+                        <FormControl><Input type="number" placeholder="2000" {...field} value={field.value ?? ''} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )}/>
