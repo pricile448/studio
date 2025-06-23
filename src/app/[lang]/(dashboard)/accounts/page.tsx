@@ -1,7 +1,6 @@
 
-import { type Locale, type Dictionary } from '@/lib/dictionaries';
-import en from '@/dictionaries/en.json';
-import fr from '@/dictionaries/fr.json';
+import { type Locale } from '@/lib/dictionaries';
+import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DollarSign, PiggyBank, CreditCard, PlusCircle } from 'lucide-react';
@@ -20,7 +19,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 };
 
 export default async function AccountsPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict: Dictionary = lang === 'fr' ? fr : en;
+  const dict = await getDictionary(lang);
   const accountsDict = dict.accounts;
 
   const formatCurrency = (amount: number) => {

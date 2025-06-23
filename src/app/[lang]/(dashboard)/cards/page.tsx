@@ -1,14 +1,13 @@
 
-import { type Locale, type Dictionary } from '@/lib/dictionaries';
-import en from '@/dictionaries/en.json';
-import fr from '@/dictionaries/fr.json';
+import { type Locale } from '@/lib/dictionaries';
+import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal } from 'lucide-react';
 
 export default async function CardsPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict: Dictionary = lang === 'fr' ? fr : en;
+  const dict = await getDictionary(lang);
   const cardsDict = dict.cards;
 
   return (

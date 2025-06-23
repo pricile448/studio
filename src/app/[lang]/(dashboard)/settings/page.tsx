@@ -1,12 +1,11 @@
 
-import { type Locale, type Dictionary } from '@/lib/dictionaries';
-import en from '@/dictionaries/en.json';
-import fr from '@/dictionaries/fr.json';
+import { type Locale } from '@/lib/dictionaries';
+import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AppearanceForm } from '@/components/settings/appearance-form';
 
 export default async function SettingsPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict: Dictionary = lang === 'fr' ? fr : en;
+  const dict = await getDictionary(lang);
 
   return (
     <div className="space-y-6">

@@ -1,7 +1,6 @@
 
-import { type Locale, type Dictionary } from '@/lib/dictionaries';
-import en from '@/dictionaries/en.json';
-import fr from '@/dictionaries/fr.json';
+import { type Locale } from '@/lib/dictionaries';
+import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { HelpCircle, FileText, Globe, Gift } from 'lucide-react';
@@ -14,7 +13,7 @@ const moreOptions = [
 ]
 
 export default async function MorePage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict: Dictionary = lang === 'fr' ? fr : en;
+  const dict = await getDictionary(lang);
   const moreDict = dict.more;
 
   return (
