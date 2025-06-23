@@ -31,7 +31,7 @@ export function VerificationBanner({ dict, lang }: VerificationBannerProps) {
                 </div>
             </div>
             <Button asChild>
-                <Link href={`/${lang}/more`}>{dict.button}</Link>
+                <Link href={`/${lang}/kyc`}>{dict.button}</Link>
             </Button>
         </div>
     </div>
