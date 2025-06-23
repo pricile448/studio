@@ -51,19 +51,12 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
         const isActive = pathname === fullPath;
         const label = dict[item.labelKey as keyof typeof dict] as string;
 
-        // Create placeholder pages for all but dashboard and settings
-        const finalHref = (item.labelKey !== 'dashboard' && item.labelKey !== 'settings') 
-          ? `/${lang}/placeholders${item.href}` 
-          : fullPath;
-        
-        const finalIsActive = isActive || pathname === finalHref;
-
         return (
           <SidebarMenuItem key={item.href}>
-            <Link href={finalHref} passHref legacyBehavior>
+            <Link href={fullPath} passHref legacyBehavior>
               <SidebarMenuButton
-                isActive={finalIsActive}
-                className={cn(finalIsActive && 'bg-primary/10 text-primary hover:text-primary')}
+                isActive={isActive}
+                className={cn(isActive && 'bg-primary/10 text-primary hover:text-primary')}
                 tooltip={label}
               >
                 <Icon />
