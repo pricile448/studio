@@ -69,7 +69,7 @@
         "emailSentDescription": "A new verification email has been sent to your address.",
         "checkSpam": "Also, remember to check your spam folder.",
         "verificationSuccessTitle": "Email Verified!",
-        "verificationSuccessDescription": "Your email has been successfully verified. You will now be logged out. Please log in again to access your account.",
+        "verificationSuccessDescription": "Your email has been successfully verified. Please log in to access your account.",
         "proceedToLoginButton": "Proceed to Login"
     },
     "sidebar": {

@@ -69,7 +69,7 @@
         "emailSentDescription": "Un nouvel e-mail de vérification a été envoyé à votre adresse.",
         "checkSpam": "Pensez également à vérifier votre dossier de courriers indésirables (spam).",
         "verificationSuccessTitle": "E-mail Vérifié !",
-        "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Vous allez être déconnecté. Veuillez vous reconnecter pour accéder à votre compte.",
+        "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Veuillez vous connecter pour accéder à votre compte.",
         "proceedToLoginButton": "Aller à la connexion"
     },
      "sidebarGroups": {

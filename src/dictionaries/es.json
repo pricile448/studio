@@ -69,7 +69,7 @@
         "emailSentDescription": "Se ha enviado un nuevo correo electrónico de verificación a su dirección.",
         "checkSpam": "Recuerde también revisar su carpeta de correo no deseado (spam).",
         "verificationSuccessTitle": "¡Correo electrónico verificado!",
-        "verificationSuccessDescription": "Su dirección de correo electrónico ha sido verificada con éxito. Ahora se cerrará su sesión. Por favor, inicie sesión de nuevo para acceder a su cuenta.",
+        "verificationSuccessDescription": "Su dirección de correo electrónico ha sido verificada con éxito. Por favor, inicie sesión para acceder a su cuenta.",
         "proceedToLoginButton": "Proceder a iniciar sesión"
     },
     "sidebar": {
