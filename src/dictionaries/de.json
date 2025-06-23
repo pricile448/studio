@@ -91,8 +91,13 @@
         "makeTransfer": "Überweisung tätigen",
         "payBill": "Rechnung bezahlen",
         "addBeneficiary": "Empfänger hinzufügen",
-        "viewHistory": "Verlauf anzeigen"
-      }
+        "viewHistory": "Verlauf anzeigen",
+        "settings": "Einstellungen"
+      },
+      "ourServicesTitle": "Unsere Dienstleistungen",
+      "ourServicesDescription": "Entdecken Sie unser Leistungsspektrum, das Ihnen hilft, Ihr Vermögen zu vermehren.",
+      "carbonFootprintTitle": "Ihr CO2-Fußabdruck",
+      "carbonFootprintDescription": "Verfolgen Sie die Umweltauswirkungen Ihrer Ausgaben und tragen Sie zu einem grüneren Planeten bei."
     },
     "accounts": {
       "title": "Meine Konten",
@@ -100,7 +105,17 @@
       "details": "Details anzeigen",
       "checking": "Girokonto",
       "savings": "Sparkonto",
-      "credit": "Kreditkarte"
+      "credit": "Kreditkarte",
+      "internalTransferTitle": "Interne Überweisung",
+      "internalTransferDescription": "Überweisen Sie sofort Geld zwischen Ihren Konten.",
+      "fromAccount": "Vom Konto",
+      "toAccount": "Auf Konto",
+      "transferAmount": "Betrag",
+      "submitTransfer": "Überweisung absenden",
+      "accountingTitle": "Kontobuch",
+      "creditLedger": "Haben",
+      "debitLedger": "Soll",
+      "balanceLedger": "Saldo"
     },
     "transfers": {
       "title": "Eine Überweisung tätigen",
@@ -122,6 +137,7 @@
       "beneficiaryNameLabel": "Name des Empfängers",
       "beneficiaryNamePlaceholder": "Max Mustermann",
       "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryBicLabel": "BIC / SWIFT",
       "beneficiaryNicknameLabel": "Spitzname (optional)",
       "beneficiaryNicknamePlaceholder": "z.B. Vermieter",
       "saveBeneficiaryButton": "Empfänger speichern",
@@ -174,6 +190,14 @@
       "groceries": "Lebensmittel",
       "transport": "Transport",
       "entertainment": "Unterhaltung"
+    },
+    "documents": {
+      "title": "Meine Dokumente",
+      "description": "Verwalten Sie Ihre hochgeladenen Dokumente.",
+      "upload": "Dokument hochladen",
+      "documentName": "Dokumentenname",
+      "uploadDate": "Hochladedatum",
+      "download": "Herunterladen"
     },
     "iban": {
       "title": "Meine IBAN-Details",

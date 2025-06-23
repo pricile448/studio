@@ -29,6 +29,7 @@ interface AddBeneficiaryDialogProps {
 const beneficiarySchema = z.object({
     name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
     iban: z.string().min(14, { message: 'Please enter a valid IBAN.' }),
+    bic: z.string().optional(),
     nickname: z.string().optional(),
 });
 
@@ -43,6 +44,7 @@ export function AddBeneficiaryDialog({ dict }: AddBeneficiaryDialogProps) {
     defaultValues: {
       name: '',
       iban: '',
+      bic: '',
       nickname: '',
     },
   });
@@ -98,6 +100,19 @@ export function AddBeneficiaryDialog({ dict }: AddBeneficiaryDialogProps) {
                           <FormLabel>{dict.beneficiaryIbanLabel}</FormLabel>
                           <FormControl>
                               <Input placeholder="FR76..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+               <FormField
+                  control={form.control}
+                  name="bic"
+                  render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>{dict.beneficiaryBicLabel}</FormLabel>
+                          <FormControl>
+                              <Input placeholder="BNPAFRPPXXX" {...field} />
                           </FormControl>
                           <FormMessage />
                       </FormItem>

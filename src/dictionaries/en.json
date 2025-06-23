@@ -91,8 +91,13 @@
         "makeTransfer": "Make a Transfer",
         "payBill": "Pay a Bill",
         "addBeneficiary": "Add Beneficiary",
-        "viewHistory": "View History"
-      }
+        "viewHistory": "View History",
+        "settings": "Settings"
+      },
+      "ourServicesTitle": "Our Services",
+      "ourServicesDescription": "Discover our range of services designed to help you grow your wealth.",
+      "carbonFootprintTitle": "Your Carbon Footprint",
+      "carbonFootprintDescription": "Track the environmental impact of your spending and contribute to a greener planet."
     },
     "accounts": {
       "title": "My Accounts",
@@ -100,7 +105,17 @@
       "details": "View Details",
       "checking": "Checking Account",
       "savings": "Savings Account",
-      "credit": "Credit Card"
+      "credit": "Credit Card",
+      "internalTransferTitle": "Internal Transfer",
+      "internalTransferDescription": "Move funds between your accounts instantly.",
+      "fromAccount": "From account",
+      "toAccount": "To account",
+      "transferAmount": "Amount",
+      "submitTransfer": "Submit Transfer",
+      "accountingTitle": "Account Ledger",
+      "creditLedger": "Credit",
+      "debitLedger": "Debit",
+      "balanceLedger": "Balance"
     },
     "transfers": {
       "title": "Make a Transfer",
@@ -122,6 +137,7 @@
       "beneficiaryNameLabel": "Beneficiary Name",
       "beneficiaryNamePlaceholder": "John Doe",
       "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryBicLabel": "BIC / SWIFT",
       "beneficiaryNicknameLabel": "Nickname (optional)",
       "beneficiaryNicknamePlaceholder": "e.g., Landlord",
       "saveBeneficiaryButton": "Save Beneficiary",
@@ -174,6 +190,14 @@
       "groceries": "Groceries",
       "transport": "Transport",
       "entertainment": "Entertainment"
+    },
+    "documents": {
+      "title": "My Documents",
+      "description": "Manage your uploaded documents.",
+      "upload": "Upload Document",
+      "documentName": "Document Name",
+      "uploadDate": "Upload Date",
+      "download": "Download"
     },
     "iban": {
       "title": "My IBAN Details",

@@ -91,8 +91,13 @@
         "makeTransfer": "Hacer una Transferencia",
         "payBill": "Pagar una Factura",
         "addBeneficiary": "Añadir Beneficiario",
-        "viewHistory": "Ver Historial"
-      }
+        "viewHistory": "Ver Historial",
+        "settings": "Configuración"
+      },
+      "ourServicesTitle": "Nuestros Servicios",
+      "ourServicesDescription": "Descubra nuestra gama de servicios diseñados para ayudarle a hacer crecer su patrimonio.",
+      "carbonFootprintTitle": "Su Huella de Carbono",
+      "carbonFootprintDescription": "Siga el impacto ambiental de sus gastos y contribuya a un planeta más verde."
     },
     "accounts": {
       "title": "Mis Cuentas",
@@ -100,7 +105,17 @@
       "details": "Ver Detalles",
       "checking": "Cuenta Corriente",
       "savings": "Cuenta de Ahorros",
-      "credit": "Tarjeta de Crédito"
+      "credit": "Tarjeta de Crédito",
+      "internalTransferTitle": "Transferencia Interna",
+      "internalTransferDescription": "Mueva fondos entre sus cuentas al instante.",
+      "fromAccount": "Desde la cuenta",
+      "toAccount": "A la cuenta",
+      "transferAmount": "Monto",
+      "submitTransfer": "Enviar Transferencia",
+      "accountingTitle": "Libro de Cuentas",
+      "creditLedger": "Crédito",
+      "debitLedger": "Débito",
+      "balanceLedger": "Saldo"
     },
     "transfers": {
       "title": "Hacer una Transferencia",
@@ -122,6 +137,7 @@
       "beneficiaryNameLabel": "Nombre del beneficiario",
       "beneficiaryNamePlaceholder": "Juan Pérez",
       "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryBicLabel": "BIC / SWIFT",
       "beneficiaryNicknameLabel": "Apodo (opcional)",
       "beneficiaryNicknamePlaceholder": "ej: Propietario",
       "saveBeneficiaryButton": "Guardar beneficiario",
@@ -174,6 +190,14 @@
       "groceries": "Comestibles",
       "transport": "Transporte",
       "entertainment": "Entretenimiento"
+    },
+    "documents": {
+      "title": "Mis Documentos",
+      "description": "Administre sus documentos cargados.",
+      "upload": "Subir Documento",
+      "documentName": "Nombre del Documento",
+      "uploadDate": "Fecha de Carga",
+      "download": "Descargar"
     },
     "iban": {
       "title": "Mis Datos de IBAN",

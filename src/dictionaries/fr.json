@@ -91,8 +91,13 @@
         "makeTransfer": "Faire un virement",
         "payBill": "Payer une facture",
         "addBeneficiary": "Ajouter un bénéficiaire",
-        "viewHistory": "Voir l'historique"
-      }
+        "viewHistory": "Voir l'historique",
+        "settings": "Paramètres"
+      },
+      "ourServicesTitle": "Nos Services",
+      "ourServicesDescription": "Découvrez notre gamme de services conçus pour vous aider à faire fructifier votre patrimoine.",
+      "carbonFootprintTitle": "Votre Empreinte Carbone",
+      "carbonFootprintDescription": "Suivez l'impact environnemental de vos dépenses et contribuez à une planète plus verte."
     },
     "accounts": {
       "title": "Mes Comptes",
@@ -100,7 +105,17 @@
       "details": "Voir les détails",
       "checking": "Compte Courant",
       "savings": "Compte Épargne",
-      "credit": "Carte de Crédit"
+      "credit": "Carte de Crédit",
+      "internalTransferTitle": "Virement Interne",
+      "internalTransferDescription": "Transférez des fonds entre vos comptes instantanément.",
+      "fromAccount": "Du compte",
+      "toAccount": "Au compte",
+      "transferAmount": "Montant",
+      "submitTransfer": "Valider le virement",
+      "accountingTitle": "Grand Livre des Comptes",
+      "creditLedger": "Crédit",
+      "debitLedger": "Débit",
+      "balanceLedger": "Solde"
     },
     "transfers": {
       "title": "Effectuer un Virement",
@@ -122,6 +137,7 @@
       "beneficiaryNameLabel": "Nom du bénéficiaire",
       "beneficiaryNamePlaceholder": "Jean Dupont",
       "beneficiaryIbanLabel": "IBAN",
+      "beneficiaryBicLabel": "BIC / SWIFT",
       "beneficiaryNicknameLabel": "Surnom (optionnel)",
       "beneficiaryNicknamePlaceholder": "ex: Propriétaire",
       "saveBeneficiaryButton": "Enregistrer le bénéficiaire",
@@ -174,6 +190,14 @@
       "groceries": "Courses",
       "transport": "Transport",
       "entertainment": "Loisirs"
+    },
+    "documents": {
+      "title": "Mes Documents",
+      "description": "Gérez vos documents téléchargés.",
+      "upload": "Télécharger un document",
+      "documentName": "Nom du document",
+      "uploadDate": "Date de téléchargement",
+      "download": "Télécharger"
     },
     "iban": {
       "title": "Détails de mon IBAN",

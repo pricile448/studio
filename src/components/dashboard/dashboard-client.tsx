@@ -1,12 +1,13 @@
+
 'use client';
 
 import * as React from 'react';
 import type { Dictionary } from '@/lib/dictionaries';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, ReceiptText, UserPlus, History } from 'lucide-react';
+import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, Settings, Leaf, HeartPulse } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -59,9 +60,9 @@ export function DashboardClient({ dict, accounts, transactions }: DashboardClien
 
   const quickActions = [
     { href: `/${lang}/transfers`, label: dict.quickActions.makeTransfer, icon: ArrowRightLeft },
-    { href: `/${lang}/transfers`, label: dict.quickActions.payBill, icon: ReceiptText },
     { href: `/${lang}/transfers`, label: dict.quickActions.addBeneficiary, icon: UserPlus },
     { href: `/${lang}/history`, label: dict.quickActions.viewHistory, icon: History },
+    { href: `/${lang}/settings`, label: dict.quickActions.settings, icon: Settings },
   ];
 
   return (
@@ -177,6 +178,31 @@ export function DashboardClient({ dict, accounts, transactions }: DashboardClien
           </CardContent>
         </Card>
       </div>
+
+       <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader className="flex-row items-center gap-4 space-y-0">
+               <div className="p-3 rounded-full bg-primary/10 text-primary">
+                 <HeartPulse className="h-6 w-6" />
+               </div>
+               <CardTitle className="font-headline">{dict.ourServicesTitle}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">{dict.ourServicesDescription}</p>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader className="flex-row items-center gap-4 space-y-0">
+                <div className="p-3 rounded-full bg-green-500/10 text-green-600">
+                    <Leaf className="h-6 w-6" />
+                </div>
+               <CardTitle className="font-headline">{dict.carbonFootprintTitle}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">{dict.carbonFootprintDescription}</p>
+            </CardContent>
+          </Card>
+       </div>
     </div>
   );
 }

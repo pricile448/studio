@@ -21,8 +21,6 @@ import {
   Settings,
   HelpCircle,
   FileText,
-  Globe,
-  Gift,
 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { cn } from '@/lib/utils';
@@ -46,8 +44,6 @@ const otherNavItems = [
     { href: '/settings', icon: Settings, labelKey: 'settings' },
     { href: '/help', icon: HelpCircle, labelKey: 'help' },
     { href: '/more', icon: FileText, labelKey: 'documents' },
-    { href: '/more', icon: Globe, labelKey: 'exchange' },
-    { href: '/more', icon: Gift, labelKey: 'referrals' },
 ] as const
 
 const NavList = ({ items, lang, dict, pathname }: { items: Readonly<Array<{href: string, icon: React.ElementType, labelKey: string}>>, lang: Locale, dict: Dictionary['sidebar'], pathname: string }) => {
@@ -56,7 +52,7 @@ const NavList = ({ items, lang, dict, pathname }: { items: Readonly<Array<{href:
             {items.map((item) => {
                 const Icon = item.icon;
                 const fullPath = `/${lang}${item.href}`;
-                const isActive = pathname === fullPath;
+                const isActive = pathname.startsWith(fullPath) && (item.href !== '/dashboard' || pathname === `/${lang}/dashboard`);
                 const label = dict[item.labelKey as keyof typeof dict] as string;
 
                 return (
@@ -85,11 +81,41 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
   const sidebarDict = dict.sidebar;
   const sidebarGroupsDict = dict.sidebarGroups;
 
+  // A more robust active check for the dashboard link
+  const isDashboardActive = pathname === `/${lang}/dashboard`;
+  const accountNavItemsWithActive = accountNavItems.map(item => ({
+      ...item,
+      isActive: item.href === '/dashboard' ? isDashboardActive : pathname.startsWith(`/${lang}${item.href}`),
+  }))
+
   return (
     <div className="flex h-full flex-col">
       <SidebarGroup>
         <SidebarGroupLabel>{sidebarGroupsDict.account}</SidebarGroupLabel>
-        <NavList items={accountNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
+         <SidebarMenu>
+            {accountNavItems.map((item) => {
+                const Icon = item.icon;
+                const fullPath = `/${lang}${item.href}`;
+                const isActive = item.href === '/dashboard' ? pathname === fullPath : pathname.startsWith(fullPath);
+                const label = sidebarDict[item.labelKey as keyof typeof sidebarDict] as string;
+
+                return (
+                    <SidebarMenuItem key={item.href + item.labelKey}>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={isActive}
+                            className={cn(isActive && 'bg-primary/10 text-primary hover:text-primary')}
+                            tooltip={label}
+                        >
+                            <Link href={fullPath}>
+                                <Icon />
+                                <span>{label}</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                );
+            })}
+        </SidebarMenu>
       </SidebarGroup>
       <div className="mt-auto">
         <SidebarGroup>
