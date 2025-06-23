@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Logo } from '@/components/logo';
 
 export default async function RegisterPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = getDictionary(lang);
+  const dict = await getDictionary(lang);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
@@ -21,7 +21,7 @@ export default async function RegisterPage({ params: { lang } }: { params: { lan
         <CardContent>
           <p className="text-muted-foreground mb-4">Coming soon!</p>
           <Button variant="outline" asChild>
-            <Link href={`/${lang}`}>Back to Login</Link>
+            <Link href={`/${lang}/login`}>Back to Login</Link>
           </Button>
         </CardContent>
       </Card>
