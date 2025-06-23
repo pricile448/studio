@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const locales = ['en', 'fr']
-const defaultLocale = 'en'
+const defaultLocale = 'fr'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -17,9 +17,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect if there is no locale
-  const newUrl = new URL(`/${defaultLocale}${pathname}`, request.url)
-  return NextResponse.redirect(newUrl)
+  // Redirect if there is no locale, cloning the URL and prepending the default locale.
+  const url = request.nextUrl.clone()
+  url.pathname = `/${defaultLocale}${pathname}`
+  return NextResponse.redirect(url)
 }
 
 export const config = {
