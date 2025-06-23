@@ -184,6 +184,9 @@
         "language": "Language",
         "languageEn": "English",
         "languageFr": "French",
+        "languageDe": "German",
+        "languageEs": "Spanish",
+        "languagePt": "Portuguese",
         "saveButton": "Save Changes"
       }
     },
@@ -196,4 +199,4 @@
       "description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
       "button": "Go to Homepage"
     }
-  }
+}

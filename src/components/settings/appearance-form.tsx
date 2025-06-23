@@ -44,7 +44,7 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
     }
   };
   
-  const getNewPath = (newLang: 'en' | 'fr') => {
+  const getNewPath = (newLang: Locale) => {
     const pathParts = pathname.split('/');
     pathParts[1] = newLang;
     return pathParts.join('/');
@@ -113,12 +113,21 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
 
       <div className="space-y-2">
         <Label>{dict.language}</Label>
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-wrap gap-2 pt-2">
            <Button variant={lang === 'en' ? 'default' : 'outline'} asChild>
                 <Link href={getNewPath('en')}>{dict.languageEn}</Link>
             </Button>
             <Button variant={lang === 'fr' ? 'default' : 'outline'} asChild>
                 <Link href={getNewPath('fr')}>{dict.languageFr}</Link>
+            </Button>
+            <Button variant={lang === 'de' ? 'default' : 'outline'} asChild>
+                <Link href={getNewPath('de')}>{dict.languageDe}</Link>
+            </Button>
+            <Button variant={lang === 'es' ? 'default' : 'outline'} asChild>
+                <Link href={getNewPath('es')}>{dict.languageEs}</Link>
+            </Button>
+            <Button variant={lang === 'pt' ? 'default' : 'outline'} asChild>
+                <Link href={getNewPath('pt')}>{dict.languagePt}</Link>
             </Button>
         </div>
       </div>

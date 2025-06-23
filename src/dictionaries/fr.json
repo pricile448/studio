@@ -184,6 +184,9 @@
         "language": "Langue",
         "languageEn": "Anglais",
         "languageFr": "Français",
+        "languageDe": "Allemand",
+        "languageEs": "Espagnol",
+        "languagePt": "Portugais",
         "saveButton": "Enregistrer"
       }
     },
@@ -196,4 +199,4 @@
       "description": "La page que vous recherchez a peut-être été supprimée, a changé de nom ou est temporairement indisponible.",
       "button": "Retour à l'accueil"
     }
-  }
+}

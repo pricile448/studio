@@ -14,7 +14,6 @@ import { getDictionary } from '@/lib/get-dictionary';
 
 export default async function HomePage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
-  const otherLang = lang === 'en' ? 'fr' : 'en';
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-body">
@@ -54,6 +53,15 @@ export default async function HomePage({ params: { lang } }: { params: { lang: L
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/fr">Français</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/de">Deutsch</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/es">Español</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/pt">Português</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

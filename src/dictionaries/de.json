@@ -1,0 +1,202 @@
+
+{
+    "logo": "AmCbunq",
+    "homePage": {
+      "slogan": "Ihre Genossenschaftsbank",
+      "nav": {
+        "home": "Startseite",
+        "features": "Funktionen",
+        "openAccount": "Konto eröffnen",
+        "login": "Anmelden"
+      },
+      "hero": {
+        "title": "Banking, vereinfacht und intelligent.",
+        "subtitle": "Verwalten Sie Ihre Finanzen mit leistungsstarken Tools, sofortigen Transaktionen und erstklassiger Sicherheit.",
+        "ctaPrimary": "Heute loslegen",
+        "ctaSecondary": "Mehr erfahren"
+      },
+      "footer": {
+        "legal": "Impressum",
+        "copyright": "© 2024 AmCbunq. Alle Rechte vorbehalten."
+      }
+    },
+    "login": {
+      "title": "Anmelden",
+      "description": "Geben Sie Ihre Zugangsdaten ein, um auf Ihr Konto zuzugreifen.",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "name@example.com",
+      "passwordLabel": "Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "loginButton": "Anmelden",
+      "registerPrompt": "Haben Sie noch kein Konto?",
+      "registerLink": "Registrieren",
+      "backToHome": "Zurück zur Startseite"
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "description": "Registrieren Sie sich, um Ihre Finanzen zu verwalten."
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "accounts": "Konten",
+      "iban": "Meine IBAN",
+      "transfers": "Überweisungen",
+      "cards": "Karten",
+      "history": "Verlauf",
+      "budgets": "Budgets",
+      "settings": "Einstellungen",
+      "more": "Mehr",
+      "userMenu": {
+        "profile": "Profil",
+        "billing": "Abrechnung",
+        "settings": "Einstellungen",
+        "logout": "Abmelden"
+      }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "greeting": "Hallo",
+      "accountSummary": "Kontenübersicht",
+      "checkingAccount": "Girokonto",
+      "savingsAccount": "Sparkonto",
+      "creditCard": "Kreditkarte",
+      "recentTransactions": "Letzte Transaktionen",
+      "transaction": {
+        "description": "Beschreibung",
+        "category": "Kategorie",
+        "date": "Datum",
+        "amount": "Betrag"
+      },
+      "expenseChart": "Ausgabenübersicht",
+      "aiAssistant": {
+        "title": "KI-Finanzassistent",
+        "description": "Erhalten Sie personalisierte Einblicke und Empfehlungen basierend auf Ihrem Transaktionsverlauf.",
+        "button": "KI-Einblicke erhalten",
+        "loading": "Analysiere Ihre Finanzen...",
+        "insightsTitle": "Ihre finanziellen Einblicke",
+        "overspendingAlert": "Überschreitungsalarm!",
+        "savingsAlert": "Sparmöglichkeit!",
+        "noInsights": "Einblicke konnten derzeit nicht generiert werden."
+      }
+    },
+    "accounts": {
+      "title": "Meine Konten",
+      "addAccount": "Konto hinzufügen",
+      "details": "Details anzeigen",
+      "checking": "Girokonto",
+      "savings": "Sparkonto",
+      "credit": "Kreditkarte"
+    },
+    "transfers": {
+      "title": "Eine Überweisung tätigen",
+      "newTransfer": "Neue Überweisung",
+      "newTransferDescription": "Senden Sie Geld an ein beliebiges Bankkonto.",
+      "from": "Von",
+      "selectAccount": "Wählen Sie ein Konto",
+      "to": "An (IBAN / Empfänger)",
+      "toPlaceholder": "DE89...",
+      "amount": "Betrag",
+      "description": "Beschreibung (optional)",
+      "descriptionPlaceholder": "z.B. Mietzahlung",
+      "submit": "Überweisung senden",
+      "recentTransfers": "Letzte Überweisungen",
+      "noRecentTransfers": "Keine letzten Überweisungen gefunden."
+    },
+    "cards": {
+      "title": "Meine Karten",
+      "orderCard": "Neue Karte bestellen",
+      "cardBankName": "AmCbunq Bank",
+      "cardHolder": "Karteninhaber",
+      "validThru": "Gültig bis",
+      "settings": "Karteneinstellungen",
+      "settingsDescription": "Verwalten Sie Ihre Karteneinstellungen und Sicherheit.",
+      "freeze": "Karte sperren",
+      "freezeDescription": "Sperren Sie Ihre Karte vorübergehend.",
+      "setLimit": "Ausgabenlimits festlegen",
+      "setLimitDescription": "Kontrollieren Sie Ihre monatlichen Ausgaben.",
+      "viewPin": "PIN anzeigen",
+      "viewPinDescription": "Zeigen Sie Ihre Karten-PIN sicher an."
+    },
+    "history": {
+      "title": "Transaktionsverlauf",
+      "filters": "Filter",
+      "dateRange": "Wählen Sie einen Datumsbereich",
+      "transactionType": "Transaktionstyp",
+      "all": "Alle",
+      "income": "Einkommen",
+      "expense": "Ausgabe",
+      "applyFilters": "Filter anwenden",
+      "noTransactions": "Für den ausgewählten Zeitraum wurden keine Transaktionen gefunden.",
+      "table": {
+        "date": "Datum",
+        "description": "Beschreibung",
+        "category": "Kategorie",
+        "status": "Status",
+        "amount": "Betrag",
+        "statuses": {
+          "completed": "Abgeschlossen",
+          "pending": "Ausstehend",
+          "failed": "Fehlgeschlagen"
+        }
+      }
+    },
+    "budgets": {
+      "title": "Meine Budgets",
+      "createBudget": "Budget erstellen",
+      "spentOf": "{spent} von {total} ausgegeben",
+      "groceries": "Lebensmittel",
+      "transport": "Transport",
+      "entertainment": "Unterhaltung"
+    },
+    "iban": {
+      "title": "Meine IBAN-Details",
+      "description": "Verwenden Sie diese Daten, um Geld von anderen Konten zu erhalten.",
+      "accountDetails": "Kontodetails",
+      "accountHolder": "Kontoinhaber",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "copy": "Kopieren",
+      "copied": "Kopiert!",
+      "copiedDescription": "wurde in Ihre Zwischenablage kopiert."
+    },
+    "more": {
+      "title": "Weitere Optionen",
+      "help": "Hilfe & Support",
+      "documents": "Dokumente",
+      "exchange": "Währungsumtausch",
+      "referrals": "Einen Freund empfehlen"
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "tabs": {
+        "profile": "Profil",
+        "security": "Sicherheit",
+        "notifications": "Benachrichtigungen",
+        "appearance": "Erscheinungsbild"
+      },
+      "appearance": {
+        "title": "Erscheinungsbild",
+        "description": "Passen Sie das Aussehen Ihres Dashboards an.",
+        "theme": "Thema",
+        "themeLight": "Hell",
+        "themeDark": "Dunkel",
+        "themeSystem": "System",
+        "language": "Sprache",
+        "languageEn": "Englisch",
+        "languageFr": "Französisch",
+        "languageDe": "Deutsch",
+        "languageEs": "Spanisch",
+        "languagePt": "Portugiesisch",
+        "saveButton": "Änderungen speichern"
+      }
+    },
+    "placeholders": {
+      "title": "Demnächst verfügbar",
+      "description": "Diese Seite befindet sich im Aufbau. Schauen Sie später wieder vorbei!"
+    },
+    "notFound": {
+      "title": "Hoppla! Seite nicht gefunden.",
+      "description": "Die von Ihnen gesuchte Seite wurde möglicherweise entfernt, umbenannt oder ist vorübergehend nicht verfügbar.",
+      "button": "Zur Startseite"
+    }
+}

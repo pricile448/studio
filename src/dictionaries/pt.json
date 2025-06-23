@@ -1,0 +1,202 @@
+
+{
+    "logo": "AmCbunq",
+    "homePage": {
+      "slogan": "O seu banco de crédito mútuo",
+      "nav": {
+        "home": "Início",
+        "features": "Recursos",
+        "openAccount": "Abrir uma conta",
+        "login": "Entrar"
+      },
+      "hero": {
+        "title": "Banca, simplificada e inteligente.",
+        "subtitle": "Gerencie suas finanças com ferramentas poderosas, transações instantâneas e segurança de primeira.",
+        "ctaPrimary": "Comece hoje",
+        "ctaSecondary": "Saber mais"
+      },
+      "footer": {
+        "legal": "Aviso Legal",
+        "copyright": "© 2024 AmCbunq. Todos os direitos reservados."
+      }
+    },
+    "login": {
+      "title": "Entrar",
+      "description": "Insira suas credenciais para acessar sua conta.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "nome@exemplo.com",
+      "passwordLabel": "Senha",
+      "forgotPassword": "Esqueceu a senha?",
+      "loginButton": "Entrar",
+      "registerPrompt": "Não tem uma conta?",
+      "registerLink": "Cadastre-se",
+      "backToHome": "Voltar para o início"
+    },
+    "register": {
+      "title": "Criar uma conta",
+      "description": "Cadastre-se para começar a gerenciar suas finanças."
+    },
+    "sidebar": {
+      "dashboard": "Painel",
+      "accounts": "Contas",
+      "iban": "Meu IBAN",
+      "transfers": "Transferências",
+      "cards": "Cartões",
+      "history": "Histórico",
+      "budgets": "Orçamentos",
+      "settings": "Configurações",
+      "more": "Mais",
+      "userMenu": {
+        "profile": "Perfil",
+        "billing": "Faturamento",
+        "settings": "Configurações",
+        "logout": "Sair"
+      }
+    },
+    "dashboard": {
+      "title": "Painel",
+      "greeting": "Olá",
+      "accountSummary": "Resumo da conta",
+      "checkingAccount": "Conta Corrente",
+      "savingsAccount": "Conta Poupança",
+      "creditCard": "Cartão de Crédito",
+      "recentTransactions": "Transações Recentes",
+      "transaction": {
+        "description": "Descrição",
+        "category": "Categoria",
+        "date": "Data",
+        "amount": "Valor"
+      },
+      "expenseChart": "Visão Geral de Despesas",
+      "aiAssistant": {
+        "title": "Assistente Financeiro de IA",
+        "description": "Obtenha insights e recomendações personalizadas com base no seu histórico de transações.",
+        "button": "Obter Insights de IA",
+        "loading": "Analisando suas finanças...",
+        "insightsTitle": "Seus Insights Financeiros",
+        "overspendingAlert": "Alerta de Gasto Excessivo!",
+        "savingsAlert": "Oportunidade de Economia!",
+        "noInsights": "Não foi possível gerar insights no momento."
+      }
+    },
+    "accounts": {
+      "title": "Minhas Contas",
+      "addAccount": "Adicionar Conta",
+      "details": "Ver Detalhes",
+      "checking": "Conta Corrente",
+      "savings": "Conta Poupança",
+      "credit": "Cartão de Crédito"
+    },
+    "transfers": {
+      "title": "Fazer uma Transferência",
+      "newTransfer": "Nova Transferência",
+      "newTransferDescription": "Envie dinheiro para qualquer conta bancária.",
+      "from": "De",
+      "selectAccount": "Selecione uma conta",
+      "to": "Para (IBAN / Destinatário)",
+      "toPlaceholder": "PT50...",
+      "amount": "Valor",
+      "description": "Descrição (opcional)",
+      "descriptionPlaceholder": "ex: pagamento de aluguel",
+      "submit": "Enviar Transferência",
+      "recentTransfers": "Transferências Recentes",
+      "noRecentTransfers": "Nenhuma transferência recente encontrada."
+    },
+    "cards": {
+      "title": "Meus Cartões",
+      "orderCard": "Pedir um Novo Cartão",
+      "cardBankName": "Banco AmCbunq",
+      "cardHolder": "Titular do Cartão",
+      "validThru": "Válido até",
+      "settings": "Configurações do Cartão",
+      "settingsDescription": "Gerencie as configurações e a segurança do seu cartão.",
+      "freeze": "Bloquear Cartão",
+      "freezeDescription": "Bloqueie temporariamente o seu cartão.",
+      "setLimit": "Definir Limites de Gastos",
+      "setLimitDescription": "Controle seus gastos mensais.",
+      "viewPin": "Ver PIN",
+      "viewPinDescription": "Veja o PIN do seu cartão com segurança."
+    },
+    "history": {
+      "title": "Histórico de Transações",
+      "filters": "Filtros",
+      "dateRange": "Selecione um período",
+      "transactionType": "Tipo de Transação",
+      "all": "Todos",
+      "income": "Receita",
+      "expense": "Despesa",
+      "applyFilters": "Aplicar Filtros",
+      "noTransactions": "Nenhuma transação encontrada para o período selecionado.",
+      "table": {
+        "date": "Data",
+        "description": "Descrição",
+        "category": "Categoria",
+        "status": "Status",
+        "amount": "Valor",
+        "statuses": {
+          "completed": "Concluído",
+          "pending": "Pendente",
+          "failed": "Falhou"
+        }
+      }
+    },
+    "budgets": {
+      "title": "Meus Orçamentos",
+      "createBudget": "Criar Orçamento",
+      "spentOf": "Gasto {spent} de {total}",
+      "groceries": "Mercearia",
+      "transport": "Transporte",
+      "entertainment": "Entretenimento"
+    },
+    "iban": {
+      "title": "Detalhes do meu IBAN",
+      "description": "Use estes detalhes para receber dinheiro de outras contas.",
+      "accountDetails": "Detalhes da Conta",
+      "accountHolder": "Titular da Conta",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "copy": "Copiar",
+      "copied": "Copiado!",
+      "copiedDescription": "foi copiado para a sua área de transferência."
+    },
+    "more": {
+      "title": "Mais Opções",
+      "help": "Ajuda e Suporte",
+      "documents": "Documentos",
+      "exchange": "Câmbio de Moedas",
+      "referrals": "Indique um Amigo"
+    },
+    "settings": {
+      "title": "Configurações",
+      "tabs": {
+        "profile": "Perfil",
+        "security": "Segurança",
+        "notifications": "Notificações",
+        "appearance": "Aparência"
+      },
+      "appearance": {
+        "title": "Aparência",
+        "description": "Personalize a aparência do seu painel.",
+        "theme": "Tema",
+        "themeLight": "Claro",
+        "themeDark": "Escuro",
+        "themeSystem": "Sistema",
+        "language": "Idioma",
+        "languageEn": "Inglês",
+        "languageFr": "Francês",
+        "languageDe": "Alemão",
+        "languageEs": "Espanhol",
+        "languagePt": "Português",
+        "saveButton": "Salvar Alterações"
+      }
+    },
+    "placeholders": {
+      "title": "Em Breve",
+      "description": "Esta página está em construção. Volte mais tarde!"
+    },
+    "notFound": {
+      "title": "Oops! Página não encontrada.",
+      "description": "A página que você está procurando pode ter sido removida, ter tido seu nome alterado ou estar temporariamente indisponível.",
+      "button": "Ir para a Página Inicial"
+    }
+}
