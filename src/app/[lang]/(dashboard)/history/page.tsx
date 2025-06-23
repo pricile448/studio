@@ -1,5 +1,7 @@
 
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 import { HistoryClient } from '@/components/history/history-client';
 
 const mockTransactions = [
@@ -13,7 +15,7 @@ const mockTransactions = [
 ];
 
 export default async function HistoryPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+  const dict: Dictionary = lang === 'fr' ? fr : en;
   
   return <HistoryClient dict={dict.history} transactions={mockTransactions} lang={lang} />;
 }

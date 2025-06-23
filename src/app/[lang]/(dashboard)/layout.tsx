@@ -1,5 +1,7 @@
 
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 import {
   SidebarProvider,
   Sidebar,
@@ -30,7 +32,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
   params: { lang: Locale };
 }) {
-  const dict = await getDictionary(lang);
+  const dict: Dictionary = lang === 'fr' ? fr : en;
 
   return (
     <SidebarProvider key={lang}>

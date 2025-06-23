@@ -1,10 +1,12 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 
 export default async function NotFound({ params }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(params.lang);
+  const dict: Dictionary = params.lang === 'fr' ? fr : en;
   
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">

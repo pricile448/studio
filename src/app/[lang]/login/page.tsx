@@ -1,6 +1,8 @@
 
 import Link from 'next/link';
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 
 export default async function LoginPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+  const dict: Dictionary = lang === 'fr' ? fr : en;
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">

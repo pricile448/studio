@@ -1,6 +1,8 @@
 
 import Link from 'next/link';
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Globe } from 'lucide-react';
@@ -12,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default async function HomePage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+  const dict: Dictionary = lang === 'fr' ? fr : en;
   const otherLang = lang === 'en' ? 'fr' : 'en';
 
   return (

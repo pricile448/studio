@@ -1,5 +1,7 @@
 
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -13,7 +15,7 @@ const mockBudgets = [
 ];
 
 export default async function BudgetsPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+  const dict: Dictionary = lang === 'fr' ? fr : en;
   const budgetsDict = dict.budgets;
 
   const formatCurrency = (amount: number) => {

@@ -1,9 +1,11 @@
 
-import { getDictionary, type Locale } from '@/lib/dictionaries';
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
+import en from '@/dictionaries/en.json';
+import fr from '@/dictionaries/fr.json';
 import { IbanClient } from '@/components/iban/iban-client';
 
 export default async function IbanPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+  const dict: Dictionary = lang === 'fr' ? fr : en;
   
   const ibanDetails = {
     holder: 'User Name',
