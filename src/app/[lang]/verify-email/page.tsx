@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,6 +11,15 @@ import { Button } from '@/components/ui/button';
 import { MailCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function VerifyEmailPage() {
   const pathname = usePathname();
@@ -21,6 +29,7 @@ export default function VerifyEmailPage() {
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { toast } = useToast();
   const [isResending, setIsResending] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     getDictionary(lang).then(setDict);
@@ -28,33 +37,28 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (loading) return;
-    // If there's no user, or the user is already verified, redirect.
     if (!user) {
       router.replace(`/${lang}/login`);
-    } else if (user.emailVerified) {
-      router.replace(`/${lang}/dashboard`);
+    } else if (user.emailVerified && !isVerified) {
+      setIsVerified(true);
     }
-  }, [user, loading, router, lang]);
+  }, [user, loading, router, lang, isVerified]);
   
-  // Periodically check if the email has been verified
   useEffect(() => {
+    if (isVerified || !user || user.emailVerified) return;
+
     const interval = setInterval(async () => {
       if (user) {
         await user.reload();
         if (user.emailVerified) {
           clearInterval(interval);
-          toast({
-            title: dict?.verifyEmail.verificationSuccess || "Success!",
-            description: dict?.verifyEmail.verificationSuccessDescription || "Your email has been verified. Redirecting...",
-            className: "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700"
-          });
-          router.push(`/${lang}/dashboard`);
+          setIsVerified(true);
         }
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [user, router, lang, toast, dict]);
+  }, [user, isVerified]);
 
 
   const handleResendEmail = async () => {
@@ -74,6 +78,10 @@ export default function VerifyEmailPage() {
     } finally {
         setIsResending(false);
     }
+  }
+  
+  const handleProceedToLogin = async () => {
+    await logout();
   }
 
   if (loading || !dict || !user) {
@@ -106,6 +114,8 @@ export default function VerifyEmailPage() {
           <CardTitle className="mt-4 text-2xl font-headline">{verifyDict.title}</CardTitle>
           <CardDescription>
             {verifyDict.description.replace('{email}', user.email || '')}
+            <br />
+            {verifyDict.checkSpam}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center space-y-4">
@@ -120,6 +130,23 @@ export default function VerifyEmailPage() {
             </Button>
         </CardContent>
       </Card>
+      
+      <AlertDialog open={isVerified}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{verifyDict.verificationSuccessTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {verifyDict.verificationSuccessDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleProceedToLogin}>
+                {verifyDict.proceedToLoginButton}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }

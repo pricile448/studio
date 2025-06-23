@@ -67,8 +67,10 @@
         "backToLogin": "Voltar ao Login",
         "emailSent": "E-mail enviado!",
         "emailSentDescription": "Um novo e-mail de verificação foi enviado para o seu endereço.",
-        "verificationSuccess": "Sucesso!",
-        "verificationSuccessDescription": "O seu e-mail foi verificado. A redirecionar..."
+        "checkSpam": "Lembre-se também de verificar a sua pasta de spam.",
+        "verificationSuccessTitle": "E-mail Verificado!",
+        "verificationSuccessDescription": "O seu endereço de e-mail foi verificado com sucesso. A sua sessão será agora terminada. Por favor, inicie sessão novamente para aceder à sua conta.",
+        "proceedToLoginButton": "Prosseguir para o Login"
     },
     "sidebar": {
       "dashboard": "Painel",

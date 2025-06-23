@@ -67,8 +67,10 @@
         "backToLogin": "Zurück zum Login",
         "emailSent": "E-Mail gesendet!",
         "emailSentDescription": "Eine neue Bestätigungs-E-Mail wurde an Ihre Adresse gesendet.",
-        "verificationSuccess": "Erfolg!",
-        "verificationSuccessDescription": "Ihre E-Mail wurde bestätigt. Sie werden weitergeleitet..."
+        "checkSpam": "Denken Sie auch daran, Ihren Spam-Ordner zu überprüfen.",
+        "verificationSuccessTitle": "E-Mail bestätigt!",
+        "verificationSuccessDescription": "Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Sie werden nun abgemeldet. Bitte melden Sie sich erneut an, um auf Ihr Konto zuzugreifen.",
+        "proceedToLoginButton": "Zur Anmeldung"
     },
     "sidebar": {
       "dashboard": "Dashboard",

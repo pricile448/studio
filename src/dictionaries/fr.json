@@ -67,8 +67,10 @@
         "backToLogin": "Retour à la connexion",
         "emailSent": "E-mail envoyé !",
         "emailSentDescription": "Un nouvel e-mail de vérification a été envoyé à votre adresse.",
-        "verificationSuccess": "Succès !",
-        "verificationSuccessDescription": "Votre e-mail a été vérifié. Redirection en cours..."
+        "checkSpam": "Pensez également à vérifier votre dossier de courriers indésirables (spam).",
+        "verificationSuccessTitle": "E-mail Vérifié !",
+        "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Vous allez être déconnecté. Veuillez vous reconnecter pour accéder à votre compte.",
+        "proceedToLoginButton": "Aller à la connexion"
     },
      "sidebarGroups": {
         "account": "Mon Compte",
