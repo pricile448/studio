@@ -53,16 +53,17 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
 
         return (
           <SidebarMenuItem key={item.href}>
-            <Link href={fullPath} passHref legacyBehavior>
-              <SidebarMenuButton
-                isActive={isActive}
-                className={cn(isActive && 'bg-primary/10 text-primary hover:text-primary')}
-                tooltip={label}
-              >
+            <SidebarMenuButton
+              asChild
+              isActive={isActive}
+              className={cn(isActive && 'bg-primary/10 text-primary hover:text-primary')}
+              tooltip={label}
+            >
+              <Link href={fullPath}>
                 <Icon />
                 <span>{label}</span>
-              </SidebarMenuButton>
-            </Link>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         );
       })}
