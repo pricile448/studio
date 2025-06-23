@@ -168,6 +168,12 @@
     },
     "settings": {
       "title": "Paramètres",
+      "tabs": {
+        "profile": "Profil",
+        "security": "Sécurité",
+        "notifications": "Notifications",
+        "appearance": "Apparence"
+      },
       "appearance": {
         "title": "Apparence",
         "description": "Personnalisez l'apparence de votre tableau de bord.",

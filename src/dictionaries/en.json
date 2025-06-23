@@ -168,6 +168,12 @@
     },
     "settings": {
       "title": "Settings",
+      "tabs": {
+        "profile": "Profile",
+        "security": "Security",
+        "notifications": "Notifications",
+        "appearance": "Appearance"
+      },
       "appearance": {
         "title": "Appearance",
         "description": "Customize the look and feel of your dashboard.",
