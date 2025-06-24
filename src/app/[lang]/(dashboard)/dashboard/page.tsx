@@ -1,4 +1,3 @@
-
 'use client';
 
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
@@ -7,6 +6,7 @@ import { DashboardClient } from '@/components/dashboard/dashboard-client';
 import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation';
 
 
 const mockAccountsData = [
@@ -23,7 +23,9 @@ const mockTransactionsData = [
   { id: 't5', date: '2024-07-24', description: 'Restaurant Dinner', category: 'Food', amount: -85.50, currency: 'EUR' },
 ];
 
-export default function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function DashboardPage() {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] as Locale;
   const { userProfile, loading } = useAuth();
   const [dict, setDict] = useState<Dictionary | null>(null);
 
