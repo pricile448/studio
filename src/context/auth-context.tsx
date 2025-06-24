@@ -3,12 +3,13 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { addUserToFirestore, UserProfile } from '@/lib/firebase/firestore';
+import { addUserToFirestore, getUserFromFirestore, UserProfile } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/dictionaries';
 
 type AuthContextType = {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   isLoggingOut: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
@@ -29,8 +31,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const lang = (pathname.split('/')[1] as Locale) || 'fr';
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      if (user) {
+        const profile = await getUserFromFirestore(user.uid);
+        setUserProfile(profile);
+      } else {
+        setUserProfile(null);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -93,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = `/${lang}`;
   };
 
-  const value = { user, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification };
+  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

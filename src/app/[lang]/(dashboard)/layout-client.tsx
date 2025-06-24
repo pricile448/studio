@@ -42,7 +42,7 @@ export function DashboardLayoutClient({
   dict: Dictionary;
   lang: Locale;
 }) {
-  const { user, loading, logout, isLoggingOut } = useAuth();
+  const { user, userProfile, loading, logout, isLoggingOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export function DashboardLayoutClient({
     }
   }, [user, loading, router, lang, isLoggingOut]);
 
-  if (loading || !user || !user.emailVerified) {
+  if (loading || !user || !user.emailVerified || !userProfile) {
     return (
         <div className="flex h-screen w-full bg-background">
             <div className="hidden md:block">
@@ -71,6 +71,8 @@ export function DashboardLayoutClient({
         </div>
     );
   }
+
+  const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user.displayName || 'User');
 
   return (
     <SidebarProvider key={lang}>
@@ -114,7 +116,7 @@ export function DashboardLayoutClient({
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.photoURL || "https://placehold.co/100x100.png"} alt={user.displayName || 'User'} data-ai-hint="user avatar" />
+                            <AvatarImage src={user.photoURL || "https://placehold.co/100x100.png"} alt={displayName} data-ai-hint="user avatar" />
                             <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                     </Button>
@@ -122,7 +124,7 @@ export function DashboardLayoutClient({
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
+                        <p className="text-sm font-medium leading-none">{displayName}</p>
                         <p className="text-xs leading-none text-muted-foreground">
                             {user.email}
                         </p>
