@@ -1,34 +1,41 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Rules for the 'users' collection
+    
     match /users/{userId} {
-      
-      // A user can only create their own user document.
-      // This is typically done upon account creation (signup).
-      allow create: if request.auth != null && request.auth.uid == userId;
-
-      // A user can only read their own document.
-      // This protects personal user information from other users.
+      // Les utilisateurs peuvent lire leur propre profil s'ils sont authentifiés.
       allow read: if request.auth != null && request.auth.uid == userId;
 
-      // A user can update their own document, but with restrictions.
+      // Un nouvel utilisateur peut créer son propre profil.
+      // Des règles de validation sont appliquées pour s'assurer que les données initiales sont correctes.
+      allow create: if request.auth != null && request.auth.uid == userId
+                    && request.resource.data.uid == userId
+                    && request.resource.data.email == request.auth.token.email
+                    && request.resource.data.kycStatus == 'unverified'
+                    && request.resource.data.createdAt == request.time;
+      
+      // Un utilisateur peut mettre à jour son propre profil, avec des restrictions.
       allow update: if request.auth != null && request.auth.uid == userId
-        // Ensure some fields cannot be changed by the user after creation.
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email
-        && request.resource.data.createdAt == resource.data.createdAt
-        // Allow the user to submit for verification, but not to verify themselves.
-        && (
-          request.resource.data.kycStatus == resource.data.kycStatus ||
-          (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending')
-        );
-        
-      // A user should not be able to delete their own account directly from the client.
-      // Deletion should be handled by a secure backend process (e.g., a Cloud Function).
-      allow delete: if false;
+                     && canUpdateProfile(request.resource.data, resource.data);
     }
+  }
+  
+  // Fonction d'aide pour valider les mises à jour du profil utilisateur.
+  function canUpdateProfile(incomingData, existingData) {
+    
+    // Champs immuables : l'utilisateur ne peut pas changer son UID, son email, sa date de création, son IBAN ou son BIC.
+    let isImmutableDataUnchanged = incomingData.uid == existingData.uid
+                                   && incomingData.email == existingData.email
+                                   && incomingData.createdAt.toMillis() == existingData.createdAt.toMillis()
+                                   && incomingData.iban == existingData.iban
+                                   && incomingData.bic == existingData.bic;
+
+    // Transition de statut KYC autorisée : un utilisateur ne peut passer son statut que de 'unverified' à 'pending'.
+    // Il ne peut pas se donner le statut 'verified'.
+    let isKycUpdateAllowed = (existingData.kycStatus == 'unverified' && incomingData.kycStatus == 'pending')
+                              || (existingData.kycStatus == incomingData.kycStatus);
+                              
+    return isImmutableDataUnchanged && isKycUpdateAllowed;
   }
 }

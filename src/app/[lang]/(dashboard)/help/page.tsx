@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HelpContactForm } from '@/components/help/help-contact-form';
-import { Lightbulb, Mail, MessageSquareQuestion } from 'lucide-react';
+import { Lightbulb, Mail, MessageSquareQuote } from 'lucide-react';
 
 const mockFinancialDataForAI = {
   transactionHistory: [
@@ -27,7 +27,7 @@ export default async function HelpPage({ params: { lang } }: { params: { lang: L
       <h1 className="text-3xl font-bold font-headline">{helpDict.title}</h1>
       <Tabs defaultValue="faq" className="w-full">
         <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-          <TabsTrigger value="faq"><MessageSquareQuestion className="mr-2 h-4 w-4" />{helpDict.faqTitle}</TabsTrigger>
+          <TabsTrigger value="faq"><MessageSquareQuote className="mr-2 h-4 w-4" />{helpDict.faqTitle}</TabsTrigger>
           <TabsTrigger value="contact"><Mail className="mr-2 h-4 w-4" />{helpDict.contactTitle}</TabsTrigger>
           <TabsTrigger value="ai"><Lightbulb className="mr-2 h-4 w-4" />{dict.dashboard.aiAssistant.title}</TabsTrigger>
         </TabsList>
