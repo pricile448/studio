@@ -56,7 +56,7 @@ export function SettingsClient({ dict, lang }: SettingsClientProps) {
             <CardDescription>{settingsDict.security.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <SecurityForm dict={settingsDict.security} />
+            <SecurityForm dict={settingsDict.security} lang={lang} />
           </CardContent>
         </Card>
       </TabsContent>

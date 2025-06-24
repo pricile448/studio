@@ -26,33 +26,30 @@ interface ProfileFormProps {
 }
 
 const profileFormSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
+  firstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
+  lastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
+  email: z.string().email().readonly(),
   phone: z.string().optional(),
   dob: z.date({ required_error: 'A date of birth is required.' }),
-  street: z.string(),
-  city: z.string(),
-  postalCode: z.string(),
-  country: z.string(),
+  address: z.string(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm({ dict }: ProfileFormProps) {
-  const { user, userProfile, updateUserAvatar } = useAuth();
+  const { user, userProfile, updateUserAvatar, updateUserProfileData } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       phone: '',
-      street: '',
-      city: '',
-      postalCode: '',
-      country: '',
+      address: '',
     },
     mode: 'onChange',
   });
@@ -60,14 +57,12 @@ export function ProfileForm({ dict }: ProfileFormProps) {
   React.useEffect(() => {
     if (userProfile) {
       form.reset({
-        name: `${userProfile.firstName} ${userProfile.lastName}`,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
         email: userProfile.email,
         dob: userProfile.dob,
-        street: userProfile.address,
-        country: userProfile.residenceCountry,
-        phone: '', // This field is not in the UserProfile data model
-        city: '', // This field is not in the UserProfile data model
-        postalCode: '', // This field is not in the UserProfile data model
+        address: userProfile.address,
+        phone: '', // This field can be added to the user profile model if needed
       });
     }
   }, [userProfile, form]);
@@ -87,8 +82,21 @@ export function ProfileForm({ dict }: ProfileFormProps) {
     }
   };
 
-  function onSubmit(data: ProfileFormValues) {
-    // This will be implemented later
+  async function onSubmit(data: ProfileFormValues) {
+    setIsSubmitting(true);
+    try {
+      await updateUserProfileData({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          dob: data.dob,
+          address: data.address,
+      });
+      toast({ title: "Profile updated successfully!" });
+    } catch (error) {
+      toast({ variant: 'destructive', title: "Failed to update profile", description: (error as Error).message });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (!userProfile || !user) {
@@ -134,10 +142,23 @@ export function ProfileForm({ dict }: ProfileFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <FormField
               control={form.control}
-              name="name"
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{dict.nameLabel}</FormLabel>
+                  <FormLabel>{dict.firstNameLabel}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{dict.lastNameLabel}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -152,20 +173,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                 <FormItem>
                   <FormLabel>{dict.emailLabel}</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.phoneLabel}</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
+                    <Input type="email" {...field} readOnly />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -203,67 +211,25 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <FormLabel>{dict.streetLabel}</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <div>
-            <h3 className="text-lg font-medium">{dict.addressGroupTitle}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-              <FormField
-                control={form.control}
-                name="street"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>{dict.streetLabel}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{dict.cityLabel}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="postalCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{dict.postalCodeLabel}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{dict.countryLabel}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <Button type="submit" disabled>{dict.saveButton}</Button>
+          <Button type="submit" disabled={isSubmitting}>
+             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {dict.saveButton}
+          </Button>
         </form>
       </Form>
     </>

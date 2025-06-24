@@ -131,7 +131,8 @@
         "verificationTitle": "Vérification du profil",
         "verificationDescription": "Veuillez compléter votre vérification d'identité.",
         "viewAll": "Voir toutes les notifications",
-        "noNotifications": "Aucune nouvelle notification."
+        "noNotifications": "Aucune nouvelle notification.",
+        "markAllAsRead": "Tout marquer comme lu"
       }
     },
     "accounts": {
@@ -298,6 +299,8 @@
         "title": "Informations Personnelles",
         "description": "Mettez à jour vos informations personnelles. Ces informations sont nécessaires pour la vérification de votre compte.",
         "nameLabel": "Nom complet",
+        "firstNameLabel": "Prénom",
+        "lastNameLabel": "Nom",
         "emailLabel": "Adresse e-mail",
         "phoneLabel": "Numéro de téléphone",
         "dobLabel": "Date de naissance",
@@ -319,7 +322,13 @@
         "currentPasswordLabel": "Mot de passe actuel",
         "newPasswordLabel": "Nouveau mot de passe",
         "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
-        "saveButton": "Mettre à jour le mot de passe"
+        "saveButton": "Mettre à jour le mot de passe",
+        "passwordUpdateSuccess": "Mot de passe mis à jour avec succès !",
+        "passwordUpdateErrorTitle": "Erreur de mise à jour",
+        "passwordUpdateError": "Une erreur est survenue.",
+        "reauthenticationRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter avant de réessayer.",
+        "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
+        "passwordMismatchError": "Les mots de passe ne correspondent pas."
       },
       "notifications": {
         "title": "Notifications",
@@ -336,7 +345,8 @@
           "title": "Alertes de sécurité",
           "description": "Recevez des e-mails concernant les alertes de sécurité sur votre compte."
         },
-        "saveButton": "Enregistrer les préférences"
+        "saveButton": "Enregistrer les préférences",
+        "saveSuccess": "Préférences enregistrées !"
       },
       "appearance": {
         "title": "Apparence",
@@ -371,6 +381,7 @@
       "documents": "Mes Documents",
       "exchange": "Change de devises",
       "referrals": "Parrainer un ami",
+      "notifications": "Notifications",
       "userMenu": {
         "profile": "Profil",
         "billing": "Facturation",

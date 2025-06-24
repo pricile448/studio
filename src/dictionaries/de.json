@@ -91,6 +91,7 @@
       "documents": "Meine Dokumente",
       "exchange": "Währungsumtausch",
       "referrals": "Einen Freund empfehlen",
+      "notifications": "Benachrichtigungen",
       "userMenu": {
         "profile": "Profil",
         "billing": "Abrechnung",
@@ -152,7 +153,8 @@
         "verificationTitle": "Profilverifizierung",
         "verificationDescription": "Bitte schließen Sie Ihre Identitätsprüfung ab.",
         "viewAll": "Alle Benachrichtigungen anzeigen",
-        "noNotifications": "Keine neuen Benachrichtigungen."
+        "noNotifications": "Keine neuen Benachrichtigungen.",
+        "markAllAsRead": "Alle als gelesen markieren"
       }
     },
     "accounts": {
@@ -319,6 +321,8 @@
         "title": "Persönliche Informationen",
         "description": "Aktualisieren Sie hier Ihre persönlichen Daten. Diese Informationen sind für die Kontobestätigung erforderlich.",
         "nameLabel": "Vollständiger Name",
+        "firstNameLabel": "Vorname",
+        "lastNameLabel": "Nachname",
         "emailLabel": "E-Mail-Adresse",
         "phoneLabel": "Telefonnummer",
         "dobLabel": "Geburtsdatum",
@@ -340,7 +344,13 @@
         "currentPasswordLabel": "Aktuelles Passwort",
         "newPasswordLabel": "Neues Passwort",
         "confirmPasswordLabel": "Neues Passwort bestätigen",
-        "saveButton": "Passwort aktualisieren"
+        "saveButton": "Passwort aktualisieren",
+        "passwordUpdateSuccess": "Passwort erfolgreich aktualisiert!",
+        "passwordUpdateErrorTitle": "Update-Fehler",
+        "passwordUpdateError": "Ein Fehler ist aufgetreten.",
+        "reauthenticationRequired": "Dieser Vorgang ist sensibel und erfordert eine kürzliche Authentifizierung. Bitte melden Sie sich erneut an, bevor Sie es erneut versuchen.",
+        "passwordLengthError": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+        "passwordMismatchError": "Die Passwörter stimmen nicht überein."
       },
       "notifications": {
         "title": "Benachrichtigungen",
@@ -357,7 +367,8 @@
           "title": "Sicherheitswarnungen",
           "description": "Erhalten Sie E-Mails zu Sicherheitswarnungen für Ihr Konto."
         },
-        "saveButton": "Einstellungen speichern"
+        "saveButton": "Einstellungen speichern",
+        "saveSuccess": "Einstellungen gespeichert!"
       },
       "appearance": {
         "title": "Erscheinungsbild",

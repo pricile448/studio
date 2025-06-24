@@ -91,6 +91,7 @@
       "documents": "My Documents",
       "exchange": "Currency Exchange",
       "referrals": "Refer a Friend",
+      "notifications": "Notifications",
       "userMenu": {
         "profile": "Profile",
         "billing": "Billing",
@@ -152,7 +153,8 @@
         "verificationTitle": "Profile Verification",
         "verificationDescription": "Please complete your identity verification.",
         "viewAll": "View all notifications",
-        "noNotifications": "No new notifications."
+        "noNotifications": "No new notifications.",
+        "markAllAsRead": "Mark all as read"
       }
     },
     "accounts": {
@@ -319,6 +321,8 @@
         "title": "Personal Information",
         "description": "Update your personal details here. This information is required for account verification.",
         "nameLabel": "Full Name",
+        "firstNameLabel": "First Name",
+        "lastNameLabel": "Last Name",
         "emailLabel": "Email Address",
         "phoneLabel": "Phone Number",
         "dobLabel": "Date of Birth",
@@ -340,7 +344,13 @@
         "currentPasswordLabel": "Current Password",
         "newPasswordLabel": "New Password",
         "confirmPasswordLabel": "Confirm New Password",
-        "saveButton": "Update Password"
+        "saveButton": "Update Password",
+        "passwordUpdateSuccess": "Password updated successfully!",
+        "passwordUpdateErrorTitle": "Update Error",
+        "passwordUpdateError": "An error occurred.",
+        "reauthenticationRequired": "This is a sensitive operation and requires recent authentication. Please log in again before retrying.",
+        "passwordLengthError": "Password must be at least 6 characters.",
+        "passwordMismatchError": "Passwords do not match."
       },
       "notifications": {
         "title": "Notifications",
@@ -357,7 +367,8 @@
           "title": "Security alerts",
           "description": "Receive emails about security alerts on your account."
         },
-        "saveButton": "Save Preferences"
+        "saveButton": "Save Preferences",
+        "saveSuccess": "Preferences saved!"
       },
       "appearance": {
         "title": "Appearance",

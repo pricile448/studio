@@ -15,6 +15,11 @@ export type UserProfile = {
   profession: string;
   salary: number;
   photoURL?: string;
+  notificationPrefs?: {
+    email: boolean;
+    promotions: boolean;
+    security: boolean;
+  };
   createdAt: any;
 };
 
@@ -23,6 +28,11 @@ export async function addUserToFirestore(userProfile: Omit<UserProfile, 'created
   await setDoc(userRef, {
     ...userProfile,
     createdAt: serverTimestamp(),
+    notificationPrefs: { // Default notification settings
+        email: true,
+        promotions: false,
+        security: true,
+    }
   });
 }
 

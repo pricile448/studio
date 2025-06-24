@@ -91,6 +91,7 @@
       "documents": "Mis Documentos",
       "exchange": "Cambio de Divisas",
       "referrals": "Recomendar a un Amigo",
+      "notifications": "Notificaciones",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Facturación",
@@ -152,7 +153,8 @@
         "verificationTitle": "Verificación de perfil",
         "verificationDescription": "Por favor, complete su verificación de identidad.",
         "viewAll": "Ver todas las notificaciones",
-        "noNotifications": "No hay nuevas notificaciones."
+        "noNotifications": "No hay nuevas notificaciones.",
+        "markAllAsRead": "Marcar todo como leído"
       }
     },
     "accounts": {
@@ -319,6 +321,8 @@
         "title": "Información Personal",
         "description": "Actualice sus datos personales aquí. Esta información es necesaria para la verificación de la cuenta.",
         "nameLabel": "Nombre completo",
+        "firstNameLabel": "Nombre",
+        "lastNameLabel": "Apellido",
         "emailLabel": "Dirección de correo electrónico",
         "phoneLabel": "Número de teléfono",
         "dobLabel": "Fecha de nacimiento",
@@ -340,7 +344,13 @@
         "currentPasswordLabel": "Contraseña actual",
         "newPasswordLabel": "Nueva contraseña",
         "confirmPasswordLabel": "Confirmar nueva contraseña",
-        "saveButton": "Actualizar contraseña"
+        "saveButton": "Actualizar contraseña",
+        "passwordUpdateSuccess": "¡Contraseña actualizada con éxito!",
+        "passwordUpdateErrorTitle": "Error de Actualización",
+        "passwordUpdateError": "Ocurrió un error.",
+        "reauthenticationRequired": "Esta es una operación sensible y requiere autenticación reciente. Por favor, inicie sesión de nuevo antes de volver a intentarlo.",
+        "passwordLengthError": "La contraseña debe tener al menos 6 caracteres.",
+        "passwordMismatchError": "Las contraseñas no coinciden."
       },
       "notifications": {
         "title": "Notificaciones",
@@ -357,7 +367,8 @@
           "title": "Alertas de seguridad",
           "description": "Reciba correos electrónicos sobre alertas de seguridad en su cuenta."
         },
-        "saveButton": "Guardar preferencias"
+        "saveButton": "Guardar preferencias",
+        "saveSuccess": "¡Preferencias guardadas!"
       },
       "appearance": {
         "title": "Apariencia",

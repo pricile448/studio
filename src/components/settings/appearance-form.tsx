@@ -131,8 +131,6 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
             </Button>
         </div>
       </div>
-      
-       <Button disabled>{dict.saveButton}</Button>
     </div>
   );
 }

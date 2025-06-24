@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile } from 'firebase/auth';
+import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword } from 'firebase/auth';
 import { auth, storage } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
@@ -20,6 +20,8 @@ type AuthContextType = {
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   updateUserAvatar: (file: File) => Promise<void>;
+  updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
+  updateUserPassword: (password: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,24 +85,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkEmailVerification = async () => {
     if (!auth.currentUser) {
-      // This can happen if the user clicks the link in a different browser.
-      // We can't check verification without a logged-in user.
-      // The auth/action page handles the actual verification.
       return false;
     }
     await reload(auth.currentUser);
     if (auth.currentUser.emailVerified) {
-      setUser(auth.currentUser); // Update state with the now-verified user
+      setUser(auth.currentUser);
       return true;
     }
     return false;
   };
 
-
   const logout = async () => {
     setIsLoggingOut(true);
     await signOut(auth);
-    // Force a full page reload to clear all state and redirect to home.
     window.location.href = `/${lang}`;
   };
   
@@ -114,17 +111,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await updateProfile(user, { photoURL });
     await updateUserInFirestore(user.uid, { photoURL });
     
-    // Manually update the state to reflect the change immediately
-    const reloadedUser = auth.currentUser;
-    if(reloadedUser) {
-        await reload(reloadedUser);
-        setUser(auth.currentUser);
+    // Optimistically update state to avoid waiting for a full reload
+    const updatedUser = { ...user, photoURL };
+    setUser(updatedUser as User);
+
+    if (userProfile) {
+      const updatedProfile = { ...userProfile, photoURL };
+      setUserProfile(updatedProfile);
     }
-    const updatedProfile = await getUserFromFirestore(user.uid);
-    setUserProfile(updatedProfile);
   };
 
-  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserAvatar };
+  const updateUserProfileData = async (data: Partial<UserProfile>) => {
+    if (!user) throw new Error("No user is signed in.");
+    
+    await updateUserInFirestore(user.uid, data);
+    
+    if (data.firstName || data.lastName) {
+       await updateProfile(user, { displayName: `${data.firstName || userProfile?.firstName} ${data.lastName || userProfile?.lastName}` });
+    }
+    
+    // Refresh local state
+    const profile = await getUserFromFirestore(user.uid);
+    setUserProfile(profile);
+    setUser(auth.currentUser);
+  }
+
+  const updateUserPassword = async (password: string) => {
+    if (!auth.currentUser) throw new Error("No user is signed in.");
+    await updatePassword(auth.currentUser, password);
+  }
+
+  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserAvatar, updateUserProfileData, updateUserPassword };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -132,7 +132,7 @@ export function DashboardLayoutClient({
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="justify-center text-sm text-muted-foreground" asChild>
-                       <Link href="#">{notificationsDict.viewAll}</Link>
+                       <Link href={`/${lang}/notifications`}>{notificationsDict.viewAll}</Link>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
              </DropdownMenu>

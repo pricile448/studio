@@ -91,6 +91,7 @@
       "documents": "Meus Documentos",
       "exchange": "Câmbio de Moedas",
       "referrals": "Indique um Amigo",
+      "notifications": "Notificações",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Faturamento",
@@ -152,7 +153,8 @@
         "verificationTitle": "Verificação de Perfil",
         "verificationDescription": "Por favor, complete a sua verificação de identidade.",
         "viewAll": "Ver todas as notificações",
-        "noNotifications": "Nenhuma nova notificação."
+        "noNotifications": "Nenhuma nova notificação.",
+        "markAllAsRead": "Marcar tudo como lido"
       }
     },
     "accounts": {
@@ -319,6 +321,8 @@
         "title": "Informações Pessoais",
         "description": "Atualize seus dados pessoais aqui. Esta informação é necessária para a verificação da conta.",
         "nameLabel": "Nome Completo",
+        "firstNameLabel": "Primeiro Nome",
+        "lastNameLabel": "Último Nome",
         "emailLabel": "Endereço de E-mail",
         "phoneLabel": "Número de Telefone",
         "dobLabel": "Data de Nascimento",
@@ -340,7 +344,13 @@
         "currentPasswordLabel": "Senha atual",
         "newPasswordLabel": "Nova senha",
         "confirmPasswordLabel": "Confirmar nova senha",
-        "saveButton": "Atualizar senha"
+        "saveButton": "Atualizar senha",
+        "passwordUpdateSuccess": "Senha atualizada com sucesso!",
+        "passwordUpdateErrorTitle": "Erro de Atualização",
+        "passwordUpdateError": "Ocorreu um erro.",
+        "reauthenticationRequired": "Esta é uma operação sensível e requer autenticação recente. Por favor, inicie sessão novamente antes de tentar de novo.",
+        "passwordLengthError": "A senha deve ter pelo menos 6 caracteres.",
+        "passwordMismatchError": "As senhas não correspondem."
       },
       "notifications": {
         "title": "Notificações",
@@ -357,7 +367,8 @@
           "title": "Alertas de segurança",
           "description": "Receba e-mails sobre alertas de segurança em sua conta."
         },
-        "saveButton": "Salvar preferências"
+        "saveButton": "Salvar preferências",
+        "saveSuccess": "Preferências salvas!"
       },
       "appearance": {
         "title": "Aparência",
