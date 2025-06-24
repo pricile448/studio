@@ -1,3 +1,4 @@
+
 const COLORS = [
     '#e51c23', // red
     '#e91e63', // pink
@@ -37,4 +38,27 @@ export function generateColorFromString(str: string): string {
     // Normalize to a non-negative index
     const index = Math.abs(hash % COLORS.length);
     return COLORS[index];
+}
+
+/**
+ * Returns black or white for best contrast against a given hex color.
+ * @param hexcolor A hex color string (e.g., '#RRGGBB').
+ * @returns '#000000' for light backgrounds, '#FFFFFF' for dark backgrounds.
+ */
+export function getContrastColor(hexcolor: string): string {
+  if (hexcolor.startsWith('#')) {
+    hexcolor = hexcolor.slice(1);
+  }
+  // If a 3-char hex, convert to 6-char
+  if (hexcolor.length === 3) {
+    hexcolor = hexcolor.split('').map(char => char + char).join('');
+  }
+
+  const r = parseInt(hexcolor.substring(0, 2), 16);
+  const g = parseInt(hexcolor.substring(2, 4), 16);
+  const b = parseInt(hexcolor.substring(4, 6), 16);
+
+  // http://www.w3.org/TR/AERT#color-contrast
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return (yiq >= 128) ? '#000000' : '#FFFFFF';
 }

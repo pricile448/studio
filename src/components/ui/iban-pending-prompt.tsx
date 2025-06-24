@@ -24,7 +24,7 @@ export function IbanPendingPrompt({ lang, title, description, buttonText }: Iban
                     <CardDescription>{description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Button asChild variant="outline">
+                    <Button asChild>
                         <Link href={`/${lang}/dashboard`}>{buttonText}</Link>
                     </Button>
                 </CardContent>

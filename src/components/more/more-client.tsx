@@ -1,6 +1,7 @@
 
 'use client';
 
+import jsPDF from 'jspdf';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,12 +9,6 @@ import { Upload, FileDown, FileText } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const mockUserDocuments = [
-    { id: 'doc1', name: 'Identity Card.pdf', date: '2024-05-10' },
-    { id: 'doc2', name: 'Proof of Address.pdf', date: '2024-05-12' },
-    { id: 'doc3', name: 'Bank Statement Q1.pdf', date: '2024-04-05' },
-];
 
 interface MoreClientProps {
   dict: Dictionary;
@@ -35,11 +30,37 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
   const docDict = dict.documents;
   
   const defaultDocuments = [
-    { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', fileName: 'Service_Agreement.txt' },
-    { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', fileName: 'Privacy_Policy.txt' },
+    { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const },
+    { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const },
   ];
 
-  const documentsToDisplay = userProfile.kycStatus === 'verified' ? mockUserDocuments : defaultDocuments;
+  // In a real app, user-specific documents would be fetched from Firestore/Storage for verified users.
+  const userUploadedDocuments: any[] = userProfile.kycStatus === 'verified' ? [
+    // This is where admin-added documents would appear.
+    // For now, it's empty for a newly-verified user.
+  ] : [];
+
+  const documentsToDisplay = [...defaultDocuments, ...userUploadedDocuments];
+
+  const handleDownloadDefault = (docType: 'contract' | 'privacy') => {
+    const doc = new jsPDF();
+    
+    if (docType === 'contract') {
+      doc.setFontSize(18);
+      doc.text(docDict.serviceContract, 20, 20);
+      doc.setFontSize(12);
+      doc.text('This is a placeholder for the service agreement content.', 20, 30);
+      doc.text('In a real application, this would contain the full legal text.', 20, 40);
+      doc.save('Service_Agreement.pdf');
+    } else if (docType === 'privacy') {
+      doc.setFontSize(18);
+      doc.text(docDict.privacyPolicy, 20, 20);
+      doc.setFontSize(12);
+      doc.text('This is a placeholder for the privacy policy content.', 20, 30);
+      doc.text('Your data is handled with care. This document would detail our practices.', 20, 40);
+      doc.save('Privacy_Policy.pdf');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -76,21 +97,17 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
                    </TableCell>
                    <TableCell className="hidden md:table-cell">{doc.date}</TableCell>
                    <TableCell className="text-right">
-                    {/* @ts-ignore */}
-                     {doc.fileName ? (
-                        <Button variant="outline" size="sm" asChild>
-                          {/* @ts-ignore */}
-                          <a href={`/${doc.fileName}`} download={doc.name}>
-                            <FileDown className="mr-2 h-4 w-4" />
-                            {docDict.download}
-                          </a>
-                        </Button>
-                      ) : (
-                        <Button variant="outline" size="sm" disabled>
-                          <FileDown className="mr-2 h-4 w-4" />
-                          {docDict.download}
-                        </Button>
-                      )}
+                    {doc.type === 'default' ? (
+                      <Button variant="outline" size="sm" onClick={() => handleDownloadDefault(doc.id as 'contract' | 'privacy')}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        {docDict.download}
+                      </Button>
+                    ) : (
+                      <Button variant="outline" size="sm" disabled>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        {docDict.download}
+                      </Button>
+                    )}
                    </TableCell>
                 </TableRow>
               ))}

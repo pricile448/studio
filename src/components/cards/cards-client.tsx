@@ -248,7 +248,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           <CardDescription>{cardsDict.orderCardDescription}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">{dict.kyc.step1_desc}</p>
+          {/* Intentionally left blank. The button is in the footer. */}
         </CardContent>
         <CardFooter>
           <Dialog>
