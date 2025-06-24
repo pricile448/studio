@@ -42,18 +42,18 @@ export function DashboardLayoutClient({
   dict: Dictionary;
   lang: Locale;
 }) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, isLoggingOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || isLoggingOut) return;
 
     if (!user) {
       router.push(`/${lang}/login`);
     } else if (!user.emailVerified) {
       router.push(`/${lang}/verify-email`);
     }
-  }, [user, loading, router, lang]);
+  }, [user, loading, router, lang, isLoggingOut]);
 
   if (loading || !user || !user.emailVerified) {
     return (
