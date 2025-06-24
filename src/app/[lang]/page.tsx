@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Globe } from 'lucide-react';
+import { Globe, Menu } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getDictionary } from '@/lib/get-dictionary';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 export default async function HomePage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
@@ -19,13 +21,13 @@ export default async function HomePage({ params: { lang } }: { params: { lang: L
     <div className="flex min-h-screen flex-col bg-background font-body">
       {/* Header */}
       <header className="container mx-auto flex h-20 items-center justify-between px-4">
-        <div className="flex items-center gap-4">
+        <Link href={`/${lang}`} className="flex items-center gap-4">
           <Logo text={dict.logo} />
           <div>
             <h1 className="text-xl font-bold font-headline">{dict.logo}</h1>
             <p className="hidden text-sm text-muted-foreground sm:block">{dict.homePage.slogan}</p>
           </div>
-        </div>
+        </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
           <Link href={`/${lang}`} className="text-foreground/80 transition-colors hover:text-foreground">
             {dict.homePage.nav.home}
@@ -34,7 +36,7 @@ export default async function HomePage({ params: { lang } }: { params: { lang: L
             {dict.homePage.nav.features}
           </Link>
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="hidden items-center gap-4 md:flex">
           <Button variant="outline" asChild>
             <Link href={`/${lang}/login`}>{dict.homePage.nav.login}</Link>
           </Button>
@@ -65,6 +67,47 @@ export default async function HomePage({ params: { lang } }: { params: { lang: L
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+         <div className="md:hidden">
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Menu className="h-6 w-6" />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                    <nav className="grid gap-6 text-lg font-medium p-6">
+                        <Link href={`/${lang}`} className="flex items-center gap-2 text-lg font-semibold">
+                            <Logo text={dict.logo} />
+                            <span>{dict.logo}</span>
+                        </Link>
+                        <Link href={`/${lang}`} className="text-muted-foreground transition-colors hover:text-foreground">
+                            {dict.homePage.nav.home}
+                        </Link>
+                        <Link href="#features" className="text-muted-foreground transition-colors hover:text-foreground">
+                            {dict.homePage.nav.features}
+                        </Link>
+                        <Separator className="my-4" />
+                        <div className="flex flex-col gap-4">
+                            <Button variant="outline" asChild>
+                                <Link href={`/${lang}/login`}>{dict.homePage.nav.login}</Link>
+                            </Button>
+                            <Button asChild>
+                                <Link href={`/${lang}/register`}>{dict.homePage.nav.openAccount}</Link>
+                            </Button>
+                        </div>
+                         <Separator className="my-4" />
+                         <div className="flex flex-col gap-2">
+                            <p className="text-sm text-muted-foreground">{dict.settings.appearance.language}</p>
+                            <Link href="/en" className="text-muted-foreground transition-colors hover:text-foreground">English</Link>
+                            <Link href="/fr" className="text-muted-foreground transition-colors hover:text-foreground">Français</Link>
+                            <Link href="/de" className="text-muted-foreground transition-colors hover:text-foreground">Deutsch</Link>
+                            <Link href="/es" className="text-muted-foreground transition-colors hover:text-foreground">Español</Link>
+                            <Link href="/pt" className="text-muted-foreground transition-colors hover:text-foreground">Português</Link>
+                         </div>
+                    </nav>
+                </SheetContent>
+            </Sheet>
         </div>
       </header>
 
