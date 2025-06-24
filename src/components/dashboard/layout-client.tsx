@@ -123,7 +123,7 @@ export function DashboardLayoutClient({
                     <div className="relative">
                         <Avatar className="h-9 w-9">
                             <AvatarImage src={user.photoURL || ""} alt={displayName} />
-                            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
+                            <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                         {userProfile.kycStatus === 'verified' && (
                             <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar-background" />
@@ -183,7 +183,7 @@ export function DashboardLayoutClient({
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                         <Avatar className="h-8 w-8">
                             <AvatarImage src={user.photoURL || ""} alt={displayName} data-ai-hint="user avatar" />
-                            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
+                            <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                     </Button>
                 </DropdownMenuTrigger>
