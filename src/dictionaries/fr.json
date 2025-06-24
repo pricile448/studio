@@ -53,7 +53,7 @@
       "residenceCountryLabel": "Pays de résidence",
       "addressLabel": "Adresse de résidence",
       "professionLabel": "Profession",
-      "salaryLabel": "Revenu mensuel (approximatif)",
+      "salaryLabel": "Revenu mensuel (approximatif en €)",
       "dobPlaceholder": "Sélectionnez une date",
       "registerErrorTitle": "Échec de l'inscription",
       "registerErrorDescription": "Une erreur inattendue est survenue lors de l'inscription.",

@@ -18,9 +18,9 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 
 const mockAccountsData = [
-  { id: '1', name: 'checking', balance: 4850.75, currency: 'USD' },
-  { id: '2', name: 'savings', balance: 15340.21, currency: 'USD' },
-  { id: '3', name: 'credit', balance: -789.43, currency: 'USD' },
+  { id: '1', name: 'checking', balance: 4850.75, currency: 'EUR' },
+  { id: '2', name: 'savings', balance: 15340.21, currency: 'EUR' },
+  { id: '3', name: 'credit', balance: -789.43, currency: 'EUR' },
 ];
 
 const mockLedgerData = [
@@ -39,7 +39,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 
 function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccountsData, dict: Dictionary['accounts'], lang: Locale }) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
   
   return (
@@ -128,7 +128,7 @@ export default function AccountsPage() {
   const totalBalance = isVerified ? accounts.reduce((acc, account) => acc + account.balance, 0) : 0;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
   
   const accountsDict = dict.accounts;

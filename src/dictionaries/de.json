@@ -53,7 +53,7 @@
       "residenceCountryLabel": "Wohnsitzland",
       "addressLabel": "Wohnadresse",
       "professionLabel": "Beruf",
-      "salaryLabel": "Monatliches Einkommen (ca.)",
+      "salaryLabel": "Monatliches Einkommen (ca. in €)",
       "dobPlaceholder": "Datum auswählen",
       "registerErrorTitle": "Registrierung fehlgeschlagen",
       "registerErrorDescription": "Bei der Registrierung ist ein unerwarteter Fehler aufgetreten.",

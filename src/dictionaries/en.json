@@ -53,7 +53,7 @@
       "residenceCountryLabel": "Country of Residence",
       "addressLabel": "Residential Address",
       "professionLabel": "Profession",
-      "salaryLabel": "Monthly Income (approx.)",
+      "salaryLabel": "Monthly Income (approx. in €)",
       "dobPlaceholder": "Select a date",
       "registerErrorTitle": "Registration Failed",
       "registerErrorDescription": "An unexpected error occurred.",

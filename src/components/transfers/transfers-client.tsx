@@ -71,7 +71,7 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
   const displayRecentTransfers = recentTransfers;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
   
   const getAccountName = (name: string) => {

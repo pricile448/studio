@@ -38,8 +38,8 @@ export default function DocumentsPage({ params: { lang } }: { params: { lang: Lo
   const docDict = dict.documents;
   
   const defaultDocuments = [
-    { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A' },
-    { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A' },
+    { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', fileName: 'Service_Agreement.txt' },
+    { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', fileName: 'Privacy_Policy.txt' },
   ];
 
   const documentsToDisplay = userProfile.kycStatus === 'verified' ? mockUserDocuments : defaultDocuments;
@@ -79,10 +79,21 @@ export default function DocumentsPage({ params: { lang } }: { params: { lang: Lo
                    </TableCell>
                    <TableCell className="hidden md:table-cell">{doc.date}</TableCell>
                    <TableCell className="text-right">
-                     <Button variant="outline" size="sm">
-                       <FileDown className="mr-2 h-4 w-4" />
-                       {docDict.download}
-                     </Button>
+                    {/* @ts-ignore */}
+                     {doc.fileName ? (
+                        <Button variant="outline" size="sm" asChild>
+                          {/* @ts-ignore */}
+                          <a href={`/${doc.fileName}`} download={doc.name}>
+                            <FileDown className="mr-2 h-4 w-4" />
+                            {docDict.download}
+                          </a>
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" disabled>
+                          <FileDown className="mr-2 h-4 w-4" />
+                          {docDict.download}
+                        </Button>
+                      )}
                    </TableCell>
                 </TableRow>
               ))}

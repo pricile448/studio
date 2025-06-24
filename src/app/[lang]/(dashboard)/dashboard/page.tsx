@@ -10,17 +10,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 
 const mockAccountsData = [
-  { id: '1', name: 'checking', balance: 4850.75, currency: 'USD' },
-  { id: '2', name: 'savings', balance: 15340.21, currency: 'USD' },
-  { id: '3', name: 'credit', balance: -789.43, currency: 'USD' },
+  { id: '1', name: 'checking', balance: 4850.75, currency: 'EUR' },
+  { id: '2', name: 'savings', balance: 15340.21, currency: 'EUR' },
+  { id: '3', name: 'credit', balance: -789.43, currency: 'EUR' },
 ];
 
 const mockTransactionsData = [
-  { id: 't1', date: '2024-07-28', description: 'Netflix Subscription', category: 'Entertainment', amount: -15.99, currency: 'USD' },
-  { id: 't2', date: '2024-07-27', description: 'Grocery Store', category: 'Food', amount: -124.32, currency: 'USD' },
-  { id: 't3', date: '2024-07-26', description: 'Salary Deposit', category: 'Income', amount: 2500.00, currency: 'USD' },
-  { id: 't4', date: '2024-07-25', description: 'Gas Station', category: 'Transport', amount: -55.60, currency: 'USD' },
-  { id: 't5', date: '2024-07-24', description: 'Restaurant Dinner', category: 'Food', amount: -85.50, currency: 'USD' },
+  { id: 't1', date: '2024-07-28', description: 'Netflix Subscription', category: 'Entertainment', amount: -15.99, currency: 'EUR' },
+  { id: 't2', date: '2024-07-27', description: 'Grocery Store', category: 'Food', amount: -124.32, currency: 'EUR' },
+  { id: 't3', date: '2024-07-26', description: 'Salary Deposit', category: 'Income', amount: 2500.00, currency: 'EUR' },
+  { id: 't4', date: '2024-07-25', description: 'Gas Station', category: 'Transport', amount: -55.60, currency: 'EUR' },
+  { id: 't5', date: '2024-07-24', description: 'Restaurant Dinner', category: 'Food', amount: -85.50, currency: 'EUR' },
 ];
 
 export default function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {

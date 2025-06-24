@@ -10,9 +10,9 @@ import Link from 'next/link';
 
 // Mock data, in a real app this would come from an API
 const mockAccounts = [
-  { id: '1', name: 'checking', balance: 4850.75, currency: 'USD', accountNumber: '**** **** **** 1234' },
-  { id: '2', name: 'savings', balance: 15340.21, currency: 'USD', accountNumber: '**** **** **** 5678' },
-  { id: '3', name: 'credit', balance: -789.43, currency: 'USD', accountNumber: '**** **** **** 9010' },
+  { id: '1', name: 'checking', balance: 4850.75, currency: 'EUR', accountNumber: '**** **** **** 1234' },
+  { id: '2', name: 'savings', balance: 15340.21, currency: 'EUR', accountNumber: '**** **** **** 5678' },
+  { id: '3', name: 'credit', balance: -789.43, currency: 'EUR', accountNumber: '**** **** **** 9010' },
 ];
 
 const mockTransactions = [
@@ -47,7 +47,7 @@ export default async function AccountDetailsPage({ params: { lang, accountId } }
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
   
   const Icon = accountIcons[account.name] || DollarSign;

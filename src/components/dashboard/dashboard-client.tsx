@@ -51,7 +51,7 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
   const { userProfile } = useAuth();
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const getAccountName = (name: string) => {

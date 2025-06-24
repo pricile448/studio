@@ -107,7 +107,7 @@ export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
 
   const getBudgetName = (name: string) => {
