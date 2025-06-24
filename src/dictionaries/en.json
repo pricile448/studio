@@ -124,6 +124,7 @@
         "amount": "Amount"
       },
       "expenseChart": "Expense Overview",
+      "noExpenseData": "No expense data to display.",
       "aiAssistant": {
         "title": "AI Financial Assistant",
         "description": "Get personalized insights and recommendations based on your transaction history.",

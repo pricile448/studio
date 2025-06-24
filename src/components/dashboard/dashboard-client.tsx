@@ -23,15 +23,6 @@ type DashboardClientProps = {
   totalBalance: number;
 };
 
-const chartData = [
-  { category: 'Food', expenses: 450 },
-  { category: 'Transport', expenses: 200 },
-  { category: 'Shopping', expenses: 300 },
-  { category: 'Entertainment', expenses: 150 },
-  { category: 'Housing', expenses: 1500 },
-  { category: 'Other', expenses: 100 },
-];
-
 const chartConfig = {
   expenses: {
     label: 'Expenses',
@@ -67,6 +58,20 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
   ];
 
   const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : '';
+  
+  const chartData = React.useMemo(() => {
+    const expenseTransactions = transactions.filter(tx => tx.amount < 0);
+    const expensesByCategory: {[key: string]: number} = expenseTransactions.reduce((acc, tx) => {
+      const category = tx.category || 'Other';
+      acc[category] = (acc[category] || 0) + Math.abs(tx.amount);
+      return acc;
+    }, {} as {[key: string]: number});
+
+    return Object.entries(expensesByCategory).map(([category, expenses]) => ({
+      category,
+      expenses,
+    }));
+  }, [transactions]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -178,16 +183,22 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
           <CardHeader>
             <CardTitle className="font-headline">{dict.expenseChart}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-              <BarChart accessibilityLayer data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="category" tickLine={false} tickMargin={10} axisLine={false} tick={false} />
-                <YAxis hide />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-              </BarChart>
-            </ChartContainer>
+           <CardContent>
+            {chartData.length > 0 ? (
+              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <BarChart accessibilityLayer data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="category" tickLine={false} tickMargin={10} axisLine={false} tick={false} />
+                  <YAxis hide />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <div className="flex h-[200px] items-center justify-center text-center text-muted-foreground">
+                <p>{dict.noExpenseData}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

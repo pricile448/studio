@@ -124,6 +124,7 @@
         "amount": "Valor"
       },
       "expenseChart": "Visão Geral de Despesas",
+      "noExpenseData": "Nenhuns dados de despesa para exibir.",
       "aiAssistant": {
         "title": "Assistente Financeiro de IA",
         "description": "Obtenha insights e recomendações personalizadas com base no seu histórico de transações.",

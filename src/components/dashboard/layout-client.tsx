@@ -42,7 +42,6 @@ import Link from 'next/link';
 import { Bell, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-import { generateColorFromString, getContrastColor } from '@/lib/color-utils';
 
 export function DashboardLayoutClient({
   children,
@@ -102,8 +101,6 @@ export function DashboardLayoutClient({
 
   const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user.displayName || 'User');
   const initials = userProfile ? `${userProfile.firstName?.charAt(0) ?? ''}${userProfile.lastName?.charAt(0) ?? ''}`.toUpperCase() : user.email?.charAt(0).toUpperCase() || '';
-  const avatarColor = generateColorFromString(displayName);
-  const avatarTextColor = getContrastColor(avatarColor);
 
   return (
     <SidebarProvider key={lang}>
@@ -126,7 +123,7 @@ export function DashboardLayoutClient({
                     <div className="relative">
                         <Avatar className="h-9 w-9">
                             <AvatarImage src={user.photoURL || ""} alt={displayName} />
-                            <AvatarFallback style={{ backgroundColor: avatarColor, color: avatarTextColor }}>{initials}</AvatarFallback>
+                            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
                         </Avatar>
                         {userProfile.kycStatus === 'verified' && (
                             <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar-background" />
@@ -186,7 +183,7 @@ export function DashboardLayoutClient({
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                         <Avatar className="h-8 w-8">
                             <AvatarImage src={user.photoURL || ""} alt={displayName} data-ai-hint="user avatar" />
-                            <AvatarFallback style={{ backgroundColor: avatarColor, color: avatarTextColor }}>{initials}</AvatarFallback>
+                            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
                         </Avatar>
                     </Button>
                 </DropdownMenuTrigger>

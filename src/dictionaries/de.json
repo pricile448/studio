@@ -124,6 +124,7 @@
         "amount": "Betrag"
       },
       "expenseChart": "Ausgabenübersicht",
+      "noExpenseData": "Keine Ausgabendaten zum Anzeigen.",
       "aiAssistant": {
         "title": "KI-Finanzassistent",
         "description": "Erhalten Sie personalisierte Einblicke und Empfehlungen basierend auf Ihrem Transaktionsverlauf.",
