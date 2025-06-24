@@ -6,7 +6,7 @@ import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, PiggyBank, CreditCard, ArrowLeftRight, Activity, Scale } from 'lucide-react';
+import { DollarSign, PiggyBank, CreditCard, ArrowLeftRight, Scale } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -17,13 +17,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 
-const mockAccountsData = [
-  { id: '1', name: 'checking', balance: 4850.75, currency: 'EUR' },
-  { id: '2', name: 'savings', balance: 15340.21, currency: 'EUR' },
-  { id: '3', name: 'credit', balance: -789.43, currency: 'EUR' },
-];
+const accountIcons: { [key: string]: React.ElementType } = {
+  checking: DollarSign,
+  savings: PiggyBank,
+  credit: CreditCard,
+};
 
-function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccountsData, dict: Dictionary['accounts'], lang: Locale }) {
+function InternalTransfer({ accounts, dict, lang }: { accounts: { id: string; name: string; balance: number }[], dict: Dictionary['accounts'], lang: Locale }) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
@@ -107,8 +107,11 @@ export default function AccountsPage() {
     );
   }
   
-  // A verified account starts empty until funded by an admin.
-  const accounts = [];
+  const accounts = [
+    { id: '1', name: 'checking', balance: 0, currency: 'EUR' },
+    { id: '2', name: 'savings', balance: 0, currency: 'EUR' },
+    { id: '3', name: 'credit', balance: 0, currency: 'EUR' },
+  ];
   const ledger = [];
   const totalBalance = 0;
 

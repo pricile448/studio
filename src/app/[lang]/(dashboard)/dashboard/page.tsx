@@ -34,8 +34,12 @@ export default function DashboardPage() {
     );
   }
 
-  // A verified account starts empty until funded by an admin.
-  const accounts = [];
+  // The 3 default accounts are always displayed, funded later by an admin
+  const accounts = [
+    { id: '1', name: 'checking', balance: 0, currency: 'EUR' },
+    { id: '2', name: 'savings', balance: 0, currency: 'EUR' },
+    { id: '3', name: 'credit', balance: 0, currency: 'EUR' },
+  ];
   const transactions = [];
   const totalBalance = 0;
 
