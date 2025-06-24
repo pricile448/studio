@@ -111,14 +111,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await updateProfile(user, { photoURL });
     await updateUserInFirestore(user.uid, { photoURL });
     
-    // Optimistically update state to avoid waiting for a full reload
-    const updatedUser = { ...user, photoURL };
-    setUser(updatedUser as User);
-
-    if (userProfile) {
-      const updatedProfile = { ...userProfile, photoURL };
-      setUserProfile(updatedProfile);
-    }
+    // Force a reload of the user object to get the latest data
+    await user.reload();
+    
+    // And get the fresh profile from firestore
+    const profile = await getUserFromFirestore(user.uid);
+    
+    // Update state to trigger re-render
+    // Use the user from auth which is now updated
+    setUser(auth.currentUser); 
+    setUserProfile(profile);
   };
 
   const updateUserProfileData = async (data: Partial<UserProfile>) => {

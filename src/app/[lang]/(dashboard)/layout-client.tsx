@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
@@ -27,6 +27,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
@@ -44,6 +53,23 @@ export function DashboardLayoutClient({
 }) {
   const { user, userProfile, loading, logout, isLoggingOut } = useAuth();
   const router = useRouter();
+
+  const notificationsDict = dict.dashboard.notifications;
+  const mockNotifications = [
+      {
+          id: '1',
+          title: notificationsDict.welcomeTitle,
+          description: notificationsDict.welcomeDescription + " You can now explore all the features we have to offer. Please make sure to complete your profile verification at your earliest convenience to unlock all functionalities.",
+      },
+      {
+          id: '2',
+          title: notificationsDict.verificationTitle,
+          description: notificationsDict.verificationDescription + " To comply with financial regulations and ensure the security of your account, this is a necessary step to access features like transfers and card services.",
+      },
+  ]
+
+  const [selectedNotification, setSelectedNotification] = useState<(typeof mockNotifications)[0] | null>(null);
+
 
   useEffect(() => {
     if (loading || isLoggingOut) return;
@@ -74,7 +100,6 @@ export function DashboardLayoutClient({
 
   const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user.displayName || 'User');
   const initials = userProfile ? `${userProfile.firstName?.charAt(0) ?? ''}${userProfile.lastName?.charAt(0) ?? ''}`.toUpperCase() : user.email?.charAt(0).toUpperCase() || '';
-  const notificationsDict = dict.dashboard.notifications;
 
   return (
     <SidebarProvider key={lang}>
@@ -118,18 +143,12 @@ export function DashboardLayoutClient({
                 <DropdownMenuContent align="end" className="w-80">
                     <DropdownMenuLabel>{notificationsDict.title}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <div className="flex flex-col">
-                        <p className="text-sm font-medium">{notificationsDict.welcomeTitle}</p>
-                        <p className="text-xs text-muted-foreground">{notificationsDict.welcomeDescription}</p>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <div className="flex flex-col">
-                        <p className="text-sm font-medium">{notificationsDict.verificationTitle}</p>
-                        <p className="text-xs text-muted-foreground">{notificationsDict.verificationDescription}</p>
-                      </div>
-                    </DropdownMenuItem>
+                     {mockNotifications.map((notification) => (
+                        <DropdownMenuItem key={notification.id} onSelect={() => setSelectedNotification(notification)} className="flex-col items-start cursor-pointer">
+                            <p className="text-sm font-medium">{notification.title}</p>
+                            <p className="text-xs text-muted-foreground truncate w-full">{notification.description}</p>
+                        </DropdownMenuItem>
+                      ))}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="justify-center text-sm text-muted-foreground" asChild>
                        <Link href={`/${lang}/notifications`}>{notificationsDict.viewAll}</Link>
@@ -180,6 +199,21 @@ export function DashboardLayoutClient({
             </div>
         </footer>
       </SidebarInset>
+       <AlertDialog open={!!selectedNotification} onOpenChange={(open) => { if (!open) setSelectedNotification(null) }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{selectedNotification?.title}</AlertDialogTitle>
+              <AlertDialogDescription className="text-base text-foreground text-left">
+                {selectedNotification?.description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setSelectedNotification(null)}>
+                {dict.cards.closeButton}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     </SidebarProvider>
   );
 }
