@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { sendEmail } from '@/services/mailgun-service';
 
 const ContactSupportInputSchema = z.object({
   name: z.string().describe('The name of the person sending the request.'),
@@ -23,6 +24,8 @@ export async function contactSupport(input: ContactSupportInput): Promise<{succe
   return contactSupportFlow(input);
 }
 
+const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
+
 const contactSupportFlow = ai.defineFlow(
   {
     name: 'contactSupportFlow',
@@ -30,15 +33,31 @@ const contactSupportFlow = ai.defineFlow(
     outputSchema: z.object({ success: z.boolean() }),
   },
   async (input) => {
-    // In a real application, you would integrate an email service like SendGrid or Mailgun here.
-    // For this prototype, we'll just log the request to the console.
-    console.log('New support request received:');
-    console.log('Name:', input.name);
-    console.log('Email:', input.email);
-    console.log('Subject:', input.subject);
-    console.log('Message:', input.message);
+    if (!ADMIN_EMAIL) {
+        console.error("MAILGUN_ADMIN_EMAIL is not set. Cannot send support email.");
+        return { success: false };
+    }
+
+    const emailText = `
+    New support request received:
+    Name: ${input.name}
+    Email: ${input.email}
+    Subject: ${input.subject}
     
-    // Simulate a successful submission
-    return { success: true };
+    Message:
+    ${input.message}
+    `;
+
+    try {
+        await sendEmail({
+            to: ADMIN_EMAIL,
+            subject: `New Support Request: ${input.subject}`,
+            text: emailText,
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to send support email:", error);
+        return { success: false };
+    }
   }
 );
