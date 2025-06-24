@@ -149,9 +149,9 @@
        "notifications": {
         "title": "Benachrichtigungen",
         "welcomeTitle": "Willkommen bei AmCbunq!",
-        "welcomeDescription": "Ihr Konto wurde erfolgreich erstellt.",
+        "welcomeDescription": "Ihr Konto wurde erfolgreich erstellt. Sie können nun alle unsere Funktionen erkunden. Bitte stellen Sie sicher, dass Sie Ihre Profilverifizierung so bald wie möglich abschließen, um alle Funktionen freizuschalten.",
         "verificationTitle": "Profilverifizierung",
-        "verificationDescription": "Bitte schließen Sie Ihre Identitätsprüfung ab.",
+        "verificationDescription": "Bitte schließen Sie Ihre Identitätsprüfung ab. Um die Finanzvorschriften einzuhalten und die Sicherheit Ihres Kontos zu gewährleisten, ist dies ein notwendiger Schritt, um auf Funktionen wie Überweisungen und Kartendienste zugreifen zu können.",
         "viewAll": "Alle Benachrichtigungen anzeigen",
         "noNotifications": "Keine neuen Benachrichtigungen.",
         "markAllAsRead": "Alle als gelesen markieren"

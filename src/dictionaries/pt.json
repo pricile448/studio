@@ -149,9 +149,9 @@
        "notifications": {
         "title": "Notificações",
         "welcomeTitle": "Bem-vindo à AmCbunq!",
-        "welcomeDescription": "A sua conta foi criada com sucesso.",
+        "welcomeDescription": "Sua conta foi criada com sucesso. Agora você pode explorar todos os recursos que oferecemos. Certifique-se de concluir a verificação do seu perfil o mais rápido possível para desbloquear todas as funcionalidades.",
         "verificationTitle": "Verificação de Perfil",
-        "verificationDescription": "Por favor, complete a sua verificação de identidade.",
+        "verificationDescription": "Por favor, complete sua verificação de identidade. Para cumprir os regulamentos financeiros e garantir a segurança de sua conta, esta é uma etapa necessária para acessar recursos como transferências e serviços de cartão.",
         "viewAll": "Ver todas as notificações",
         "noNotifications": "Nenhuma nova notificação.",
         "markAllAsRead": "Marcar tudo como lido"

@@ -59,12 +59,12 @@ export function DashboardLayoutClient({
       {
           id: '1',
           title: notificationsDict.welcomeTitle,
-          description: notificationsDict.welcomeDescription + " You can now explore all the features we have to offer. Please make sure to complete your profile verification at your earliest convenience to unlock all functionalities.",
+          description: notificationsDict.welcomeDescription,
       },
       {
           id: '2',
           title: notificationsDict.verificationTitle,
-          description: notificationsDict.verificationDescription + " To comply with financial regulations and ensure the security of your account, this is a necessary step to access features like transfers and card services.",
+          description: notificationsDict.verificationDescription,
       },
   ]
 

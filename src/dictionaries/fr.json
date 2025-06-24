@@ -127,9 +127,9 @@
        "notifications": {
         "title": "Notifications",
         "welcomeTitle": "Bienvenue chez AmCbunq !",
-        "welcomeDescription": "Votre compte a été créé avec succès.",
+        "welcomeDescription": "Votre compte a été créé avec succès. Vous pouvez maintenant explorer toutes les fonctionnalités que nous offrons. Assurez-vous de compléter la vérification de votre profil dès que possible pour débloquer toutes les fonctionnalités.",
         "verificationTitle": "Vérification du profil",
-        "verificationDescription": "Veuillez compléter votre vérification d'identité.",
+        "verificationDescription": "Veuillez compléter votre vérification d'identité. Pour se conformer aux réglementations financières et assurer la sécurité de votre compte, c'est une étape nécessaire pour accéder à des fonctionnalités comme les virements et les services de carte.",
         "viewAll": "Voir toutes les notifications",
         "noNotifications": "Aucune nouvelle notification.",
         "markAllAsRead": "Tout marquer comme lu"
