@@ -95,6 +95,8 @@
       "exchange": "Cambio de Divisas",
       "referrals": "Recomendar a un Amigo",
       "notifications": "Notificaciones",
+      "verified": "Verificado",
+      "unverified": "No verificado",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Facturación",

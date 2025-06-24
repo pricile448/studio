@@ -95,6 +95,8 @@
       "exchange": "Currency Exchange",
       "referrals": "Refer a Friend",
       "notifications": "Notifications",
+      "verified": "Verified",
+      "unverified": "Unverified",
       "userMenu": {
         "profile": "Profile",
         "billing": "Billing",

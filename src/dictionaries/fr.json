@@ -95,6 +95,8 @@
       "exchange": "Change de devises",
       "referrals": "Parrainer un ami",
       "notifications": "Notifications",
+      "verified": "Vérifié",
+      "unverified": "Non vérifié",
       "userMenu": {
         "profile": "Profil",
         "billing": "Facturation",
@@ -447,7 +449,7 @@
       "step1_desc": "Pour sécuriser votre compte et respecter la réglementation, nous devons vérifier votre identité. Ce processus est rapide et sécurisé.",
       "step1_item1": "Une pièce d'identité avec photo en cours de validité (Passeport, Carte d'identité).",
       "step1_item2": "Une photo récente de vous (selfie) à télécharger.",
-      "step1_item3": "Un justificatif de domicile récent (facture de services publics, relevé bancaire).",
+      "step1_item3": "Un justificatif de domicile récent (facture de services publics, relevé de banque).",
       "step1_button": "Commencer la vérification",
       "step2_title": "Téléchargez votre document",
       "step2_desc": "Veuillez choisir le type de document que vous souhaitez utiliser et en télécharger une image claire.",

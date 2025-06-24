@@ -95,6 +95,8 @@
       "exchange": "Câmbio de Moedas",
       "referrals": "Indique um Amigo",
       "notifications": "Notificações",
+      "verified": "Verificado",
+      "unverified": "Não verificado",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Faturamento",
