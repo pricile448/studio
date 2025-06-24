@@ -10,24 +10,39 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
       
       // Un utilisateur peut mettre à jour son propre profil, avec des restrictions.
-      allow update: if request.auth != null && request.auth.uid == userId &&
-        // On ne peut pas modifier des champs immuables.
-        !('uid' in request.writeFields) &&
-        !('email' in request.writeFields) &&
-        !('createdAt' in request.writeFields) &&
-        !('pob' in request.writeFields) &&
-        !('nationality' in request.writeFields) &&
-        !('profession' in request.writeFields) &&
-        !('salary' in request.writeFields) &&
-        !('iban' in request.writeFields) &&
-        !('bic' in request.writeFields) &&
-        // La seule modification autorisée pour kycStatus est de 'unverified' à 'pending'.
-        // Si kycStatus n'est pas modifié, cette condition est vraie.
-        // Si kycStatus est modifié, la transition doit être valide.
-        (
-          !('kycStatus' in request.writeFields) ||
-          (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending')
-        );
+      allow update: if request.auth != null && request.auth.uid == userId
+                     && canUpdateProfile(request.resource.data, resource.data);
     }
+  }
+  
+  // Fonction d'aide pour valider les mises à jour du profil utilisateur.
+  function canUpdateProfile(incomingData, existingData) {
+    // Liste des champs que l'utilisateur est autorisé à modifier directement.
+    let allowedUserEdits = ['firstName', 'lastName', 'dob', 'address', 'notificationPrefs', 'profession', 'salary', 'photoURL'];
+
+    // Champs qui ne doivent jamais être modifiés par l'utilisateur.
+    let areImmutableFieldsUnchanged = 
+        incomingData.uid == existingData.uid &&
+        incomingData.email == existingData.email &&
+        incomingData.createdAt == existingData.createdAt &&
+        // IBAN et BIC ne peuvent pas être modifiés par l'utilisateur.
+        incomingData.iban == existingData.iban &&
+        incomingData.bic == existingData.bic;
+        
+    // Vérification de la transition du statut KYC.
+    let isKycTransitionValid =
+        // L'utilisateur peut soumettre une vérification.
+        (existingData.kycStatus == 'unverified' && incomingData.kycStatus == 'pending') ||
+        // Le statut ne change pas (par exemple, lors de la mise à jour du profil).
+        (existingData.kycStatus == incomingData.kycStatus);
+        
+    // Obtenir la liste de tous les champs qui ont été modifiés dans la requête.
+    let changedKeys = incomingData.keys().diff(existingData.keys());
+
+    // Vérifier si seuls les champs autorisés ont été modifiés.
+    // L'utilisateur peut modifier les champs de `allowedUserEdits` ET/OU son `kycStatus` (selon la règle de transition).
+    let areUpdatesAllowed = changedKeys.hasOnly(allowedUserEdits.concat(['kycStatus']));
+
+    return areImmutableFieldsUnchanged && isKycTransitionValid && areUpdatesAllowed;
   }
 }
