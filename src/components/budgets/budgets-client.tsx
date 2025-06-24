@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { PlusCircle, ShoppingCart, Clapperboard, Car, Utensils, PieChart } from 'lucide-react';
@@ -103,7 +103,7 @@ export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }
         lang={lang}
         title={kycDict.pending_title}
         description={kycDict.pending_description}
-        buttonText={kycDict.step5_button}
+        buttonText={kycDict.step6_button}
       />
     }
 

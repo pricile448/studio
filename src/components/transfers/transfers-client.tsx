@@ -54,7 +54,7 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
         lang={lang} 
         title={kycDict.pending_title}
         description={kycDict.pending_description}
-        buttonText={kycDict.step5_button}
+        buttonText={kycDict.step6_button}
       />;
     }
 
