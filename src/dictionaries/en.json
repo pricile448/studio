@@ -144,7 +144,9 @@
       "verificationBanner": {
         "title": "Verification Pending",
         "description": "Complete your identity verification",
-        "button": "Verify Now"
+        "button": "Verify Now",
+        "pending_title": "Verification in Progress",
+        "pending_description": "Your documents are under review. This usually takes 24 to 48 hours."
       },
        "notifications": {
         "title": "Notifications",
@@ -205,7 +207,9 @@
       "saveBeneficiaryButton": "Save Beneficiary",
       "beneficiaryAdded": "Beneficiary Added!",
       "beneficiaryAddedDescription": "has been successfully added to your beneficiaries list.",
-      "cancelButton": "Cancel"
+      "cancelButton": "Cancel",
+      "unverified_title": "Make a Transfer",
+      "unverified_description": "Complete your identity verification to send and receive money."
     },
     "cards": {
       "title": "My Cards",
@@ -240,7 +244,9 @@
       "yourPinIs": "Your PIN is:",
       "closeButton": "Close",
       "showPin": "Show PIN",
-      "hidePin": "Hide PIN"
+      "hidePin": "Hide PIN",
+      "unverified_title": "Manage Your Cards",
+      "unverified_description": "Complete your identity verification to order new cards and manage your card settings."
     },
     "history": {
       "title": "Transaction History",
@@ -300,7 +306,9 @@
       "copied": "Copied!",
       "copiedDescription": "has been copied to your clipboard.",
       "downloadIban": "Download IBAN",
-      "clientAddress": "Client Address"
+      "clientAddress": "Client Address",
+      "unverified_title": "Access Your IBAN",
+      "unverified_description": "Complete your identity verification to view and use your IBAN details for receiving payments."
     },
     "more": {
       "title": "More Options",
@@ -418,7 +426,10 @@
       "step5_button": "Back to Dashboard",
       "button_next": "Next",
       "button_back": "Back",
-      "button_submit": "Submit Verification"
+      "button_submit": "Submit Verification",
+      "unverified_title": "Identity Verification Required",
+      "unverified_description": "To access this feature, you need to complete your identity verification first. It's a quick and secure process to protect your account.",
+      "unverified_button": "Verify My Identity"
     },
     "notFound": {
       "title": "Oops! Page not found.",

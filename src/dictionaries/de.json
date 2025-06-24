@@ -144,7 +144,9 @@
       "verificationBanner": {
         "title": "Verifizierung ausstehend",
         "description": "Schließen Sie Ihre Identitätsprüfung ab",
-        "button": "Jetzt verifizieren"
+        "button": "Jetzt verifizieren",
+        "pending_title": "Verifizierung läuft",
+        "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel 24 bis 48 Stunden."
       },
        "notifications": {
         "title": "Benachrichtigungen",
@@ -205,7 +207,9 @@
       "saveBeneficiaryButton": "Empfänger speichern",
       "beneficiaryAdded": "Empfänger hinzugefügt!",
       "beneficiaryAddedDescription": "wurde erfolgreich zu Ihrer Empfängerliste hinzugefügt.",
-      "cancelButton": "Abbrechen"
+      "cancelButton": "Abbrechen",
+      "unverified_title": "Eine Überweisung tätigen",
+      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um Geld zu senden und zu empfangen."
     },
     "cards": {
       "title": "Meine Karten",
@@ -240,7 +244,9 @@
       "yourPinIs": "Ihre PIN lautet:",
       "closeButton": "Schließen",
       "showPin": "PIN anzeigen",
-      "hidePin": "PIN ausblenden"
+      "hidePin": "PIN ausblenden",
+      "unverified_title": "Ihre Karten verwalten",
+      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um neue Karten zu bestellen und Ihre Karteneinstellungen zu verwalten."
     },
     "history": {
       "title": "Transaktionsverlauf",
@@ -300,7 +306,9 @@
       "copied": "Kopiert!",
       "copiedDescription": "wurde in Ihre Zwischenablage kopiert.",
       "downloadIban": "IBAN herunterladen",
-      "clientAddress": "Kundenadresse"
+      "clientAddress": "Kundenadresse",
+      "unverified_title": "Zugriff auf Ihre IBAN",
+      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um Ihre IBAN-Details anzuzeigen und für den Empfang von Zahlungen zu verwenden."
     },
     "more": {
       "title": "Weitere Optionen",
@@ -418,7 +426,10 @@
       "step5_button": "Zurück zum Dashboard",
       "button_next": "Weiter",
       "button_back": "Zurück",
-      "button_submit": "Überprüfung einreichen"
+      "button_submit": "Überprüfung einreichen",
+      "unverified_title": "Identitätsprüfung erforderlich",
+      "unverified_description": "Um auf diese Funktion zugreifen zu können, müssen Sie zuerst Ihre Identitätsprüfung abschließen. Es ist ein schneller und sicherer Prozess, um Ihr Konto zu schützen.",
+      "unverified_button": "Meine Identität überprüfen"
     },
     "notFound": {
       "title": "Hoppla! Seite nicht gefunden.",

@@ -122,7 +122,9 @@
       "verificationBanner": {
         "title": "Vérification en attente",
         "description": "Complétez votre vérification d'identité",
-        "button": "Vérifier maintenant"
+        "button": "Vérifier maintenant",
+        "pending_title": "Vérification en cours",
+        "pending_description": "Vos documents sont en cours d'examen. Cela prend généralement de 24 à 48 heures."
       },
        "notifications": {
         "title": "Notifications",
@@ -171,7 +173,7 @@
       "submit": "Envoyer le virement",
       "recentTransfers": "Virements Récents",
       "addBeneficiary": "Ajouter un bénéficiaire",
-      "noRecentTransfers": "Aucun virement récent récent.",
+      "noRecentTransfers": "Aucun virement récent.",
       "addBeneficiaryTitle": "Ajouter un nouveau bénéficiaire",
       "addBeneficiaryDescription": "Saisissez les informations du nouveau bénéficiaire. Il sera enregistré pour vos futurs virements.",
       "beneficiaryNameLabel": "Nom du bénéficiaire",
@@ -183,7 +185,9 @@
       "saveBeneficiaryButton": "Enregistrer le bénéficiaire",
       "beneficiaryAdded": "Bénéficiaire ajouté !",
       "beneficiaryAddedDescription": "a été ajouté avec succès à votre liste de bénéficiaires.",
-      "cancelButton": "Annuler"
+      "cancelButton": "Annuler",
+      "unverified_title": "Effectuer un Virement",
+      "unverified_description": "Complétez votre vérification d'identité pour envoyer et recevoir de l'argent."
     },
     "cards": {
       "title": "Mes Cartes",
@@ -218,7 +222,9 @@
       "yourPinIs": "Votre code PIN est :",
       "closeButton": "Fermer",
       "showPin": "Afficher le PIN",
-      "hidePin": "Masquer le PIN"
+      "hidePin": "Masquer le PIN",
+      "unverified_title": "Gérer Vos Cartes",
+      "unverified_description": "Complétez votre vérification d'identité pour commander de nouvelles cartes et gérer les paramètres de votre carte."
     },
     "history": {
       "title": "Historique des Transactions",
@@ -278,7 +284,9 @@
       "copied": "Copié !",
       "copiedDescription": "a été copié dans votre presse-papiers.",
       "downloadIban": "Télécharger l'IBAN",
-      "clientAddress": "Adresse du Client"
+      "clientAddress": "Adresse du Client",
+      "unverified_title": "Accédez à votre IBAN",
+      "unverified_description": "Complétez votre vérification d'identité pour voir et utiliser vos détails IBAN pour recevoir des paiements."
     },
     "more": {
       "title": "Plus d'options",
@@ -418,7 +426,10 @@
       "step5_button": "Retour au tableau de bord",
       "button_next": "Suivant",
       "button_back": "Retour",
-      "button_submit": "Soumettre la vérification"
+      "button_submit": "Soumettre la vérification",
+      "unverified_title": "Vérification d'Identité Requise",
+      "unverified_description": "Pour accéder à cette fonctionnalité, vous devez d'abord compléter votre vérification d'identité. C'est un processus rapide et sécurisé pour protéger votre compte.",
+      "unverified_button": "Vérifier Mon Identité"
     },
     "notFound": {
       "title": "Oups! Page introuvable.",

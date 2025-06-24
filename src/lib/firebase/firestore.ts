@@ -21,13 +21,17 @@ export type UserProfile = {
     security: boolean;
   };
   createdAt: any;
+  kycStatus: 'unverified' | 'pending' | 'verified';
+  iban?: string;
+  bic?: string;
 };
 
-export async function addUserToFirestore(userProfile: Omit<UserProfile, 'createdAt'>) {
+export async function addUserToFirestore(userProfile: Omit<UserProfile, 'createdAt' | 'kycStatus'>) {
   const userRef = doc(db, "users", userProfile.uid);
   await setDoc(userRef, {
     ...userProfile,
     createdAt: serverTimestamp(),
+    kycStatus: 'unverified',
     notificationPrefs: { // Default notification settings
         email: true,
         promotions: false,
@@ -45,8 +49,8 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
         // Firestore timestamps need to be converted to JS Date objects
         return {
             ...data,
-            dob: data.dob.toDate(),
-            createdAt: data.createdAt.toDate(),
+            dob: data.dob?.toDate(),
+            createdAt: data.createdAt?.toDate(),
         } as UserProfile;
     } else {
         return null;

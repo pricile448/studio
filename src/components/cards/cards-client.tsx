@@ -18,61 +18,93 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff } from 'lucide-react';
-import type { Dictionary } from '@/lib/dictionaries';
+import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
+import { KycPrompt } from '@/components/ui/kyc-prompt';
+import { Skeleton } from '../ui/skeleton';
 
-export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
+export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
+  const { userProfile, loading } = useAuth();
   const [isFrozen, setIsFrozen] = useState(false);
   const [limit, setLimit] = useState(2000);
   const [newLimit, setNewLimit] = useState(limit);
   const [showPin, setShowPin] = useState(false);
   const { toast } = useToast();
+  
+  const cardsDict = dict.cards;
+  const kycDict = dict.kyc;
+
+  if (loading || !userProfile) {
+    return (
+       <div className="space-y-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <Skeleton className="h-8 w-36" />
+          <Skeleton className="h-10 w-40" />
+        </div>
+        <Separator />
+        <div className="grid gap-8 lg:grid-cols-3">
+          <Skeleton className="lg:col-span-1 aspect-[85.6/53.98] rounded-xl" />
+          <Skeleton className="lg:col-span-2 h-80" />
+        </div>
+       </div>
+    )
+  }
+
+  if (userProfile.kycStatus !== 'verified') {
+    return <KycPrompt 
+      lang={lang} 
+      title={cardsDict.unverified_title}
+      description={cardsDict.unverified_description}
+      buttonText={kycDict.unverified_button}
+    />;
+  }
 
   const handleToggleFreeze = () => {
     const newFrozenState = !isFrozen;
     setIsFrozen(newFrozenState);
     toast({
-      title: newFrozenState ? dict.cardFrozen : dict.cardUnfrozen,
+      title: newFrozenState ? cardsDict.cardFrozen : cardsDict.cardUnfrozen,
     });
   };
 
   const handleSetLimit = () => {
     setLimit(newLimit);
     toast({
-      title: dict.limitUpdated,
+      title: cardsDict.limitUpdated,
     });
   };
 
   const handleOrderCard = () => {
      toast({
-      title: dict.cardOrdered,
-      description: dict.cardOrderedDescription,
+      title: cardsDict.cardOrdered,
+      description: cardsDict.cardOrderedDescription,
     });
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
+        <h1 className="text-3xl font-bold font-headline">{cardsDict.title}</h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2" />
-              {dict.orderCard}
+              {cardsDict.orderCard}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{dict.orderCardTitle}</DialogTitle>
-              <DialogDescription>{dict.orderCardDescription}</DialogDescription>
+              <DialogTitle>{cardsDict.orderCardTitle}</DialogTitle>
+              <DialogDescription>{cardsDict.orderCardDescription}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">{dict.cancelButton}</Button>
+                <Button variant="outline">{cardsDict.cancelButton}</Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button onClick={handleOrderCard}>{dict.confirmOrder}</Button>
+                <Button onClick={handleOrderCard}>{cardsDict.confirmOrder}</Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
@@ -86,7 +118,7 @@ export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
             isFrozen && "grayscale opacity-50"
           )}>
             <div className="flex justify-between items-start">
-              <span className="font-semibold">{dict.cardBankName}</span>
+              <span className="font-semibold">{cardsDict.cardBankName}</span>
               <Wifi className="h-6 w-6" />
             </div>
             <div className="space-y-2">
@@ -98,11 +130,11 @@ export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
               </div>
               <div className="flex justify-between text-sm uppercase">
                 <div>
-                  <p className="text-xs text-primary-foreground/80">{dict.cardHolder}</p>
-                  <p className="font-medium">User Name</p>
+                  <p className="text-xs text-primary-foreground/80">{cardsDict.cardHolder}</p>
+                  <p className="font-medium">{userProfile.firstName} {userProfile.lastName}</p>
                 </div>
                  <div>
-                  <p className="text-xs text-primary-foreground/80">{dict.validThru}</p>
+                  <p className="text-xs text-primary-foreground/80">{cardsDict.validThru}</p>
                   <p className="font-medium">12/28</p>
                 </div>
               </div>
@@ -112,14 +144,14 @@ export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">{dict.settings}</CardTitle>
-              <CardDescription>{dict.settingsDescription}</CardDescription>
+              <CardTitle className="font-headline">{cardsDict.settings}</CardTitle>
+              <CardDescription>{cardsDict.settingsDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-4 rounded-lg border">
                 <div>
-                  <h3 className="font-semibold">{dict.freeze}</h3>
-                  <p className="text-sm text-muted-foreground">{dict.freezeDescription}</p>
+                  <h3 className="font-semibold">{cardsDict.freeze}</h3>
+                  <p className="text-sm text-muted-foreground">{cardsDict.freezeDescription}</p>
                 </div>
                 <Button variant="outline" size="icon" onClick={handleToggleFreeze}>
                     <Snowflake className={cn(isFrozen && "text-blue-500")}/>
@@ -129,31 +161,31 @@ export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
                 <DialogTrigger asChild>
                     <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50">
                         <div>
-                        <h3 className="font-semibold">{dict.setLimit}</h3>
-                        <p className="text-sm text-muted-foreground">{dict.setLimitDescription}</p>
+                        <h3 className="font-semibold">{cardsDict.setLimit}</h3>
+                        <p className="text-sm text-muted-foreground">{cardsDict.setLimitDescription}</p>
                         </div>
                         <Button variant="outline" size="icon" className="pointer-events-none"><SlidersHorizontal /></Button>
                     </div>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{dict.setLimitTitle}</DialogTitle>
-                        <DialogDescription>{dict.setLimitDescription}</DialogDescription>
+                        <DialogTitle>{cardsDict.setLimitTitle}</DialogTitle>
+                        <DialogDescription>{cardsDict.setLimitDescription}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2">
-                        <Label htmlFor="current-limit">{dict.currentLimit}</Label>
+                        <Label htmlFor="current-limit">{cardsDict.currentLimit}</Label>
                         <Input id="current-limit" value={limit} readOnly disabled />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="new-limit">{dict.newLimitLabel}</Label>
+                        <Label htmlFor="new-limit">{cardsDict.newLimitLabel}</Label>
                         <Input id="new-limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} />
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline">{dict.cancelButton}</Button>
+                            <Button variant="outline">{cardsDict.cancelButton}</Button>
                         </DialogClose>
                         <DialogClose asChild>
-                            <Button onClick={handleSetLimit}>{dict.saveButton}</Button>
+                            <Button onClick={handleSetLimit}>{cardsDict.saveButton}</Button>
                         </DialogClose>
                     </DialogFooter>
                 </DialogContent>
@@ -163,16 +195,16 @@ export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
                 <DialogTrigger asChild>
                     <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50">
                         <div>
-                        <h3 className="font-semibold">{dict.viewPin}</h3>
-                        <p className="text-sm text-muted-foreground">{dict.viewPinDescription}</p>
+                        <h3 className="font-semibold">{cardsDict.viewPin}</h3>
+                        <p className="text-sm text-muted-foreground">{cardsDict.viewPinDescription}</p>
                         </div>
                         <Button variant="outline" size="icon" className="pointer-events-none"><Pin /></Button>
                     </div>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{dict.viewPinTitle}</DialogTitle>
-                        <DialogDescription>{dict.viewPinDescription}</DialogDescription>
+                        <DialogTitle>{cardsDict.viewPinTitle}</DialogTitle>
+                        <DialogDescription>{cardsDict.viewPinDescription}</DialogDescription>
                     </DialogHeader>
                     <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
                         {showPin ? (
@@ -185,10 +217,10 @@ export function CardsClient({ dict }: { dict: Dictionary['cards'] }) {
                      <DialogFooter className="sm:justify-between gap-2">
                         <Button variant="ghost" onClick={() => setShowPin(!showPin)} className="sm:mr-auto">
                             {showPin ? <EyeOff className="mr-2"/> : <Eye className="mr-2"/>}
-                            {showPin ? dict.hidePin : dict.showPin}
+                            {showPin ? cardsDict.hidePin : cardsDict.showPin}
                         </Button>
                         <DialogClose asChild>
-                            <Button>{dict.closeButton}</Button>
+                            <Button>{cardsDict.closeButton}</Button>
                         </DialogClose>
                     </DialogFooter>
                 </DialogContent>

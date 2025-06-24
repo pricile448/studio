@@ -15,13 +15,14 @@ type AuthContextType = {
   loading: boolean;
   isLoggingOut: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (userData: Omit<UserProfile, 'uid' | 'createdAt'>, password: string) => Promise<void>;
+  signup: (userData: Omit<UserProfile, 'uid' | 'createdAt' | 'kycStatus'>, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   updateUserAvatar: (file: File) => Promise<void>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   updateUserPassword: (password: string) => Promise<void>;
+  updateKycStatus: (status: 'pending') => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.refresh();
   };
 
-  const signup = async (userData: Omit<UserProfile, 'uid' | 'createdAt'>, password: string) => {
+  const signup = async (userData: Omit<UserProfile, 'uid' | 'createdAt' | 'kycStatus'>, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
     const { user } = userCredential;
 
@@ -143,7 +144,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await updatePassword(auth.currentUser, password);
   }
 
-  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserAvatar, updateUserProfileData, updateUserPassword };
+  const updateKycStatus = async (status: 'pending') => {
+    if (!user) throw new Error("No user is signed in.");
+    await updateUserInFirestore(user.uid, { kycStatus: status });
+    // Refresh local state
+    const profile = await getUserFromFirestore(user.uid);
+    setUserProfile(profile);
+  };
+
+  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserAvatar, updateUserProfileData, updateUserPassword, updateKycStatus };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

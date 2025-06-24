@@ -144,7 +144,9 @@
       "verificationBanner": {
         "title": "Verificación Pendiente",
         "description": "Complete su verificación de identidad",
-        "button": "Verificar ahora"
+        "button": "Verificar ahora",
+        "pending_title": "Verificación en Proceso",
+        "pending_description": "Sus documentos están siendo revisados. Esto generalmente toma de 24 a 48 horas."
       },
        "notifications": {
         "title": "Notificaciones",
@@ -205,7 +207,9 @@
       "saveBeneficiaryButton": "Guardar beneficiario",
       "beneficiaryAdded": "¡Beneficiario añadido!",
       "beneficiaryAddedDescription": "ha sido añadido correctamente a su lista de beneficiarios.",
-      "cancelButton": "Cancelar"
+      "cancelButton": "Cancelar",
+      "unverified_title": "Hacer una Transferencia",
+      "unverified_description": "Complete su verificación de identidad para enviar y recibir dinero."
     },
     "cards": {
       "title": "Mis Tarjetas",
@@ -240,7 +244,9 @@
       "yourPinIs": "Su PIN es:",
       "closeButton": "Cerrar",
       "showPin": "Mostrar PIN",
-      "hidePin": "Ocultar PIN"
+      "hidePin": "Ocultar PIN",
+      "unverified_title": "Administre sus Tarjetas",
+      "unverified_description": "Complete su verificación de identidad para pedir nuevas tarjetas y administrar la configuración de su tarjeta."
     },
     "history": {
       "title": "Historial de Transacciones",
@@ -300,7 +306,9 @@
       "copied": "¡Copiado!",
       "copiedDescription": "ha sido copiado a su portapapeles.",
       "downloadIban": "Descargar IBAN",
-      "clientAddress": "Dirección del cliente"
+      "clientAddress": "Dirección del cliente",
+      "unverified_title": "Acceda a su IBAN",
+      "unverified_description": "Complete su verificación de identidad para ver y usar sus datos de IBAN para recibir pagos."
     },
     "more": {
       "title": "Más Opciones",
@@ -418,7 +426,10 @@
       "step5_button": "Volver al Panel",
       "button_next": "Siguiente",
       "button_back": "Atrás",
-      "button_submit": "Enviar Verificación"
+      "button_submit": "Enviar Verificación",
+      "unverified_title": "Se Requiere Verificación de Identidad",
+      "unverified_description": "Para acceder a esta función, primero debe completar su verificación de identidad. Es un proceso rápido y seguro para proteger su cuenta.",
+      "unverified_button": "Verificar Mi Identidad"
     },
     "notFound": {
       "title": "¡Vaya! Página no encontrada.",

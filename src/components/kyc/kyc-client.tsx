@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UploadCloud, ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
 
 interface KycClientProps {
   dict: any; // Using `any` for simplicity as dict structure for kyc is new
@@ -26,6 +28,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const [proofOfAddressName, setProofOfAddressName] = useState('');
   const [selfieName, setSelfieName] = useState('');
   
+  const { updateKycStatus } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -55,9 +58,18 @@ export function KycClient({ dict, lang }: KycClientProps) {
     }
   };
 
-  const handleSubmission = () => {
+  const handleSubmission = async () => {
     // In a real app, this would submit all data to a backend.
-    setStep(5);
+    try {
+      await updateKycStatus('pending');
+      setStep(5);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: (error as Error).message || 'Failed to submit for verification.',
+      });
+    }
   };
 
   const renderStep = () => {

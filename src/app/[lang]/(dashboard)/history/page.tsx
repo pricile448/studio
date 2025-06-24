@@ -1,9 +1,14 @@
 
-import { type Locale } from '@/lib/dictionaries';
+'use client';
+
+import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { HistoryClient } from '@/components/history/history-client';
+import { useAuth } from '@/context/auth-context';
+import { useState, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const mockTransactions = [
+const mockTransactionsData = [
   { id: 't1', date: '2024-07-28', description: 'Netflix Subscription', category: 'Entertainment', amount: -15.99, status: 'Completed' },
   { id: 't2', date: '2024-07-27', description: 'Grocery Store', category: 'Food', amount: -124.32, status: 'Completed' },
   { id: 't3', date: '2024-07-26', description: 'Salary Deposit', category: 'Income', amount: 2500.00, status: 'Completed' },
@@ -13,8 +18,25 @@ const mockTransactions = [
   { id: 't7', date: '2024-07-20', description: 'ATM Withdrawal', category: 'Cash', amount: -100.00, status: 'Completed' },
 ];
 
-export default async function HistoryPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+export default function HistoryPage({ params: { lang } }: { params: { lang: Locale } }) {
+  const { userProfile, loading } = useAuth();
+  const [dict, setDict] = useState<Dictionary | null>(null);
+
+  useEffect(() => {
+    getDictionary(lang).then(setDict);
+  }, [lang]);
+
+  if (loading || !userProfile || !dict) {
+    return (
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-1/4" />
+            <Skeleton className="h-48" />
+        </div>
+    );
+  }
+
+  const isVerified = userProfile.kycStatus === 'verified';
+  const transactions = isVerified ? mockTransactionsData : [];
   
-  return <HistoryClient dict={dict.history} transactions={mockTransactions} lang={lang} />;
+  return <HistoryClient dict={dict.history} transactions={transactions} lang={lang} />;
 }

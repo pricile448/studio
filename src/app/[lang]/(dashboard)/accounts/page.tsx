@@ -15,14 +15,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
-const mockAccounts = [
+const mockAccountsData = [
   { id: '1', name: 'checking', balance: 4850.75, currency: 'USD' },
   { id: '2', name: 'savings', balance: 15340.21, currency: 'USD' },
   { id: '3', name: 'credit', balance: -789.43, currency: 'USD' },
 ];
 
-const mockLedger = [
+const mockLedgerData = [
     { id: 'l1', date: '2024-07-28', description: 'Salary Deposit', credit: 2500, debit: 0, balance: 17840.21 },
     { id: 'l2', date: '2024-07-27', description: 'Grocery Store', credit: 0, debit: 124.32, balance: 17715.89 },
     { id: 'l3', date: '2024-07-25', description: 'Internal Transfer to Savings', credit: 500, debit: 0, balance: 18215.89 },
@@ -36,7 +37,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 };
 
 
-function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccounts, dict: Dictionary['accounts'], lang: Locale }) {
+function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccountsData, dict: Dictionary['accounts'], lang: Locale }) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
   };
@@ -51,7 +52,7 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccou
          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="from">{dict.fromAccount}</Label>
-              <Select>
+              <Select disabled={accounts.length === 0}>
                 <SelectTrigger id="from">
                   <SelectValue placeholder={dict.fromAccount} />
                 </SelectTrigger>
@@ -66,7 +67,7 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccou
             </div>
              <div className="space-y-2">
               <Label htmlFor="to">{dict.toAccount}</Label>
-              <Select>
+              <Select disabled={accounts.length === 0}>
                 <SelectTrigger id="to">
                   <SelectValue placeholder={dict.toAccount} />
                 </SelectTrigger>
@@ -82,11 +83,11 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccou
           </div>
           <div className="space-y-2">
             <Label htmlFor="amount">{dict.transferAmount}</Label>
-            <Input id="amount" type="number" placeholder="0.00" />
+            <Input id="amount" type="number" placeholder="0.00" disabled={accounts.length === 0} />
           </div>
       </CardContent>
       <CardFooter>
-        <Button>
+        <Button disabled={accounts.length === 0}>
           <ArrowLeftRight className="mr-2 h-4 w-4" />
           {dict.submitTransfer}
         </Button>
@@ -98,18 +99,14 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccou
 export default function AccountsPage() {
   const pathname = usePathname();
   const lang = pathname.split('/')[1] as Locale;
+  const { userProfile, loading } = useAuth();
   const [dict, setDict] = useState<Dictionary | null>(null);
-  const totalBalance = mockAccounts.reduce((acc, account) => acc + account.balance, 0);
 
   useEffect(() => {
     getDictionary(lang).then(setDict);
   }, [lang]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
-  };
-  
-  if (!dict) {
+  if (loading || !userProfile || !dict) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-1/4" />
@@ -123,6 +120,16 @@ export default function AccountsPage() {
       </div>
     );
   }
+
+  const isVerified = userProfile.kycStatus === 'verified';
+  
+  const accounts = isVerified ? mockAccountsData : [];
+  const ledger = isVerified ? mockLedgerData : [];
+  const totalBalance = isVerified ? accounts.reduce((acc, account) => acc + account.balance, 0) : 0;
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);
+  };
   
   const accountsDict = dict.accounts;
 
@@ -150,7 +157,7 @@ export default function AccountsPage() {
       </Card>
 
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-        {mockAccounts.map((account) => {
+        {accounts.map((account) => {
           const Icon = accountIcons[account.name] || DollarSign;
           return (
             <Card key={account.id}>
@@ -171,7 +178,7 @@ export default function AccountsPage() {
         })}
       </div>
       
-      <InternalTransfer accounts={mockAccounts} dict={accountsDict} lang={lang} />
+      <InternalTransfer accounts={accounts} dict={accountsDict} lang={lang} />
       
       <Card>
         <CardHeader>
@@ -189,7 +196,7 @@ export default function AccountsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockLedger.map((entry) => (
+              {ledger.length > 0 ? ledger.map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell>{entry.date}</TableCell>
                   <TableCell>{entry.description}</TableCell>
@@ -197,7 +204,13 @@ export default function AccountsPage() {
                   <TableCell className="text-right text-red-600">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(entry.balance)}</TableCell>
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                        {dict.history.noTransactions}
+                    </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
