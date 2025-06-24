@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { VerificationBanner } from './verification-banner';
+import { useAuth } from '@/context/auth-context';
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
@@ -47,6 +48,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 export function DashboardClient({ dict, accountsDict, accounts, transactions, totalBalance }: DashboardClientProps) {
   const pathname = usePathname();
   const lang = pathname.split('/')[1] as Locale;
+  const { user } = useAuth();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -67,7 +69,7 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
   return (
     <div className="flex flex-col gap-6">
       <VerificationBanner dict={dict.verificationBanner} lang={lang} />
-      <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
+      <h1 className="text-3xl font-bold font-headline">{dict.greeting}, {user?.displayName}!</h1>
       
       {/* Account Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

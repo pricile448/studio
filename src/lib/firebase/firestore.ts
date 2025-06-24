@@ -25,12 +25,18 @@ export async function addUserToFirestore(userProfile: Omit<UserProfile, 'created
   });
 }
 
-export async function getUserFromFirestore(uid: string) {
+export async function getUserFromFirestore(uid: string): Promise<UserProfile | null> {
     const userRef = doc(db, 'users', uid);
     const docSnap = await getDoc(userRef);
 
     if (docSnap.exists()) {
-        return docSnap.data() as UserProfile;
+        const data = docSnap.data();
+        // Firestore timestamps need to be converted to JS Date objects
+        return {
+            ...data,
+            dob: data.dob.toDate(),
+            createdAt: data.createdAt.toDate(),
+        } as UserProfile;
     } else {
         return null;
     }

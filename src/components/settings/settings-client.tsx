@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppearanceForm } from '@/components/settings/appearance-form';
@@ -9,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ProfileForm } from './profile-form';
 import { SecurityForm } from './security-form';
 import { NotificationsForm } from './notifications-form';
+import { useAuth } from '@/context/auth-context';
+import { getUserFromFirestore, type UserProfile } from '@/lib/firebase/firestore';
 
 type SettingsClientProps = {
   dict: Dictionary;
@@ -17,6 +20,16 @@ type SettingsClientProps = {
 
 export function SettingsClient({ dict, lang }: SettingsClientProps) {
   const settingsDict = dict.settings;
+  const { user } = useAuth();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      getUserFromFirestore(user.uid).then(profile => {
+        setUserProfile(profile);
+      });
+    }
+  }, [user]);
 
   return (
     <Tabs defaultValue="profile" className="w-full">
@@ -45,7 +58,7 @@ export function SettingsClient({ dict, lang }: SettingsClientProps) {
             <CardDescription>{settingsDict.profile.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ProfileForm dict={settingsDict.profile} />
+            <ProfileForm dict={settingsDict.profile} userProfile={userProfile} />
           </CardContent>
         </Card>
       </TabsContent>

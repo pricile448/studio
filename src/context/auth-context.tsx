@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload } from 'firebase/auth';
+import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { addUserToFirestore, UserProfile } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
@@ -48,11 +48,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (userData: Omit<UserProfile, 'uid' | 'createdAt'>, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
-    const { uid } = userCredential.user;
+    const { user } = userCredential;
+
+    await updateProfile(user, {
+      displayName: `${userData.firstName} ${userData.lastName}`
+    });
     
     await addUserToFirestore({
       ...userData,
-      uid,
+      uid: user.uid,
     });
 
     await sendEmailVerification(userCredential.user);
@@ -67,7 +71,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const checkEmailVerification = async () => {
-    if (!auth.currentUser) return false;
+    if (!auth.currentUser) {
+      // This can happen if the user clicks the link in a different browser.
+      // We can't check verification without a logged-in user.
+      // The auth/action page handles the actual verification.
+      return false;
+    }
     await reload(auth.currentUser);
     if (auth.currentUser.emailVerified) {
       setUser(auth.currentUser); // Update state with the now-verified user
@@ -76,10 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
+
   const logout = async () => {
     setIsLoggingOut(true);
     await signOut(auth);
-    router.push(`/${lang}`);
+    // Force a full page reload to clear all state and redirect to home.
+    window.location.href = `/${lang}`;
   };
 
   const value = { user, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification };

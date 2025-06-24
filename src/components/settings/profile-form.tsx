@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -5,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,9 +15,11 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import type { Dictionary } from '@/lib/dictionaries';
+import { UserProfile } from '@/lib/firebase/firestore';
 
 interface ProfileFormProps {
   dict: Dictionary['settings']['profile'];
+  userProfile: UserProfile | null;
 }
 
 const profileFormSchema = z.object({
@@ -31,23 +35,35 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const defaultValues: Partial<ProfileFormValues> = {
-  name: 'User Name',
-  email: 'user@example.com',
-  phone: '+33 1 23 45 67 89',
-  street: '123 Main St',
-  city: 'Paris',
-  postalCode: '75001',
-  country: 'France',
-  dob: new Date('1990-01-01'),
-};
-
-export function ProfileForm({ dict }: ProfileFormProps) {
+export function ProfileForm({ dict, userProfile }: ProfileFormProps) {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      street: '',
+      city: '',
+      postalCode: '',
+      country: '',
+    },
     mode: 'onChange',
   });
+
+  React.useEffect(() => {
+    if (userProfile) {
+      form.reset({
+        name: `${userProfile.firstName} ${userProfile.lastName}`,
+        email: userProfile.email,
+        dob: userProfile.dob,
+        street: userProfile.address,
+        country: userProfile.residenceCountry,
+        phone: '', // This field is not in the UserProfile data model
+        city: '', // This field is not in the UserProfile data model
+        postalCode: '', // This field is not in the UserProfile data model
+      });
+    }
+  }, [userProfile, form]);
 
   function onSubmit(data: ProfileFormValues) {
     // This will be implemented later
