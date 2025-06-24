@@ -19,6 +19,7 @@ import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
+import { Label } from '@/components/ui/label';
 
 interface ProfileFormProps {
   dict: Dictionary['settings']['profile'];
