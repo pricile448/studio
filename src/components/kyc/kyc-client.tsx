@@ -23,12 +23,13 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const [docType, setDocType] = useState('');
   const [frontDocName, setFrontDocName] = useState('');
   const [backDocName, setBackDocName] = useState('');
+  const [proofOfAddressName, setProofOfAddressName] = useState('');
   const [selfieName, setSelfieName] = useState('');
   
   const router = useRouter();
   const { toast } = useToast();
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleNext = () => {
     if (step < totalSteps -1) {
@@ -44,18 +45,19 @@ export function KycClient({ dict, lang }: KycClientProps) {
     setBackDocName('');
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back' | 'selfie') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back' | 'selfie' | 'proof') => {
     const file = e.target.files?.[0];
     if (file) {
       if (side === 'front') setFrontDocName(file.name);
       else if (side === 'back') setBackDocName(file.name);
+      else if (side === 'proof') setProofOfAddressName(file.name);
       else setSelfieName(file.name);
     }
   };
 
   const handleSubmission = () => {
     // In a real app, this would submit all data to a backend.
-    setStep(4);
+    setStep(5);
   };
 
   const renderStep = () => {
@@ -124,13 +126,28 @@ export function KycClient({ dict, lang }: KycClientProps) {
           </div>
         );
       case 3:
-         return (
+        return (
           <div className="space-y-6 w-full">
             <h2 className="text-xl font-bold font-headline">{dict.step3_title}</h2>
             <p className="text-muted-foreground">{dict.step3_desc}</p>
+            <Label htmlFor="proof-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
+              <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
+              <span className="mt-2 block text-sm font-semibold">{dict.step3_upload_proof}</span>
+              <span className="block text-xs text-muted-foreground">
+                {proofOfAddressName ? dict.step2_file_selected.replace('{fileName}', proofOfAddressName) : dict.step2_file_select}
+              </span>
+              <Input id="proof-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'proof')} accept="image/*,.pdf" />
+            </Label>
+          </div>
+        );
+      case 4:
+         return (
+          <div className="space-y-6 w-full">
+            <h2 className="text-xl font-bold font-headline">{dict.step4_title}</h2>
+            <p className="text-muted-foreground">{dict.step4_desc}</p>
             <Label htmlFor="selfie-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
               <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
-              <span className="mt-2 block text-sm font-semibold">{dict.step3_upload_selfie}</span>
+              <span className="mt-2 block text-sm font-semibold">{dict.step4_upload_selfie}</span>
               <span className="block text-xs text-muted-foreground">
                 {selfieName ? dict.step2_file_selected.replace('{fileName}', selfieName) : dict.step2_file_select}
               </span>
@@ -138,14 +155,14 @@ export function KycClient({ dict, lang }: KycClientProps) {
             </Label>
           </div>
         );
-      case 4:
+      case 5:
          return (
           <div className="space-y-6 text-center py-8">
             <FileCheck2 className="mx-auto h-16 w-16 text-green-500" />
-            <h2 className="mt-4 text-2xl font-bold font-headline">{dict.step4_title}</h2>
-            <p className="mt-2 text-muted-foreground max-w-md mx-auto">{dict.step4_desc}</p>
+            <h2 className="mt-4 text-2xl font-bold font-headline">{dict.step5_title}</h2>
+            <p className="mt-2 text-muted-foreground max-w-md mx-auto">{dict.step5_desc}</p>
             <Button onClick={() => router.push(`/${lang}/dashboard`)} className="w-full max-w-xs mx-auto">
-              {dict.step4_button}
+              {dict.step5_button}
             </Button>
           </div>
         );
@@ -180,6 +197,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
             )}
 
             {step === 3 && (
+              <Button onClick={handleNext} disabled={!proofOfAddressName}>
+                {dict.button_next}
+              </Button>
+            )}
+
+            {step === 4 && (
               <Button onClick={handleSubmission} disabled={!selfieName}>
                 {dict.button_submit}
               </Button>
