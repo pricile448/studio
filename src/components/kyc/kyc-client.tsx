@@ -72,7 +72,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                 <div className="flex-shrink-0 mt-1"><ListChecks className="h-5 w-5 text-primary" /></div>
                 <span>{dict.step1_item1}</span>
               </li>
-              <li className="flex items-start gap-4">
+               <li className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1"><FileText className="h-5 w-5 text-primary" /></div>
                 <span>{dict.step1_item3}</span>
               </li>
@@ -104,9 +104,9 @@ export function KycClient({ dict, lang }: KycClientProps) {
             {docType && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{dict.step2_doc_type} {docType === 'id' ? dict.step2_doc_id : dict.step2_doc_passport} {dict.kyc.selected}</AlertTitle>
+                  <AlertTitle>{dict.step2_doc_type} {docType === 'id' ? dict.step2_doc_id : dict.step2_doc_passport} {dict.selected}</AlertTitle>
                   <AlertDescription>
-                    {dict.kyc.clickNext}
+                    {dict.clickNext}
                   </AlertDescription>
                 </Alert>
             )}
@@ -118,9 +118,9 @@ export function KycClient({ dict, lang }: KycClientProps) {
             <h2 className="text-xl font-bold font-headline">{dict.step3_title}</h2>
             <p className="text-muted-foreground">{dict.step3_desc}</p>
             <Alert variant="default" className="border-primary/50 bg-primary/10">
-              <AlertTitle>{dict.kyc.readyToProceed}</AlertTitle>
+              <AlertTitle>{dict.readyToProceed}</AlertTitle>
               <AlertDescription>
-                {dict.kyc.clickNext}
+                {dict.clickNext}
               </AlertDescription>
             </Alert>
           </div>
@@ -131,9 +131,9 @@ export function KycClient({ dict, lang }: KycClientProps) {
             <h2 className="text-xl font-bold font-headline">{dict.step4_title}</h2>
             <p className="text-muted-foreground">{dict.step4_desc}</p>
              <Alert variant="default" className="border-primary/50 bg-primary/10">
-              <AlertTitle>{dict.kyc.readyToProceed}</AlertTitle>
+              <AlertTitle>{dict.readyToProceed}</AlertTitle>
               <AlertDescription>
-                 {dict.kyc.clickSubmit}
+                 {dict.clickSubmit}
               </AlertDescription>
             </Alert>
           </div>
