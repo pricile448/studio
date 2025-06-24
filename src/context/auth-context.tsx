@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -6,7 +5,7 @@ import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEma
 import { auth } from '@/lib/firebase/config';
 import { addUserToFirestore, UserProfile } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
-import { type Locale } from '@/lib/dictionaries';
+import type { Locale } from '@/lib/dictionaries';
 
 type AuthContextType = {
   user: User | null;
@@ -66,13 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
-    router.push(`/${lang}`);
+    window.location.href = `/${lang}`;
   };
 
   const value = { user, loading, login, signup, logout, resendVerificationEmail };
 
-  // Render children only when loading is false to prevent flashing of pages
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
