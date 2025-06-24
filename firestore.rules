@@ -1,4 +1,3 @@
-
 rules_version = '2';
 
 service cloud.firestore {
@@ -6,47 +5,46 @@ service cloud.firestore {
     
     match /users/{userId} {
       // Les utilisateurs peuvent lire leur propre profil s'ils sont authentifiés.
-      allow read: if estProprietaire(userId);
+      allow read: if request.auth != null && request.auth.uid == userId;
 
       // Un nouvel utilisateur peut créer son propre profil.
       // Des règles de validation sont appliquées pour s'assurer que les données initiales sont correctes.
-      allow create: if estProprietaire(userId)
+      allow create: if request.auth != null && request.auth.uid == userId
                     && request.resource.data.uid == userId
                     && request.resource.data.email == request.auth.token.email
                     && request.resource.data.kycStatus == 'unverified'
                     && request.resource.data.createdAt == request.time;
       
-      // Un utilisateur peut mettre à jour son propre profil, mais avec des restrictions.
-      allow update: if estProprietaire(userId) && peutMettreAJourProfil(request, resource);
+      // Un utilisateur peut mettre à jour son propre profil, avec des restrictions.
+      allow update: if request.auth != null && request.auth.uid == userId
+                     && canUpdateProfile(request.resource.data, resource.data);
     }
   }
   
-  // Fonction pour vérifier si l'utilisateur authentifié est le propriétaire du document.
-  function estProprietaire(userId) {
-    return request.auth != null && request.auth.uid == userId;
-  }
-  
-  // Fonction pour valider les mises à jour du profil utilisateur.
-  function peutMettreAJourProfil(request, resource) {
-    let champsModifies = request.resource.data.diff(resource.data).affectedKeys();
+  // Fonction d'aide pour valider les mises à jour du profil utilisateur.
+  function canUpdateProfile(incomingData, existingData) {
+    // Liste des champs que l'utilisateur a le droit de modifier lui-même.
+    let userModifiableFields = ['firstName', 'lastName', 'dob', 'address', 'notificationPrefs', 'photoURL'];
     
-    // Liste des champs que l'utilisateur est autorisé à modifier lui-même.
-    // Les champs immuables comme 'uid', 'email', 'createdAt', 'iban', 'bic' ne sont pas dans cette liste.
-    let champsModifiables = [
-      'firstName', 'lastName', 'dob', 'address', 'pob', 'nationality', 'residenceCountry',
-      'profession', 'salary', 'notificationPrefs', 'kycStatus', 'photoURL'
-    ];
+    // Obtenir la liste des clés qui ont été modifiées dans la requête.
+    let changedKeys = incomingData.diff(existingData).affectedKeys();
 
-    // Vérifie que l'utilisateur ne modifie que les champs autorisés.
-    let modificationAutorisee = champsModifies.hasOnly(champsModifiables);
+    // Cas 1 : L'utilisateur soumet sa vérification KYC.
+    // La seule modification autorisée est celle du champ kycStatus de 'unverified' à 'pending'.
+    if (changedKeys.has('kycStatus')) {
+      return changedKeys.size() == 1 // S'assurer que SEUL kycStatus est modifié
+        && existingData.kycStatus == 'unverified'
+        && incomingData.kycStatus == 'pending';
+    }
+
+    // Cas 2 : L'utilisateur met à jour son profil.
+    // On vérifie que toutes les clés modifiées font partie des champs autorisés.
+    // `removeAll` retourne les éléments de `changedKeys` qui ne sont PAS dans `userModifiableFields`.
+    // Si la taille est 0, cela signifie que toutes les modifications sont autorisées.
+    let unauthorizedChanges = changedKeys.removeAll(userModifiableFields);
     
-    // Règle spécifique pour la mise à jour du statut KYC.
-    // L'utilisateur peut seulement passer de 'unverified' à 'pending'.
-    // Un administrateur devra ensuite le passer à 'verified'.
-    let miseAJourKycValide = !champsModifies.has('kycStatus') || 
-                              (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending');
-
-    // La mise à jour est autorisée si toutes les conditions sont remplies.
-    return modificationAutorisee && miseAJourKycValide;
+    // On s'assure également que le statut KYC n'est pas modifié illicitement.
+    return unauthorizedChanges.size() == 0
+           && incomingData.kycStatus == existingData.kycStatus;
   }
 }
