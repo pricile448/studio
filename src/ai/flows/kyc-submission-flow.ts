@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const KycSubmissionInputSchema = z.object({
+const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
   userName: z.string().describe("The user's full name."),
   userEmail: z.string().email().describe("The user's email address."),
