@@ -1,3 +1,4 @@
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -5,37 +6,47 @@ service cloud.firestore {
     
     match /users/{userId} {
       // Les utilisateurs peuvent lire leur propre profil s'ils sont authentifiés.
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if estProprietaire(userId);
 
       // Un nouvel utilisateur peut créer son propre profil.
       // Des règles de validation sont appliquées pour s'assurer que les données initiales sont correctes.
-      allow create: if request.auth != null && request.auth.uid == userId
+      allow create: if estProprietaire(userId)
                     && request.resource.data.uid == userId
                     && request.resource.data.email == request.auth.token.email
                     && request.resource.data.kycStatus == 'unverified'
                     && request.resource.data.createdAt == request.time;
       
-      // Un utilisateur peut mettre à jour son propre profil, avec des restrictions.
-      allow update: if request.auth != null && request.auth.uid == userId
-                     && canUpdateProfile(request.resource.data, resource.data);
+      // Un utilisateur peut mettre à jour son propre profil, mais avec des restrictions.
+      allow update: if estProprietaire(userId) && peutMettreAJourProfil(request, resource);
     }
   }
   
-  // Fonction d'aide pour valider les mises à jour du profil utilisateur.
-  function canUpdateProfile(incomingData, existingData) {
+  // Fonction pour vérifier si l'utilisateur authentifié est le propriétaire du document.
+  function estProprietaire(userId) {
+    return request.auth != null && request.auth.uid == userId;
+  }
+  
+  // Fonction pour valider les mises à jour du profil utilisateur.
+  function peutMettreAJourProfil(request, resource) {
+    let champsModifies = request.resource.data.diff(resource.data).affectedKeys();
     
-    // Champs immuables : l'utilisateur ne peut pas changer son UID, son email, sa date de création, son IBAN ou son BIC.
-    let isImmutableDataUnchanged = incomingData.uid == existingData.uid
-                                   && incomingData.email == existingData.email
-                                   && incomingData.createdAt.toMillis() == existingData.createdAt.toMillis()
-                                   && incomingData.iban == existingData.iban
-                                   && incomingData.bic == existingData.bic;
+    // Liste des champs que l'utilisateur est autorisé à modifier lui-même.
+    // Les champs immuables comme 'uid', 'email', 'createdAt', 'iban', 'bic' ne sont pas dans cette liste.
+    let champsModifiables = [
+      'firstName', 'lastName', 'dob', 'address', 'pob', 'nationality', 'residenceCountry',
+      'profession', 'salary', 'notificationPrefs', 'kycStatus', 'photoURL'
+    ];
 
-    // Transition de statut KYC autorisée : un utilisateur ne peut passer son statut que de 'unverified' à 'pending'.
-    // Il ne peut pas se donner le statut 'verified'.
-    let isKycUpdateAllowed = (existingData.kycStatus == 'unverified' && incomingData.kycStatus == 'pending')
-                              || (existingData.kycStatus == incomingData.kycStatus);
-                              
-    return isImmutableDataUnchanged && isKycUpdateAllowed;
+    // Vérifie que l'utilisateur ne modifie que les champs autorisés.
+    let modificationAutorisee = champsModifies.hasOnly(champsModifiables);
+    
+    // Règle spécifique pour la mise à jour du statut KYC.
+    // L'utilisateur peut seulement passer de 'unverified' à 'pending'.
+    // Un administrateur devra ensuite le passer à 'verified'.
+    let miseAJourKycValide = !champsModifies.has('kycStatus') || 
+                              (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending');
+
+    // La mise à jour est autorisée si toutes les conditions sont remplies.
+    return modificationAutorisee && miseAJourKycValide;
   }
 }
