@@ -27,11 +27,14 @@ const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
+    phone: z.string().min(1, 'Phone number is required'),
     dob: z.date({ required_error: 'Date of birth is required.' }),
     pob: z.string().min(1, 'Place of birth is required'),
     nationality: z.string().min(1, 'Nationality is required'),
     residenceCountry: z.string().min(1, 'Country of residence is required'),
     address: z.string().min(1, 'Address is required'),
+    city: z.string().min(1, 'City is required'),
+    postalCode: z.string().min(1, 'Postal code is required'),
     profession: z.string().min(1, 'Profession is required'),
     salary: z.coerce.number().positive('Salary must be a positive number'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -64,10 +67,13 @@ export default function RegisterPage() {
       firstName: '',
       lastName: '',
       email: '',
+      phone: '',
       pob: '',
       nationality: '',
       residenceCountry: '',
       address: '',
+      city: '',
+      postalCode: '',
       profession: '',
       salary: undefined,
       dob: undefined,
@@ -171,6 +177,25 @@ export default function RegisterPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{dict.login.emailLabel}</FormLabel>
+                    <FormControl><Input type="email" placeholder={dict.login.emailPlaceholder} {...field} /></FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}/>
+                <FormField control={form.control} name="phone" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>{registerDict.phoneLabel}</FormLabel>
+                        <FormControl><Input type="tel" {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}/>
+              </div>
+
+               <Separator className="my-2" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="dob"
@@ -230,6 +255,25 @@ export default function RegisterPage() {
                   <FormMessage />
                 </FormItem>
               )}/>
+              
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <FormField control={form.control} name="city" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>{registerDict.cityLabel}</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}/>
+                 <FormField control={form.control} name="postalCode" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>{registerDict.postalCodeLabel}</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}/>
+              </div>
+
+              <Separator className="my-2" />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="profession" render={({ field }) => (
@@ -250,13 +294,6 @@ export default function RegisterPage() {
               
               <Separator className="my-2" />
               
-              <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dict.login.emailLabel}</FormLabel>
-                  <FormControl><Input type="email" placeholder={dict.login.emailPlaceholder} {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}/>
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.login.passwordLabel}</FormLabel>

@@ -7,11 +7,14 @@ export type UserProfile = {
   email: string;
   firstName: string;
   lastName: string;
+  phone: string;
   dob: Date;
   pob: string;
   nationality: string;
   residenceCountry: string;
   address: string;
+  city: string;
+  postalCode: string;
   profession: string;
   salary: number;
   photoURL?: string;
