@@ -1,7 +1,10 @@
 
 'use client';
 
+import { useState } from 'react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
+import { useAuth } from '@/context/auth-context';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +16,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { DateRange } from 'react-day-picker';
 import { addDays, format } from 'date-fns';
-import { useState } from 'react';
 
 type HistoryClientProps = {
   dict: Dictionary['history'];
@@ -22,6 +24,7 @@ type HistoryClientProps = {
 };
 
 export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) {
+  const { userProfile, loading } = useAuth();
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(2024, 6, 1),
     to: addDays(new Date(2024, 6, 1), 30),
@@ -30,6 +33,15 @@ export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
+
+  if (loading || !userProfile) {
+    return (
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-1/4" />
+            <Skeleton className="h-48" />
+        </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -103,7 +115,7 @@ export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) 
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((tx) => (
+                  {transactions.length > 0 ? transactions.map((tx) => (
                     <TableRow key={tx.id}>
                        <TableCell>{tx.date}</TableCell>
                       <TableCell>{tx.description}</TableCell>
@@ -117,14 +129,20 @@ export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) 
                         {formatCurrency(tx.amount)}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )) : (
+                     <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                            {dict.noTransactions}
+                        </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
             {/* Mobile list */}
             <div className="md:hidden">
               <div className="space-y-4">
-                {transactions.map((tx, index) => (
+                {transactions.length > 0 ? transactions.map((tx, index) => (
                   <div key={tx.id}>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -142,7 +160,11 @@ export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) 
                     </div>
                     {index < transactions.length - 1 && <Separator className="my-4" />}
                   </div>
-                ))}
+                )) : (
+                     <div className="text-center text-muted-foreground py-12">
+                        <p>{dict.noTransactions}</p>
+                    </div>
+                )}
               </div>
             </div>
         </CardContent>
@@ -150,3 +172,4 @@ export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) 
     </div>
   );
 }
+
