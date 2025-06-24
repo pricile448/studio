@@ -285,7 +285,9 @@
       "budgetAmountLabel": "Total Amount",
       "saveBudgetButton": "Create Budget",
       "budgetCreated": "Budget Created!",
-      "budgetCreatedDescription": "Your new budget '{name}' has been created."
+      "budgetCreatedDescription": "Your new budget '{name}' has been created.",
+      "noBudgetsTitle": "You have no budgets yet",
+      "noBudgetsDescription": "Create a budget to start tracking your spending and reach your financial goals."
     },
     "documents": {
       "title": "My Documents",
@@ -293,7 +295,10 @@
       "upload": "Upload Document",
       "documentName": "Document Name",
       "uploadDate": "Upload Date",
-      "download": "Download"
+      "download": "Download",
+      "actions": "Actions",
+      "serviceContract": "Service Agreement.pdf",
+      "privacyPolicy": "Privacy Policy.pdf"
     },
     "iban": {
       "title": "My IBAN Details",
@@ -395,7 +400,35 @@
       }
     },
     "help": {
-      "title": "Help & Support"
+      "title": "Help & Support",
+      "faqTitle": "FAQ",
+      "faqDescription": "Find answers to frequently asked questions.",
+      "contactTitle": "Contact",
+      "contactDescription": "Can't find what you're looking for? Contact our support team.",
+      "faq": [
+        { "question": "How do I open an account?", "answer": "You can open an account right from our homepage by clicking 'Open an Account'. The process is fast and takes only a few minutes." },
+        { "question": "What documents do I need for verification?", "answer": "For verification, you will need a valid government-issued photo ID (Passport or ID Card), a proof of address (like a utility bill), and you'll need to take a selfie for biometric verification." },
+        { "question": "How secure is my money?", "answer": "Your security is our top priority. We use state-of-the-art encryption, two-factor authentication, and adhere to strict regulatory standards to protect your money and data." },
+        { "question": "Are there any fees?", "answer": "We believe in transparent pricing. You can find our fee structure on our pricing page. Many standard services like account maintenance are free." }
+      ],
+      "contactForm": {
+        "nameLabel": "Name",
+        "namePlaceholder": "Your name",
+        "nameRequired": "Name is required.",
+        "emailLabel": "Email",
+        "emailPlaceholder": "Your email",
+        "emailInvalid": "Invalid email address.",
+        "subjectLabel": "Subject",
+        "subjectPlaceholder": "How can we help you?",
+        "subjectRequired": "Subject is required.",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Describe your issue here...",
+        "messageRequired": "Message is required.",
+        "submitButton": "Send Message",
+        "successTitle": "Message Sent!",
+        "successDescription": "Thanks for contacting us. We'll get back to you as soon as possible.",
+        "errorDescription": "Failed to send message. Please try again later."
+      }
     },
     "kyc": {
       "title": "Identity Verification",
@@ -429,7 +462,11 @@
       "button_submit": "Submit Verification",
       "unverified_title": "Identity Verification Required",
       "unverified_description": "To access this feature, you need to complete your identity verification first. It's a quick and secure process to protect your account.",
-      "unverified_button": "Verify My Identity"
+      "unverified_button": "Verify My Identity",
+      "unverified_budgets_title": "Manage Your Budgets",
+      "unverified_cards_title": "Manage Your Cards",
+      "pending_title": "Verification in Progress",
+      "pending_description": "Your documents are being reviewed. This usually takes 24-48 hours. You can continue to browse your dashboard."
     },
     "notFound": {
       "title": "Oops! Page not found.",

@@ -13,6 +13,7 @@ import { ArrowRightLeft } from 'lucide-react';
 import { AddBeneficiaryDialog } from './add-beneficiary-dialog';
 import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '../ui/kyc-prompt';
+import { KycPendingPrompt } from '../ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
 
 
@@ -31,11 +32,6 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
   const transfersDict = dict.transfers;
   const kycDict = dict.kyc;
 
-  const isVerified = userProfile?.kycStatus === 'verified';
-  const displayAccounts = isVerified ? accounts : [];
-  const displayBeneficiaries = isVerified ? beneficiaries : [];
-  const displayRecentTransfers = isVerified ? recentTransfers : [];
-
   if (loading || !userProfile) {
     return (
         <div className="space-y-6">
@@ -52,7 +48,16 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
     )
   }
 
-  if (!isVerified) {
+  if (userProfile.kycStatus === 'pending') {
+    return <KycPendingPrompt 
+      lang={lang} 
+      title={kycDict.pending_title}
+      description={kycDict.pending_description}
+      buttonText={kycDict.step5_button}
+    />;
+  }
+
+  if (userProfile.kycStatus !== 'verified') {
     return <KycPrompt 
       lang={lang} 
       title={transfersDict.unverified_title}
@@ -60,6 +65,10 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
       buttonText={kycDict.unverified_button}
     />;
   }
+  
+  const displayAccounts = accounts;
+  const displayBeneficiaries = beneficiaries;
+  const displayRecentTransfers = recentTransfers;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(amount);

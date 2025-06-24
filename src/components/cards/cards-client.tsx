@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
+import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
@@ -50,6 +51,15 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         </div>
        </div>
     )
+  }
+
+  if (userProfile.kycStatus === 'pending') {
+    return <KycPendingPrompt 
+      lang={lang} 
+      title={kycDict.pending_title}
+      description={kycDict.pending_description}
+      buttonText={kycDict.step5_button}
+    />;
   }
 
   if (userProfile.kycStatus !== 'verified') {

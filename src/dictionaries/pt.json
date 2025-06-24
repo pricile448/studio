@@ -285,7 +285,9 @@
       "budgetAmountLabel": "Valor Total",
       "saveBudgetButton": "Criar Orçamento",
       "budgetCreated": "Orçamento Criado!",
-      "budgetCreatedDescription": "O seu novo orçamento '{name}' foi criado."
+      "budgetCreatedDescription": "O seu novo orçamento '{name}' foi criado.",
+      "noBudgetsTitle": "Ainda não tem orçamentos",
+      "noBudgetsDescription": "Crie um orçamento para começar a controlar os seus gastos e atingir as suas metas financeiras."
     },
      "documents": {
       "title": "Meus Documentos",
@@ -293,7 +295,10 @@
       "upload": "Enviar Documento",
       "documentName": "Nome do Documento",
       "uploadDate": "Data de Envio",
-      "download": "Baixar"
+      "download": "Baixar",
+      "actions": "Ações",
+      "serviceContract": "Contrato de Serviço.pdf",
+      "privacyPolicy": "Política de Privacidade.pdf"
     },
     "iban": {
       "title": "Detalhes do meu IBAN",
@@ -395,7 +400,35 @@
       }
     },
     "help": {
-      "title": "Ajuda e Suporte"
+      "title": "Ajuda e Suporte",
+      "faqTitle": "Perguntas Frequentes",
+      "faqDescription": "Encontre respostas para as perguntas mais frequentes.",
+      "contactTitle": "Contato",
+      "contactDescription": "Não consegue encontrar o que procura? Entre em contato com a nossa equipe de suporte.",
+      "faq": [
+        { "question": "Como abro uma conta?", "answer": "Pode abrir uma conta diretamente na nossa página inicial, clicando em 'Abrir uma conta'. O processo é rápido e leva apenas alguns minutos." },
+        { "question": "Que documentos preciso para a verificação?", "answer": "Para a verificação, precisará de um documento de identificação com fotografia válido, emitido pelo governo (Passaporte ou Bilhete de Identidade), um comprovativo de morada (como uma fatura de serviços públicos), e terá de tirar uma selfie para verificação biométrica." },
+        { "question": "O meu dinheiro está seguro?", "answer": "A sua segurança é a nossa principal prioridade. Usamos criptografia de ponta, autenticação de dois fatores e aderimos a padrões regulatórios rigorosos para proteger o seu dinheiro e os seus dados." },
+        { "question": "Existem taxas?", "answer": "Acreditamos em preços transparentes. Pode encontrar a nossa estrutura de taxas na nossa página de preços. Muitos serviços padrão, como a manutenção da conta, são gratuitos." }
+      ],
+      "contactForm": {
+        "nameLabel": "Nome",
+        "namePlaceholder": "O seu nome",
+        "nameRequired": "O nome é obrigatório.",
+        "emailLabel": "E-mail",
+        "emailPlaceholder": "O seu e-mail",
+        "emailInvalid": "Endereço de e-mail inválido.",
+        "subjectLabel": "Assunto",
+        "subjectPlaceholder": "Como podemos ajudá-lo?",
+        "subjectRequired": "O assunto é obrigatório.",
+        "messageLabel": "Mensagem",
+        "messagePlaceholder": "Descreva o seu problema aqui...",
+        "messageRequired": "A mensagem é obrigatória.",
+        "submitButton": "Enviar Mensagem",
+        "successTitle": "Mensagem Enviada!",
+        "successDescription": "Obrigado por nos contactar. Entraremos em contacto consigo o mais breve possível.",
+        "errorDescription": "Falha ao enviar mensagem. Por favor, tente novamente mais tarde."
+      }
     },
     "kyc": {
       "title": "Verificação de Identidade",
@@ -429,7 +462,11 @@
       "button_submit": "Submeter Verificação",
       "unverified_title": "Verificação de Identidade Necessária",
       "unverified_description": "Para aceder a esta funcionalidade, precisa de completar primeiro a sua verificação de identidade. É um processo rápido e seguro para proteger a sua conta.",
-      "unverified_button": "Verificar a Minha Identidade"
+      "unverified_button": "Verificar a Minha Identidade",
+      "unverified_budgets_title": "Gerir os seus Orçamentos",
+      "unverified_cards_title": "Gerir os seus Cartões",
+      "pending_title": "Verificação em Andamento",
+      "pending_description": "Os seus documentos estão a ser revistos. Normalmente, isto demora entre 24 a 48 horas. Pode continuar a navegar no seu painel."
     },
     "notFound": {
       "title": "Oops! Página não encontrada.",

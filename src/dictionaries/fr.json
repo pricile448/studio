@@ -263,7 +263,9 @@
       "budgetAmountLabel": "Montant total",
       "saveBudgetButton": "Créer le budget",
       "budgetCreated": "Budget créé !",
-      "budgetCreatedDescription": "Votre nouveau budget '{name}' a été créé."
+      "budgetCreatedDescription": "Votre nouveau budget '{name}' a été créé.",
+      "noBudgetsTitle": "Vous n'avez pas encore de budget",
+      "noBudgetsDescription": "Créez un budget pour commencer à suivre vos dépenses et atteindre vos objectifs financiers."
     },
     "documents": {
       "title": "Mes Documents",
@@ -271,7 +273,10 @@
       "upload": "Télécharger un document",
       "documentName": "Nom du document",
       "uploadDate": "Date de téléchargement",
-      "download": "Télécharger"
+      "download": "Télécharger",
+      "actions": "Actions",
+      "serviceContract": "Contrat de Service.pdf",
+      "privacyPolicy": "Politique de Confidentialité.pdf"
     },
     "iban": {
       "title": "Détails de mon IBAN",
@@ -373,7 +378,35 @@
       }
     },
     "help": {
-      "title": "Aide & Support"
+      "title": "Aide & Support",
+      "faqTitle": "FAQ",
+      "faqDescription": "Trouvez les réponses aux questions fréquemment posées.",
+      "contactTitle": "Contact",
+      "contactDescription": "Vous ne trouvez pas ce que vous cherchez ? Contactez notre équipe de support.",
+      "faq": [
+        { "question": "Comment ouvrir un compte ?", "answer": "Vous pouvez ouvrir un compte directement depuis notre page d'accueil en cliquant sur 'Ouvrir un compte'. Le processus est rapide et ne prend que quelques minutes." },
+        { "question": "Quels documents sont nécessaires pour la vérification ?", "answer": "Pour la vérification, vous aurez besoin d'une pièce d'identité avec photo valide émise par le gouvernement (Passeport ou Carte d'identité), d'un justificatif de domicile (comme une facture d'électricité), et vous devrez prendre un selfie pour la vérification biométrique." },
+        { "question": "Mon argent est-il en sécurité ?", "answer": "Votre sécurité est notre priorité absolue. Nous utilisons un cryptage de pointe, une authentification à deux facteurs et nous respectons des normes réglementaires strictes pour protéger votre argent et vos données." },
+        { "question": "Y a-t-il des frais ?", "answer": "Nous croyons en une tarification transparente. Vous pouvez trouver notre structure de frais sur notre page de tarification. De nombreux services standard comme la tenue de compte sont gratuits." }
+      ],
+      "contactForm": {
+        "nameLabel": "Nom",
+        "namePlaceholder": "Votre nom",
+        "nameRequired": "Le nom est requis.",
+        "emailLabel": "E-mail",
+        "emailPlaceholder": "Votre e-mail",
+        "emailInvalid": "Adresse e-mail invalide.",
+        "subjectLabel": "Sujet",
+        "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+        "subjectRequired": "Le sujet est requis.",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Décrivez votre problème ici...",
+        "messageRequired": "Le message est requis.",
+        "submitButton": "Envoyer le message",
+        "successTitle": "Message envoyé !",
+        "successDescription": "Merci de nous avoir contactés. Nous vous répondrons dès que possible.",
+        "errorDescription": "Échec de l'envoi du message. Veuillez réessayer plus tard."
+      }
     },
     "sidebar": {
       "dashboard": "Tableau de bord",
@@ -422,14 +455,18 @@
       "step4_desc": "Veuillez télécharger une photo claire et récente de vous-même. Assurez-vous que votre visage est bien visible. Ne portez pas de chapeau ou de lunettes de soleil.",
       "step4_upload_selfie": "Télécharger votre photo",
       "step5_title": "Vérification en cours",
-      "step5_desc": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est de 24 à 48H. Nous vous informerons une fois le processus terminé.",
+      "step5_desc": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est de 24 à 48 heures. Nous vous informerons une fois le processus terminé.",
       "step5_button": "Retour au tableau de bord",
       "button_next": "Suivant",
       "button_back": "Retour",
       "button_submit": "Soumettre la vérification",
       "unverified_title": "Vérification d'Identité Requise",
       "unverified_description": "Pour accéder à cette fonctionnalité, vous devez d'abord compléter votre vérification d'identité. C'est un processus rapide et sécurisé pour protéger votre compte.",
-      "unverified_button": "Vérifier Mon Identité"
+      "unverified_button": "Vérifier Mon Identité",
+      "unverified_budgets_title": "Gérer Vos Budgets",
+      "unverified_cards_title": "Gérer Vos Cartes",
+      "pending_title": "Vérification en cours",
+      "pending_description": "Vos documents sont en cours de vérification. Cela prend généralement entre 24 et 48 heures. Vous pouvez continuer à naviguer sur votre tableau de bord."
     },
     "notFound": {
       "title": "Oups! Page introuvable.",

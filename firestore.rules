@@ -1,0 +1,34 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Rules for the 'users' collection
+    match /users/{userId} {
+      
+      // A user can only create their own user document.
+      // This is typically done upon account creation (signup).
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // A user can only read their own document.
+      // This protects personal user information from other users.
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // A user can update their own document, but with restrictions.
+      allow update: if request.auth != null && request.auth.uid == userId
+        // Ensure some fields cannot be changed by the user after creation.
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
+        // Allow the user to submit for verification, but not to verify themselves.
+        && (
+          request.resource.data.kycStatus == resource.data.kycStatus ||
+          (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending')
+        );
+        
+      // A user should not be able to delete their own account directly from the client.
+      // Deletion should be handled by a secure backend process (e.g., a Cloud Function).
+      allow delete: if false;
+    }
+  }
+}

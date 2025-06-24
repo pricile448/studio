@@ -12,6 +12,7 @@ import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
+import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type IbanClientProps = {
@@ -54,6 +55,15 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
         </Card>
       </div>
     );
+  }
+
+  if (userProfile.kycStatus === 'pending') {
+    return <KycPendingPrompt 
+      lang={lang} 
+      title={kycDict.pending_title}
+      description={kycDict.pending_description}
+      buttonText={kycDict.step5_button}
+    />;
   }
 
   if (userProfile.kycStatus !== 'verified') {

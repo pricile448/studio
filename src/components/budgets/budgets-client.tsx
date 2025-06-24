@@ -6,10 +6,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { PlusCircle, ShoppingCart, Clapperboard, Car, Utensils } from 'lucide-react';
+import { PlusCircle, ShoppingCart, Clapperboard, Car, Utensils, PieChart } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
@@ -24,6 +24,10 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
+import { KycPrompt } from '@/components/ui/kyc-prompt';
+import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const initialBudgets = [
   { id: '1', name: 'groceries', spent: 350.50, total: 500, icon: ShoppingCart },
@@ -39,8 +43,11 @@ const budgetSchema = z.object({
 type BudgetFormValues = z.infer<typeof budgetSchema>;
 
 export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
+  const { userProfile, loading } = useAuth();
   const budgetsDict = dict.budgets;
-  const [budgets, setBudgets] = useState(initialBudgets);
+  const kycDict = dict.kyc;
+  
+  const [budgets, setBudgets] = useState(userProfile?.kycStatus === 'verified' ? initialBudgets : []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -48,6 +55,39 @@ export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }
     resolver: zodResolver(budgetSchema),
     defaultValues: { name: '', total: 0 },
   });
+
+  if (loading || !userProfile) {
+    return (
+       <div className="space-y-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <Skeleton className="h-8 w-36" />
+          <Skeleton className="h-10 w-40" />
+        </div>
+        <Separator />
+        <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (userProfile.kycStatus === 'pending') {
+    return <KycPendingPrompt 
+      lang={lang}
+      title={kycDict.pending_title}
+      description={kycDict.pending_description}
+      buttonText={kycDict.step5_button}
+    />
+  }
+
+  if (userProfile.kycStatus === 'unverified') {
+    return <KycPrompt 
+      lang={lang}
+      title={kycDict.unverified_budgets_title}
+      description={kycDict.unverified_description}
+      buttonText={kycDict.unverified_button}
+    />
+  }
 
   const onSubmit = (data: BudgetFormValues) => {
     const newBudget = {
@@ -133,30 +173,47 @@ export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }
         </Dialog>
       </div>
       <Separator />
-      <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-        {budgets.map((budget) => {
-          const Icon = budget.icon;
-          const percentage = (budget.spent / budget.total) * 100;
-          return (
-            <Card key={budget.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                   <CardTitle className="font-headline">{getBudgetName(budget.name)}</CardTitle>
-                   <Icon className="h-6 w-6 text-muted-foreground" />
+
+      {budgets.length === 0 ? (
+        <Card>
+            <CardContent className="pt-6">
+                <div className="text-center text-muted-foreground py-12">
+                    <PieChart className="mx-auto h-12 w-12 mb-4" />
+                    <h3 className="text-lg font-semibold">{budgetsDict.noBudgetsTitle}</h3>
+                    <p className="mt-2 text-sm">{budgetsDict.noBudgetsDescription}</p>
+                    <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
+                        <PlusCircle className="mr-2" />
+                        {budgetsDict.createBudget}
+                    </Button>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                 <p className="text-sm text-muted-foreground">
-                  {budgetsDict.spentOf
-                    .replace('{spent}', formatCurrency(budget.spent))
-                    .replace('{total}', formatCurrency(budget.total))}
-                </p>
-                <Progress value={percentage} aria-label={`${percentage.toFixed(0)}% spent`} />
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+            </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            {budgets.map((budget) => {
+            const Icon = budget.icon;
+            const percentage = (budget.spent / budget.total) * 100;
+            return (
+                <Card key={budget.id}>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                    <CardTitle className="font-headline">{getBudgetName(budget.name)}</CardTitle>
+                    <Icon className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                    {budgetsDict.spentOf
+                        .replace('{spent}', formatCurrency(budget.spent))
+                        .replace('{total}', formatCurrency(budget.total))}
+                    </p>
+                    <Progress value={percentage} aria-label={`${percentage.toFixed(0)}% spent`} />
+                </CardContent>
+                </Card>
+            );
+            })}
+        </div>
+      )}
     </div>
   );
 }

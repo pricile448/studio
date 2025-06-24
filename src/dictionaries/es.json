@@ -285,7 +285,9 @@
       "budgetAmountLabel": "Monto Total",
       "saveBudgetButton": "Crear Presupuesto",
       "budgetCreated": "¡Presupuesto Creado!",
-      "budgetCreatedDescription": "Su nuevo presupuesto '{name}' ha sido creado."
+      "budgetCreatedDescription": "Su nuevo presupuesto '{name}' ha sido creado.",
+      "noBudgetsTitle": "Aún no tiene presupuestos",
+      "noBudgetsDescription": "Cree un presupuesto para comenzar a controlar sus gastos y alcanzar sus metas financieras."
     },
     "documents": {
       "title": "Mis Documentos",
@@ -293,7 +295,10 @@
       "upload": "Subir Documento",
       "documentName": "Nombre del Documento",
       "uploadDate": "Fecha de Carga",
-      "download": "Descargar"
+      "download": "Descargar",
+      "actions": "Acciones",
+      "serviceContract": "Acuerdo de Servicio.pdf",
+      "privacyPolicy": "Política de Privacidad.pdf"
     },
     "iban": {
       "title": "Mis Datos de IBAN",
@@ -395,7 +400,35 @@
       }
     },
     "help": {
-      "title": "Ayuda y Soporte"
+      "title": "Ayuda y Soporte",
+      "faqTitle": "Preguntas Frecuentes",
+      "faqDescription": "Encuentre respuestas a las preguntas más frecuentes.",
+      "contactTitle": "Contacto",
+      "contactDescription": "¿No encuentra lo que busca? Póngase en contacto con nuestro equipo de soporte.",
+      "faq": [
+        { "question": "¿Cómo abro una cuenta?", "answer": "Puede abrir una cuenta directamente desde nuestra página de inicio haciendo clic en 'Abrir una cuenta'. El proceso es rápido y solo toma unos minutos." },
+        { "question": "¿Qué documentos necesito para la verificación?", "answer": "Para la verificación, necesitará un documento de identidad con foto válido emitido por el gobierno (Pasaporte o DNI), un comprobante de domicilio (como una factura de servicios públicos), y deberá tomarse una selfie para la verificación biométrica." },
+        { "question": "¿Qué tan seguro está mi dinero?", "answer": "Su seguridad es nuestra máxima prioridad. Usamos encriptación de última generación, autenticación de dos factores y cumplimos con estrictos estándares regulatorios para proteger su dinero y sus datos." },
+        { "question": "¿Hay alguna tarifa?", "answer": "Creemos en la transparencia de precios. Puede encontrar nuestra estructura de tarifas en nuestra página de precios. Muchos servicios estándar como el mantenimiento de la cuenta son gratuitos." }
+      ],
+      "contactForm": {
+        "nameLabel": "Nombre",
+        "namePlaceholder": "Su nombre",
+        "nameRequired": "El nombre es obligatorio.",
+        "emailLabel": "Correo electrónico",
+        "emailPlaceholder": "Su correo electrónico",
+        "emailInvalid": "Dirección de correo electrónico no válida.",
+        "subjectLabel": "Asunto",
+        "subjectPlaceholder": "¿En qué podemos ayudarle?",
+        "subjectRequired": "El asunto es obligatorio.",
+        "messageLabel": "Mensaje",
+        "messagePlaceholder": "Describa su problema aquí...",
+        "messageRequired": "El mensaje es obligatorio.",
+        "submitButton": "Enviar mensaje",
+        "successTitle": "¡Mensaje enviado!",
+        "successDescription": "Gracias por contactarnos. Nos pondremos en contacto con usted lo antes posible.",
+        "errorDescription": "No se pudo enviar el mensaje. Por favor, inténtelo de nuevo más tarde."
+      }
     },
     "kyc": {
       "title": "Verificación de Identidad",
@@ -429,7 +462,11 @@
       "button_submit": "Enviar Verificación",
       "unverified_title": "Se Requiere Verificación de Identidad",
       "unverified_description": "Para acceder a esta función, primero debe completar su verificación de identidad. Es un proceso rápido y seguro para proteger su cuenta.",
-      "unverified_button": "Verificar Mi Identidad"
+      "unverified_button": "Verificar Mi Identidad",
+      "unverified_budgets_title": "Administre sus Presupuestos",
+      "unverified_cards_title": "Administre sus Tarjetas",
+      "pending_title": "Verificación en Proceso",
+      "pending_description": "Sus documentos están siendo revisados. Esto suele tardar entre 24 y 48 horas. Puede seguir navegando por su panel."
     },
     "notFound": {
       "title": "¡Vaya! Página no encontrada.",
