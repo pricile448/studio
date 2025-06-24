@@ -1,50 +1,40 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Fonction pour valider la transition du statut KYC.
+    function isKycUpdateValid(incoming, existing) {
+      // L'utilisateur ne peut que passer son statut de 'unverified' à 'pending'.
+      // Il ne peut pas se donner le statut 'verified'.
+      // Les autres statuts ne peuvent pas être modifiés par l'utilisateur une fois définis (ex: 'pending' ou 'verified').
+      return (existing.kycStatus == 'unverified' && incoming.kycStatus == 'pending')
+             || (existing.kycStatus == incoming.kycStatus);
+    }
+
     match /users/{userId} {
       // Les utilisateurs peuvent lire leur propre profil s'ils sont authentifiés.
       allow read: if request.auth != null && request.auth.uid == userId;
 
       // Un nouvel utilisateur peut créer son propre profil.
-      // Des règles de validation sont appliquées pour s'assurer que les données initiales sont correctes.
+      // Les règles de validation garantissent que les données initiales sont correctes.
       allow create: if request.auth != null && request.auth.uid == userId
                     && request.resource.data.uid == userId
                     && request.resource.data.email == request.auth.token.email
-                    && request.resource.data.kycStatus == 'unverified'
-                    && request.resource.data.createdAt == request.time;
+                    && request.resource.data.kycStatus == 'unverified';
       
-      // Un utilisateur peut mettre à jour son propre profil, avec des restrictions.
+      // Un utilisateur peut mettre à jour son propre profil, sous certaines conditions.
       allow update: if request.auth != null && request.auth.uid == userId
-                     && canUpdateProfile(request.resource.data, resource.data);
+                    // Vérifie que les champs immuables ne sont pas modifiés.
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.email == resource.data.email
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    // Vérifie que la mise à jour du statut KYC est valide.
+                    && isKycUpdateValid(request.resource.data, resource.data)
+                    // Vérifie que seuls les champs autorisés sont modifiés.
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['firstName', 'lastName', 'dob', 'address', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'kycStatus']);
     }
-  }
-  
-  // Fonction d'aide pour valider les mises à jour du profil utilisateur.
-  function canUpdateProfile(incomingData, existingData) {
-    // Liste des champs que l'utilisateur a le droit de modifier lui-même.
-    let userModifiableFields = ['firstName', 'lastName', 'dob', 'address', 'notificationPrefs', 'photoURL'];
-    
-    // Obtenir la liste des clés qui ont été modifiées dans la requête.
-    let changedKeys = incomingData.diff(existingData).affectedKeys();
-
-    // Cas 1 : L'utilisateur soumet sa vérification KYC.
-    // La seule modification autorisée est celle du champ kycStatus de 'unverified' à 'pending'.
-    if (changedKeys.has('kycStatus')) {
-      return changedKeys.size() == 1 // S'assurer que SEUL kycStatus est modifié
-        && existingData.kycStatus == 'unverified'
-        && incomingData.kycStatus == 'pending';
-    }
-
-    // Cas 2 : L'utilisateur met à jour son profil.
-    // On vérifie que toutes les clés modifiées font partie des champs autorisés.
-    // `removeAll` retourne les éléments de `changedKeys` qui ne sont PAS dans `userModifiableFields`.
-    // Si la taille est 0, cela signifie que toutes les modifications sont autorisées.
-    let unauthorizedChanges = changedKeys.removeAll(userModifiableFields);
-    
-    // On s'assure également que le statut KYC n'est pas modifié illicitement.
-    return unauthorizedChanges.size() == 0
-           && incomingData.kycStatus == existingData.kycStatus;
   }
 }
