@@ -1,40 +1,33 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Fonction pour valider la transition du statut KYC.
-    function isKycUpdateValid(incoming, existing) {
-      // L'utilisateur ne peut que passer son statut de 'unverified' à 'pending'.
-      // Il ne peut pas se donner le statut 'verified'.
-      // Les autres statuts ne peuvent pas être modifiés par l'utilisateur une fois définis (ex: 'pending' ou 'verified').
-      return (existing.kycStatus == 'unverified' && incoming.kycStatus == 'pending')
-             || (existing.kycStatus == incoming.kycStatus);
-    }
-
     match /users/{userId} {
       // Les utilisateurs peuvent lire leur propre profil s'ils sont authentifiés.
       allow read: if request.auth != null && request.auth.uid == userId;
 
       // Un nouvel utilisateur peut créer son propre profil.
-      // Les règles de validation garantissent que les données initiales sont correctes.
-      allow create: if request.auth != null && request.auth.uid == userId
-                    && request.resource.data.uid == userId
-                    && request.resource.data.email == request.auth.token.email
-                    && request.resource.data.kycStatus == 'unverified';
+      allow create: if request.auth != null && request.auth.uid == userId;
       
-      // Un utilisateur peut mettre à jour son propre profil, sous certaines conditions.
-      allow update: if request.auth != null && request.auth.uid == userId
-                    // Vérifie que les champs immuables ne sont pas modifiés.
-                    && request.resource.data.uid == resource.data.uid
-                    && request.resource.data.email == resource.data.email
-                    && request.resource.data.createdAt == resource.data.createdAt
-                    // Vérifie que la mise à jour du statut KYC est valide.
-                    && isKycUpdateValid(request.resource.data, resource.data)
-                    // Vérifie que seuls les champs autorisés sont modifiés.
-                    && request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['firstName', 'lastName', 'dob', 'address', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'kycStatus']);
+      // Un utilisateur peut mettre à jour son propre profil, avec des restrictions.
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        // On ne peut pas modifier des champs immuables.
+        !('uid' in request.writeFields) &&
+        !('email' in request.writeFields) &&
+        !('createdAt' in request.writeFields) &&
+        !('pob' in request.writeFields) &&
+        !('nationality' in request.writeFields) &&
+        !('profession' in request.writeFields) &&
+        !('salary' in request.writeFields) &&
+        !('iban' in request.writeFields) &&
+        !('bic' in request.writeFields) &&
+        // La seule modification autorisée pour kycStatus est de 'unverified' à 'pending'.
+        // Si kycStatus n'est pas modifié, cette condition est vraie.
+        // Si kycStatus est modifié, la transition doit être valide.
+        (
+          !('kycStatus' in request.writeFields) ||
+          (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending')
+        );
     }
   }
 }

@@ -98,6 +98,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
       await updateKycStatus('pending');
       setStep(6);
     } catch (error) {
+      console.error("KYC Submission Error:", error);
       toast({
         variant: 'destructive',
         title: dict.submission_error,
