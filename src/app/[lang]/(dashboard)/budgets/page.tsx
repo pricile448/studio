@@ -7,6 +7,7 @@ import { BudgetsClient } from '@/components/budgets/budgets-client';
 import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 export default function BudgetsPage({ params: { lang } }: { params: { lang: Locale } }) {
   const [dict, setDict] = useState<Dictionary | null>(null);
