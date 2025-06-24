@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2 } from 'lucide-react';
+import { UploadCloud, ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -74,6 +74,10 @@ export function KycClient({ dict, lang }: KycClientProps) {
               <li className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1"><ListChecks className="h-5 w-5 text-primary" /></div>
                 <span>{dict.step1_item1}</span>
+              </li>
+              <li className="flex items-start gap-4">
+                <div className="flex-shrink-0 mt-1"><FileText className="h-5 w-5 text-primary" /></div>
+                <span>{dict.step1_item3}</span>
               </li>
               <li className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1"><User className="h-5 w-5 text-primary" /></div>
