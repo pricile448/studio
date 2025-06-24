@@ -77,6 +77,28 @@
         "invalidAction": "L'action demandée est invalide.",
         "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien."
     },
+    "sidebar": {
+      "dashboard": "Tableau de bord",
+      "accounts": "Comptes",
+      "iban": "Mon IBAN",
+      "transfers": "Virements",
+      "cards": "Cartes",
+      "history": "Historique",
+      "budgets": "Budgets",
+      "settings": "Paramètres",
+      "more": "Plus",
+      "help": "Aide & Support",
+      "documents": "Mes Documents",
+      "exchange": "Change de devises",
+      "referrals": "Parrainer un ami",
+      "notifications": "Notifications",
+      "userMenu": {
+        "profile": "Profil",
+        "billing": "Facturation",
+        "settings": "Paramètres",
+        "logout": "Déconnexion"
+      }
+    },
      "sidebarGroups": {
         "account": "Mon Compte",
         "settingsAndMore": "Paramètres & Plus"
@@ -409,28 +431,6 @@
         "errorDescription": "Échec de l'envoi du message. Veuillez réessayer plus tard."
       }
     },
-    "sidebar": {
-      "dashboard": "Tableau de bord",
-      "accounts": "Comptes",
-      "iban": "Mon IBAN",
-      "transfers": "Virements",
-      "cards": "Cartes",
-      "history": "Historique",
-      "budgets": "Budgets",
-      "settings": "Paramètres",
-      "more": "Plus",
-      "help": "Aide & Support",
-      "documents": "Mes Documents",
-      "exchange": "Change de devises",
-      "referrals": "Parrainer un ami",
-      "notifications": "Notifications",
-      "userMenu": {
-        "profile": "Profil",
-        "billing": "Facturation",
-        "settings": "Paramètres",
-        "logout": "Déconnexion"
-      }
-    },
     "kyc": {
       "title": "Vérification d'Identité",
       "progress": "Étape {step} sur {totalSteps}",
@@ -445,13 +445,17 @@
       "step2_doc_type": "Type de document",
       "step2_doc_passport": "Passeport",
       "step2_doc_id": "Carte d'identité",
-      "step5_desc_24_48": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est généralement de 24 à 48 heures. Nous vous informerons une fois le processus terminé.",
-      "step3_title": "Téléchargez votre justificatif de domicile",
-      "step3_desc": "Veuillez télécharger une facture de services publics ou un relevé bancaire récent indiquant votre nom et l'adresse que vous avez fournie lors de l'inscription.",
-      "step4_title": "Téléchargez votre selfie",
-      "step4_desc": "Veuillez télécharger une photo claire et récente de vous-même. Assurez-vous que votre visage est bien visible. Ne portez pas de chapeau ou de lunettes de soleil.",
-      "step5_title": "Vérification en cours",
-      "step5_button": "Retour au tableau de bord",
+      "step3_title_id": "Téléchargez votre carte d'identité",
+      "step3_title_passport": "Téléchargez votre passeport",
+      "step3_desc": "Veuillez télécharger une image claire et lisible du document complet.",
+      "step3_upload_button": "Choisir un fichier",
+      "step4_title": "Téléchargez votre justificatif de domicile",
+      "step4_desc": "Téléchargez une facture de services publics récente (moins de 3 mois) ou un relevé bancaire indiquant votre nom et votre adresse.",
+      "step5_title": "Vérification par selfie",
+      "step5_desc": "Prenez une photo de vous pour confirmer votre identité. Assurez-vous que votre visage est bien éclairé et entièrement visible.",
+      "step6_title": "Vérification soumise",
+      "step6_desc": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est généralement de 24 à 48 heures. Nous vous informerons une fois le processus terminé.",
+      "step6_button": "Retour au tableau de bord",
       "button_next": "Suivant",
       "button_back": "Retour",
       "button_submit": "Soumettre la vérification",
@@ -465,7 +469,14 @@
       "selected": "sélectionné",
       "clickNext": "Veuillez cliquer sur 'Suivant' pour continuer.",
       "readyToProceed": "Prêt à continuer ?",
-      "clickSubmit": "Cliquez sur 'Soumettre' pour finaliser votre demande de vérification."
+      "clickSubmit": "Cliquez sur 'Soumettre' pour finaliser votre demande de vérification.",
+      "file_selected": "Fichier sélectionné : {fileName}",
+      "file_too_large": "Fichier trop volumineux",
+      "file_too_large_desc": "Veuillez sélectionner un fichier de moins de 5 Mo.",
+      "missing_documents": "Documents manquants",
+      "missing_documents_desc": "Veuillez télécharger tous les documents requis avant de soumettre.",
+      "submission_error": "Erreur de soumission",
+      "submission_error_desc": "Impossible de soumettre vos documents. Veuillez réessayer."
     },
     "notFound": {
       "title": "Oups! Page introuvable.",
