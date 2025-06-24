@@ -226,11 +226,14 @@
       "viewPin": "Ver PIN",
       "viewPinDescription": "Veja o PIN do seu cartão com segurança.",
       "orderCardTitle": "Pedir um novo cartão físico",
-      "orderCardDescription": "Confirme que gostaria de pedir um novo cartão físico. Será enviado para o seu endereço registado.",
+      "orderCardDescription": "Está prestes a pedir um cartão. Isto é gratuito. O cartão será enviado para a sua morada residencial registada.",
+      "request_card_confirm_title": "Confirmar pedido de cartão",
+      "request_card_confirm_description": "Confirma que pretende solicitar um novo cartão físico? Será enviado para a sua morada registada.",
       "confirmOrder": "Confirmar Pedido",
       "cancelButton": "Cancelar",
       "cardOrdered": "Cartão Encomendado!",
       "cardOrderedDescription": "O seu novo cartão está a caminho.",
+      "card_request_success": "Pedido de cartão enviado!",
       "cardFrozen": "O cartão foi congelado.",
       "cardUnfrozen": "O cartão foi descongelado.",
       "limitUpdated": "Limite de gastos atualizado.",
@@ -246,7 +249,10 @@
       "showPin": "Mostrar PIN",
       "hidePin": "Ocultar PIN",
       "unverified_title": "Gerir os seus Cartões",
-      "unverified_description": "Complete a sua verificação de identidade para encomendar novos cartões e gerir as configurações do seu cartão."
+      "unverified_description": "Complete a sua verificação de identidade para encomendar novos cartões e gerir as configurações do seu cartão.",
+      "request_pending_title": "Pedido de cartão em processamento",
+      "request_pending_description": "Recebemos o seu pedido de cartão. Está a ser processado e será notificado quando for enviado.",
+      "cardActive": "Cartão Ativo"
     },
     "history": {
       "title": "Histórico de Transações",
@@ -313,7 +319,10 @@
       "downloadIban": "Baixar IBAN",
       "clientAddress": "Endereço do Cliente",
       "unverified_title": "Aceda ao seu IBAN",
-      "unverified_description": "Complete a sua verificação de identidade para visualizar e usar os seus detalhes de IBAN para receber pagamentos."
+      "unverified_description": "Complete a sua verificação de identidade para visualizar e usar os seus detalhes de IBAN para receber pagamentos.",
+      "pending_title": "A sua conta está validada!",
+      "pending_description": "O seu IBAN está a ser gerado e estará disponível nesta página dentro de 24 horas úteis.",
+      "pending_button": "Voltar ao Painel"
     },
     "more": {
       "title": "Mais Opções",

@@ -14,6 +14,7 @@ import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
 import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '@/components/ui/skeleton';
+import { IbanPendingPrompt } from '../ui/iban-pending-prompt';
 
 type IbanClientProps = {
   dict: Dictionary;
@@ -62,7 +63,7 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
       lang={lang} 
       title={kycDict.pending_title}
       description={kycDict.pending_description}
-      buttonText={kycDict.step5_button}
+      buttonText={kycDict.step6_button}
     />;
   }
 
@@ -75,12 +76,21 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
     />;
   }
   
+  if (userProfile.kycStatus === 'verified' && !userProfile.iban) {
+    return <IbanPendingPrompt
+      lang={lang}
+      title={ibanDict.pending_title}
+      description={ibanDict.pending_description}
+      buttonText={dict.dashboard.verificationBanner.pending_description}
+    />
+  }
+  
   const userDetails = {
     ...details,
     holder: `${userProfile.firstName} ${userProfile.lastName}`,
     clientAddress: userProfile.address,
-    iban: userProfile.iban || details.iban, // Use profile IBAN if available, otherwise mock
-    bic: userProfile.bic || details.bic, // Use profile BIC if available, otherwise mock
+    iban: userProfile.iban || details.iban,
+    bic: userProfile.bic || details.bic,
   };
 
   const handleCopy = (text: string, fieldName: string) => {

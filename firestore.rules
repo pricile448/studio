@@ -2,30 +2,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Helper function to check for changes in unmodifiable fields by the user
+    function unmodifiableFieldsUnchanged() {
+      return request.resource.data.uid == resource.data.uid &&
+             request.resource.data.email == resource.data.email &&
+             request.resource.data.createdAt == resource.data.createdAt &&
+             // A user cannot assign or change their own IBAN/BIC. This must be done by an admin.
+             request.resource.data.iban == resource.data.iban &&
+             request.resource.data.bic == resource.data.bic;
+    }
+
+    // Helper function to check for valid KYC status transitions initiated by a user
+    function validKycTransition() {
+      // Allow update if status doesn't change (e.g., updating profile info)
+      return (request.resource.data.kycStatus == resource.data.kycStatus) ||
+             // Allow update from 'unverified' to 'pending' during KYC submission
+             (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending');
+    }
     
+    // Helper function to check for valid card status transitions initiated by a user
+    function validCardStatusTransition() {
+        // Allow update if status doesn't change
+        return (request.resource.data.cardStatus == resource.data.cardStatus) ||
+               // Allow update from 'none' to 'requested' when ordering a card
+               (resource.data.cardStatus == 'none' && request.resource.data.cardStatus == 'requested');
+    }
+
     match /users/{userId} {
-      // Authenticated users can read their own data.
       allow read: if request.auth.uid == userId;
-      
-      // An authenticated user can create their own profile document.
-      allow create: if request.auth.uid == userId;
-      
-      // Users can update their own data, with the following restrictions:
+
+      // Secure rule for creating a new user document
+      allow create: if request.auth.uid == userId
+                    && request.resource.data.uid == userId
+                    && request.resource.data.email == request.auth.token.email
+                    && request.resource.data.kycStatus == 'unverified'
+                    && request.resource.data.cardStatus == 'none'
+                    && request.resource.data.createdAt == request.time;
+
+      // Secure rule for updating a user document
       allow update: if request.auth.uid == userId &&
-                       // These fields are immutable and cannot be changed by the user after creation.
-                       request.resource.data.uid == resource.data.uid &&
-                       request.resource.data.email == resource.data.email &&
-                       request.resource.data.createdAt == resource.data.createdAt &&
-                       
-                       // These fields can only be set by an admin, not by the user.
-                       request.resource.data.iban == resource.data.iban &&
-                       request.resource.data.bic == resource.data.bic &&
-                       
-                       // This is the only valid KYC status transition a user can perform.
-                       // If the kycStatus is being changed, it MUST be from 'unverified' to 'pending'.
-                       // Any other value for kycStatus can remain unchanged during other profile edits.
-                       (request.resource.data.kycStatus == resource.data.kycStatus ||
-                        (resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending'));
+                       unmodifiableFieldsUnchanged() &&
+                       validKycTransition() &&
+                       validCardStatusTransition();
     }
   }
 }

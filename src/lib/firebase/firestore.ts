@@ -22,16 +22,19 @@ export type UserProfile = {
   };
   createdAt: any;
   kycStatus: 'unverified' | 'pending' | 'verified';
+  cardStatus: 'none' | 'requested' | 'active';
+  cardRequestedAt?: any;
   iban?: string;
   bic?: string;
 };
 
-export async function addUserToFirestore(userProfile: Omit<UserProfile, 'createdAt' | 'kycStatus'>) {
+export async function addUserToFirestore(userProfile: Omit<UserProfile, 'createdAt' | 'kycStatus' | 'cardStatus'>) {
   const userRef = doc(db, "users", userProfile.uid);
   await setDoc(userRef, {
     ...userProfile,
     createdAt: serverTimestamp(),
     kycStatus: 'unverified',
+    cardStatus: 'none',
     notificationPrefs: { // Default notification settings
         email: true,
         promotions: false,
@@ -51,6 +54,7 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
             ...data,
             dob: data.dob?.toDate(),
             createdAt: data.createdAt?.toDate(),
+            cardRequestedAt: data.cardRequestedAt?.toDate(),
         } as UserProfile;
     } else {
         return null;

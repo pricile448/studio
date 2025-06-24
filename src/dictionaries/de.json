@@ -226,11 +226,14 @@
       "viewPin": "PIN anzeigen",
       "viewPinDescription": "Zeigen Sie Ihre Karten-PIN sicher an.",
       "orderCardTitle": "Neue physische Karte bestellen",
-      "orderCardDescription": "Bestätigen Sie, dass Sie eine neue physische Karte bestellen möchten. Sie wird an Ihre registrierte Adresse gesendet.",
+      "orderCardDescription": "Sie sind im Begriff, eine Karte zu bestellen. Dies ist kostenlos. Die Karte wird an Ihre registrierte Wohnadresse gesendet.",
+      "request_card_confirm_title": "Kartenantrag bestätigen",
+      "request_card_confirm_description": "Bestätigen Sie, dass Sie eine neue physische Karte beantragen möchten? Sie wird an Ihre registrierte Adresse gesendet.",
       "confirmOrder": "Bestellung bestätigen",
       "cancelButton": "Abbrechen",
       "cardOrdered": "Karte bestellt!",
       "cardOrderedDescription": "Ihre neue Karte ist unterwegs.",
+      "card_request_success": "Kartenantrag gesendet!",
       "cardFrozen": "Karte wurde gesperrt.",
       "cardUnfrozen": "Karte wurde entsperrt.",
       "limitUpdated": "Ausgabenlimit aktualisiert.",
@@ -246,7 +249,10 @@
       "showPin": "PIN anzeigen",
       "hidePin": "PIN ausblenden",
       "unverified_title": "Ihre Karten verwalten",
-      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um neue Karten zu bestellen und Ihre Karteneinstellungen zu verwalten."
+      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um neue Karten zu bestellen und Ihre Karteneinstellungen zu verwalten.",
+      "request_pending_title": "Kartenantrag in Bearbeitung",
+      "request_pending_description": "Wir haben Ihren Kartenantrag erhalten. Er wird bearbeitet und Sie werden benachrichtigt, wenn er versendet wird.",
+      "cardActive": "Karte Aktiv"
     },
     "history": {
       "title": "Transaktionsverlauf",
@@ -313,7 +319,10 @@
       "downloadIban": "IBAN herunterladen",
       "clientAddress": "Kundenadresse",
       "unverified_title": "Zugriff auf Ihre IBAN",
-      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um Ihre IBAN-Details anzuzeigen und für den Empfang von Zahlungen zu verwenden."
+      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um Ihre IBAN-Details anzuzeigen und für den Empfang von Zahlungen zu verwenden.",
+      "pending_title": "Ihr Konto ist validiert!",
+      "pending_description": "Ihre IBAN wird gerade erstellt und ist innerhalb von 24 Arbeitsstunden auf dieser Seite verfügbar.",
+      "pending_button": "Zurück zum Dashboard"
     },
     "more": {
       "title": "Weitere Optionen",

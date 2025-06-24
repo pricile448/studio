@@ -226,11 +226,14 @@
       "viewPin": "View PIN",
       "viewPinDescription": "Securely view your card PIN.",
       "orderCardTitle": "Order a New Physical Card",
-      "orderCardDescription": "Confirm that you would like to order a new physical card. It will be sent to your registered address.",
+      "orderCardDescription": "You are about to order a card. This is free of charge. The card will be sent to your registered residential address.",
+      "request_card_confirm_title": "Confirm Card Request",
+      "request_card_confirm_description": "Do you confirm you want to request a new physical card? It will be sent to your registered address.",
       "confirmOrder": "Confirm Order",
       "cancelButton": "Cancel",
       "cardOrdered": "Card Ordered!",
       "cardOrderedDescription": "Your new card is on its way.",
+      "card_request_success": "Card request sent!",
       "cardFrozen": "Card has been frozen.",
       "cardUnfrozen": "Card has been unfrozen.",
       "limitUpdated": "Spending limit updated.",
@@ -246,7 +249,10 @@
       "showPin": "Show PIN",
       "hidePin": "Hide PIN",
       "unverified_title": "Manage Your Cards",
-      "unverified_description": "Complete your identity verification to order new cards and manage your card settings."
+      "unverified_description": "Complete your identity verification to order new cards and manage your card settings.",
+      "request_pending_title": "Card Request in Progress",
+      "request_pending_description": "We have received your card request. It is being processed and you will be notified when it is shipped.",
+      "cardActive": "Card Active"
     },
     "history": {
       "title": "Transaction History",
@@ -313,7 +319,10 @@
       "downloadIban": "Download IBAN",
       "clientAddress": "Client Address",
       "unverified_title": "Access Your IBAN",
-      "unverified_description": "Complete your identity verification to view and use your IBAN details for receiving payments."
+      "unverified_description": "Complete your identity verification to view and use your IBAN details for receiving payments.",
+      "pending_title": "Your Account is Validated!",
+      "pending_description": "Your IBAN is being generated and will be available on this page within 24 working hours.",
+      "pending_button": "Back to Dashboard"
     },
     "more": {
       "title": "More Options",

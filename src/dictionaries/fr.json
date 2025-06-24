@@ -226,11 +226,14 @@
       "viewPin": "Voir le code PIN",
       "viewPinDescription": "Consultez votre code PIN en toute sécurité.",
       "orderCardTitle": "Commander une nouvelle carte physique",
-      "orderCardDescription": "Confirmez que vous souhaitez commander une nouvelle carte physique. Elle sera envoyée à votre adresse enregistrée.",
+      "orderCardDescription": "Vous êtes sur le point de commander une carte. Ceci est gratuit. La carte sera envoyée à votre adresse de résidence enregistrée.",
+      "request_card_confirm_title": "Confirmer la demande de carte",
+      "request_card_confirm_description": "Confirmez-vous vouloir faire une demande pour une nouvelle carte physique ? Elle sera envoyée à votre adresse enregistrée.",
       "confirmOrder": "Confirmer la commande",
       "cancelButton": "Annuler",
       "cardOrdered": "Carte commandée !",
       "cardOrderedDescription": "Votre nouvelle carte est en route.",
+      "card_request_success": "Demande de carte envoyée !",
       "cardFrozen": "La carte a été bloquée.",
       "cardUnfrozen": "La carte a été débloquée.",
       "limitUpdated": "Plafond de dépenses mis à jour.",
@@ -246,7 +249,10 @@
       "showPin": "Afficher le PIN",
       "hidePin": "Masquer le PIN",
       "unverified_title": "Gérer Vos Cartes",
-      "unverified_description": "Complétez votre vérification d'identité pour commander de nouvelles cartes et gérer les paramètres de votre carte."
+      "unverified_description": "Complétez votre vérification d'identité pour commander de nouvelles cartes et gérer les paramètres de votre carte.",
+      "request_pending_title": "Demande de carte en cours",
+      "request_pending_description": "Nous avons bien reçu votre demande de carte. Elle est en cours de traitement et vous serez notifié lorsqu'elle sera expédiée.",
+      "cardActive": "Carte Active"
     },
     "history": {
       "title": "Historique des Transactions",
@@ -313,7 +319,10 @@
       "downloadIban": "Télécharger l'IBAN",
       "clientAddress": "Adresse du Client",
       "unverified_title": "Accédez à votre IBAN",
-      "unverified_description": "Complétez votre vérification d'identité pour voir et utiliser vos détails IBAN pour recevoir des paiements."
+      "unverified_description": "Complétez votre vérification d'identité pour voir et utiliser vos détails IBAN pour recevoir des paiements.",
+      "pending_title": "Votre compte est validé !",
+      "pending_description": "Votre IBAN est en cours de création et sera disponible sur cette page dans les 24 heures ouvrées.",
+      "pending_button": "Retour au tableau de bord"
     },
     "more": {
       "title": "Plus d'options",
