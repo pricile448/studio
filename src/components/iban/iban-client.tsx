@@ -81,7 +81,7 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
       lang={lang}
       title={ibanDict.pending_title}
       description={ibanDict.pending_description}
-      buttonText={dict.dashboard.verificationBanner.pending_description}
+      buttonText={ibanDict.pending_button}
     />
   }
   

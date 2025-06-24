@@ -47,7 +47,7 @@ export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }
   const budgetsDict = dict.budgets;
   const kycDict = dict.kyc;
   
-  const [budgets, setBudgets] = useState(userProfile?.kycStatus === 'verified' ? initialBudgets : []);
+  const [budgets, setBudgets] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 

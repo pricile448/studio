@@ -23,20 +23,6 @@ const mockAccountsData = [
   { id: '3', name: 'credit', balance: -789.43, currency: 'EUR' },
 ];
 
-const mockLedgerData = [
-    { id: 'l1', date: '2024-07-28', description: 'Salary Deposit', credit: 2500, debit: 0, balance: 17840.21 },
-    { id: 'l2', date: '2024-07-27', description: 'Grocery Store', credit: 0, debit: 124.32, balance: 17715.89 },
-    { id: 'l3', date: '2024-07-25', description: 'Internal Transfer to Savings', credit: 500, debit: 0, balance: 18215.89 },
-    { id: 'l4', date: '2024-07-25', description: 'Internal Transfer from Checking', credit: 0, debit: 500, balance: 4350.75 },
-];
-
-const accountIcons: { [key: string]: React.ElementType } = {
-  checking: DollarSign,
-  savings: PiggyBank,
-  credit: CreditCard,
-};
-
-
 function InternalTransfer({ accounts, dict, lang }: { accounts: typeof mockAccountsData, dict: Dictionary['accounts'], lang: Locale }) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
@@ -120,12 +106,11 @@ export default function AccountsPage() {
       </div>
     );
   }
-
-  const isVerified = userProfile.kycStatus === 'verified';
   
-  const accounts = isVerified ? mockAccountsData : [];
-  const ledger = isVerified ? mockLedgerData : [];
-  const totalBalance = isVerified ? accounts.reduce((acc, account) => acc + account.balance, 0) : 0;
+  // A verified account starts empty until funded by an admin.
+  const accounts = [];
+  const ledger = [];
+  const totalBalance = 0;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
