@@ -54,24 +54,6 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     )
   }
 
-  if (userProfile.kycStatus === 'pending') {
-    return <KycPendingPrompt 
-      lang={lang} 
-      title={kycDict.pending_title}
-      description={kycDict.pending_description}
-      buttonText={kycDict.step6_button}
-    />;
-  }
-
-  if (userProfile.kycStatus !== 'verified') {
-    return <KycPrompt 
-      lang={lang} 
-      title={cardsDict.unverified_title}
-      description={cardsDict.unverified_description}
-      buttonText={kycDict.unverified_button}
-    />;
-  }
-
   const handleToggleFreeze = () => {
     const newFrozenState = !isFrozen;
     setIsFrozen(newFrozenState);
@@ -104,6 +86,24 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   }
 
   const renderContent = () => {
+    if (userProfile.kycStatus === 'pending') {
+      return <KycPendingPrompt 
+        lang={lang} 
+        title={kycDict.pending_title}
+        description={kycDict.pending_description}
+        buttonText={kycDict.step6_button}
+      />;
+    }
+  
+    if (userProfile.kycStatus !== 'verified') {
+      return <KycPrompt 
+        lang={lang} 
+        title={cardsDict.unverified_title}
+        description={cardsDict.unverified_description}
+        buttonText={kycDict.unverified_button}
+      />;
+    }
+
     if (userProfile.cardStatus === 'active') {
        return (
          <div className="grid gap-8 lg:grid-cols-3">

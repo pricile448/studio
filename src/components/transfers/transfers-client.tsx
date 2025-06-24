@@ -48,44 +48,39 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
     )
   }
 
-  if (userProfile.kycStatus === 'pending') {
-    return <KycPendingPrompt 
-      lang={lang} 
-      title={kycDict.pending_title}
-      description={kycDict.pending_description}
-      buttonText={kycDict.step5_button}
-    />;
-  }
+  const renderContent = () => {
+    if (userProfile.kycStatus === 'pending') {
+      return <KycPendingPrompt 
+        lang={lang} 
+        title={kycDict.pending_title}
+        description={kycDict.pending_description}
+        buttonText={kycDict.step5_button}
+      />;
+    }
 
-  if (userProfile.kycStatus !== 'verified') {
-    return <KycPrompt 
-      lang={lang} 
-      title={transfersDict.unverified_title}
-      description={transfersDict.unverified_description}
-      buttonText={kycDict.unverified_button}
-    />;
-  }
-  
-  const displayAccounts = accounts;
-  const displayBeneficiaries = beneficiaries;
-  const displayRecentTransfers = recentTransfers;
+    if (userProfile.kycStatus !== 'verified') {
+      return <KycPrompt 
+        lang={lang} 
+        title={transfersDict.unverified_title}
+        description={transfersDict.unverified_description}
+        buttonText={kycDict.unverified_button}
+      />;
+    }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
-  };
-  
-  const getAccountName = (name: string) => {
-    const key = name as keyof typeof accountsDict;
-    return accountsDict[key] || name;
-  }
+    const displayAccounts = accounts;
+    const displayBeneficiaries = beneficiaries;
+    const displayRecentTransfers = recentTransfers;
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
-        <AddBeneficiaryDialog dict={transfersDict} />
-      </div>
-      <Separator />
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
+    };
+    
+    const getAccountName = (name: string) => {
+      const key = name as keyof typeof accountsDict;
+      return accountsDict[key] || name;
+    }
+
+    return (
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card>
@@ -172,6 +167,17 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
           </Card>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
+        {userProfile.kycStatus === 'verified' && <AddBeneficiaryDialog dict={transfersDict} />}
+      </div>
+      <Separator />
+      {renderContent()}
     </div>
   );
 }
