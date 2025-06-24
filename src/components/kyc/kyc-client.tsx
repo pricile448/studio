@@ -10,10 +10,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { UploadCloud, ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, FileText } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, FileText, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 interface KycClientProps {
   dict: any; // Using `any` for simplicity as dict structure for kyc is new
@@ -23,10 +24,6 @@ interface KycClientProps {
 export function KycClient({ dict, lang }: KycClientProps) {
   const [step, setStep] = useState(1);
   const [docType, setDocType] = useState('');
-  const [frontDocName, setFrontDocName] = useState('');
-  const [backDocName, setBackDocName] = useState('');
-  const [proofOfAddressName, setProofOfAddressName] = useState('');
-  const [selfieName, setSelfieName] = useState('');
   
   const { updateKycStatus } = useAuth();
   const router = useRouter();
@@ -44,18 +41,6 @@ export function KycClient({ dict, lang }: KycClientProps) {
   
   const handleDocTypeChange = (value: string) => {
     setDocType(value);
-    setFrontDocName('');
-    setBackDocName('');
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, side: 'front' | 'back' | 'selfie' | 'proof') => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (side === 'front') setFrontDocName(file.name);
-      else if (side === 'back') setBackDocName(file.name);
-      else if (side === 'proof') setProofOfAddressName(file.name);
-      else setSelfieName(file.name);
-    }
   };
 
   const handleSubmission = async () => {
@@ -117,27 +102,13 @@ export function KycClient({ dict, lang }: KycClientProps) {
             </RadioGroup>
 
             {docType && (
-              <div className="space-y-4">
-                <Label htmlFor="front-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
-                  <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
-                  <span className="mt-2 block text-sm font-semibold">{dict.step2_upload_front}</span>
-                  <span className="block text-xs text-muted-foreground">
-                    {frontDocName ? dict.step2_file_selected.replace('{fileName}', frontDocName) : dict.step2_file_select}
-                  </span>
-                  <Input id="front-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'front')} accept="image/*,.pdf"/>
-                </Label>
-
-                {docType === 'id' && (
-                   <Label htmlFor="back-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
-                    <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
-                    <span className="mt-2 block text-sm font-semibold">{dict.step2_upload_back}</span>
-                    <span className="block text-xs text-muted-foreground">
-                        {backDocName ? dict.step2_file_selected.replace('{fileName}', backDocName) : dict.step2_file_select}
-                    </span>
-                    <Input id="back-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'back')} accept="image/*,.pdf"/>
-                  </Label>
-                )}
-              </div>
+               <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <AlertTitle>{dict.step2_doc_type} {docType === 'id' ? dict.step2_doc_id : dict.step2_doc_passport} {dict.kyc.selected}</AlertTitle>
+                  <AlertDescription>
+                    {dict.kyc.clickNext}
+                  </AlertDescription>
+                </Alert>
             )}
           </div>
         );
@@ -146,14 +117,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
           <div className="space-y-6 w-full">
             <h2 className="text-xl font-bold font-headline">{dict.step3_title}</h2>
             <p className="text-muted-foreground">{dict.step3_desc}</p>
-            <Label htmlFor="proof-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
-              <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
-              <span className="mt-2 block text-sm font-semibold">{dict.step3_upload_proof}</span>
-              <span className="block text-xs text-muted-foreground">
-                {proofOfAddressName ? dict.step2_file_selected.replace('{fileName}', proofOfAddressName) : dict.step2_file_select}
-              </span>
-              <Input id="proof-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'proof')} accept="image/*,.pdf" />
-            </Label>
+            <Alert variant="default" className="border-primary/50 bg-primary/10">
+              <AlertTitle>{dict.kyc.readyToProceed}</AlertTitle>
+              <AlertDescription>
+                {dict.kyc.clickNext}
+              </AlertDescription>
+            </Alert>
           </div>
         );
       case 4:
@@ -161,14 +130,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
           <div className="space-y-6 w-full">
             <h2 className="text-xl font-bold font-headline">{dict.step4_title}</h2>
             <p className="text-muted-foreground">{dict.step4_desc}</p>
-            <Label htmlFor="selfie-doc" className="block p-6 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary">
-              <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground" />
-              <span className="mt-2 block text-sm font-semibold">{dict.step4_upload_selfie}</span>
-              <span className="block text-xs text-muted-foreground">
-                {selfieName ? dict.step2_file_selected.replace('{fileName}', selfieName) : dict.step2_file_select}
-              </span>
-              <Input id="selfie-doc" type="file" className="sr-only" onChange={(e) => handleFileChange(e, 'selfie')} accept="image/*" />
-            </Label>
+             <Alert variant="default" className="border-primary/50 bg-primary/10">
+              <AlertTitle>{dict.kyc.readyToProceed}</AlertTitle>
+              <AlertDescription>
+                 {dict.kyc.clickSubmit}
+              </AlertDescription>
+            </Alert>
           </div>
         );
       case 5:
@@ -176,7 +143,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
           <div className="space-y-6 text-center py-8">
             <FileCheck2 className="mx-auto h-16 w-16 text-green-500" />
             <h2 className="mt-4 text-2xl font-bold font-headline">{dict.step5_title}</h2>
-            <p className="mt-2 text-muted-foreground max-w-md mx-auto">{dict.step5_desc}</p>
+            <p className="mt-2 text-muted-foreground max-w-md mx-auto">{dict.step5_desc_24_48}</p>
             <Button onClick={() => router.push(`/${lang}/dashboard`)} className="w-full max-w-xs mx-auto">
               {dict.step5_button}
             </Button>
@@ -207,19 +174,19 @@ export function KycClient({ dict, lang }: KycClientProps) {
             </Button>
 
             {step === 2 && (
-              <Button onClick={handleNext} disabled={!docType || !frontDocName || (docType === 'id' && !backDocName)}>
+              <Button onClick={handleNext} disabled={!docType}>
                 {dict.button_next}
               </Button>
             )}
 
             {step === 3 && (
-              <Button onClick={handleNext} disabled={!proofOfAddressName}>
+              <Button onClick={handleNext}>
                 {dict.button_next}
               </Button>
             )}
 
             {step === 4 && (
-              <Button onClick={handleSubmission} disabled={!selfieName}>
+              <Button onClick={handleSubmission}>
                 {dict.button_submit}
               </Button>
             )}

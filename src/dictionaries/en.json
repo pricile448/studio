@@ -346,10 +346,11 @@
         "postalCodeLabel": "Postal/ZIP Code",
         "countryLabel": "Country",
         "saveButton": "Save Changes",
-        "changeAvatarButton": "Change Photo",
-        "avatarHint": "PNG, JPG up to 10MB.",
+        "avatarHint": "Avatar upload is currently disabled.",
         "avatarUpdated": "Avatar updated!",
-        "avatarUpdateFailed": "Avatar update failed"
+        "avatarUpdateFailed": "Avatar update failed",
+        "updateError": "Failed to update profile",
+        "saveSuccess": "Profile updated successfully!"
       },
       "security": {
         "title": "Security",
@@ -444,18 +445,12 @@
       "step2_doc_type": "Document Type",
       "step2_doc_passport": "Passport",
       "step2_doc_id": "Identity Card",
-      "step2_upload_front": "Upload front side",
-      "step2_upload_back": "Upload back side",
-      "step2_file_select": "Click to upload a file",
-      "step2_file_selected": "File selected: {fileName}",
+      "step5_desc_24_48": "Thank you for submitting your documents. We are now reviewing your information. Processing time is usually 24 to 48 hours. We will notify you once the process is complete.",
       "step3_title": "Upload your proof of address",
       "step3_desc": "Please upload a recent utility bill or bank statement showing your name and the address you provided during registration.",
-      "step3_upload_proof": "Upload proof",
       "step4_title": "Upload your selfie",
       "step4_desc": "Please upload a clear, recent photo of yourself. Make sure your face is clearly visible. Do not wear hats or sunglasses.",
-      "step4_upload_selfie": "Upload your photo",
       "step5_title": "Verification in Progress",
-      "step5_desc": "Thank you for submitting your documents. We are now reviewing your information. Processing time is usually 24 to 48 hours. We will notify you once the process is complete.",
       "step5_button": "Back to Dashboard",
       "button_next": "Next",
       "button_back": "Back",
@@ -466,7 +461,11 @@
       "unverified_budgets_title": "Manage Your Budgets",
       "unverified_cards_title": "Manage Your Cards",
       "pending_title": "Verification in Progress",
-      "pending_description": "Your documents are being reviewed. This usually takes 24-48 hours. You can continue to browse your dashboard."
+      "pending_description": "Your documents are being reviewed. This usually takes 24-48 hours. You can continue to browse your dashboard.",
+      "selected": "selected",
+      "clickNext": "Please click 'Next' to continue.",
+      "readyToProceed": "Ready to proceed?",
+      "clickSubmit": "Click 'Submit' to finalize your verification request."
     },
     "notFound": {
       "title": "Oops! Page not found.",

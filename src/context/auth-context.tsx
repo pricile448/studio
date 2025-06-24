@@ -3,11 +3,10 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword } from 'firebase/auth';
-import { auth, storage } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/dictionaries';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 type AuthContextType = {
   user: User | null;
@@ -19,7 +18,6 @@ type AuthContextType = {
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
-  updateUserAvatar: (file: File) => Promise<void>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   updateUserPassword: (password: string) => Promise<void>;
   updateKycStatus: (status: 'pending') => Promise<void>;
@@ -101,28 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
     window.location.href = `/${lang}`;
   };
-  
-  const updateUserAvatar = async (file: File) => {
-    if (!user) throw new Error("No user is signed in.");
-
-    const storageRef = ref(storage, `avatars/${user.uid}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const photoURL = await getDownloadURL(snapshot.ref);
-
-    await updateProfile(user, { photoURL });
-    await updateUserInFirestore(user.uid, { photoURL });
-    
-    // Force a reload of the user object to get the latest data
-    await user.reload();
-    
-    // And get the fresh profile from firestore
-    const profile = await getUserFromFirestore(user.uid);
-    
-    // Update state to trigger re-render
-    // Use the user from auth which is now updated
-    setUser(auth.currentUser); 
-    setUserProfile(profile);
-  };
 
   const updateUserProfileData = async (data: Partial<UserProfile>) => {
     if (!user) throw new Error("No user is signed in.");
@@ -152,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserProfile(profile);
   };
 
-  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserAvatar, updateUserProfileData, updateUserPassword, updateKycStatus };
+  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

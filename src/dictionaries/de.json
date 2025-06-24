@@ -346,10 +346,11 @@
         "postalCodeLabel": "Postleitzahl",
         "countryLabel": "Land",
         "saveButton": "Änderungen speichern",
-        "changeAvatarButton": "Foto ändern",
-        "avatarHint": "PNG, JPG bis zu 10MB.",
+        "avatarHint": "Avatar-Upload ist derzeit deaktiviert.",
         "avatarUpdated": "Avatar aktualisiert!",
-        "avatarUpdateFailed": "Aktualisierung des Avatars fehlgeschlagen"
+        "avatarUpdateFailed": "Aktualisierung des Avatars fehlgeschlagen",
+        "updateError": "Profil konnte nicht aktualisiert werden",
+        "saveSuccess": "Profil erfolgreich aktualisiert!"
       },
       "security": {
         "title": "Sicherheit",
@@ -444,18 +445,12 @@
       "step2_doc_type": "Dokumententyp",
       "step2_doc_passport": "Reisepass",
       "step2_doc_id": "Personalausweis",
-      "step2_upload_front": "Vorderseite hochladen",
-      "step2_upload_back": "Rückseite hochladen",
-      "step2_file_select": "Klicken Sie, um eine Datei hochzuladen",
-      "step2_file_selected": "Datei ausgewählt: {fileName}",
+      "step5_desc_24_48": "Vielen Dank für die Einreichung Ihrer Unterlagen. Wir prüfen nun Ihre Informationen. Die Bearbeitungszeit beträgt in der Regel 24 bis 48 Stunden. Wir werden Sie benachrichtigen, sobald der Vorgang abgeschlossen ist.",
       "step3_title": "Laden Sie Ihren Adressnachweis hoch",
       "step3_desc": "Bitte laden Sie eine aktuelle Versorgungsrechnung oder einen Kontoauszug hoch, aus dem Ihr Name und die bei der Registrierung angegebene Adresse hervorgehen.",
-      "step3_upload_proof": "Nachweis hochladen",
       "step4_title": "Laden Sie Ihr Selfie hoch",
       "step4_desc": "Bitte laden Sie ein klares, aktuelles Foto von sich hoch. Stellen Sie sicher, dass Ihr Gesicht gut sichtbar ist. Tragen Sie keine Hüte oder Sonnenbrillen.",
-      "step4_upload_selfie": "Ihr Foto hochladen",
       "step5_title": "Überprüfung läuft",
-      "step5_desc": "Vielen Dank für die Einreichung Ihrer Unterlagen. Wir prüfen nun Ihre Informationen. Die Bearbeitungszeit beträgt in der Regel 24 bis 48 Stunden. Wir werden Sie benachrichtigen, sobald der Vorgang abgeschlossen ist.",
       "step5_button": "Zurück zum Dashboard",
       "button_next": "Weiter",
       "button_back": "Zurück",
@@ -466,7 +461,11 @@
       "unverified_budgets_title": "Verwalten Sie Ihre Budgets",
       "unverified_cards_title": "Verwalten Sie Ihre Karten",
       "pending_title": "Verifizierung läuft",
-      "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel 24 bis 48 Stunden. Sie können weiterhin Ihr Dashboard durchsuchen."
+      "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel 24 bis 48 Stunden. Sie können weiterhin Ihr Dashboard durchsuchen.",
+      "selected": "ausgewählt",
+      "clickNext": "Bitte klicken Sie auf 'Weiter', um fortzufahren.",
+      "readyToProceed": "Bereit zum Fortfahren?",
+      "clickSubmit": "Klicken Sie auf 'Senden', um Ihre Verifizierungsanfrage abzuschließen."
     },
     "notFound": {
       "title": "Hoppla! Seite nicht gefunden.",

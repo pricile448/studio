@@ -324,10 +324,11 @@
         "postalCodeLabel": "Code Postal",
         "countryLabel": "Pays",
         "saveButton": "Enregistrer les modifications",
-        "changeAvatarButton": "Changer de photo",
-        "avatarHint": "PNG, JPG jusqu'à 10Mo.",
+        "avatarHint": "Le téléversement de l'avatar est désactivé.",
         "avatarUpdated": "Avatar mis à jour !",
-        "avatarUpdateFailed": "Échec de la mise à jour de l'avatar"
+        "avatarUpdateFailed": "Échec de la mise à jour de l'avatar",
+        "updateError": "Échec de la mise à jour du profil",
+        "saveSuccess": "Profil mis à jour avec succès !"
       },
       "security": {
         "title": "Sécurité",
@@ -444,18 +445,12 @@
       "step2_doc_type": "Type de document",
       "step2_doc_passport": "Passeport",
       "step2_doc_id": "Carte d'identité",
-      "step2_upload_front": "Télécharger le recto",
-      "step2_upload_back": "Télécharger le verso",
-      "step2_file_select": "Cliquez pour télécharger un fichier",
-      "step2_file_selected": "Fichier sélectionné : {fileName}",
+      "step5_desc_24_48": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est généralement de 24 à 48 heures. Nous vous informerons une fois le processus terminé.",
       "step3_title": "Téléchargez votre justificatif de domicile",
       "step3_desc": "Veuillez télécharger une facture de services publics ou un relevé bancaire récent indiquant votre nom et l'adresse que vous avez fournie lors de l'inscription.",
-      "step3_upload_proof": "Télécharger le justificatif",
       "step4_title": "Téléchargez votre selfie",
       "step4_desc": "Veuillez télécharger une photo claire et récente de vous-même. Assurez-vous que votre visage est bien visible. Ne portez pas de chapeau ou de lunettes de soleil.",
-      "step4_upload_selfie": "Télécharger votre photo",
       "step5_title": "Vérification en cours",
-      "step5_desc": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est de 24 à 48 heures. Nous vous informerons une fois le processus terminé.",
       "step5_button": "Retour au tableau de bord",
       "button_next": "Suivant",
       "button_back": "Retour",
@@ -466,7 +461,11 @@
       "unverified_budgets_title": "Gérer Vos Budgets",
       "unverified_cards_title": "Gérer Vos Cartes",
       "pending_title": "Vérification en cours",
-      "pending_description": "Vos documents sont en cours de vérification. Cela prend généralement entre 24 et 48 heures. Vous pouvez continuer à naviguer sur votre tableau de bord."
+      "pending_description": "Vos documents sont en cours de vérification. Cela prend généralement entre 24 et 48 heures. Vous pouvez continuer à naviguer sur votre tableau de bord.",
+      "selected": "sélectionné",
+      "clickNext": "Veuillez cliquer sur 'Suivant' pour continuer.",
+      "readyToProceed": "Prêt à continuer ?",
+      "clickSubmit": "Cliquez sur 'Soumettre' pour finaliser votre demande de vérification."
     },
     "notFound": {
       "title": "Oups! Page introuvable.",

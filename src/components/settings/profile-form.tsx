@@ -5,11 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Upload, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -19,7 +19,6 @@ import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
-import { Label } from '@/components/ui/label';
 
 interface ProfileFormProps {
   dict: Dictionary['settings']['profile'];
@@ -37,9 +36,8 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm({ dict }: ProfileFormProps) {
-  const { user, userProfile, updateUserAvatar, updateUserProfileData } = useAuth();
+  const { user, userProfile, updateUserProfileData } = useAuth();
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<ProfileFormValues>({
@@ -67,21 +65,6 @@ export function ProfileForm({ dict }: ProfileFormProps) {
     }
   }, [userProfile, form]);
   
-  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setIsUploading(true);
-      try {
-        await updateUserAvatar(file);
-        toast({ title: dict.avatarUpdated });
-      } catch (error) {
-        toast({ variant: 'destructive', title: dict.avatarUpdateFailed, description: (error as Error).message });
-      } finally {
-        setIsUploading(false);
-      }
-    }
-  };
-
   async function onSubmit(data: ProfileFormValues) {
     setIsSubmitting(true);
     try {
@@ -91,9 +74,9 @@ export function ProfileForm({ dict }: ProfileFormProps) {
           dob: data.dob,
           address: data.address,
       });
-      toast({ title: "Profile updated successfully!" });
+      toast({ title: dict.saveSuccess });
     } catch (error) {
-      toast({ variant: 'destructive', title: "Failed to update profile", description: (error as Error).message });
+      toast({ variant: 'destructive', title: dict.updateError, description: (error as Error).message });
     } finally {
       setIsSubmitting(false);
     }
@@ -129,12 +112,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
             <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
         </Avatar>
         <div>
-            <Label htmlFor="avatar-upload" className={cn(buttonVariants({ variant: 'outline' }), 'cursor-pointer')}>
-                {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                {dict.changeAvatarButton}
-            </Label>
-            <Input id="avatar-upload" type="file" className="sr-only" onChange={handleAvatarChange} accept="image/png, image/jpeg, image/gif" disabled={isUploading} />
-            <p className="text-xs text-muted-foreground mt-2">{dict.avatarHint}</p>
+            <p className="text-sm text-muted-foreground">{dict.avatarHint}</p>
         </div>
       </div>
       <Form {...form}>

@@ -346,10 +346,11 @@
         "postalCodeLabel": "Código Postal",
         "countryLabel": "País",
         "saveButton": "Salvar Alterações",
-        "changeAvatarButton": "Mudar Foto",
-        "avatarHint": "PNG, JPG até 10MB.",
+        "avatarHint": "O upload de avatar está desativado.",
         "avatarUpdated": "Avatar atualizado!",
-        "avatarUpdateFailed": "Falha ao atualizar o avatar"
+        "avatarUpdateFailed": "Falha ao atualizar o avatar",
+        "updateError": "Falha ao atualizar o perfil",
+        "saveSuccess": "Perfil atualizado com sucesso!"
       },
       "security": {
         "title": "Segurança",
@@ -444,18 +445,12 @@
       "step2_doc_type": "Tipo de Documento",
       "step2_doc_passport": "Passaporte",
       "step2_doc_id": "Bilhete de Identidade",
-      "step2_upload_front": "Carregar frente",
-      "step2_upload_back": "Carregar verso",
-      "step2_file_select": "Clique para carregar um ficheiro",
-      "step2_file_selected": "Ficheiro selecionado: {fileName}",
+      "step5_desc_24_48": "Obrigado por submeter os seus documentos. Estamos agora a rever a sua informação. O tempo de processamento é geralmente de 24 a 48 horas. Iremos notificá-lo assim que o processo estiver concluído.",
       "step3_title": "Carregue o seu comprovativo de morada",
       "step3_desc": "Por favor, carregue uma fatura de serviços públicos recente ou um extrato bancário que mostre o seu nome e a morada que forneceu durante o registo.",
-      "step3_upload_proof": "Carregar comprovativo",
       "step4_title": "Carregue a sua selfie",
       "step4_desc": "Por favor, carregue uma foto sua nítida e recente. Certifique-se de que seu rosto esteja claramente visível. Não use chapéus ou óculos de sol.",
-      "step4_upload_selfie": "Carregar a sua foto",
       "step5_title": "Verificação em Andamento",
-      "step5_desc": "Obrigado por submeter os seus documentos. Estamos agora a rever a sua informação. O tempo de processamento é geralmente de 24 a 48 horas. Iremos notificá-lo assim que o processo estiver concluído.",
       "step5_button": "Voltar ao Painel",
       "button_next": "Seguinte",
       "button_back": "Voltar",
@@ -466,7 +461,11 @@
       "unverified_budgets_title": "Gerir os seus Orçamentos",
       "unverified_cards_title": "Gerir os seus Cartões",
       "pending_title": "Verificação em Andamento",
-      "pending_description": "Os seus documentos estão a ser revistos. Normalmente, isto demora entre 24 a 48 horas. Pode continuar a navegar no seu painel."
+      "pending_description": "Os seus documentos estão a ser revistos. Normalmente, isto demora entre 24 a 48 horas. Pode continuar a navegar no seu painel.",
+      "selected": "selecionado",
+      "clickNext": "Por favor, clique em 'Seguinte' para continuar.",
+      "readyToProceed": "Pronto para prosseguir?",
+      "clickSubmit": "Clique em 'Submeter' para finalizar o seu pedido de verificação."
     },
     "notFound": {
       "title": "Oops! Página não encontrada.",
