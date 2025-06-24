@@ -1,11 +1,13 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile } from '@/lib/firebase/firestore';
+import { auth, storage } from '@/lib/firebase/config';
+import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/dictionaries';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 type AuthContextType = {
   user: User | null;
@@ -17,6 +19,7 @@ type AuthContextType = {
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
+  updateUserAvatar: (file: File) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,8 +103,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Force a full page reload to clear all state and redirect to home.
     window.location.href = `/${lang}`;
   };
+  
+  const updateUserAvatar = async (file: File) => {
+    if (!user) throw new Error("No user is signed in.");
 
-  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification };
+    const storageRef = ref(storage, `avatars/${user.uid}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const photoURL = await getDownloadURL(snapshot.ref);
+
+    await updateProfile(user, { photoURL });
+    await updateUserInFirestore(user.uid, { photoURL });
+    
+    // Manually update the state to reflect the change immediately
+    const reloadedUser = auth.currentUser;
+    if(reloadedUser) {
+        await reload(reloadedUser);
+        setUser(auth.currentUser);
+    }
+    const updatedProfile = await getUserFromFirestore(user.uid);
+    setUserProfile(updatedProfile);
+  };
+
+  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserAvatar };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

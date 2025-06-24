@@ -144,6 +144,15 @@
         "title": "Verificación Pendiente",
         "description": "Complete su verificación de identidad",
         "button": "Verificar ahora"
+      },
+       "notifications": {
+        "title": "Notificaciones",
+        "welcomeTitle": "¡Bienvenido a AmCbunq!",
+        "welcomeDescription": "Su cuenta ha sido creada con éxito.",
+        "verificationTitle": "Verificación de perfil",
+        "verificationDescription": "Por favor, complete su verificación de identidad.",
+        "viewAll": "Ver todas las notificaciones",
+        "noNotifications": "No hay nuevas notificaciones."
       }
     },
     "accounts": {
@@ -319,7 +328,11 @@
         "cityLabel": "Ciudad",
         "postalCodeLabel": "Código Postal",
         "countryLabel": "País",
-        "saveButton": "Guardar cambios"
+        "saveButton": "Guardar cambios",
+        "changeAvatarButton": "Cambiar Foto",
+        "avatarHint": "PNG, JPG hasta 10MB.",
+        "avatarUpdated": "¡Avatar actualizado!",
+        "avatarUpdateFailed": "Error al actualizar el avatar"
       },
       "security": {
         "title": "Seguridad",

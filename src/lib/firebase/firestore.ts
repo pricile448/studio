@@ -14,6 +14,7 @@ export type UserProfile = {
   address: string;
   profession: string;
   salary: number;
+  photoURL?: string;
   createdAt: any;
 };
 
@@ -40,4 +41,9 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
     } else {
         return null;
     }
+}
+
+export async function updateUserInFirestore(uid: string, data: Partial<Omit<UserProfile, 'uid'>>) {
+  const userRef = doc(db, "users", uid);
+  await setDoc(userRef, data, { merge: true });
 }

@@ -73,6 +73,8 @@ export function DashboardLayoutClient({
   }
 
   const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user.displayName || 'User');
+  const initials = userProfile ? `${userProfile.firstName?.charAt(0) ?? ''}${userProfile.lastName?.charAt(0) ?? ''}`.toUpperCase() : user.email?.charAt(0).toUpperCase() || '';
+  const notificationsDict = dict.dashboard.notifications;
 
   return (
     <SidebarProvider key={lang}>
@@ -106,18 +108,40 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-4">
-             <Button variant="ghost" size="icon" asChild>
-                <Link href="#">
-                    <Bell className="h-5 w-5" />
-                    <span className="sr-only">Notifications</span>
-                </Link>
-             </Button>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Bell className="h-5 w-5" />
+                        <span className="sr-only">Notifications</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                    <DropdownMenuLabel>{notificationsDict.title}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <div className="flex flex-col">
+                        <p className="text-sm font-medium">{notificationsDict.welcomeTitle}</p>
+                        <p className="text-xs text-muted-foreground">{notificationsDict.welcomeDescription}</p>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <div className="flex flex-col">
+                        <p className="text-sm font-medium">{notificationsDict.verificationTitle}</p>
+                        <p className="text-xs text-muted-foreground">{notificationsDict.verificationDescription}</p>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="justify-center text-sm text-muted-foreground" asChild>
+                       <Link href="#">{notificationsDict.viewAll}</Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+             </DropdownMenu>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.photoURL || "https://placehold.co/100x100.png"} alt={displayName} data-ai-hint="user avatar" />
-                            <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                            <AvatarImage src={user.photoURL || ""} alt={displayName} data-ai-hint="user avatar" />
+                            <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                     </Button>
                 </DropdownMenuTrigger>
