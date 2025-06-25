@@ -59,9 +59,13 @@ export async function sendEmail({to, subject, text, html}: EmailParams): Promise
   try {
     const result = await mg.messages.create(DOMAIN, messageData);
     console.log('Email sent successfully via Mailgun:', result);
-  } catch (error: any)
-{
+  } catch (error: any) {
     console.error('Error sending email with Mailgun:', error);
+    // Log all available error properties to get maximum context.
+    console.error('Mailgun Error Status:', error.status);
+    console.error('Mailgun Error Details:', error.details);
+    console.error('Mailgun Error Body:', error.body);
+    
     // The mailgun.js library returns a detailed error object.
     // The 'details' property often contains the most useful information.
     const errorMessage = error.details || error.message || 'Failed to send email.';
