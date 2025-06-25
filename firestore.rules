@@ -1,24 +1,60 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
     match /users/{userId} {
-      // Les utilisateurs peuvent lire et créer leur propre document de profil
-      allow read, create: if request.auth != null && request.auth.uid == userId;
+      
+      // --- Helper Functions ---
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      
+      function incomingData() {
+        return request.resource.data;
+      }
+      
+      function existingData() {
+        return resource.data;
+      }
 
-      // Les utilisateurs peuvent mettre à jour leur profil sous certaines conditions
-      allow update: if request.auth != null && request.auth.uid == userId
-        // Règle 1: Les champs suivants sont immuables et ne peuvent pas être changés par l'utilisateur
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email
-        && request.resource.data.createdAt == resource.data.createdAt
-        // Règle 2: L'IBAN et le BIC ne peuvent pas être définis ou modifiés par l'utilisateur
-        && request.resource.data.get('iban', null) == resource.data.get('iban', null)
-        && request.resource.data.get('bic', null) == resource.data.get('bic', null)
-        // Règle 3: Un utilisateur ne peut pas se définir lui-même comme 'verified'.
-        // Cette règle stipule : "le nouveau statut ne peut pas être 'verified' SAUF si l'ancien statut était déjà 'verified'".
-        // Cela permet à un utilisateur déjà vérifié de modifier d'autres champs (comme son nom) sans être bloqué.
-        && (request.resource.data.kycStatus == 'verified' ? resource.data.kycStatus == 'verified' : true);
+      // --- Rules ---
+
+      // READ: A user can read their own document.
+      allow read: if isOwner();
+
+      // CREATE: A user can create their own document upon signup.
+      // We enforce the initial state for security.
+      allow create: if isOwner()
+                    && incomingData().uid == userId
+                    && incomingData().email == request.auth.token.email
+                    && incomingData().kycStatus == 'unverified'
+                    && incomingData().cardStatus == 'none'
+                    && !('iban' in incomingData())
+                    && incomingData().createdAt == request.time;
+                    
+      // UPDATE: A user can update their own document, with restrictions.
+      allow update: if isOwner()
+                    // 1. Immutable fields must not change.
+                    && incomingData().uid == existingData().uid
+                    && incomingData().email == existingData().email
+                    && incomingData().createdAt.toMillis() == existingData().createdAt.toMillis()
+                    // 2. Account balances and transactions cannot be changed by the client.
+                    //    This is a critical security rule. Real transfers must use a backend function.
+                    && incomingData().accounts == existingData().accounts
+                    && incomingData().transactions == existingData().transactions
+                    // 3. IBAN/BIC cannot be set by the user. Must be done by an admin/backend process.
+                    && incomingData().iban == existingData().iban
+                    && incomingData().bic == existingData().bic
+                    // 4. KYC status cannot be set to 'verified' by the user.
+                    && (incomingData().kycStatus == 'verified' ? existingData().kycStatus == 'verified' : true)
+                    // 5. Card status cannot be set to 'active' by the user.
+                    && (incomingData().cardStatus == 'active' ? existingData().cardStatus == 'active' : true);
+
+
+      // DELETE: Deleting user documents from the client is disabled.
+      allow delete: if false;
     }
   }
 }
