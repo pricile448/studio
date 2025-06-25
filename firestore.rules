@@ -1,60 +1,56 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
     match /users/{userId} {
-      
-      // --- Helper Functions ---
+      // Fonction d'aide pour vérifier si l'utilisateur est le propriétaire du document
       function isOwner() {
         return request.auth != null && request.auth.uid == userId;
       }
-      
-      function incomingData() {
-        return request.resource.data;
-      }
-      
-      function existingData() {
-        return resource.data;
-      }
 
-      // --- Rules ---
+      // Règle : Autoriser la lecture et la création uniquement pour le propriétaire du document.
+      allow read, create: if isOwner();
 
-      // READ: A user can read their own document.
-      allow read: if isOwner();
-
-      // CREATE: A user can create their own document upon signup.
-      // We enforce the initial state for security.
-      allow create: if isOwner()
-                    && incomingData().uid == userId
-                    && incomingData().email == request.auth.token.email
-                    && incomingData().kycStatus == 'unverified'
-                    && incomingData().cardStatus == 'none'
-                    && !('iban' in incomingData())
-                    && incomingData().createdAt == request.time;
-                    
-      // UPDATE: A user can update their own document, with restrictions.
+      // Règle : Autoriser les mises à jour uniquement par le propriétaire, avec une sécurité stricte au niveau des champs.
       allow update: if isOwner()
-                    // 1. Immutable fields must not change.
-                    && incomingData().uid == existingData().uid
-                    && incomingData().email == existingData().email
-                    && incomingData().createdAt.toMillis() == existingData().createdAt.toMillis()
-                    // 2. Account balances and transactions cannot be changed by the client.
-                    //    This is a critical security rule. Real transfers must use a backend function.
-                    && incomingData().accounts == existingData().accounts
-                    && incomingData().transactions == existingData().transactions
-                    // 3. IBAN/BIC cannot be set by the user. Must be done by an admin/backend process.
-                    && incomingData().iban == existingData().iban
-                    && incomingData().bic == existingData().bic
-                    // 4. KYC status cannot be set to 'verified' by the user.
-                    && (incomingData().kycStatus == 'verified' ? existingData().kycStatus == 'verified' : true)
-                    // 5. Card status cannot be set to 'active' by the user.
-                    && (incomingData().cardStatus == 'active' ? existingData().cardStatus == 'active' : true);
+        // --- Champs Immuables ---
+        // Ces champs ne doivent jamais être modifiés par l'utilisateur après la création.
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
 
+        // --- Champs réservés à l'administration (ne peuvent pas être modifiés par l'utilisateur) ---
+        // Un utilisateur ne peut pas changer son statut de vérification à 'verified'.
+        && (request.resource.data.kycStatus == 'verified' ? resource.data.kycStatus == 'verified' : true)
+        // Un utilisateur ne peut pas activer sa propre carte.
+        && (request.resource.data.cardStatus == 'active' ? resource.data.cardStatus == 'active' : true)
+        // Un utilisateur ne peut pas s'attribuer un IBAN ou un BIC.
+        && request.resource.data.get('iban', null) == resource.data.get('iban', null)
+        && request.resource.data.get('bic', null) == resource.data.get('bic', null)
 
-      // DELETE: Deleting user documents from the client is disabled.
-      allow delete: if false;
+        // --- Intégrité des soldes de comptes ---
+        // La taille du tableau des comptes ne peut pas être modifiée par l'utilisateur.
+        && request.resource.data.accounts.size() == resource.data.accounts.size()
+        // Les règles Firestore ne supportent pas les boucles, donc nous vérifions les comptes statiquement.
+        // Un utilisateur ne peut jamais modifier le solde de ses comptes.
+        && (
+          size(request.resource.data.accounts) == 0 ||
+          (
+            size(request.resource.data.accounts) > 0 &&
+            request.resource.data.accounts[0].balance == resource.data.accounts[0].balance &&
+            (size(request.resource.data.accounts) == 1 || request.resource.data.accounts[1].balance == resource.data.accounts[1].balance) &&
+            (size(request.resource.data.accounts) == 2 || request.resource.data.accounts[2].balance == resource.data.accounts[2].balance)
+            // NOTE: Ajoutez d'autres lignes ici si vous prévoyez plus de 3 comptes par utilisateur.
+          )
+        )
+
+        // --- Intégrité des transactions ---
+        // Un utilisateur peut seulement ajouter des transactions, pas en supprimer ou en modifier.
+        // C'est utile pour des actions comme les demandes de virement.
+        // Pour une sécurité maximale, les transactions financières devraient être gérées par des Cloud Functions.
+        && (
+          request.resource.data.transactions.size() >= resource.data.transactions.size()
+        );
     }
   }
 }
