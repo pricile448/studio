@@ -33,16 +33,20 @@ interface EmailParams {
   subject: string;
   text: string;
   html?: string;
+  attachment?: {
+    data: Buffer;
+    filename: string;
+  }[];
 }
 
-export async function sendEmail({to, subject, text, html}: EmailParams): Promise<void> {
+export async function sendEmail({to, subject, text, html, attachment}: EmailParams): Promise<void> {
   if (!mg || !DOMAIN || !FROM_EMAIL) {
     const errorMsg = 'Mailgun client not initialized. Check server environment variables.';
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
 
-  const messageData = {
+  const messageData: any = {
     from: FROM_EMAIL,
     to,
     subject,
@@ -50,10 +54,19 @@ export async function sendEmail({to, subject, text, html}: EmailParams): Promise
     html,
   };
   
+  if (attachment) {
+    messageData.attachment = attachment;
+  }
+
   // Log the data being sent for easier debugging
   console.log('--- Sending email with data: ---');
   console.log('Using API Host:', API_HOST);
-  console.log(JSON.stringify(messageData, null, 2));
+  // Don't log attachments as they can be large
+  const loggableData = { ...messageData };
+  if (loggableData.attachment) {
+      loggableData.attachment = `${loggableData.attachment.length} file(s) attached.`;
+  }
+  console.log(JSON.stringify(loggableData, null, 2));
   console.log('---------------------------------');
 
   try {
