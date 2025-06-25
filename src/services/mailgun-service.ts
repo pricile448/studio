@@ -43,7 +43,7 @@ export async function sendEmail({to, subject, text, html}: EmailParams): Promise
   }
 
   const messageData = {
-    from: `AmCbunq Support <${FROM_EMAIL}>`,
+    from: `Mailgun Sandbox <${FROM_EMAIL}>`,
     to,
     subject,
     text,
