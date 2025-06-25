@@ -29,7 +29,8 @@ const accountIcons: { [key: string]: React.ElementType } = {
   credit: CreditCard,
 };
 
-export default async function AccountDetailsPage({ params: { lang, accountId } }: { params: { lang: Locale, accountId: string } }) {
+export default async function AccountDetailsPage({ params }: { params: { lang: Locale, accountId: string } }) {
+  const { lang, accountId } = params;
   const dict = await getDictionary(lang);
   const accountsDict = dict.accounts;
 

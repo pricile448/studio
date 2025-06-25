@@ -5,14 +5,14 @@ import { DashboardLayoutClient } from './layout-client';
 
 export default async function DashboardLayout({
   children,
-  params: { lang },
+  params,
 }: {
   children: React.ReactNode;
   params: { lang: Locale };
 }) {
-  const dict = await getDictionary(lang);
+  const dict = await getDictionary(params.lang);
   return (
-    <DashboardLayoutClient dict={dict} lang={lang}>
+    <DashboardLayoutClient dict={dict} lang={params.lang}>
       {children}
     </DashboardLayoutClient>
   );
