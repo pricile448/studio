@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -70,7 +69,8 @@ export default function AuthActionPage({ params: { lang } }: { params: { lang: L
   };
   
   const handleProceedToLogin = async () => {
-    await logout(lang);
+    await logout();
+    router.push(`/${lang}/login`);
   };
 
   const renderContent = () => {

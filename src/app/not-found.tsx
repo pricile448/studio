@@ -1,14 +1,25 @@
 
+'use client';
 import './globals.css';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 // This root not-found.js handles unmatched routes at the very top level.
-// It defines its own HTML structure as it replaces the root layout.
+// It will redirect to the default language's 404 page.
 export default function NotFound() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to the French 404 page by default if a top-level route is not found.
+    router.replace('/fr/not-found');
+  }, [router]);
+
+  // Render a minimal loading state while redirecting.
   return (
-    <html lang="fr" suppressHydrationWarning>
+     <html lang="fr" suppressHydrationWarning>
       <head>
         <title>404 - Page Introuvable</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,16 +28,7 @@ export default function NotFound() {
       </head>
       <body className={cn("font-body antialiased")}>
         <div className="flex h-screen w-full items-center justify-center bg-background">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <h1 className="text-9xl font-bold text-primary">404</h1>
-            <h2 className="text-3xl font-bold tracking-tight">Page Introuvable</h2>
-            <p className="max-w-md text-muted-foreground">
-              La page que vous recherchez a peut-être été supprimée, a changé de nom ou est temporairement indisponible.
-            </p>
-            <Button asChild className="mt-4">
-              <Link href="/fr">Retour à l'accueil</Link>
-            </Button>
-          </div>
+           <p>Redirection...</p>
         </div>
       </body>
     </html>

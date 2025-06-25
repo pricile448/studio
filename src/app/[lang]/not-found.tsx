@@ -1,12 +1,14 @@
+
 import { use } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 
-export default function NotFound({ params }: { params: Promise<{ lang?: Locale }> }) {
-  const resolvedParams = use(params);
-  const lang = resolvedParams.lang ?? 'fr';
+export default function NotFound({ params }: { params: { lang?: Locale } }) {
+  // The 'params' object here can be empty if the route is completely unmatched,
+  // so we provide a default fallback language.
+  const lang = params?.lang ?? 'fr';
   const dict = use(getDictionary(lang));
   
   return (

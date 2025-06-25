@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -58,7 +57,8 @@ export default function VerifyEmailPage({ params: { lang } }: { params: { lang: 
   }
 
   const handleLogout = async () => {
-    await logout(lang);
+    await logout();
+    router.push(`/${lang}/login`);
   }
 
   if (loading || !dict || !user) {
