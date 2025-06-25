@@ -63,6 +63,11 @@
                 "cta": "Descargar la aplicación"
             }
         },
+        "partnersSection": {
+            "title": "Ellos confían en nosotros",
+            "invitation": "¿Es usted un gran emisor de facturas y desea ofrecer los servicios de AmCbunq a sus clientes?",
+            "description": "Hágase socio de AmCbunq y ofrezca a sus usuarios soluciones de pago en efectivo o con tarjeta en uno de los 10.000 puntos de pago autorizados."
+        },
         "footer": {
             "legal": "Aviso Legal",
             "copyright": "© 2024 AmCbunq. Todos los derechos reservados."

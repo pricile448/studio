@@ -21,7 +21,8 @@ export async function generateStaticParams() {
 }
 
 export default function HomePage({ params }: { params: { lang: Locale } }) {
-  const dict = use(getDictionary(params.lang));
+  const { lang } = use(params);
+  const dict = use(getDictionary(lang));
   const homeDict = dict.homePage;
 
   const navLinks = [
@@ -239,6 +240,26 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             </div>
           </div>
         </section>
+
+        {/* Partners Section */}
+        <section id="partners" className="py-20 sm:py-32 bg-muted/50">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-6 md:gap-x-12">
+              <Image src="https://placehold.co/140x50.png" width={140} height={50} alt="Partner Logo 1" data-ai-hint="logo company" className="opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://placehold.co/140x50.png" width={140} height={50} alt="Partner Logo 2" data-ai-hint="logo company" className="opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://placehold.co/140x50.png" width={140} height={50} alt="Partner Logo 3" data-ai-hint="logo company" className="opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://placehold.co/140x50.png" width={140} height={50} alt="Partner Logo 4" data-ai-hint="logo company" className="opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://placehold.co/140x50.png" width={140} height={50} alt="Partner Logo 5" data-ai-hint="logo company" className="opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://placehold.co/140x50.png" width={140} height={50} alt="Partner Logo 6" data-ai-hint="logo company" className="opacity-60 hover:opacity-100 transition-opacity" />
+            </div>
+             <div className="mt-16 max-w-3xl mx-auto">
+                <h3 className="text-xl font-semibold">{homeDict.partnersSection.invitation}</h3>
+                <p className="mt-2 text-muted-foreground">{homeDict.partnersSection.description}</p>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {/* Footer */}
