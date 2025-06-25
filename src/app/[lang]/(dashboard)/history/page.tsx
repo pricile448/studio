@@ -6,7 +6,8 @@ import { HistoryClient } from '@/components/history/history-client';
 
 export const dynamic = 'force-dynamic';
 
-export default function HistoryPage({ params: { lang } }: { params: { lang: Locale }}) {
+export default function HistoryPage({ params }: { params: Promise<{ lang: Locale }>}) {
+  const { lang } = use(params);
   const dict = use(getDictionary(lang));
   
   return <HistoryClient dict={dict.history} lang={lang} />;

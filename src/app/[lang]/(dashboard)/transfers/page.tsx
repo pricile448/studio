@@ -6,7 +6,8 @@ import { TransfersClient } from '@/components/transfers/transfers-client';
 
 export const dynamic = 'force-dynamic';
 
-export default function TransfersPage({ params: { lang } }: { params: { lang: Locale }}) {
+export default function TransfersPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
   const dict = use(getDictionary(lang));
 
   return <TransfersClient 

@@ -6,8 +6,9 @@ import { AccountsClient } from '@/components/accounts/accounts-client';
 
 export const dynamic = 'force-dynamic';
 
-export default function AccountsPage({ params }: { params: { lang: Locale }}) {
-  const dict = use(getDictionary(params.lang));
+export default function AccountsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
+  const dict = use(getDictionary(lang));
   
-  return <AccountsClient dict={dict} lang={params.lang} />;
+  return <AccountsClient dict={dict} lang={lang} />;
 }

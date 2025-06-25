@@ -6,7 +6,8 @@ import { BudgetsClient } from '@/components/budgets/budgets-client';
 
 export const dynamic = 'force-dynamic';
 
-export default function BudgetsPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default function BudgetsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
   const dict = use(getDictionary(lang));
 
   return <BudgetsClient 
