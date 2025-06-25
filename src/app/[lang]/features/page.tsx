@@ -120,17 +120,17 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://placehold.co/600x400.png" width={600} height={400} alt="Budgeting App" className="mb-4 rounded-lg" data-ai-hint="mobile app" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879260/img_6_glmyrl.png" width={600} height={400} alt="Budgeting App" className="mb-4 rounded-lg" data-ai-hint="budgeting app" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature1.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature1.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
-                    <Link href="#">{homeDict.featuresSection.feature1.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
+                    <Link href={`/${params.lang}/budgets`}>{homeDict.featuresSection.feature1.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
               </Card>
                <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://placehold.co/600x400.png" width={600} height={400} alt="Payment Cards" className="mb-4 rounded-lg" data-ai-hint="payment cards" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750877183/img_4_lcvjtq.png" width={600} height={400} alt="Payment Cards" className="mb-4 rounded-lg" data-ai-hint="payment card" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature2.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature2.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
@@ -140,11 +140,11 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
               </Card>
               <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://placehold.co/600x400.png" width={600} height={400} alt="AI Assistant" className="mb-4 rounded-lg" data-ai-hint="artificial intelligence" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879373/img_5_vtwsf6.png" width={600} height={400} alt="AI Assistant" className="mb-4 rounded-lg" data-ai-hint="finance app" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature3.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature3.description}</p>
                    <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
-                    <Link href={`/${params.lang}/help`}>{homeDict.featuresSection.feature3.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
+                    <Link href={`/${params.lang}/support`}>{homeDict.featuresSection.feature3.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
               </Card>
