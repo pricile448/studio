@@ -1,4 +1,4 @@
-
+import { use } from 'react';
 import Link from 'next/link';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,9 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default async function HomePage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+export default function HomePage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
+  const dict = use(getDictionary(lang));
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-body">

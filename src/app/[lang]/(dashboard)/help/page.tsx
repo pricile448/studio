@@ -1,4 +1,4 @@
-
+import { use } from 'react';
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { AiAssistant } from '@/components/dashboard/ai-assistant';
@@ -18,8 +18,9 @@ const mockFinancialDataForAI = {
   expenses: 3200,
 };
 
-export default async function HelpPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+export default function HelpPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
+  const dict = use(getDictionary(lang));
   const helpDict = dict.help;
 
   return (

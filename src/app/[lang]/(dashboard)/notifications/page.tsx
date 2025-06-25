@@ -1,10 +1,11 @@
-
+import { use } from 'react';
 import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { NotificationsClient } from '@/components/notifications/notifications-client';
 
-export default async function NotificationsPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+export default function NotificationsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
+  const dict = use(getDictionary(lang));
   
   return <NotificationsClient dict={dict} />;
 }

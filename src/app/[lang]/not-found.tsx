@@ -1,12 +1,13 @@
-
+import { use } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 
-export default async function NotFound({ params }: { params: { lang?: Locale } }) {
-  const lang = params.lang ?? 'fr';
-  const dict = await getDictionary(lang);
+export default function NotFound({ params }: { params: Promise<{ lang?: Locale }> }) {
+  const resolvedParams = use(params);
+  const lang = resolvedParams.lang ?? 'fr';
+  const dict = use(getDictionary(lang));
   
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">

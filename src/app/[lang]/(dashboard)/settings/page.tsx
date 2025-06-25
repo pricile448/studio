@@ -1,10 +1,11 @@
-
+import { use } from 'react';
 import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { SettingsClient } from '@/components/settings/settings-client';
 
-export default async function SettingsPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+export default function SettingsPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(params);
+  const dict = use(getDictionary(lang));
 
   return (
     <div className="space-y-6">
