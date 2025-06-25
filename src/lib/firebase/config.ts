@@ -12,12 +12,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Vérification explicite des variables d'environnement pour un meilleur débogage
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  throw new Error("Les variables d'environnement Firebase ne sont pas définies. C'est un problème de configuration, pas un bug. Veuillez suivre ces étapes : 1. Copiez vos clés depuis les paramètres de votre projet Firebase. 2. Collez-les dans le fichier `.env.local` à la racine de votre projet. 3. TRÈS IMPORTANT: Arrêtez et redémarrez le serveur de développement pour que les changements soient pris en compte.");
-}
-
-
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
