@@ -3,8 +3,8 @@ import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { IbanClient } from '@/components/iban/iban-client';
 
-export default async function IbanPage({ params }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(params.lang);
+export default async function IbanPage({ params: { lang } }: { params: { lang: Locale } }) {
+  const dict = await getDictionary(lang);
   
   const ibanDetails = {
     holder: 'User Name',
@@ -21,7 +21,7 @@ export default async function IbanPage({ params }: { params: { lang: Locale } })
        <div className="flex flex-1 items-center justify-center">
             <IbanClient 
                 dict={dict}
-                lang={params.lang}
+                lang={lang}
                 details={ibanDetails}
             />
        </div>

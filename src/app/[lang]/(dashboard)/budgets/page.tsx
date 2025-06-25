@@ -12,13 +12,13 @@ import { Separator } from '@/components/ui/separator';
 
 export const dynamic = 'force-dynamic';
 
-export default function BudgetsPage({ params }: { params: { lang: Locale } }) {
+export default function BudgetsPage({ params: { lang } }: { params: { lang: Locale } }) {
   const { userProfile, loading } = useAuth();
   const [dict, setDict] = useState<Dictionary | null>(null);
 
   useEffect(() => {
-    getDictionary(params.lang).then(setDict);
-  }, [params.lang]);
+    getDictionary(lang).then(setDict);
+  }, [lang]);
 
   if (loading || !userProfile || !dict) {
     return (
@@ -40,7 +40,7 @@ export default function BudgetsPage({ params }: { params: { lang: Locale } }) {
 
   return <BudgetsClient 
     dict={dict} 
-    lang={params.lang} 
+    lang={lang} 
     budgets={budgets} 
     transactions={transactions} 
   />;

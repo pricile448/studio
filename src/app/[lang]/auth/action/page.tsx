@@ -22,12 +22,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { MailCheck, MailWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function AuthActionPage({ params }: { params: { lang: Locale } }) {
+export default function AuthActionPage({ params: { lang } }: { params: { lang: Locale } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { logout } = useAuth();
   
-  const { lang } = params;
   const [dict, setDict] = useState<Dictionary | null>(null);
 
   const [loading, setLoading] = useState(true);

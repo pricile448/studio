@@ -18,8 +18,8 @@ const mockFinancialDataForAI = {
   expenses: 3200,
 };
 
-export default async function HelpPage({ params }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(params.lang);
+export default async function HelpPage({ params: { lang } }: { params: { lang: Locale } }) {
+  const dict = await getDictionary(lang);
   const helpDict = dict.help;
 
   return (

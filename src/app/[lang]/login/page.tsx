@@ -30,8 +30,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+export default function LoginPage({ params: { lang } }: { params: { lang: Locale } }) {
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { login } = useAuth();
   const { toast } = useToast();

@@ -13,8 +13,7 @@ import { MailCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function VerifyEmailPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+export default function VerifyEmailPage({ params: { lang } }: { params: { lang: Locale } }) {
   const { user, loading, resendVerificationEmail, logout } = useAuth();
   const router = useRouter();
   const [dict, setDict] = useState<Dictionary | null>(null);

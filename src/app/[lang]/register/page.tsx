@@ -48,8 +48,7 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 
-export default function RegisterPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+export default function RegisterPage({ params: { lang } }: { params: { lang: Locale } }) {
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { signup } = useAuth();
   const { toast } = useToast();
