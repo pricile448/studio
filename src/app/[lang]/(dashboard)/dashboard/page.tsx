@@ -1,3 +1,4 @@
+
 'use client';
 
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
@@ -34,14 +35,10 @@ export default function DashboardPage() {
     );
   }
 
-  // The 3 default accounts are always displayed, funded later by an admin
-  const accounts = [
-    { id: '1', name: 'checking', balance: 0, currency: 'EUR' },
-    { id: '2', name: 'savings', balance: 0, currency: 'EUR' },
-    { id: '3', name: 'credit', balance: 0, currency: 'EUR' },
-  ];
-  const transactions = [];
-  const totalBalance = 0;
+  const accounts = userProfile.accounts || [];
+  const transactions = userProfile.transactions || [];
+  const totalBalance = accounts.reduce((acc, account) => acc + account.balance, 0);
+
 
   return (
     <DashboardClient

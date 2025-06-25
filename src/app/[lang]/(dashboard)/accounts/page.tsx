@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
+import { format } from 'date-fns';
 
 const accountIcons: { [key: string]: React.ElementType } = {
   checking: DollarSign,
@@ -107,13 +108,9 @@ export default function AccountsPage() {
     );
   }
   
-  const accounts = [
-    { id: '1', name: 'checking', balance: 0, currency: 'EUR' },
-    { id: '2', name: 'savings', balance: 0, currency: 'EUR' },
-    { id: '3', name: 'credit', balance: 0, currency: 'EUR' },
-  ];
-  const ledger = [];
-  const totalBalance = 0;
+  const accounts = userProfile.accounts || [];
+  const transactions = userProfile.transactions || [];
+  const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
@@ -125,6 +122,23 @@ export default function AccountsPage() {
     const key = name as keyof typeof accountsDict;
     return accountsDict[key] || name;
   }
+  
+  const chronoSortedTransactions = [...transactions].sort((a, b) => new Date(a.date.toDate()).getTime() - new Date(b.date.toDate()).getTime());
+  const totalTransactionAmount = chronoSortedTransactions.reduce((acc, tx) => acc + tx.amount, 0);
+  const initialBalance = totalBalance - totalTransactionAmount;
+  
+  let currentBalance = initialBalance;
+  const ledger = chronoSortedTransactions.map(tx => {
+      currentBalance += tx.amount;
+      return {
+          id: tx.id,
+          date: format(tx.date.toDate(), 'yyyy-MM-dd'),
+          description: tx.description,
+          credit: tx.amount > 0 ? tx.amount : 0,
+          debit: tx.amount < 0 ? Math.abs(tx.amount) : 0,
+          balance: currentBalance
+      };
+  }).reverse(); // Show most recent first
 
   return (
     <div className="space-y-6">
@@ -188,8 +202,8 @@ export default function AccountsPage() {
                 <TableRow key={entry.id}>
                   <TableCell>{entry.date}</TableCell>
                   <TableCell>{entry.description}</TableCell>
-                  <TableCell className="text-right text-green-600">{entry.credit > 0 ? formatCurrency(entry.credit) : '-'}</TableCell>
-                  <TableCell className="text-right text-red-600">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</TableCell>
+                  <TableCell className="text-right text-accent">{entry.credit > 0 ? formatCurrency(entry.credit) : '-'}</TableCell>
+                  <TableCell className="text-right text-destructive">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(entry.balance)}</TableCell>
                 </TableRow>
               )) : (

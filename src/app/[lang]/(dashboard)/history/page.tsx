@@ -1,13 +1,38 @@
 
-import { type Locale } from '@/lib/dictionaries';
+'use client';
+
+import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { HistoryClient } from '@/components/history/history-client';
+import { useAuth } from '@/context/auth-context';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default async function HistoryPage({ params }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(params.lang);
+export default function HistoryPage() {
+  const pathname = usePathname();
+  const lang = pathname.split('/')[1] as Locale;
+  const { userProfile, loading } = useAuth();
+  const [dict, setDict] = useState<Dictionary | null>(null);
+
+  useEffect(() => {
+    getDictionary(lang).then(setDict);
+  }, [lang]);
+
+  if (loading || !userProfile || !dict) {
+    return (
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-1/4" />
+            <Skeleton className="h-64" />
+        </div>
+    );
+  }
   
-  // A verified account starts empty until funded by an admin.
-  const transactions = [];
+  const transactions = (userProfile.transactions || []).map(tx => ({
+    ...tx,
+    date: tx.date.toDate().toLocaleDateString(lang),
+    status: dict?.history.table.statuses[tx.status as keyof typeof dict.history.table.statuses] || tx.status,
+  }));
   
-  return <HistoryClient dict={dict.history} transactions={transactions} lang={params.lang} />;
+  return <HistoryClient dict={dict.history} transactions={transactions} lang={lang} />;
 }

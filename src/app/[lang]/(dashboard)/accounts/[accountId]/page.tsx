@@ -1,27 +1,19 @@
 
-import { type Locale } from '@/lib/dictionaries';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { usePathname, useParams } from 'next/navigation';
+import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
+import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { DollarSign, PiggyBank, CreditCard, ArrowLeft } from 'lucide-react';
+import { DollarSign, PiggyBank, CreditCard, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-
-// Mock data, in a real app this would come from an API
-const mockAccounts = [
-  { id: '1', name: 'checking', balance: 4850.75, currency: 'EUR', accountNumber: '**** **** **** 1234' },
-  { id: '2', name: 'savings', balance: 15340.21, currency: 'EUR', accountNumber: '**** **** **** 5678' },
-  { id: '3', name: 'credit', balance: -789.43, currency: 'EUR', accountNumber: '**** **** **** 9010' },
-];
-
-const mockTransactions = [
-  { id: 't1', accountId: '1', date: '2024-07-27', description: 'Grocery Store', amount: -124.32 },
-  { id: 't2', accountId: '1', date: '2024-07-26', description: 'Salary Deposit', amount: 2500.00 },
-  { id: 't3', accountId: '2', date: '2024-07-25', description: 'Transfer to Savings', amount: 500.00 },
-  { id: 't4', accountId: '1', date: '2024-07-25', description: 'Transfer to Savings', amount: -500.00 },
-  { id: 't5', accountId: '3', date: '2024-07-24', description: 'Restaurant Dinner', amount: -85.50 },
-];
+import { format } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const accountIcons: { [key: string]: React.ElementType } = {
   checking: DollarSign,
@@ -29,18 +21,48 @@ const accountIcons: { [key: string]: React.ElementType } = {
   credit: CreditCard,
 };
 
-export default async function AccountDetailsPage({ params }: { params: { lang: Locale, accountId: string } }) {
-  const { lang, accountId } = params;
-  const dict = await getDictionary(lang);
-  const accountsDict = dict.accounts;
+export default function AccountDetailsPage() {
+  const pathname = usePathname();
+  const params = useParams();
+  const lang = params.lang as Locale;
+  const accountId = params.accountId as string;
+  
+  const { userProfile, loading } = useAuth();
+  const [dict, setDict] = useState<Dictionary | null>(null);
 
-  const account = mockAccounts.find(a => a.id === accountId);
-  const transactions = mockTransactions.filter(t => t.accountId === accountId);
+  useEffect(() => {
+    if (lang) {
+      getDictionary(lang).then(setDict);
+    }
+  }, [lang]);
+
+  if (loading || !userProfile || !dict) {
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-8 w-48" />
+            </div>
+            <Separator />
+            <Skeleton className="h-48" />
+            <Skeleton className="h-64" />
+        </div>
+    );
+  }
+
+  const accounts = userProfile.accounts || [];
+  const allTransactions = userProfile.transactions || [];
+
+  const account = accounts.find(a => a.id === accountId);
+  const transactions = allTransactions
+    .filter(t => t.accountId === accountId)
+    .sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime());
 
   if (!account) {
-    // In a real app, you'd probably redirect to a 404 page
     return <div>Account not found</div>;
   }
+  
+  const accountsDict = dict.accounts;
   
   const getAccountName = (name: string) => {
     const key = name as keyof typeof accountsDict;
@@ -105,13 +127,20 @@ export default async function AccountDetailsPage({ params }: { params: { lang: L
             <TableBody>
               {transactions.map((tx) => (
                 <TableRow key={tx.id}>
-                  <TableCell>{tx.date}</TableCell>
+                  <TableCell>{format(tx.date.toDate(), 'yyyy-MM-dd')}</TableCell>
                   <TableCell>{tx.description}</TableCell>
                   <TableCell className={`text-right font-medium ${tx.amount > 0 ? 'text-accent' : ''}`}>
                     {formatCurrency(tx.amount)}
                   </TableCell>
                 </TableRow>
               ))}
+               {transactions.length === 0 && (
+                <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                        {dict.history.noTransactions}
+                    </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
