@@ -178,7 +178,7 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879260/img_6_glmyrl.png" width={600} height={400} alt="Budgeting App" className="mb-4 rounded-lg" data-ai-hint="budgeting app" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750894509/im_zgycci.png" width={600} height={400} alt="Budgeting App" className="mb-4 rounded-lg" data-ai-hint="budgeting app" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature1.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature1.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
