@@ -18,6 +18,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // This is to fix a build error with Genkit and its dependencies.
+    // It prevents webpack from trying to bundle server-side packages for the client.
+    if (!isServer) {
+        config.resolve.fallback = {
+            ...config.resolve.fallback,
+            fs: false,
+            module: false,
+            path: false,
+            net: false,
+            tls: false,
+        };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

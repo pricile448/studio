@@ -10,6 +10,8 @@ import { usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 
+export const dynamic = 'force-dynamic';
+
 export default function BudgetsPage({ params }: { params: { lang: Locale } }) {
   const { userProfile, loading } = useAuth();
   const [dict, setDict] = useState<Dictionary | null>(null);

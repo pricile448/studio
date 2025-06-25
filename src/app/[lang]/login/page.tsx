@@ -21,6 +21,8 @@ import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(1, { message: "Password is required." }),
@@ -53,7 +55,6 @@ export default function LoginPage({ params }: { params: { lang: Locale } }) {
     try {
       await login(values.email, values.password);
       router.push(`/${lang}/dashboard`);
-      router.refresh();
     } catch (error: any) {
       const loginDict = dict?.login;
       let description = 'An unexpected error occurred.';
