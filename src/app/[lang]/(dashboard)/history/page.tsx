@@ -30,8 +30,7 @@ export default function HistoryPage() {
   
   const transactions = (userProfile.transactions || []).map(tx => ({
     ...tx,
-    date: tx.date.toDate().toLocaleDateString(lang),
-    status: dict?.history.table.statuses[tx.status as keyof typeof dict.history.table.statuses] || tx.status,
+    date: tx.date.toLocaleDateString(lang),
   }));
   
   return <HistoryClient dict={dict.history} transactions={transactions} lang={lang} />;

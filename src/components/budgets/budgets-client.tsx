@@ -22,7 +22,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
@@ -116,7 +116,7 @@ export function BudgetsClient({ dict, lang, budgets, transactions }: { dict: Dic
       />
     }
 
-    if (userProfile.kycStatus === 'unverified') {
+    if (userProfile.kycStatus !== 'verified') {
       return <KycPrompt 
         lang={lang}
         title={kycDict.unverified_budgets_title}

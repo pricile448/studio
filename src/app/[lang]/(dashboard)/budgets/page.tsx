@@ -8,6 +8,7 @@ import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 export default function BudgetsPage({ params }: { params: { lang: Locale } }) {
   const { userProfile, loading } = useAuth();

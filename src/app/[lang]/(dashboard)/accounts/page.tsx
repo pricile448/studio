@@ -123,7 +123,7 @@ export default function AccountsPage() {
     return accountsDict[key] || name;
   }
   
-  const chronoSortedTransactions = [...transactions].sort((a, b) => new Date(a.date.toDate()).getTime() - new Date(b.date.toDate()).getTime());
+  const chronoSortedTransactions = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const totalTransactionAmount = chronoSortedTransactions.reduce((acc, tx) => acc + tx.amount, 0);
   const initialBalance = totalBalance - totalTransactionAmount;
   
@@ -131,9 +131,8 @@ export default function AccountsPage() {
   const ledger = chronoSortedTransactions.map(tx => {
       currentBalance += tx.amount;
       return {
-          id: tx.id,
-          date: format(tx.date.toDate(), 'yyyy-MM-dd'),
-          description: tx.description,
+          ...tx,
+          date: format(tx.date, 'yyyy-MM-dd'),
           credit: tx.amount > 0 ? tx.amount : 0,
           debit: tx.amount < 0 ? Math.abs(tx.amount) : 0,
           balance: currentBalance

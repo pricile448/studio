@@ -72,6 +72,8 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
       expenses,
     }));
   }, [transactions]);
+  
+  const recentTransactions = transactions.slice(0, 5);
 
   return (
     <div className="flex flex-col gap-6">
@@ -143,7 +145,7 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((tx) => (
+                  {recentTransactions.map((tx) => (
                     <TableRow key={tx.id}>
                       <TableCell>
                         <div className="font-medium">{tx.description}</div>
@@ -161,7 +163,7 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
             {/* Mobile list */}
             <div className="md:hidden px-6 pb-6">
               <div className="space-y-4">
-                {transactions.map((tx, index) => (
+                {recentTransactions.map((tx, index) => (
                   <div key={tx.id}>
                     <div className="flex items-center justify-between">
                       <div>

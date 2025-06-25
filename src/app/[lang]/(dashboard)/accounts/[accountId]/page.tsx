@@ -56,7 +56,7 @@ export default function AccountDetailsPage() {
   const account = accounts.find(a => a.id === accountId);
   const transactions = allTransactions
     .filter(t => t.accountId === accountId)
-    .sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime());
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
 
   if (!account) {
     return <div>Account not found</div>;
@@ -127,7 +127,7 @@ export default function AccountDetailsPage() {
             <TableBody>
               {transactions.map((tx) => (
                 <TableRow key={tx.id}>
-                  <TableCell>{format(tx.date.toDate(), 'yyyy-MM-dd')}</TableCell>
+                  <TableCell>{format(tx.date, 'yyyy-MM-dd')}</TableCell>
                   <TableCell>{tx.description}</TableCell>
                   <TableCell className={`text-right font-medium ${tx.amount > 0 ? 'text-accent' : ''}`}>
                     {formatCurrency(tx.amount)}

@@ -1,5 +1,5 @@
 
-import { doc, setDoc, serverTimestamp, getDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "./config";
 
 export type Account = {
@@ -13,9 +13,10 @@ export type Account = {
 export type Transaction = {
   id: string;
   accountId: string;
-  date: any; // Firestore Timestamp
+  date: Date; // Use JS Date object in the application
   description: string;
   amount: number;
+  currency: string;
   category: string;
   status: 'completed' | 'pending' | 'failed';
 };
@@ -55,10 +56,10 @@ export type UserProfile = {
     promotions: boolean;
     security: boolean;
   };
-  createdAt: any;
+  createdAt: Date;
   kycStatus: 'unverified' | 'pending' | 'verified';
   cardStatus: 'none' | 'requested' | 'active';
-  cardRequestedAt?: any;
+  cardRequestedAt?: Date;
   iban?: string;
   bic?: string;
   accounts: Account[];
@@ -71,9 +72,9 @@ export async function addUserToFirestore(userProfile: Omit<UserProfile, 'created
   const userRef = doc(db, "users", userProfile.uid);
   
   const defaultAccounts: Account[] = [
-    { id: 'checking-1', name: 'checking', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 1234' },
-    { id: 'savings-1', name: 'savings', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 5678' },
-    { id: 'credit-1', name: 'credit', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 9010' },
+    { id: 'checking-1', name: 'checking', balance: 1250.75, currency: 'EUR', accountNumber: '**** **** **** 1234' },
+    { id: 'savings-1', name: 'savings', balance: 5420.10, currency: 'EUR', accountNumber: '**** **** **** 5678' },
+    { id: 'credit-1', name: 'credit', balance: -500.00, currency: 'EUR', accountNumber: '**** **** **** 9010' },
   ];
 
   await setDoc(userRef, {
@@ -99,12 +100,18 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
 
     if (docSnap.exists()) {
         const data = docSnap.data();
-        // Firestore timestamps need to be converted to JS Date objects
+        
+        const transactions = (data.transactions || []).map((tx: any) => ({
+            ...tx,
+            date: tx.date instanceof Timestamp ? tx.date.toDate() : new Date(tx.date)
+        }));
+
         return {
             ...data,
-            dob: data.dob?.toDate(),
-            createdAt: data.createdAt?.toDate(),
-            cardRequestedAt: data.cardRequestedAt?.toDate(),
+            dob: data.dob instanceof Timestamp ? data.dob.toDate() : new Date(data.dob),
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
+            cardRequestedAt: data.cardRequestedAt instanceof Timestamp ? data.cardRequestedAt.toDate() : (data.cardRequestedAt ? new Date(data.cardRequestedAt) : undefined),
+            transactions,
         } as UserProfile;
     } else {
         return null;
@@ -113,5 +120,15 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
 
 export async function updateUserInFirestore(uid: string, data: Partial<Omit<UserProfile, 'uid'>>) {
   const userRef = doc(db, "users", uid);
-  await updateDoc(userRef, data);
+  
+  // Convert JS Date objects back to Firestore Timestamps if they exist
+  const dataToUpdate = { ...data };
+  if (data.dob instanceof Date) {
+    dataToUpdate.dob = Timestamp.fromDate(data.dob);
+  }
+  if (data.cardRequestedAt instanceof Date) {
+    dataToUpdate.cardRequestedAt = Timestamp.fromDate(data.cardRequestedAt);
+  }
+  
+  await updateDoc(userRef, dataToUpdate);
 }

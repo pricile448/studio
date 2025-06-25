@@ -8,7 +8,7 @@ import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePathname } from 'next/navigation';
-
+import { format } from 'date-fns';
 
 export default function DashboardPage() {
   const pathname = usePathname();
@@ -36,7 +36,10 @@ export default function DashboardPage() {
   }
 
   const accounts = userProfile.accounts || [];
-  const transactions = userProfile.transactions || [];
+  const transactions = (userProfile.transactions || []).map(tx => ({
+    ...tx,
+    date: format(tx.date, 'yyyy-MM-dd'),
+  }));
   const totalBalance = accounts.reduce((acc, account) => acc + account.balance, 0);
 
 

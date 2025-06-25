@@ -8,7 +8,9 @@ import { useAuth } from '@/context/auth-context';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 
 export default function TransfersPage() {
   const pathname = usePathname();
@@ -42,7 +44,7 @@ export default function TransfersPage() {
     .slice(0, 5)
     .map(tx => ({
         ...tx,
-        date: format(tx.date.toDate(), 'PPP', { locale: lang === 'fr' ? require('date-fns/locale/fr') : require('date-fns/locale/en-US')})
+        date: format(tx.date, 'PPP', { locale: lang === 'fr' ? fr : enUS})
     }));
 
   return <TransfersClient 
