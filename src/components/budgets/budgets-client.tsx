@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import type { Budget, Transaction } from '@/lib/firebase/firestore';
+import type { Budget } from '@/lib/firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
 import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
+import { Skeleton } from '../ui/skeleton';
 
 const budgetSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -45,8 +46,8 @@ const categoryIcons: { [key: string]: React.ElementType } = {
   default: Utensils,
 };
 
-export function BudgetsClient({ dict, lang, budgets, transactions }: { dict: Dictionary, lang: Locale, budgets: Budget[], transactions: Transaction[] }) {
-  const { userProfile, updateUserProfileData } = useAuth();
+export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
+  const { userProfile, loading, updateUserProfileData } = useAuth();
   const budgetsDict = dict.budgets;
   const kycDict = dict.kyc;
   
@@ -59,9 +60,19 @@ export function BudgetsClient({ dict, lang, budgets, transactions }: { dict: Dic
     defaultValues: { name: '', total: 0, category: '' },
   });
 
-  if (!userProfile) {
-    // Should be caught by the layout, but as a fallback.
-    return null;
+  if (loading || !userProfile) {
+    return (
+       <div className="space-y-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <Skeleton className="h-8 w-36" />
+          <Skeleton className="h-10 w-40" />
+        </div>
+        <Separator />
+        <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32" />)}
+        </div>
+      </div>
+    );
   }
 
   const onSubmit = async (data: BudgetFormValues) => {
@@ -98,6 +109,9 @@ export function BudgetsClient({ dict, lang, budgets, transactions }: { dict: Dic
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
   
+  const budgets = userProfile.budgets || [];
+  const transactions = userProfile.transactions || [];
+
   const budgetsWithSpent = budgets.map(budget => {
       const spent = transactions
           .filter(tx => tx.category.toLowerCase() === budget.category.toLowerCase() && tx.amount < 0)

@@ -15,18 +15,15 @@ import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '../ui/kyc-prompt';
 import { KycPendingPrompt } from '../ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
-
+import { format } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 
 type TransfersClientProps = {
   dict: Dictionary;
-  accountsDict: Dictionary['accounts'];
-  accounts: { id: string; name: string; balance: number }[];
-  recentTransfers: { id: string; date: string; description: string; amount: number }[];
-  beneficiaries: { id: string; name: string; iban: string }[];
   lang: Locale;
 };
 
-export function TransfersClient({ dict, accountsDict, accounts, recentTransfers, beneficiaries, lang }: TransfersClientProps) {
+export function TransfersClient({ dict, lang }: TransfersClientProps) {
   const { userProfile, loading } = useAuth();
 
   const transfersDict = dict.transfers;
@@ -47,6 +44,15 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
         </div>
     )
   }
+
+  const accounts = userProfile.accounts || [];
+  const beneficiaries = userProfile.beneficiaries || [];
+  const recentTransfers = (userProfile.transactions || [])
+    .slice(0, 5)
+    .map(tx => ({
+        ...tx,
+        date: format(new Date(tx.date), 'PPP', { locale: lang === 'fr' ? fr : enUS})
+    }));
 
   const renderContent = () => {
     if (userProfile.kycStatus === 'pending') {
@@ -76,8 +82,8 @@ export function TransfersClient({ dict, accountsDict, accounts, recentTransfers,
     };
     
     const getAccountName = (name: string) => {
-      const key = name as keyof typeof accountsDict;
-      return accountsDict[key] || name;
+      const key = name as keyof typeof dict.accounts;
+      return dict.accounts[key] || name;
     }
 
     return (

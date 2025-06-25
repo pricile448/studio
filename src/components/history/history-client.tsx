@@ -19,29 +19,33 @@ import { addDays, format } from 'date-fns';
 
 type HistoryClientProps = {
   dict: Dictionary['history'];
-  transactions: { id: string; date: string; description: string; category: string; amount: number; status: string }[];
   lang: Locale;
 };
 
-export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) {
+export function HistoryClient({ dict, lang }: HistoryClientProps) {
   const { userProfile, loading } = useAuth();
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(2024, 6, 1),
     to: addDays(new Date(2024, 6, 1), 30),
   });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
-  };
-
   if (loading || !userProfile) {
     return (
         <div className="space-y-6">
             <Skeleton className="h-8 w-1/4" />
-            <Skeleton className="h-48" />
+            <Skeleton className="h-64" />
         </div>
     );
   }
+
+  const transactions = (userProfile.transactions || []).map(tx => ({
+    ...tx,
+    date: format(new Date(tx.date), 'yyyy-MM-dd'),
+  }));
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
+  };
   
   return (
     <div className="space-y-6">
@@ -172,4 +176,3 @@ export function HistoryClient({ dict, transactions, lang }: HistoryClientProps) 
     </div>
   );
 }
-

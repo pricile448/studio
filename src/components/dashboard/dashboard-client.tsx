@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -11,16 +11,15 @@ import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, S
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { VerificationBanner } from './verification-banner';
 import { useAuth } from '@/context/auth-context';
+import { Skeleton } from '../ui/skeleton';
+import { format } from 'date-fns';
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
   accountsDict: Dictionary['accounts'];
-  accounts: { id: string; name: string; balance: number; currency: string }[];
-  transactions: { id: string; date: string; description: string; category: string; amount: number; currency: string }[];
-  totalBalance: number;
+  lang: Locale;
 };
 
 const chartConfig = {
@@ -36,10 +35,30 @@ const accountIcons: { [key: string]: React.ElementType } = {
   credit: CreditCard,
 };
 
-export function DashboardClient({ dict, accountsDict, accounts, transactions, totalBalance }: DashboardClientProps) {
-  const pathname = usePathname();
-  const lang = pathname.split('/')[1] as Locale;
-  const { userProfile } = useAuth();
+export function DashboardClient({ dict, accountsDict, lang }: DashboardClientProps) {
+  const { userProfile, loading } = useAuth();
+
+  if (loading || !userProfile) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-8 w-1/3" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-24 sm:col-span-2" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+        </div>
+        <Skeleton className="h-48" />
+      </div>
+    );
+  }
+
+  const accounts = userProfile.accounts || [];
+  const transactions = (userProfile.transactions || []).map(tx => ({
+    ...tx,
+    date: format(new Date(tx.date), 'yyyy-MM-dd'),
+  }));
+  const totalBalance = accounts.reduce((acc, account) => acc + account.balance, 0);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
@@ -73,7 +92,9 @@ export function DashboardClient({ dict, accountsDict, accounts, transactions, to
     }));
   }, [transactions]);
   
-  const recentTransactions = transactions.slice(0, 5);
+  const recentTransactions = transactions
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
 
   return (
     <div className="flex flex-col gap-6">
