@@ -73,7 +73,7 @@ export function DashboardLayoutClient({
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = `/${lang}/login`;
+    router.push(`/${lang}/login`);
   };
 
   useEffect(() => {

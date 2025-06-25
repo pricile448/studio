@@ -93,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setIsLoggingOut(true);
     await signOut(auth);
+    // Redirection is handled by the component that calls this function.
   };
 
   const updateUserProfileData = async (data: Partial<UserProfile>) => {
