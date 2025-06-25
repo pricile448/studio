@@ -16,9 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MailCheck, MailWarning, Loader2 } from 'lucide-react';
+import { MailWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 
@@ -66,32 +65,33 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
     }
   };
   
-  const handleProceedToLogin = async () => {
-    await logout();
+  const handleProceedToLogin = () => {
+    logout(); 
     router.push(`/${lang}/login`);
   };
 
   const renderContent = () => {
     if (loading || !dict) {
       return (
-        <>
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <CardTitle className="mt-4">{dict?.verifyEmail.verifyingTitle || 'Verification in progress...'}</CardTitle>
-          <CardDescription>{dict?.verifyEmail.verifyingDescription || 'Please wait a moment.'}</CardDescription>
-        </>
+         <div className="flex flex-col items-center gap-4 text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">{dict?.verifyEmail.verifyingTitle || 'Verification in progress...'}</p>
+        </div>
       );
     }
 
     if (error) {
        return (
-        <>
-          <MailWarning className="h-12 w-12 text-destructive" />
-          <CardTitle className="mt-4 text-2xl font-headline">{dict.verifyEmail.verificationErrorTitle}</CardTitle>
-          <CardDescription>{error}</CardDescription>
-          <Button onClick={() => router.push(`/${lang}/login`)} className="mt-4">
-            {dict.verifyEmail.backToLogin}
-          </Button>
-        </>
+         <div className="flex flex-col items-center gap-4 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+                <MailWarning className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle className="mt-4 text-2xl font-headline">{dict.verifyEmail.verificationErrorTitle}</CardTitle>
+            <CardDescription>{error}</CardDescription>
+            <Button onClick={() => router.push(`/${lang}/login`)} className="mt-4">
+                {dict.verifyEmail.backToLogin}
+            </Button>
+        </div>
       );
     }
 
@@ -101,11 +101,9 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
       <Card className="mx-auto w-full max-w-md">
-        <CardHeader className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                {renderContent()}
-            </div>
-        </CardHeader>
+        <CardContent className="pt-6">
+            {renderContent()}
+        </CardContent>
       </Card>
       
       <AlertDialog open={success}>
