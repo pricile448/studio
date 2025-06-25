@@ -28,6 +28,7 @@ export default {
         },
         primary: {
           DEFAULT: 'hsl(var(--primary))',
+          'gradient-end': 'hsl(var(--primary-gradient-end))',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
@@ -98,4 +99,3 @@ export default {
   },
   plugins: [require('tailwindcss-animate'), require("tailwindcss-debug-screens")],
 } satisfies Config;
-

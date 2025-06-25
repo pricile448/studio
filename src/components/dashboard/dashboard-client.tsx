@@ -103,7 +103,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
       
       {/* Account Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-         <Card className="sm:col-span-2 bg-primary text-primary-foreground">
+         <Card className="sm:col-span-2 bg-gradient-to-r from-primary to-primary-gradient-end text-primary-foreground">
              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{dict.totalBalance}</CardTitle>
                 <Scale className="h-4 w-4 text-primary-foreground/80" />

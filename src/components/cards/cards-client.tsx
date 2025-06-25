@@ -109,7 +109,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
          <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-1">
             <Card className={cn(
-              "aspect-[85.6/53.98] bg-primary text-primary-foreground p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
+              "aspect-[85.6/53.98] bg-gradient-to-r from-primary to-primary-gradient-end text-primary-foreground p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
               isFrozen && "grayscale opacity-50"
             )}>
               <div className="flex justify-between items-start">
