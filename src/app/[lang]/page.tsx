@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Globe, Menu, MoveRight, CheckCircle } from 'lucide-react';
+import { Globe, Menu, CheckCircle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,7 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { HeroSlider } from '@/components/home/hero-slider';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -31,6 +32,19 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
     { href: `/${params.lang}/features`, label: homeDict.nav.features },
     { href: `/${params.lang}/pricing`, label: homeDict.nav.pricing },
     { href: `/${params.lang}/faq`, label: homeDict.nav.help },
+  ];
+  
+  const heroImages = [
+    { 
+      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879373/img_5_vtwsf6.png',
+      alt: 'Banking app on a phone',
+      hint: 'mobile banking'
+    },
+    { 
+      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879373/img_4_ce9hxg.png',
+      alt: 'Payment card and phone',
+      hint: 'contactless payment'
+    }
   ];
 
   return (
@@ -131,14 +145,7 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
               </div>
             </div>
             <div className="flex justify-center">
-              <Image
-                src="https://placehold.co/500x320.png"
-                width={500}
-                height={320}
-                alt="Credit Card"
-                className="rounded-xl shadow-2xl"
-                data-ai-hint="credit card"
-              />
+              <HeroSlider images={heroImages} />
             </div>
           </div>
         </section>
