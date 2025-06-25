@@ -36,12 +36,12 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
   
   const heroImages = [
     { 
-      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879373/img_5_vtwsf6.png',
+      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750876974/img_2_vxpw8l.png',
       alt: 'Banking app on a phone',
       hint: 'mobile banking'
     },
     { 
-      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879373/img_4_ce9hxg.png',
+      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750877183/img_4_lcvjtq.png',
       alt: 'Payment card and phone',
       hint: 'contactless payment'
     }
