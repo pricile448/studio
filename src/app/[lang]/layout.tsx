@@ -1,40 +1,20 @@
 
-import type { Metadata } from 'next';
-import '../globals.css';
-import { Toaster } from "@/components/ui/toaster";
-import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/dictionaries';
-import { AuthProvider } from '@/context/auth-context';
 
-export const metadata: Metadata = {
-  title: 'AmCbunq - Modern Banking',
-  description: 'A beautifully designed, modern banking experience with AI-powered financial insights.',
-};
-
+// This layout now simply defines the dynamic language segments.
+// The main HTML structure is in the root layout.tsx file.
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default async function RootLayout({
+export default function LangLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: { lang: Locale };
 }) {
-  return (
-    <html lang={params.lang} suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className={cn("font-body antialiased", process.env.NODE_ENV === 'development' ? 'debug-screens' : undefined)}>
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
-      </body>
-    </html>
-  );
+  // The root layout in /app/layout.tsx handles the main structure.
+  // This component is now just for segmenting routes by language.
+  return <>{children}</>;
 }
