@@ -32,9 +32,7 @@ interface EmailParams {
 export async function sendEmail({to, subject, text, html}: EmailParams): Promise<void> {
   if (!mg || !DOMAIN || !FROM_EMAIL) {
     console.error('Mailgun client not initialized. Cannot send email.');
-    // In a real app, you might want to throw an error or handle this differently.
-    // For this prototype, we will just log the error and do nothing.
-    return;
+    throw new Error('Mailgun client not initialized. Check server environment variables.');
   }
 
   const messageData = {
@@ -48,8 +46,9 @@ export async function sendEmail({to, subject, text, html}: EmailParams): Promise
   try {
     const result = await mg.messages.create(DOMAIN, messageData);
     console.log('Email sent successfully via Mailgun:', result);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending email with Mailgun:', error);
-    throw new Error('Failed to send email.');
+    const errorMessage = error.details || error.message || 'Failed to send email.';
+    throw new Error(errorMessage);
   }
 }
