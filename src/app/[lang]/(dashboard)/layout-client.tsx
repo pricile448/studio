@@ -52,8 +52,9 @@ export function DashboardLayoutClient({
   dict: Dictionary;
   lang: Locale;
 }) {
-  const { user, userProfile, loading, logout, isLoggingOut } = useAuth();
+  const { user, userProfile, loading, logout } = useAuth();
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const notificationsDict = dict.dashboard.notifications;
   const mockNotifications = [
@@ -72,8 +73,9 @@ export function DashboardLayoutClient({
   const [selectedNotification, setSelectedNotification] = useState<(typeof mockNotifications)[0] | null>(null);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     await logout();
-    router.push(`/${lang}/login`);
+    router.push(`/${lang}`);
   };
 
   useEffect(() => {

@@ -11,7 +11,6 @@ type AuthContextType = {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
-  isLoggingOut: boolean;
   login: (email: string, password: string) => Promise<UserCredential>;
   signup: (userData: RegistrationData, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -29,7 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -91,9 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    setIsLoggingOut(true);
     await signOut(auth);
-    // Redirection is handled by the component that calls this function.
   };
 
   const updateUserProfileData = async (data: Partial<UserProfile>) => {
@@ -132,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserProfile(profile);
   };
 
-  const value = { user, userProfile, loading, isLoggingOut, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard };
+  const value = { user, userProfile, loading, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
