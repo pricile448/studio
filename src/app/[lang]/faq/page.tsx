@@ -34,6 +34,14 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
     { href: `/${params.lang}/faq`, label: homeDict.nav.help },
   ];
 
+  const langLinks = [
+    { lang: 'en' as Locale, label: 'English', flag: <svg width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="#012169"/><path d="M0,0L20,15M20,0L0,15" stroke="#fff" strokeWidth="3"/><path d="M0,0L20,15M20,0L0,15" stroke="#C8102E" strokeWidth="2"/><path d="M10,0V15M0,7.5H20" stroke="#fff" strokeWidth="5"/><path d="M10,0V15M0,7.5H20" stroke="#C8102E" strokeWidth="3"/></svg> },
+    { lang: 'fr' as Locale, label: 'Français', flag: <svg width="20" height="15" viewBox="0 0 3 2"><path fill="#002395" d="M0 0h1v2H0z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#ED2939" d="M2 0h1v2H2z"/></svg> },
+    { lang: 'de' as Locale, label: 'Deutsch', flag: <svg width="20" height="15" viewBox="0 0 5 3"><path fill="#000" d="M0 0h5v3H0z"/><path fill="#D00" d="M0 1h5v2H0z"/><path fill="#FFCE00" d="M0 2h5v1H0z"/></svg> },
+    { lang: 'es' as Locale, label: 'Español', flag: <svg width="20" height="15" viewBox="0 0 3 2"><path fill="#C60B1E" d="M0 0h3v2H0z"/><path fill="#FFC400" d="M0 .5h3v1H0z"/></svg> },
+    { lang: 'pt' as Locale, label: 'Português', flag: <svg width="20" height="15" viewBox="0 0 3 2"><path fill="#006600" d="M0 0h3v2H0z"/><path fill="#f00" d="M0 0h1v2H0z"/></svg> }
+  ];
+
   return (
     <div className="flex min-h-screen flex-col bg-background font-body">
       {/* Header */}
@@ -68,11 +76,14 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem asChild><Link href="/en/faq">English</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/fr/faq">Français</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/de/faq">Deutsch</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/es/faq">Español</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/pt/faq">Português</Link></DropdownMenuItem>
+              {langLinks.map(({ lang, label, flag }) => (
+                <DropdownMenuItem key={lang} asChild>
+                  <Link href={`/${lang}/faq`} className="flex items-center gap-2">
+                    {flag}
+                    <span>{label}</span>
+                  </Link>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -82,9 +93,9 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
               <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader className="sr-only">
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>Main navigation menu</SheetDescription>
+              <SheetHeader>
+                 <SheetTitle className="sr-only">Menu</SheetTitle>
+                 <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
               </SheetHeader>
               <nav className="grid gap-6 text-lg font-medium p-6">
                 <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
@@ -104,11 +115,12 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
                 <Separator className="my-4" />
                 <div className="flex flex-col gap-2">
                   <p className="text-sm text-muted-foreground">{dict.settings.appearance.language}</p>
-                  <Link href="/en/faq" className="text-muted-foreground transition-colors hover:text-foreground">English</Link>
-                  <Link href="/fr/faq" className="text-muted-foreground transition-colors hover:text-foreground">Français</Link>
-                  <Link href="/de/faq" className="text-muted-foreground transition-colors hover:text-foreground">Deutsch</Link>
-                  <Link href="/es/faq" className="text-muted-foreground transition-colors hover:text-foreground">Español</Link>
-                  <Link href="/pt/faq" className="text-muted-foreground transition-colors hover:text-foreground">Português</Link>
+                   {langLinks.map(({ lang, label, flag }) => (
+                      <Link key={lang} href={`/${lang}/faq`} className="text-muted-foreground transition-colors hover:text-foreground flex items-center gap-2">
+                        {flag}
+                        <span>{label}</span>
+                      </Link>
+                    ))}
                 </div>
               </nav>
             </SheetContent>
