@@ -11,6 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
+import { uploadToCloudinary } from '@/services/cloudinary-service';
 
 const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
@@ -33,50 +34,7 @@ export async function submitKycDocuments(input: KycSubmissionInput): Promise<{su
 }
 
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
-
-/**
- * Converts a data URI to a buffer and a filename with the correct extension.
- * @param dataUri The data URI to process.
- * @param baseFilename The base name for the file (e.g., 'id-document').
- * @returns An object with the data buffer and filename, or null if the URI is invalid.
- */
-function processAttachment(dataUri: string, baseFilename: string): { data: Buffer; filename: string } | null {
-    const match = dataUri.match(/^data:(.+);base64,(.+)$/);
-    if (!match) {
-        console.error(`Invalid data URI format for ${baseFilename}`);
-        return null;
-    }
-
-    const mimeType = match[1];
-    const base64Data = match[2];
-    const buffer = Buffer.from(base64Data, 'base64');
-
-    let extension = '';
-    switch (mimeType) {
-        case 'image/jpeg':
-        case 'image/jpg':
-            extension = '.jpg';
-            break;
-        case 'image/png':
-            extension = '.png';
-            break;
-        case 'application/pdf':
-            extension = '.pdf';
-            break;
-        default:
-            const subType = mimeType.split('/')[1];
-            if (subType) {
-                extension = `.${subType}`;
-            } else {
-                console.warn(`Unsupported MIME type for attachment: ${mimeType}, no extension will be used.`);
-            }
-    }
-
-    return {
-        data: buffer,
-        filename: `${baseFilename}${extension}`
-    };
-}
+const CLOUDINARY_CONFIGURED = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
 
 
 const kycSubmissionFlow = ai.defineFlow(
@@ -86,40 +44,59 @@ const kycSubmissionFlow = ai.defineFlow(
     outputSchema: z.object({ success: z.boolean(), error: z.string().optional() }),
   },
   async (input) => {
-    // Send a notification email to the admin
     if (!ADMIN_EMAIL) {
         const error = "MAILGUN_ADMIN_EMAIL is not set. Cannot send KYC notification email.";
         console.error(error);
         return { success: false, error };
     }
 
-    const attachments = [
-        processAttachment(input.idDocumentDataUri, `id-document-${input.userId}`),
-        processAttachment(input.proofOfAddressDataUri, `proof-of-address-${input.userId}`),
-        processAttachment(input.selfieDataUri, `selfie-${input.userId}`),
-    ].filter((att) => att !== null) as { data: Buffer; filename: string }[];
-
-    if (attachments.length !== 3) {
-      const error = 'Failed to process one or more of the document files for attachment.';
+    if (!CLOUDINARY_CONFIGURED) {
+      const error = "Cloudinary environment variables are not set. Cannot upload KYC documents.";
       console.error(error);
       return { success: false, error };
+    }
+
+    let idDocumentUrl, proofOfAddressUrl, selfieUrl;
+
+    try {
+        const uploadFolder = `kyc_documents/${input.userId}`;
+
+        [idDocumentUrl, proofOfAddressUrl, selfieUrl] = await Promise.all([
+            uploadToCloudinary(input.idDocumentDataUri, uploadFolder),
+            uploadToCloudinary(input.proofOfAddressDataUri, uploadFolder),
+            uploadToCloudinary(input.selfieDataUri, uploadFolder)
+        ]);
+
+    } catch (error: any) {
+        console.error("Failed to upload documents to Cloudinary:", error);
+        return { success: false, error: error.message || 'Failed to upload one or more documents.' };
     }
 
     const emailSubject = `Nouvelle soumission KYC pour ${input.userName} (${input.userId})`;
     const emailHtml = `
       <h1>Nouvelle soumission KYC</h1>
-      <p>Un nouvel utilisateur a soumis ses documents pour la vérification d'identité. Les fichiers sont attachés à cet e-mail.</p>
+      <p>Un nouvel utilisateur a soumis ses documents pour la vérification d'identité. Les fichiers sont hébergés de manière sécurisée et peuvent être consultés via les liens ci-dessous.</p>
       <h2>Détails de l'utilisateur :</h2>
       <ul>
         <li><strong>ID Utilisateur:</strong> ${input.userId}</li>
         <li><strong>Nom:</strong> ${input.userName}</li>
         <li><strong>Email:</strong> ${input.userEmail}</li>
       </ul>
-      <p>Veuillez examiner les documents en pièce jointe et valider le compte dans le panneau d'administration.</p>
+      <h2>Liens vers les documents :</h2>
+      <ul>
+        <li><a href="${idDocumentUrl}" target="_blank" rel="noopener noreferrer">Pièce d'identité</a></li>
+        <li><a href="${proofOfAddressUrl}" target="_blank" rel="noopener noreferrer">Justificatif de domicile</a></li>
+        <li><a href="${selfieUrl}" target="_blank" rel="noopener noreferrer">Selfie</a></li>
+      </ul>
+      <p>Veuillez examiner les documents et valider le compte dans le panneau d'administration.</p>
     `;
     const emailText = `
       Nouvelle soumission KYC pour ${input.userName}.
-      Les documents sont attachés.
+      Les documents sont disponibles via les liens suivants :
+      - Pièce d'identité: ${idDocumentUrl}
+      - Justificatif de domicile: ${proofOfAddressUrl}
+      - Selfie: ${selfieUrl}
+      
       Détails :
       - ID Utilisateur: ${input.userId}
       - Nom: ${input.userName}
@@ -133,7 +110,6 @@ const kycSubmissionFlow = ai.defineFlow(
             subject: emailSubject,
             html: emailHtml,
             text: emailText,
-            attachment: attachments,
         });
         return { success: true };
     } catch (error: any) {
