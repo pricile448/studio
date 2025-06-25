@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore } from '@/lib/firebase/firestore';
+import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData } from '@/lib/firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import type { Locale } from '@/lib/dictionaries';
 import { serverTimestamp } from 'firebase/firestore';
@@ -15,7 +15,7 @@ type AuthContextType = {
   loading: boolean;
   isLoggingOut: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (userData: Omit<UserProfile, 'uid' | 'createdAt' | 'kycStatus' | 'cardStatus'>, password: string) => Promise<void>;
+  signup: (userData: RegistrationData, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.refresh();
   };
 
-  const signup = async (userData: Omit<UserProfile, 'uid' | 'createdAt' | 'kycStatus' | 'cardStatus'>, password: string) => {
+  const signup = async (userData: RegistrationData, password: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
     const { user } = userCredential;
 

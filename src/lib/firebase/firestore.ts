@@ -68,18 +68,34 @@ export type UserProfile = {
   budgets: Budget[];
 };
 
-export async function addUserToFirestore(userProfile: Omit<UserProfile, 'createdAt' | 'kycStatus' | 'cardStatus' | 'accounts' | 'transactions' | 'beneficiaries' | 'budgets'>) {
-  const userRef = doc(db, "users", userProfile.uid);
+export type RegistrationData = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    dob: Date;
+    pob: string;
+    nationality: string;
+    residenceCountry: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    profession: string;
+    salary: number;
+};
+
+
+export async function addUserToFirestore(userData: RegistrationData & { uid: string }) {
+  const userRef = doc(db, "users", userData.uid);
   
   const defaultAccounts: Account[] = [
-    { id: 'checking-1', name: 'checking', balance: 1250.75, currency: 'EUR', accountNumber: '**** **** **** 1234' },
-    { id: 'savings-1', name: 'savings', balance: 5420.10, currency: 'EUR', accountNumber: '**** **** **** 5678' },
-    { id: 'credit-1', name: 'credit', balance: -500.00, currency: 'EUR', accountNumber: '**** **** **** 9010' },
+    { id: 'checking-1', name: 'checking', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 1234' },
+    { id: 'savings-1', name: 'savings', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 5678' },
+    { id: 'credit-1', name: 'credit', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 9010' },
   ];
 
-  await setDoc(userRef, {
-    ...userProfile,
-    createdAt: serverTimestamp(),
+  const fullProfile: Omit<UserProfile, 'createdAt'> = {
+    ...userData,
     kycStatus: 'unverified',
     cardStatus: 'none',
     notificationPrefs: {
@@ -91,6 +107,11 @@ export async function addUserToFirestore(userProfile: Omit<UserProfile, 'created
     transactions: [],
     beneficiaries: [],
     budgets: []
+  };
+
+  await setDoc(userRef, {
+    ...fullProfile,
+    createdAt: serverTimestamp(),
   });
 }
 
