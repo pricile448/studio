@@ -23,6 +23,7 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     throw new Error(errorMsg);
   }
 
+  // Configure Cloudinary within the function call to ensure it's always set correctly.
   cloudinary.config({
     cloud_name: CLOUDINARY_CLOUD_NAME,
     api_key: CLOUDINARY_API_KEY,
@@ -36,8 +37,12 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
       resource_type: 'auto',
     });
     return result.secure_url;
-  } catch (error) {
-    console.error('Error uploading to Cloudinary:', error);
-    throw new Error('Failed to upload file to Cloudinary.');
+  } catch (error: any) {
+    // Log the full error to the server console for detailed debugging
+    console.error('Detailed Cloudinary Upload Error:', JSON.stringify(error, null, 2));
+
+    // Propagate a more helpful error message to the client
+    const errorMessage = error.message || (error.error && error.error.message) || 'An unknown error occurred during Cloudinary upload.';
+    throw new Error(`Cloudinary Error: ${errorMessage}`);
   }
 }
