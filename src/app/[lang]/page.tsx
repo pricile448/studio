@@ -58,14 +58,16 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             <p className="hidden text-sm text-muted-foreground sm:block">{homeDict.slogan}</p>
           </div>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+        <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-foreground/80 transition-colors hover:text-foreground">
-              {link.label}
-            </Link>
+            <Button variant="ghost" asChild key={link.href}>
+              <Link href={link.href}>
+                {link.label}
+              </Link>
+            </Button>
           ))}
         </nav>
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" asChild>
             <Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link>
           </Button>
@@ -154,12 +156,12 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
         <section id="partners" className="py-20 sm:py-32 bg-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-6 md:gap-x-12">
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="Partner Logo 1" className="opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Partner Logo 2" className="opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Partner Logo 3" className="opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Partner Logo 4" className="opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="Partner Logo 5" className="opacity-60 hover:opacity-100 transition-opacity" />
+            <div className="grid grid-cols-2 items-center justify-items-center gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="Partner Logo 1" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Partner Logo 2" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Partner Logo 3" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Partner Logo 4" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="Partner Logo 5" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
             </div>
              <div className="mt-16 max-w-3xl mx-auto">
                 <h3 className="text-xl font-semibold">{homeDict.partnersSection.invitation}</h3>

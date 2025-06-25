@@ -64,7 +64,7 @@
             }
         },
         "partnersSection": {
-            "title": "Ils nous font confiance",
+            "title": "Nos partenaires",
             "invitation": "Vous êtes un grand facturier et vous souhaitez proposer les services d'AmCbunq à vos clients ?",
             "description": "Devenez partenaire AmCbunq, et mettez à disposition de vos usagers les solutions de paiement en espèces ou par carte dans l'un des 10 000 points de paiement agréés."
         },
@@ -515,7 +515,7 @@
       "step3_desc": "Veuillez télécharger une image claire et lisible du document complet.",
       "step3_upload_button": "Choisir un fichier",
       "step4_title": "Téléchargez votre justificatif de domicile",
-      "step4_desc": "Téléchargez une facture de services publics récente (moins de 3 mois) ou un relevé bancaire indiquant votre nom et votre adresse.",
+      "step4_desc": "Téléchargez une facture de services publics recente (moins de 3 mois) ou un relevé bancaire indiquant votre nom et votre adresse.",
       "step5_title": "Vérification par selfie",
       "step5_desc": "Prenez une photo de vous pour confirmer votre identité. Assurez-vous que votre visage est bien éclairé et entièrement visible.",
       "step6_title": "Vérification soumise",

@@ -98,7 +98,9 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader>
           <div className="flex justify-center mb-4">
-            <Logo text={dict.logo} />
+            <Link href={`/${lang}`}>
+              <Logo text={dict.logo} />
+            </Link>
           </div>
           <CardTitle className="text-2xl font-headline text-center">{loginDict.title}</CardTitle>
           <CardDescription className="text-center">{loginDict.description}</CardDescription>

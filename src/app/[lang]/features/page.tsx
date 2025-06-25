@@ -44,14 +44,16 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
             <p className="hidden text-sm text-muted-foreground sm:block">{homeDict.slogan}</p>
           </div>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+        <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-foreground/80 transition-colors hover:text-foreground">
-              {link.label}
-            </Link>
+            <Button variant="ghost" asChild key={link.href}>
+              <Link href={link.href}>
+                {link.label}
+              </Link>
+            </Button>
           ))}
         </nav>
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" asChild>
             <Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link>
           </Button>

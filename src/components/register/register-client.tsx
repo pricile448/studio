@@ -148,7 +148,9 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Logo text={dict.logo} />
+            <Link href={`/${lang}`}>
+              <Logo text={dict.logo} />
+            </Link>
           </div>
           <CardTitle className="text-2xl font-headline">{registerDict.title}</CardTitle>
           <CardDescription>{registerDict.description}</CardDescription>
