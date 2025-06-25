@@ -2,23 +2,44 @@
 {
     "logo": "AmCbunq",
     "homePage": {
-      "slogan": "Your mutual credit bank",
-      "nav": {
-        "home": "Home",
-        "features": "Features",
-        "openAccount": "Open an Account",
-        "login": "Login"
-      },
-      "hero": {
-        "title": "Banking, simplified and intelligent.",
-        "subtitle": "Manage your finances with powerful tools, instant transactions, and top-tier security.",
-        "ctaPrimary": "Get Started Today",
-        "ctaSecondary": "Learn More"
-      },
-      "footer": {
-        "legal": "Legal Notice",
-        "copyright": "© 2024 AmCbunq. All rights reserved."
-      }
+        "slogan": "Your mutual credit bank",
+        "nav": {
+            "home": "Home",
+            "features": "Features",
+            "pricing": "Pricing",
+            "help": "Help",
+            "openAccount": "Open an Account",
+            "login": "Login"
+        },
+        "hero": {
+            "title_part1": "Banking, simplified and ",
+            "title_highlight": "intelligent.",
+            "subtitle": "Manage your finances with powerful tools, instant transactions, and top-tier security.",
+            "ctaPrimary": "Get Started Today",
+            "ctaSecondary": "Learn More"
+        },
+        "featuresSection": {
+            "title": "A banking experience designed for you",
+            "feature1": {
+                "title": "Manage your budget, effortlessly",
+                "description": "With the AmCbunq app, simplify your daily budget management. Open an account, get a card, track your expenses, and manage your budget in a single application!",
+                "cta": "Discover the app"
+            },
+            "feature2": {
+                "title": "Cards that adapt to you",
+                "description": "Physical or virtual, choose the card that suits you. Enjoy secure payments and customizable limits to control your spending.",
+                "cta": "Explore cards"
+            },
+            "feature3": {
+                "title": "AI at your service",
+                "description": "Our AI assistant analyzes your expenses to provide you with personalized advice and help you identify savings opportunities. Take control of your finances.",
+                "cta": "See AI features"
+            }
+        },
+        "footer": {
+            "legal": "Legal Notice",
+            "copyright": "© 2024 AmCbunq. All rights reserved."
+        }
     },
     "login": {
       "title": "Login",

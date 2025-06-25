@@ -2,23 +2,44 @@
 {
     "logo": "AmCbunq",
     "homePage": {
-      "slogan": "Su banco de crédito mutuo",
-      "nav": {
-        "home": "Inicio",
-        "features": "Características",
-        "openAccount": "Abrir una cuenta",
-        "login": "Iniciar sesión"
-      },
-      "hero": {
-        "title": "Banca, simplificada e inteligente.",
-        "subtitle": "Gestione sus finanzas con potentes herramientas, transacciones instantáneas y seguridad de primer nivel.",
-        "ctaPrimary": "Comience hoy",
-        "ctaSecondary": "Saber más"
-      },
-      "footer": {
-        "legal": "Aviso Legal",
-        "copyright": "© 2024 AmCbunq. Todos los derechos reservados."
-      }
+        "slogan": "Su banco de crédito mutuo",
+        "nav": {
+            "home": "Inicio",
+            "features": "Características",
+            "pricing": "Precios",
+            "help": "Ayuda",
+            "openAccount": "Abrir una cuenta",
+            "login": "Iniciar sesión"
+        },
+        "hero": {
+            "title_part1": "Banca, simplificada e ",
+            "title_highlight": "inteligente.",
+            "subtitle": "Gestione sus finanzas con potentes herramientas, transacciones instantáneas y seguridad de primer nivel.",
+            "ctaPrimary": "Comience hoy",
+            "ctaSecondary": "Saber más"
+        },
+        "featuresSection": {
+            "title": "Una experiencia bancaria diseñada para usted",
+            "feature1": {
+                "title": "Gestione su presupuesto sin esfuerzo",
+                "description": "Con la app AmCbunq, simplifique la gestión diaria de su presupuesto. ¡Abra una cuenta, obtenga una tarjeta, siga sus gastos y gestione su presupuesto en una sola aplicación!",
+                "cta": "Descubrir la aplicación"
+            },
+            "feature2": {
+                "title": "Tarjetas que se adaptan a usted",
+                "description": "Física o virtual, elija la tarjeta que más le convenga. Disfrute de pagos seguros y límites personalizables para controlar sus gastos.",
+                "cta": "Explorar tarjetas"
+            },
+            "feature3": {
+                "title": "IA a su servicio",
+                "description": "Nuestro asistente de IA analiza sus gastos para ofrecerle consejos personalizados y ayudarle a identificar oportunidades de ahorro. Tome el control de sus finanzas.",
+                "cta": "Ver funciones de IA"
+            }
+        },
+        "footer": {
+            "legal": "Aviso Legal",
+            "copyright": "© 2024 AmCbunq. Todos los derechos reservados."
+        }
     },
     "login": {
       "title": "Iniciar sesión",

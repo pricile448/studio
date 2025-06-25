@@ -2,23 +2,44 @@
 {
     "logo": "AmCbunq",
     "homePage": {
-      "slogan": "Ihre Genossenschaftsbank",
-      "nav": {
-        "home": "Startseite",
-        "features": "Funktionen",
-        "openAccount": "Konto eröffnen",
-        "login": "Anmelden"
-      },
-      "hero": {
-        "title": "Banking, vereinfacht und intelligent.",
-        "subtitle": "Verwalten Sie Ihre Finanzen mit leistungsstarken Tools, sofortigen Transaktionen und erstklassiger Sicherheit.",
-        "ctaPrimary": "Heute loslegen",
-        "ctaSecondary": "Mehr erfahren"
-      },
-      "footer": {
-        "legal": "Impressum",
-        "copyright": "© 2024 AmCbunq. Alle Rechte vorbehalten."
-      }
+        "slogan": "Ihre Genossenschaftsbank",
+        "nav": {
+            "home": "Startseite",
+            "features": "Funktionen",
+            "pricing": "Preise",
+            "help": "Hilfe",
+            "openAccount": "Konto eröffnen",
+            "login": "Anmelden"
+        },
+        "hero": {
+            "title_part1": "Banking, vereinfacht und ",
+            "title_highlight": "intelligent.",
+            "subtitle": "Verwalten Sie Ihre Finanzen mit leistungsstarken Tools, sofortigen Transaktionen und erstklassiger Sicherheit.",
+            "ctaPrimary": "Heute loslegen",
+            "ctaSecondary": "Mehr erfahren"
+        },
+        "featuresSection": {
+            "title": "Ein Bankerlebnis, das für Sie entwickelt wurde",
+            "feature1": {
+                "title": "Verwalten Sie Ihr Budget mühelos",
+                "description": "Mit der AmCbunq-App vereinfachen Sie Ihre tägliche Budgetverwaltung. Eröffnen Sie ein Konto, erhalten Sie eine Karte, verfolgen Sie Ihre Ausgaben und verwalten Sie Ihr Budget in einer einzigen Anwendung!",
+                "cta": "Die App entdecken"
+            },
+            "feature2": {
+                "title": "Karten, die sich an Sie anpassen",
+                "description": "Physisch oder virtuell, wählen Sie die Karte, die zu Ihnen passt. Profitieren Sie von sicheren Zahlungen und anpassbaren Limits, um Ihre Ausgaben zu kontrollieren.",
+                "cta": "Karten entdecken"
+            },
+            "feature3": {
+                "title": "KI zu Ihren Diensten",
+                "description": "Unser KI-Assistent analysiert Ihre Ausgaben, um Ihnen personalisierte Ratschläge zu geben und Ihnen zu helfen, Einsparmöglichkeiten zu erkennen. Übernehmen Sie die Kontrolle über Ihre Finanzen.",
+                "cta": "KI-Funktionen ansehen"
+            }
+        },
+        "footer": {
+            "legal": "Impressum",
+            "copyright": "© 2024 AmCbunq. Alle Rechte vorbehalten."
+        }
     },
     "login": {
       "title": "Anmelden",

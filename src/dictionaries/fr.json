@@ -2,23 +2,44 @@
 {
     "logo": "AmCbunq",
     "homePage": {
-      "slogan": "Votre banque de crédit mutuel",
-      "nav": {
-        "home": "Accueil",
-        "features": "Fonctionnalités",
-        "openAccount": "Ouvrir un compte",
-        "login": "Connexion"
-      },
-      "hero": {
-        "title": "La banque, simplifiée et intelligente.",
-        "subtitle": "Gérez vos finances avec des outils puissants, des transactions instantanées et une sécurité de pointe.",
-        "ctaPrimary": "Commencez aujourd'hui",
-        "ctaSecondary": "En savoir plus"
-      },
-      "footer": {
-        "legal": "Mentions Légales",
-        "copyright": "© 2024 AmCbunq. Tous droits réservés."
-      }
+        "slogan": "Votre banque de crédit mutuel",
+        "nav": {
+            "home": "Accueil",
+            "features": "Fonctionnalités",
+            "pricing": "Tarifs",
+            "help": "Aide",
+            "openAccount": "Ouvrir un compte",
+            "login": "Connexion"
+        },
+        "hero": {
+            "title_part1": "La banque, simplifiée et ",
+            "title_highlight": "intelligente.",
+            "subtitle": "Gérez vos finances avec des outils puissants, des transactions instantanées et une sécurité de pointe.",
+            "ctaPrimary": "Commencez aujourd'hui",
+            "ctaSecondary": "En savoir plus"
+        },
+        "featuresSection": {
+            "title": "Une expérience bancaire conçue pour vous",
+            "feature1": {
+                "title": "Gérez votre budget, sans effort",
+                "description": "Avec l'app AmCbunq, simplifiez votre gestion budgétaire au quotidien. Ouvrez un compte, bénéficiez d'une carte, suivez vos dépenses et la gestion de votre budget dans une seule application !",
+                "cta": "Découvrir l'application"
+            },
+            "feature2": {
+                "title": "Des cartes qui s'adaptent à vous",
+                "description": "Physique ou virtuelle, choisissez la carte qui vous convient. Profitez de paiements sécurisés et de plafonds personnalisables pour maîtriser vos dépenses.",
+                "cta": "Explorer les cartes"
+            },
+            "feature3": {
+                "title": "L'IA à votre service",
+                "description": "Notre assistant IA analyse vos dépenses pour vous fournir des conseils personnalisés et vous aider à identifier des opportunités d'économies. Prenez le contrôle de vos finances.",
+                "cta": "Voir les fonctionnalités IA"
+            }
+        },
+        "footer": {
+            "legal": "Mentions Légales",
+            "copyright": "© 2024 AmCbunq. Tous droits réservés."
+        }
     },
     "login": {
       "title": "Connexion",
