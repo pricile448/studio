@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { applyActionCode } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useAuth } from '@/context/auth-context';
@@ -21,6 +21,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { MailCheck, MailWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 
 export default function AuthActionPage({ params: { lang } }: { params: { lang: Locale } }) {
   const router = useRouter();
@@ -67,8 +70,7 @@ export default function AuthActionPage({ params: { lang } }: { params: { lang: L
   };
   
   const handleProceedToLogin = async () => {
-    await logout();
-    router.push(`/${lang}/login`);
+    await logout(lang);
   };
 
   const renderContent = () => {

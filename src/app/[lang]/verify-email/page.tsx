@@ -13,6 +13,8 @@ import { MailCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
+export const dynamic = 'force-dynamic';
+
 export default function VerifyEmailPage({ params: { lang } }: { params: { lang: Locale } }) {
   const { user, loading, resendVerificationEmail, logout } = useAuth();
   const router = useRouter();
@@ -56,8 +58,7 @@ export default function VerifyEmailPage({ params: { lang } }: { params: { lang: 
   }
 
   const handleLogout = async () => {
-    await logout();
-    router.push(`/${lang}/login`);
+    await logout(lang);
   }
 
   if (loading || !dict || !user) {

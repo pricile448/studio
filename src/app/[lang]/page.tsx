@@ -14,6 +14,10 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 
+export async function generateStaticParams() {
+  return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
+}
+
 export default async function HomePage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
 
