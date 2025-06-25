@@ -20,7 +20,7 @@ const ContactSupportInputSchema = z.object({
 });
 export type ContactSupportInput = z.infer<typeof ContactSupportInputSchema>;
 
-export async function contactSupport(input: ContactSupportInput): Promise<{success: boolean}> {
+export async function contactSupport(input: ContactSupportInput): Promise<{success: boolean; error?: string}> {
   return contactSupportFlow(input);
 }
 
@@ -30,12 +30,13 @@ const contactSupportFlow = ai.defineFlow(
   {
     name: 'contactSupportFlow',
     inputSchema: ContactSupportInputSchema,
-    outputSchema: z.object({ success: z.boolean() }),
+    outputSchema: z.object({ success: z.boolean(), error: z.string().optional() }),
   },
   async (input) => {
     if (!ADMIN_EMAIL) {
-        console.error("MAILGUN_ADMIN_EMAIL is not set. Cannot send support email.");
-        return { success: false };
+        const error = "MAILGUN_ADMIN_EMAIL is not set. Cannot send support email.";
+        console.error(error);
+        return { success: false, error };
     }
 
     const emailText = `
@@ -55,9 +56,9 @@ const contactSupportFlow = ai.defineFlow(
             text: emailText,
         });
         return { success: true };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to send support email:", error);
-        return { success: false };
+        return { success: false, error: error.message || 'Failed to send support email' };
     }
   }
 );

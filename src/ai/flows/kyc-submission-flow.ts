@@ -28,7 +28,7 @@ const KycSubmissionInputSchema = z.object({
 });
 export type KycSubmissionInput = z.infer<typeof KycSubmissionInputSchema>;
 
-export async function submitKycDocuments(input: KycSubmissionInput): Promise<{success: boolean}> {
+export async function submitKycDocuments(input: KycSubmissionInput): Promise<{success: boolean; error?: string}> {
   return kycSubmissionFlow(input);
 }
 
@@ -38,7 +38,7 @@ const kycSubmissionFlow = ai.defineFlow(
   {
     name: 'kycSubmissionFlow',
     inputSchema: KycSubmissionInputSchema,
-    outputSchema: z.object({ success: z.boolean() }),
+    outputSchema: z.object({ success: z.boolean(), error: z.string().optional() }),
   },
   async (input) => {
     // Log the full data for debugging/manual review, as data URIs are too large for email.
@@ -55,8 +55,9 @@ const kycSubmissionFlow = ai.defineFlow(
 
     // Send a notification email to the admin
     if (!ADMIN_EMAIL) {
-      console.error("MAILGUN_ADMIN_EMAIL is not set. Cannot send KYC notification email.");
-      return { success: false };
+      const error = "MAILGUN_ADMIN_EMAIL is not set. Cannot send KYC notification email.";
+      console.error(error);
+      return { success: false, error };
     }
 
     const emailSubject = `Nouvelle soumission KYC pour ${input.userName}`;
@@ -90,9 +91,9 @@ const kycSubmissionFlow = ai.defineFlow(
         text: emailText,
       });
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to send KYC email:", error);
-      return { success: false };
+      return { success: false, error: error.message || 'Failed to send KYC email' };
     }
   }
 );

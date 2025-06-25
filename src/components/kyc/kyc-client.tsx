@@ -86,7 +86,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
           convertFileToDataUri(selfie),
       ]);
 
-      await submitKycDocuments({
+      const result = await submitKycDocuments({
           userId: userProfile.uid,
           userName: `${userProfile.firstName} ${userProfile.lastName}`,
           userEmail: userProfile.email,
@@ -95,14 +95,18 @@ export function KycClient({ dict, lang }: KycClientProps) {
           selfieDataUri,
       });
       
+      if (!result.success) {
+        throw new Error(result.error || dict.submission_error_desc);
+      }
+      
       await updateKycStatus('pending');
       setStep(6);
-    } catch (error) {
+    } catch (error: any) {
       console.error("KYC Submission Error:", error);
       toast({
         variant: 'destructive',
         title: dict.submission_error,
-        description: dict.submission_error_desc,
+        description: error.message || dict.submission_error_desc,
       });
     } finally {
       setIsSubmitting(false);

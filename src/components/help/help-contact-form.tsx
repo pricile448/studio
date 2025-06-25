@@ -38,18 +38,18 @@ export function HelpContactForm({ dict }: { dict: any }) {
 
   async function onSubmit(data: z.infer<ReturnType<typeof contactFormSchema>>) {
     startTransition(async () => {
-        try {
-            await contactSupport(data);
+        const result = await contactSupport(data);
+        if (result.success) {
             toast({
                 title: dict.contactForm.successTitle,
                 description: dict.contactForm.successDescription,
             });
             form.reset();
-        } catch (error) {
+        } else {
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: dict.contactForm.errorDescription,
+                description: result.error || dict.contactForm.errorDescription,
             });
         }
     });
