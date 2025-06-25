@@ -12,9 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getDictionary } from '@/lib/get-dictionary';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription as ShadCardDescription, CardHeader as ShadCardHeader, CardTitle as ShadCardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export async function generateStaticParams() {
@@ -82,6 +82,10 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
               <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>Main navigation menu</SheetDescription>
+              </SheetHeader>
               <nav className="grid gap-6 text-lg font-medium p-6">
                 <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
                   <Logo text={dict.logo} />
@@ -116,10 +120,10 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
       <main className="flex-1 py-20 sm:py-32">
         <div className="container mx-auto px-4">
             <Card>
-                <CardHeader>
-                    <CardTitle className="text-3xl font-bold font-headline">{helpDict.faqTitle}</CardTitle>
-                    <CardDescription>{helpDict.faqDescription}</CardDescription>
-                </CardHeader>
+                <ShadCardHeader>
+                    <ShadCardTitle className="text-3xl font-bold font-headline">{helpDict.faqTitle}</ShadCardTitle>
+                    <ShadCardDescription>{helpDict.faqDescription}</ShadCardDescription>
+                </ShadCardHeader>
                 <CardContent>
                 <Accordion type="single" collapsible className="w-full">
                     {helpDict.faq.map((item, index) => (

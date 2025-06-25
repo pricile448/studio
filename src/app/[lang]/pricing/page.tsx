@@ -12,9 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getDictionary } from '@/lib/get-dictionary';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription as ShadCardDescription, CardFooter, CardHeader as ShadCardHeader, CardTitle as ShadCardTitle } from '@/components/ui/card';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -80,6 +80,10 @@ export default function PricingPage({ params }: { params: { lang: Locale } }) {
               <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>Main navigation menu</SheetDescription>
+              </SheetHeader>
               <nav className="grid gap-6 text-lg font-medium p-6">
                 <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
                   <Logo text={dict.logo} />
@@ -121,10 +125,10 @@ export default function PricingPage({ params }: { params: { lang: Locale } }) {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:items-start">
               {/* Account Card */}
               <Card className="flex flex-col shadow-lg">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl font-bold font-headline">{homeDict.pricingSection.account.title}</CardTitle>
-                  <CardDescription>{homeDict.pricingSection.account.description}</CardDescription>
-                </CardHeader>
+                <ShadCardHeader className="text-center">
+                  <ShadCardTitle className="text-2xl font-bold font-headline">{homeDict.pricingSection.account.title}</ShadCardTitle>
+                  <ShadCardDescription>{homeDict.pricingSection.account.description}</ShadCardDescription>
+                </ShadCardHeader>
                 <CardContent className="flex-1 space-y-4">
                   <ul className="space-y-3">
                     {homeDict.pricingSection.account.features.map((feature, index) => (
@@ -145,10 +149,10 @@ export default function PricingPage({ params }: { params: { lang: Locale } }) {
               
               {/* Bills Card */}
               <Card className="flex flex-col shadow-lg">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl font-bold font-headline">{homeDict.pricingSection.bills.title}</CardTitle>
-                  <CardDescription>{homeDict.pricingSection.bills.description}</CardDescription>
-                </CardHeader>
+                <ShadCardHeader className="text-center">
+                  <ShadCardTitle className="text-2xl font-bold font-headline">{homeDict.pricingSection.bills.title}</ShadCardTitle>
+                  <ShadCardDescription>{homeDict.pricingSection.bills.description}</ShadCardDescription>
+                </ShadCardHeader>
                 <CardContent className="flex-1 space-y-4">
                   <ul className="space-y-3">
                     {homeDict.pricingSection.bills.features.map((feature, index) => (

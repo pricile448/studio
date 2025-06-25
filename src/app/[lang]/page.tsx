@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getDictionary } from '@/lib/get-dictionary';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { HeroSlider } from '@/components/home/hero-slider';
@@ -95,6 +95,10 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
               <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>Main navigation menu</SheetDescription>
+              </SheetHeader>
               <nav className="grid gap-6 text-lg font-medium p-6">
                 <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
                   <Logo text={dict.logo} />
