@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Mailgun email sending service.
@@ -48,6 +49,11 @@ export async function sendEmail({to, subject, text, html}: EmailParams): Promise
     text,
     html,
   };
+  
+  // Log the data being sent for easier debugging
+  console.log('--- Sending email with data: ---');
+  console.log(JSON.stringify(messageData, null, 2));
+  console.log('---------------------------------');
 
   try {
     const result = await mg.messages.create(DOMAIN, messageData);
