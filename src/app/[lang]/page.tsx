@@ -156,12 +156,12 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
         <section id="partners" className="py-20 sm:py-32 bg-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
-            <div className="grid grid-cols-2 items-center justify-items-center gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-5">
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="Partner Logo 1" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Partner Logo 2" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Partner Logo 3" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Partner Logo 4" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="Partner Logo 5" className="max-h-12 w-full object-contain opacity-60 hover:opacity-100 transition-opacity" />
+            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 md:gap-x-16">
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="Partner Logo 1" className="h-12 w-auto object-contain opacity-60 transition-opacity hover:opacity-100" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Partner Logo 2" className="h-12 w-auto object-contain opacity-60 transition-opacity hover:opacity-100" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Partner Logo 3" className="h-12 w-auto object-contain opacity-60 transition-opacity hover:opacity-100" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Partner Logo 4" className="h-12 w-auto object-contain opacity-60 transition-opacity hover:opacity-100" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="Partner Logo 5" className="h-12 w-auto object-contain opacity-60 transition-opacity hover:opacity-100" />
             </div>
              <div className="mt-16 max-w-3xl mx-auto">
                 <h3 className="text-xl font-semibold">{homeDict.partnersSection.invitation}</h3>
