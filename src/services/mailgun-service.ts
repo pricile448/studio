@@ -43,7 +43,7 @@ export async function sendEmail({to, subject, text, html}: EmailParams): Promise
   }
 
   const messageData = {
-    from: `Mailgun Sandbox <${FROM_EMAIL}>`,
+    from: FROM_EMAIL, // Use the FROM_EMAIL directly from .env
     to,
     subject,
     text,
