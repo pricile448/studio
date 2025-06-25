@@ -5,7 +5,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData } from '@/lib/firebase/firestore';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import type { Locale } from '@/lib/dictionaries';
 import { serverTimestamp } from 'firebase/firestore';
 
@@ -14,9 +14,9 @@ type AuthContextType = {
   userProfile: UserProfile | null;
   loading: boolean;
   isLoggingOut: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, lang: Locale) => Promise<void>;
   signup: (userData: RegistrationData, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (lang: Locale) => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
@@ -33,8 +33,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
-  const lang = (pathname.split('/')[1] as Locale) || 'fr';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -50,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, lang: Locale) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     if (!userCredential.user.emailVerified) {
         await signOut(auth);
@@ -96,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const logout = async () => {
+  const logout = async (lang: Locale) => {
     setIsLoggingOut(true);
     await signOut(auth);
     window.location.href = `/${lang}`;

@@ -19,7 +19,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usePathname } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -28,9 +27,8 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
-  const pathname = usePathname();
-  const lang = pathname.split('/')[1] as Locale;
+export default function LoginPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { login } = useAuth();
   const { toast } = useToast();
@@ -51,7 +49,7 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setIsSubmitting(true);
     try {
-      await login(values.email, values.password);
+      await login(values.email, values.password, lang);
     } catch (error: any) {
       const loginDict = dict?.login;
       let description = 'An unexpected error occurred.';

@@ -21,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -48,9 +48,8 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 
-export default function RegisterPage() {
-  const pathname = usePathname();
-  const lang = pathname.split('/')[1] as Locale;
+export default function RegisterPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
   const [dict, setDict] = useState<Dictionary | null>(null);
   const { signup } = useAuth();
   const { toast } = useToast();

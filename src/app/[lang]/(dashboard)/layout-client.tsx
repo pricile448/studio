@@ -141,7 +141,7 @@ export function DashboardLayoutClient({
             </div>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton onClick={() => logout()} size="lg" tooltip={dict.sidebar.userMenu.logout}>
+                    <SidebarMenuButton onClick={() => logout(lang)} size="lg" tooltip={dict.sidebar.userMenu.logout}>
                         <LogOut />
                         <span>{dict.sidebar.userMenu.logout}</span>
                     </SidebarMenuButton>

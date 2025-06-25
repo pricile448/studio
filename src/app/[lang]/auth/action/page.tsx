@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { applyActionCode } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useAuth } from '@/context/auth-context';
@@ -22,13 +22,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { MailCheck, MailWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function AuthActionPage() {
+export default function AuthActionPage({ params }: { params: { lang: Locale } }) {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { logout } = useAuth();
   
-  const lang = (pathname.split('/')[1] as Locale) || 'fr';
+  const { lang } = params;
   const [dict, setDict] = useState<Dictionary | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -69,7 +68,7 @@ export default function AuthActionPage() {
   };
   
   const handleProceedToLogin = async () => {
-    await logout(); // This will also redirect to the login page
+    await logout(lang); // This will also redirect to the login page
   };
 
   const renderContent = () => {
