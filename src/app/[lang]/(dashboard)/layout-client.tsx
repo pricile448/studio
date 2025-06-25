@@ -71,6 +71,10 @@ export function DashboardLayoutClient({
 
   const [selectedNotification, setSelectedNotification] = useState<(typeof mockNotifications)[0] | null>(null);
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = `/${lang}/login`;
+  };
 
   useEffect(() => {
     if (loading || isLoggingOut) return;
@@ -141,7 +145,7 @@ export function DashboardLayoutClient({
             </div>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton onClick={() => logout(lang)} size="lg" tooltip={dict.sidebar.userMenu.logout}>
+                    <SidebarMenuButton onClick={handleLogout} size="lg" tooltip={dict.sidebar.userMenu.logout}>
                         <LogOut />
                         <span>{dict.sidebar.userMenu.logout}</span>
                     </SidebarMenuButton>

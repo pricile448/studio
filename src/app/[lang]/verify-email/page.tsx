@@ -56,6 +56,11 @@ export default function VerifyEmailPage({ params }: { params: { lang: Locale } }
     }
   }
 
+  const handleLogout = async () => {
+    await logout();
+    router.push(`/${lang}/login`);
+  }
+
   if (loading || !dict || !user) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
@@ -96,7 +101,7 @@ export default function VerifyEmailPage({ params }: { params: { lang: Locale } }
             {verifyDict.resendButton}
           </Button>
            <Button variant="link" asChild>
-                <Link href="#" onClick={(e) => { e.preventDefault(); logout(lang); }}>
+                <Link href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>
                    {verifyDict.backToLogin}
                 </Link>
             </Button>

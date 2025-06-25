@@ -68,7 +68,8 @@ export default function AuthActionPage({ params }: { params: { lang: Locale } })
   };
   
   const handleProceedToLogin = async () => {
-    await logout(lang); // This will also redirect to the login page
+    await logout();
+    router.push(`/${lang}/login`);
   };
 
   const renderContent = () => {

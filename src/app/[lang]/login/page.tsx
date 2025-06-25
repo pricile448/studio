@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -33,6 +34,7 @@ export default function LoginPage({ params }: { params: { lang: Locale } }) {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     getDictionary(lang).then(setDict);
@@ -49,7 +51,9 @@ export default function LoginPage({ params }: { params: { lang: Locale } }) {
   const onSubmit = async (values: LoginFormValues) => {
     setIsSubmitting(true);
     try {
-      await login(values.email, values.password, lang);
+      await login(values.email, values.password);
+      router.push(`/${lang}/dashboard`);
+      router.refresh();
     } catch (error: any) {
       const loginDict = dict?.login;
       let description = 'An unexpected error occurred.';

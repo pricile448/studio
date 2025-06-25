@@ -2,11 +2,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword } from 'firebase/auth';
+import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData } from '@/lib/firebase/firestore';
-import { useRouter } from 'next/navigation';
-import type { Locale } from '@/lib/dictionaries';
 import { serverTimestamp } from 'firebase/firestore';
 
 type AuthContextType = {
@@ -14,9 +12,9 @@ type AuthContextType = {
   userProfile: UserProfile | null;
   loading: boolean;
   isLoggingOut: boolean;
-  login: (email: string, password: string, lang: Locale) => Promise<void>;
+  login: (email: string, password: string) => Promise<UserCredential>;
   signup: (userData: RegistrationData, password: string) => Promise<void>;
-  logout: (lang: Locale) => Promise<void>;
+  logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
@@ -32,7 +30,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -48,14 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string, lang: Locale) => {
+  const login = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     if (!userCredential.user.emailVerified) {
         await signOut(auth);
         throw new Error('auth/email-not-verified');
     }
-    router.push(`/${lang}/dashboard`);
-    router.refresh();
+    return userCredential;
   };
 
   const signup = async (userData: RegistrationData, password: string) => {
@@ -94,10 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const logout = async (lang: Locale) => {
+  const logout = async () => {
     setIsLoggingOut(true);
     await signOut(auth);
-    window.location.href = `/${lang}`;
   };
 
   const updateUserProfileData = async (data: Partial<UserProfile>) => {
