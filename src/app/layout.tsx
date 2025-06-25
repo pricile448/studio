@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     // The lang attribute is static here, which is a compromise to fix the build.
     // The app's i18n functionality is primarily driven by the URL path.
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
