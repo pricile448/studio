@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Mailgun email sending service.
@@ -14,13 +13,11 @@ const mailgun = new Mailgun(formData);
 const API_KEY = process.env.MAILGUN_API_KEY;
 const DOMAIN = process.env.MAILGUN_DOMAIN;
 const FROM_EMAIL = process.env.MAILGUN_FROM_EMAIL;
-const API_HOST = process.env.MAILGUN_API_HOST; // e.g. 'https://api.eu.mailgun.net' for EU region
+const API_HOST = process.env.MAILGUN_API_HOST; // e.g., 'https://api.eu.mailgun.net' for EU region
 
-// For sandbox domains, FROM_EMAIL is not required as it's constructed automatically.
-const isSandbox = DOMAIN?.startsWith('sandbox');
-if (!API_KEY || !DOMAIN || (!FROM_EMAIL && !isSandbox)) {
+if (!API_KEY || !DOMAIN || !FROM_EMAIL) {
   console.warn(
-    'Mailgun environment variables (MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM_EMAIL for non-sandbox) are not set. Email functionality will be disabled.'
+    'Mailgun environment variables (MAILGUN_API_KEY, MAILGUN_DOMAIN, MAILGUN_FROM_EMAIL) are not fully set. Email functionality will be disabled.'
   );
 }
 
@@ -38,25 +35,14 @@ interface EmailParams {
 }
 
 export async function sendEmail({to, subject, text, html}: EmailParams): Promise<void> {
-  if (!mg || !DOMAIN) {
-    console.error('Mailgun client not initialized. Cannot send email.');
-    throw new Error('Mailgun client not initialized. Check server environment variables.');
-  }
-  
-  // For sandbox domains, Mailgun requires a very specific "from" format which we can construct automatically.
-  // For custom domains, we use the FROM_EMAIL from the environment variables.
-  const fromAddress = isSandbox
-    ? `Mailgun Sandbox <postmaster@${DOMAIN}>`
-    : FROM_EMAIL;
-
-  if (!fromAddress) {
-    const errorMsg = 'Mailgun "from" address is not configured. For non-sandbox domains, set MAILGUN_FROM_EMAIL in your .env file.';
+  if (!mg || !DOMAIN || !FROM_EMAIL) {
+    const errorMsg = 'Mailgun client not initialized. Check server environment variables: MAILGUN_API_KEY, MAILGUN_DOMAIN, and MAILGUN_FROM_EMAIL must be set.';
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
 
   const messageData = {
-    from: fromAddress,
+    from: FROM_EMAIL, // Directly use the variable from .env
     to,
     subject,
     text,
