@@ -42,7 +42,7 @@ const accountNavItems = [
 
 const otherNavItems = [
     { href: '/settings', icon: Settings, labelKey: 'settings' },
-    { href: '/help', icon: HelpCircle, labelKey: 'help' },
+    { href: '/support', icon: HelpCircle, labelKey: 'help' },
     { href: '/more', icon: FileText, labelKey: 'documents' },
 ] as const
 
