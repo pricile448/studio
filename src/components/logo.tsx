@@ -10,7 +10,7 @@ interface LogoProps {
 export function Logo({ text, className }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-       <div className="bg-[#17E0E0] text-black p-1.5 rounded-lg">
+       <div className="bg-[#C4C4C4] text-black p-1.5 rounded-lg">
         <Banknote className="h-5 w-5" />
        </div>
     </div>
