@@ -36,6 +36,33 @@
                 "cta": "Ver recursos de IA"
             }
         },
+        "pricingSection": {
+            "title": "Ofertas claras para todas as suas necessidades",
+            "account": {
+                "title": "Conta e Cartão AmCbunq",
+                "description": "A conta do dia a dia para acompanhar as suas despesas e simplificar a gestão do seu orçamento.",
+                "features": [
+                    "Pague as suas contas com cartão",
+                    "Gerencie o seu orçamento",
+                    "Cartão Visa Internacional",
+                    "Cartões virtuais para compras online",
+                    "Depósitos e levantamentos em dinheiro em pontos de venda",
+                    "Cashback automático nas suas compras"
+                ],
+                "price": "2,99 €/mês",
+                "cta": "Abrir uma conta"
+            },
+            "bills": {
+                "title": "Contas AmCbunq",
+                "description": "Controle o seu orçamento, decida quando e como pagar as suas despesas com os nossos serviços.",
+                "features": [
+                    "Pagamento de contas em dinheiro",
+                    "Pagamento das suas contas com cartão"
+                ],
+                "price": "Grátis",
+                "cta": "Baixar o aplicativo"
+            }
+        },
         "footer": {
             "legal": "Aviso Legal",
             "copyright": "© 2024 AmCbunq. Todos os direitos reservados."

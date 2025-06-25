@@ -36,6 +36,33 @@
                 "cta": "See AI features"
             }
         },
+        "pricingSection": {
+            "title": "Clear offers for all your needs",
+            "account": {
+                "title": "AmCbunq Account & Card",
+                "description": "The everyday account to track your expenses and simplify your budget management.",
+                "features": [
+                    "Pay your bills by card",
+                    "Manage your budget",
+                    "International Visa Card",
+                    "Virtual cards for online shopping",
+                    "Cash deposits and withdrawals at points of sale",
+                    "Automatic cashback on your purchases"
+                ],
+                "price": "€2.99/month",
+                "cta": "Open an account"
+            },
+            "bills": {
+                "title": "AmCbunq Bills",
+                "description": "Control your budget, decide when and how to pay your expenses with our services.",
+                "features": [
+                    "Payment of bills in cash",
+                    "Payment of your bills by card"
+                ],
+                "price": "Free",
+                "cta": "Download the app"
+            }
+        },
         "footer": {
             "legal": "Legal Notice",
             "copyright": "© 2024 AmCbunq. All rights reserved."

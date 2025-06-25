@@ -36,6 +36,33 @@
                 "cta": "KI-Funktionen ansehen"
             }
         },
+        "pricingSection": {
+            "title": "Klare Angebote für alle Ihre Bedürfnisse",
+            "account": {
+                "title": "AmCbunq Konto & Karte",
+                "description": "Das Alltagskonto, um Ihre Ausgaben zu verfolgen und Ihre Budgetverwaltung zu vereinfachen.",
+                "features": [
+                    "Bezahlen Sie Ihre Rechnungen per Karte",
+                    "Verwalten Sie Ihr Budget",
+                    "Internationale Visa-Karte",
+                    "Virtuelle Karten für Online-Einkäufe",
+                    "Bareinzahlungen und -abhebungen an Verkaufsstellen",
+                    "Automatisches Cashback auf Ihre Einkäufe"
+                ],
+                "price": "2,99 €/Monat",
+                "cta": "Konto eröffnen"
+            },
+            "bills": {
+                "title": "AmCbunq Rechnungen",
+                "description": "Kontrollieren Sie Ihr Budget, entscheiden Sie, wann und wie Sie Ihre Ausgaben mit unseren Diensten bezahlen.",
+                "features": [
+                    "Bezahlung von Rechnungen in bar",
+                    "Bezahlung Ihrer Rechnungen per Karte"
+                ],
+                "price": "Kostenlos",
+                "cta": "App herunterladen"
+            }
+        },
         "footer": {
             "legal": "Impressum",
             "copyright": "© 2024 AmCbunq. Alle Rechte vorbehalten."

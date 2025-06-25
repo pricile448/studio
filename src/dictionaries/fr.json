@@ -36,6 +36,33 @@
                 "cta": "Voir les fonctionnalités IA"
             }
         },
+        "pricingSection": {
+            "title": "Des offres claires pour tous vos besoins",
+            "account": {
+                "title": "Compte et Carte AmCbunq",
+                "description": "Le compte du quotidien pour suivre vos dépenses et simplifier la gestion de votre budget.",
+                "features": [
+                    "Paiement de vos factures par carte",
+                    "Gestion de votre budget",
+                    "Carte Visa internationale",
+                    "Cartes virtuelles pour les achats en ligne",
+                    "Dépôts et retraits d'espèces en points de vente",
+                    "Cashback automatique sur vos achats"
+                ],
+                "price": "2,99 €/mois",
+                "cta": "Ouvrir un compte"
+            },
+            "bills": {
+                "title": "AmCbunq Factures",
+                "description": "Maîtrisez votre budget, décidez quand et comment régler vos dépenses grâce à nos services.",
+                "features": [
+                    "Paiement des factures en espèces",
+                    "Paiement de vos factures par carte"
+                ],
+                "price": "Gratuit",
+                "cta": "Télécharger l'app"
+            }
+        },
         "footer": {
             "legal": "Mentions Légales",
             "copyright": "© 2024 AmCbunq. Tous droits réservés."

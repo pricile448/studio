@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Globe, Menu, MoveRight } from 'lucide-react';
+import { Globe, Menu, MoveRight, CheckCircle } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
 import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -25,8 +25,9 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
   const homeDict = dict.homePage;
 
   const navLinks = [
+    { href: `/${params.lang}`, label: homeDict.nav.home },
     { href: '#features', label: homeDict.nav.features },
-    { href: '#', label: homeDict.nav.pricing },
+    { href: '#pricing', label: homeDict.nav.pricing },
     { href: `/${params.lang}/help`, label: homeDict.nav.help },
   ];
 
@@ -176,6 +177,64 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
                     <Link href={`/${params.lang}/help`}>{homeDict.featuresSection.feature3.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-20 sm:py-32">
+          <div className="container mx-auto px-4">
+            <div className="mb-12 text-center">
+              <h2 className="text-3xl font-bold font-headline">{homeDict.pricingSection.title}</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:items-start">
+              {/* Account Card */}
+              <Card className="flex flex-col shadow-lg">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold font-headline">{homeDict.pricingSection.account.title}</CardTitle>
+                  <CardDescription>{homeDict.pricingSection.account.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-4">
+                  <ul className="space-y-3">
+                    {homeDict.pricingSection.account.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="flex-col items-center gap-4 pt-6">
+                  <p className="text-4xl font-bold text-primary">{homeDict.pricingSection.account.price}</p>
+                  <Button size="lg" className="w-full" asChild>
+                     <Link href={`/${params.lang}/register`}>{homeDict.pricingSection.account.cta}</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {/* Bills Card */}
+              <Card className="flex flex-col shadow-lg">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold font-headline">{homeDict.pricingSection.bills.title}</CardTitle>
+                  <CardDescription>{homeDict.pricingSection.bills.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-4">
+                  <ul className="space-y-3">
+                    {homeDict.pricingSection.bills.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="flex-col items-center gap-4 pt-6">
+                  <p className="text-4xl font-bold text-primary">{homeDict.pricingSection.bills.price}</p>
+                  <Button size="lg" className="w-full" asChild>
+                    <Link href={`/${params.lang}/register`}>{homeDict.pricingSection.bills.cta}</Link>
+                  </Button>
+                </CardFooter>
               </Card>
             </div>
           </div>
