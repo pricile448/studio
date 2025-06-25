@@ -1,4 +1,5 @@
-// This file is intentionally left blank to resolve a route conflict.
-// The public help page has been moved to /faq.
-// The authenticated help page exists at /app/[lang]/(dashboard)/help/page.tsx.
-export {};
+// This file is a workaround for a build issue.
+// It is intentionally minimal to avoid conflicts with the dashboard's help page.
+export default function HelpPage() {
+  return null;
+}
