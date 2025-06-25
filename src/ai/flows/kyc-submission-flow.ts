@@ -34,8 +34,6 @@ export async function submitKycDocuments(input: KycSubmissionInput): Promise<{su
 }
 
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
-const CLOUDINARY_CONFIGURED = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
-
 
 const kycSubmissionFlow = ai.defineFlow(
   {
@@ -48,12 +46,6 @@ const kycSubmissionFlow = ai.defineFlow(
         const error = "MAILGUN_ADMIN_EMAIL is not set. Cannot send KYC notification email.";
         console.error(error);
         return { success: false, error };
-    }
-
-    if (!CLOUDINARY_CONFIGURED) {
-      const error = "Cloudinary environment variables are not set. Cannot upload KYC documents.";
-      console.error(error);
-      return { success: false, error };
     }
 
     let idDocumentUrl, proofOfAddressUrl, selfieUrl;
