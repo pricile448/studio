@@ -16,7 +16,6 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnimatedFeatures } from '@/components/home/animated-features';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -151,7 +150,14 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
               </div>
             </div>
             <div className="flex justify-center items-center">
-              <AnimatedFeatures dict={dict} />
+               <Image
+                    src="https://placehold.co/800x500.png"
+                    width={800}
+                    height={500}
+                    alt="Application showcase"
+                    data-ai-hint="banking app interface"
+                    className="rounded-xl shadow-2xl"
+                />
             </div>
           </div>
         </section>
