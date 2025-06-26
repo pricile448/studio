@@ -181,7 +181,7 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
               </Card>
                <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750895457/IMM_tnsztj.jpg" width={600} height={400} alt="Payment Cards" className="mb-4 rounded-lg" data-ai-hint="payment card" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750904313/idrg_kigadm.png" width={600} height={400} alt="Payment Cards" className="mb-4 rounded-lg" data-ai-hint="payment card" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature2.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature2.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
