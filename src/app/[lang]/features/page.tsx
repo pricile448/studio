@@ -77,9 +77,9 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {langLinks.map(({ lang, label, flag }) => (
-                <DropdownMenuItem key={lang} asChild>
-                  <Link href={`/en/features`} className="flex items-center gap-2">
+              {langLinks.map(({ lang: linkLang, label, flag }) => (
+                <DropdownMenuItem key={linkLang} asChild>
+                  <Link href={`/${linkLang}/features`} className="flex items-center gap-2">
                     {flag}
                     <span>{label}</span>
                   </Link>
@@ -93,37 +93,42 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
-                 <SheetTitle className="sr-only">Menu</SheetTitle>
+            <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0">
+              <SheetHeader className="p-6 pb-4 border-b">
+                 <SheetTitle asChild>
+                    <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
+                      <Logo text={dict.logo} />
+                      <span>{dict.logo}</span>
+                    </Link>
+                 </SheetTitle>
                  <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
               </SheetHeader>
-              <nav className="grid gap-6 text-lg font-medium p-6">
-                <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
-                  <Logo text={dict.logo} />
-                  <span>{dict.logo}</span>
-                </Link>
-                {navLinks.map((link) => (
-                  <Link key={link.href} href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
-                    {link.label}
-                  </Link>
-                ))}
-                <Separator className="my-4" />
-                <div className="flex flex-col gap-4">
-                  <Button variant="outline" asChild><Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link></Button>
-                  <Button asChild><Link href={`/${params.lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
-                </div>
-                <Separator className="my-4" />
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm text-muted-foreground">{dict.settings.appearance.language}</p>
-                   {langLinks.map(({ lang, label, flag }) => (
-                      <Link key={lang} href={`/${lang}/features`} className="text-muted-foreground transition-colors hover:text-foreground flex items-center gap-2">
-                        {flag}
-                        <span>{label}</span>
+              <div className="p-6 space-y-6">
+                  <nav className="grid gap-4 text-base font-medium">
+                    {navLinks.map((link) => (
+                      <Link key={link.href} href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                        {link.label}
                       </Link>
                     ))}
-                </div>
-              </nav>
+                  </nav>
+                  <Separator />
+                  <div className="grid gap-2">
+                    <Button variant="outline" asChild className="w-full"><Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link></Button>
+                    <Button asChild className="w-full"><Link href={`/${params.lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
+                  </div>
+                  <Separator />
+                  <div className="grid gap-4">
+                    <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.language}</p>
+                    <nav className="grid gap-3">
+                        {langLinks.map(({ lang: linkLang, label, flag }) => (
+                            <Link key={linkLang} href={`/${linkLang}/features`} className="text-muted-foreground transition-colors hover:text-foreground flex items-center gap-2 text-base">
+                                {flag}
+                                <span>{label}</span>
+                            </Link>
+                        ))}
+                    </nav>
+                  </div>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
@@ -140,7 +145,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750894509/im_zgycci.png" width={600} height={400} alt="Budgeting App" className="mb-4 rounded-lg" data-ai-hint="budgeting app" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750894509/im_zgycci.png" width={600} height={400} alt="Budgeting App" className="mb-4 rounded-lg transition-transform duration-300 hover:scale-105" data-ai-hint="budgeting app" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature1.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature1.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
@@ -150,7 +155,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
               </Card>
                <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750904313/idrg_kigadm.png" width={600} height={400} alt="Payment Cards" className="mb-4 rounded-lg" data-ai-hint="payment card" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750904313/idrg_kigadm.png" width={600} height={400} alt="Payment Cards" className="mb-4 rounded-lg transition-transform duration-300 hover:scale-105" data-ai-hint="payment card" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature2.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature2.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
@@ -160,7 +165,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
               </Card>
               <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750897367/IM_5_xfdv9p.png" width={600} height={400} alt="AI Assistant" className="mb-4 rounded-lg" data-ai-hint="finance app" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750897367/IM_5_xfdv9p.png" width={600} height={400} alt="AI Assistant" className="mb-4 rounded-lg transition-transform duration-300 hover:scale-105" data-ai-hint="finance app" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature3.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature3.description}</p>
                    <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
