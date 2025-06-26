@@ -111,7 +111,7 @@ export function DashboardLayoutClient({
   return (
     <SidebarProvider key={lang}>
       <Sidebar>
-        <SidebarHeader className="bg-sidebar">
+        <SidebarHeader>
           <div className="flex items-center gap-2">
             <Logo text={dict.logo} />
             <h1 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
@@ -124,7 +124,7 @@ export function DashboardLayoutClient({
         </SidebarContent>
         <SidebarFooter>
             <div className="flex flex-col gap-2 p-2">
-                <Separator className="mb-2 bg-sidebar-border" />
+                <Separator className="mb-2 bg-primary-foreground/20" />
                 <div className="flex items-center gap-3">
                     <div className="relative">
                         <Avatar className="h-9 w-9">
@@ -132,15 +132,15 @@ export function DashboardLayoutClient({
                             <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                         {userProfile.kycStatus === 'verified' && (
-                            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar-background" />
+                            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-primary" />
                         )}
                     </div>
                     <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                        <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
+                        <span className="text-sm font-semibold text-primary-foreground truncate">{displayName}</span>
                         {userProfile.kycStatus === 'verified' ? (
                             <span className="text-xs text-green-400">{dict.sidebar.verified}</span>
                         ) : (
-                            <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
+                            <span className="text-xs text-primary-foreground/70 truncate">{dict.sidebar.unverified}</span>
                         )}
                     </div>
                 </div>

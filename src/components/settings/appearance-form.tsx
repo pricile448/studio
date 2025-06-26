@@ -15,11 +15,11 @@ interface AppearanceFormProps {
 }
 
 export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
-  const [theme, setTheme] = useState('system');
+  const [theme, setTheme] = useState('light');
   const pathname = usePathname();
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme') || 'system';
+    const storedTheme = localStorage.getItem('theme') || 'light';
     setTheme(storedTheme);
     if (storedTheme === 'dark' || (storedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
