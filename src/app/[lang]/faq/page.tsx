@@ -129,6 +129,11 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
                         ))}
                     </nav>
                   </div>
+                   <Separator />
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.theme}</p>
+                        <ThemeToggleButton />
+                    </div>
               </div>
             </SheetContent>
           </Sheet>
