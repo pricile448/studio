@@ -151,11 +151,11 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             </div>
             <div className="flex justify-center items-center">
                <Image
-                    src="https://placehold.co/800x500.png"
+                    src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750899643/imd_esmugj.png"
                     width={800}
                     height={500}
                     alt="Application showcase"
-                    data-ai-hint="banking app interface"
+                    data-ai-hint="woman phone"
                     className="rounded-xl shadow-2xl"
                 />
             </div>
