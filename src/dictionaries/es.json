@@ -71,6 +71,12 @@
         "footer": {
             "legal": "Aviso Legal",
             "copyright": "© 2024 AmCbunq. Todos los derechos reservados."
+        },
+        "animatedFeatures": {
+            "mainAccount": "Cuenta Principal",
+            "savings": "Ahorro Express",
+            "stocks": "Acciones y ETF",
+            "crypto": "Cripto"
         }
     },
     "login": {

@@ -16,7 +16,7 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { HeroSlider } from '@/components/home/hero-slider';
+import { AnimatedFeatures } from '@/components/home/animated-features';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -34,19 +34,6 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
     { href: `/${params.lang}/faq`, label: homeDict.nav.help },
   ];
   
-  const heroImages = [
-    { 
-      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750876974/img_2_vxpw8l.png',
-      alt: 'Banking app on a phone',
-      hint: 'mobile banking'
-    },
-    { 
-      src: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750877183/img_4_lcvjtq.png',
-      alt: 'Payment card and phone',
-      hint: 'contactless payment'
-    }
-  ];
-
   const langLinks = [
     { lang: 'en' as Locale, label: 'English', flag: <svg width="20" height="15" viewBox="0 0 20 15"><rect width="20" height="15" fill="#012169"/><path d="M0,0L20,15M20,0L0,15" stroke="#fff" strokeWidth="3"/><path d="M0,0L20,15M20,0L0,15" stroke="#C8102E" strokeWidth="2"/><path d="M10,0V15M0,7.5H20" stroke="#fff" strokeWidth="5"/><path d="M10,0V15M0,7.5H20" stroke="#C8102E" strokeWidth="3"/></svg> },
     { lang: 'fr' as Locale, label: 'Français', flag: <svg width="20" height="15" viewBox="0 0 3 2"><path fill="#002395" d="M0 0h1v2H0z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#ED2939" d="M2 0h1v2H2z"/></svg> },
@@ -163,8 +150,8 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
                 </Button>
               </div>
             </div>
-            <div className="flex justify-center">
-              <HeroSlider images={heroImages} />
+            <div className="flex justify-center items-center">
+              <AnimatedFeatures dict={dict} />
             </div>
           </div>
         </section>
