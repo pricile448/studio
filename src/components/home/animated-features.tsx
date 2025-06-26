@@ -58,7 +58,7 @@ export function AnimatedFeatures({ dict }: AnimatedFeaturesProps) {
     return (
         <div className="relative h-[320px] sm:h-[400px] lg:h-[450px] w-[300px] sm:w-[350px] lg:w-[400px] mx-auto">
             <Image
-                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750514863/img.amc_an0p8c.png"
+                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750876974/img_2_vxpw8l.png"
                 alt="Woman using her banking app"
                 width={500}
                 height={700}
