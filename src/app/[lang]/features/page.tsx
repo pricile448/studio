@@ -158,7 +158,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
               </Card>
               <Card className="flex flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750879373/img_5_vtwsf6.png" width={600} height={400} alt="AI Assistant" className="mb-4 rounded-lg" data-ai-hint="finance app" />
+                  <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750897367/IM_5_xfdv9p.png" width={600} height={400} alt="AI Assistant" className="mb-4 rounded-lg" data-ai-hint="finance app" />
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature3.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature3.description}</p>
                    <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
