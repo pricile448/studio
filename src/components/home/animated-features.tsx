@@ -20,30 +20,30 @@ const icons = {
     )
 };
 
-// Repositioned features for better aesthetics and to avoid overlap
+// Repositioned features for a horizontal layout
 const features = [
     {
         iconKey: "mainAccount" as const,
         textKey: "mainAccount" as const,
-        position: "top-8 -left-4 sm:top-12 sm:-left-8",
+        position: "top-6 -left-4 sm:top-8 sm:-left-12",
         delay: "0s"
     },
     {
         iconKey: "savings" as const,
         textKey: "savings" as const,
-        position: "bottom-12 -left-8 sm:bottom-16 sm:-left-12",
+        position: "bottom-6 -left-8 sm:bottom-8 sm:-left-16",
         delay: "0.2s"
     },
     {
         iconKey: "stocks" as const,
         textKey: "stocks" as const,
-        position: "top-16 -right-4 sm:top-24 sm:-right-8",
+        position: "top-10 -right-8 sm:top-12 sm:-right-14",
         delay: "0.4s"
     },
     {
         iconKey: "crypto" as const,
         textKey: "crypto" as const,
-        position: "bottom-24 -right-2 sm:bottom-28 sm:-right-6",
+        position: "bottom-10 -right-2 sm:bottom-12 sm:-right-8",
         delay: "0.6s"
     }
 ];
@@ -56,7 +56,7 @@ export function AnimatedFeatures({ dict }: AnimatedFeaturesProps) {
     const featureDict = dict.homePage.animatedFeatures;
 
     return (
-        <div className="relative h-[320px] w-[280px] sm:h-[400px] sm:w-[320px] lg:h-[450px] lg:w-[350px] mx-auto">
+        <div className="relative h-[320px] w-[300px] sm:h-[350px] sm:w-[420px] lg:h-[400px] lg:w-[480px] mx-auto">
             <Image
                 src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750899643/imd_esmugj.png"
                 alt="Man using his banking app"
