@@ -45,9 +45,9 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
   ];
   
   const testimonials = [
-    { ...homeDict.testimonialsSection.testimonial1, hint: "woman portrait" },
-    { ...homeDict.testimonialsSection.testimonial2, hint: "man portrait" },
-    { ...homeDict.testimonialsSection.testimonial3, hint: "woman smiling" }
+    { ...homeDict.testimonialsSection.testimonial1, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_-_Copie_yosxfs.png", hint: "woman portrait" },
+    { ...homeDict.testimonialsSection.testimonial2, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_gwigvs.png", hint: "man portrait" },
+    { ...homeDict.testimonialsSection.testimonial3, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_-_Copie_2_yilnmp.png", hint: "woman smiling" }
   ];
 
 
