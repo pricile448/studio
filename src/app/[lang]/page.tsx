@@ -151,7 +151,7 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             </div>
             <div className="flex justify-center items-center">
                <Image
-                    src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750899643/imd_esmugj.png"
+                    src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750903314/imd_esmugj.png"
                     width={800}
                     height={500}
                     alt="Application showcase"
