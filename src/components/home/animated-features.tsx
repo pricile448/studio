@@ -56,12 +56,12 @@ export function AnimatedFeatures({ dict }: AnimatedFeaturesProps) {
     return (
         <div className="relative h-[320px] sm:h-[400px] lg:h-[450px] w-[300px] sm:w-[350px] lg:w-[400px] mx-auto">
             <Image
-                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751047808/hero-image_y2tgaz.png"
-                alt="Woman using her banking app on a park bench"
+                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750514863/img.amc_an0p8c.png"
+                alt="Woman using her banking app"
                 width={500}
                 height={700}
                 priority
-                data-ai-hint="woman banking phone park"
+                data-ai-hint="woman banking"
                 className="object-cover h-full w-full rounded-xl shadow-2xl"
             />
             {features.map((feature) => {
