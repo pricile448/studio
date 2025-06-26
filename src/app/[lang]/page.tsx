@@ -171,11 +171,11 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             </div>
             <div className="flex justify-center items-center">
                <Image
-                    src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750904619/imd_esmugj.png"
+                    src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
                     width={800}
                     height={500}
                     alt="Application showcase"
-                    data-ai-hint="woman phone"
+                    data-ai-hint="credit card"
                     className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
                 />
             </div>
