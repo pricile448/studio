@@ -41,7 +41,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Bell, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 
 export function DashboardLayoutClient({
   children,
@@ -123,31 +122,28 @@ export function DashboardLayoutClient({
           <SidebarNav lang={lang} dict={dict} />
         </SidebarContent>
         <SidebarFooter>
-            <div className="flex flex-col gap-2 p-2">
-                <Separator className="mb-2 bg-sidebar-border" />
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <Avatar className="h-9 w-9">
-                            <AvatarImage src={user.photoURL || ""} alt={displayName} />
-                            <AvatarFallback>{initials}</AvatarFallback>
-                        </Avatar>
-                        {userProfile.kycStatus === 'verified' && (
-                            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar-background" />
-                        )}
-                    </div>
-                    <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                        <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
-                        {userProfile.kycStatus === 'verified' ? (
-                            <span className="text-xs text-green-400">{dict.sidebar.verified}</span>
-                        ) : (
-                            <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
-                        )}
-                    </div>
+            <div className="flex items-center gap-3 p-2">
+                <div className="relative">
+                    <Avatar className="h-9 w-9">
+                        <AvatarImage src={user.photoURL || ""} alt={displayName} />
+                        <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    {userProfile.kycStatus === 'verified' && (
+                        <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar" />
+                    )}
+                </div>
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                    <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
+                    {userProfile.kycStatus === 'verified' ? (
+                        <span className="text-xs text-green-400">{dict.sidebar.verified}</span>
+                    ) : (
+                        <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
+                    )}
                 </div>
             </div>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleLogout} size="lg" tooltip={dict.sidebar.userMenu.logout}>
+                    <SidebarMenuButton onClick={handleLogout} tooltip={dict.sidebar.userMenu.logout}>
                         <LogOut />
                         <span>{dict.sidebar.userMenu.logout}</span>
                     </SidebarMenuButton>
