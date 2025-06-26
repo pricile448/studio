@@ -63,6 +63,27 @@
                 "cta": "Descargar la aplicación"
             }
         },
+        "testimonialsSection": {
+            "title": "Lo que dicen nuestros clientes",
+            "testimonial1": {
+                "quote": "AmCbunq ha transformado la forma en que gestiono mis finanzas. Es simple, intuitivo e increíblemente potente. ¡No podría vivir sin él!",
+                "name": "Sophie Dubois",
+                "role": "Gerente de Proyectos",
+                "avatar": "https://placehold.co/100x100.png"
+            },
+            "testimonial2": {
+                "quote": "La seguridad es mi prioridad número uno, y AmCbunq se la toma muy en serio. Me siento completamente seguro gestionando todas mis transacciones.",
+                "name": "Marc Lemaître",
+                "role": "Desarrollador Freelance",
+                "avatar": "https://placehold.co/100x100.png"
+            },
+            "testimonial3": {
+                "quote": "El asistente de IA es revolucionario. Me ayudó a encontrar ahorros que nunca habría visto por mi cuenta. Lo recomiendo al 100%.",
+                "name": "Aïcha Benali",
+                "role": "Estudiante de Negocios",
+                "avatar": "https://placehold.co/100x100.png"
+            }
+        },
         "partnersSection": {
             "title": "Nuestros Socios",
             "invitation": "¿Es usted un gran emisor de facturas y desea ofrecer los servicios de AmCbunq a sus clientes?",

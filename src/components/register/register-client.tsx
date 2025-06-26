@@ -214,7 +214,7 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
                             }
                           }}
                           max={format(new Date(), 'yyyy-MM-dd')}
-                          min="1900-01-01"
+                          min="1960-01-01"
                         />
                       </FormControl>
                       <FormMessage />

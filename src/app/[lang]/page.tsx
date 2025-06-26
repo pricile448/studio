@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { Globe, Menu, CheckCircle, MoveRight } from 'lucide-react';
+import { Globe, Menu, CheckCircle, MoveRight, Quote } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescri
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -40,6 +42,12 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
     { lang: 'de' as Locale, label: 'Deutsch', flag: <svg width="20" height="15" viewBox="0 0 5 3"><path fill="#000" d="M0 0h5v3H0z"/><path fill="#D00" d="M0 1h5v2H0z"/><path fill="#FFCE00" d="M0 2h5v1H0z"/></svg> },
     { lang: 'es' as Locale, label: 'Español', flag: <svg width="20" height="15" viewBox="0 0 3 2"><path fill="#C60B1E" d="M0 0h3v2H0z"/><path fill="#FFC400" d="M0 .5h3v1H0z"/></svg> },
     { lang: 'pt' as Locale, label: 'Português', flag: <svg width="20" height="15" viewBox="0 0 3 2"><path fill="#006600" d="M0 0h3v2H0z"/><path fill="#f00" d="M0 0h1v2H0z"/></svg> }
+  ];
+  
+  const testimonials = [
+    { ...homeDict.testimonialsSection.testimonial1, hint: "woman portrait" },
+    { ...homeDict.testimonialsSection.testimonial2, hint: "man portrait" },
+    { ...homeDict.testimonialsSection.testimonial3, hint: "woman smiling" }
   ];
 
 
@@ -271,6 +279,39 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
               </Card>
             </div>
           </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="py-20 sm:py-32">
+            <div className="container mx-auto px-4">
+                 <div className="mb-12 text-center">
+                    <h2 className="text-3xl font-bold font-headline">{homeDict.testimonialsSection.title}</h2>
+                </div>
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {testimonials.map((testimonial, index) => (
+                        <Card key={index} className="flex flex-col">
+                            <CardContent className="pt-6 flex-1">
+                                <Quote className="h-8 w-8 text-muted-foreground" />
+                                <p className="mt-4 text-muted-foreground">
+                                    "{testimonial.quote}"
+                                </p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="flex items-center gap-4">
+                                     <Avatar>
+                                        <AvatarImage src={testimonial.avatar} alt={testimonial.name} data-ai-hint={testimonial.hint} />
+                                        <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-semibold">{testimonial.name}</p>
+                                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                                    </div>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+            </div>
         </section>
 
         {/* Partners Section */}
