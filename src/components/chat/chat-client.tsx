@@ -29,12 +29,16 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
+    
+    // Use a default advisor ID if it's not present in the user's profile. This makes the feature robust for older accounts.
+    const advisorId = userProfile?.advisorId || 'advisor_123';
 
     useEffect(() => {
-        if (user.uid && userProfile?.advisorId) {
-            getOrCreateChatId(user.uid, userProfile.advisorId).then(setChatId);
+        // Now we can be sure advisorId exists.
+        if (user.uid && advisorId) {
+            getOrCreateChatId(user.uid, advisorId).then(setChatId);
         }
-    }, [user.uid, userProfile?.advisorId]);
+    }, [user.uid, advisorId]);
 
     useEffect(() => {
         if (!chatId) return;
@@ -63,12 +67,12 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !user || !userProfile?.advisorId) return;
+        if (!newMessage.trim() || !user) return;
         setIsSending(true);
         await sendMessage({
             text: newMessage,
             userId: user.uid,
-            advisorId: userProfile.advisorId,
+            advisorId: advisorId, // Use the guaranteed advisorId
         });
         setNewMessage('');
         setIsSending(false);

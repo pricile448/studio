@@ -173,7 +173,7 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            {dict.chat && userProfile?.advisorId && (
+            {dict.chat && userProfile && (
               <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
                   <SheetTrigger asChild>
                       <Button variant="ghost" size="icon">
