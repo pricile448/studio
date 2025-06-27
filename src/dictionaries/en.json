@@ -112,7 +112,9 @@
       "registerLink": "Sign up",
       "backToHome": "Back to Home",
       "loginErrorTitle": "Login Failed",
-      "verifyEmailError": "Please verify your email before logging in."
+      "verifyEmailError": "Please verify your email before logging in.",
+      "inactivityLogoutTitle": "Session Expired",
+      "inactivityLogoutDescription": "For your security, you have been logged out due to inactivity."
     },
     "register": {
       "title": "Open an account with AmCbunq",
@@ -522,6 +524,15 @@
         "successDescription": "Thanks for contacting us. We'll get back to you as soon as possible.",
         "errorDescription": "Failed to send message. Please try again later."
       }
+    },
+    "chat": {
+      "title": "Chat",
+      "headerTitle": "Chat with your advisor",
+      "headerDescription": "Ask your financial advisor any questions you have.",
+      "inputPlaceholder": "Type your message...",
+      "sendButton": "Send",
+      "advisorName": "Advisor",
+      "newMessageFromAdvisor": "New message from your advisor"
     },
     "kyc": {
       "title": "Identity Verification",

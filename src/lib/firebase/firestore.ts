@@ -1,5 +1,5 @@
 
-import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit } from "firebase/firestore";
 import { db } from "./config";
 
 export type Account = {
@@ -35,6 +35,13 @@ export type Budget = {
     total: number;
 };
 
+export type ChatMessage = {
+  id?: string;
+  text: string;
+  senderId: string;
+  timestamp: Timestamp;
+};
+
 export type UserProfile = {
   uid: string;
   email: string;
@@ -66,6 +73,7 @@ export type UserProfile = {
   transactions: Transaction[];
   beneficiaries: Beneficiary[];
   budgets: Budget[];
+  advisorId?: string;
 };
 
 export type RegistrationData = {
@@ -106,7 +114,8 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
     accounts: defaultAccounts,
     transactions: [],
     beneficiaries: [],
-    budgets: []
+    budgets: [],
+    advisorId: 'advisor_123'
   };
 
   await setDoc(userRef, {
@@ -152,4 +161,37 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
   }
   
   await updateDoc(userRef, dataToUpdate);
+}
+
+
+export async function getOrCreateChatId(userId: string, advisorId: string): Promise<string> {
+    const chatCollection = collection(db, 'chats');
+    const participants = [userId, advisorId].sort();
+    const q = query(
+        chatCollection,
+        where('participants', '==', participants),
+        limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        return querySnapshot.docs[0].id;
+    } else {
+        const newChatRef = await addDoc(chatCollection, {
+            participants: participants,
+            createdAt: serverTimestamp(),
+        });
+        return newChatRef.id;
+    }
+}
+
+export async function addMessageToChat(chatId: string, message: Omit<ChatMessage, 'id'>) {
+    const messagesCollection = collection(db, 'chats', chatId, 'messages');
+    await addDoc(messagesCollection, message);
+    await updateDoc(doc(db, 'chats', chatId), {
+        lastMessageText: message.text,
+        lastMessageTimestamp: message.timestamp,
+        lastMessageSenderId: message.senderId,
+    });
 }

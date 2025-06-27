@@ -16,9 +16,10 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -37,6 +38,8 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reason = searchParams.get('reason');
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -106,6 +109,15 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
           <CardDescription className="text-center">{loginDict.description}</CardDescription>
         </CardHeader>
         <CardContent>
+          {reason === 'inactivity' && (
+              <Alert variant="info" className="mb-4">
+                  <LogOut className="h-4 w-4" />
+                  <AlertTitle>{loginDict.inactivityLogoutTitle}</AlertTitle>
+                  <AlertDescription>
+                      {loginDict.inactivityLogoutDescription}
+                  </AlertDescription>
+              </Alert>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField

@@ -112,7 +112,9 @@
       "registerLink": "Cadastre-se",
       "backToHome": "Voltar para o início",
       "loginErrorTitle": "Falha no Login",
-      "verifyEmailError": "Por favor, verifique o seu e-mail antes de iniciar sessão."
+      "verifyEmailError": "Por favor, verifique o seu e-mail antes de iniciar sessão.",
+      "inactivityLogoutTitle": "Sessão Expirada",
+      "inactivityLogoutDescription": "Por sua segurança, você foi desconectado devido à inatividade."
     },
     "register": {
       "title": "Abrir uma conta no AmCbunq",
@@ -522,6 +524,15 @@
         "successDescription": "Obrigado por nos contactar. Entraremos em contacto consigo o mais breve possível.",
         "errorDescription": "Falha ao enviar mensagem. Por favor, tente novamente mais tarde."
       }
+    },
+    "chat": {
+      "title": "Chat",
+      "headerTitle": "Converse com seu consultor",
+      "headerDescription": "Faça qualquer pergunta ao seu consultor financeiro.",
+      "inputPlaceholder": "Digite sua mensagem...",
+      "sendButton": "Enviar",
+      "advisorName": "Consultor",
+      "newMessageFromAdvisor": "Nova mensagem do seu consultor"
     },
     "kyc": {
       "title": "Verificação de Identidade",
