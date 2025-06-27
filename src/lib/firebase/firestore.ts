@@ -130,15 +130,17 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
     if (docSnap.exists()) {
         const data = docSnap.data();
         
+        // This is a migration step. If an existing user doesn't have an advisorId,
+        // we assign one and update their document in Firestore.
+        if (!data.advisorId) {
+            await updateDoc(userRef, { advisorId: 'advisor_123' });
+            data.advisorId = 'advisor_123'; // Update the local copy as well
+        }
+
         const transactions = (data.transactions || []).map((tx: any) => ({
             ...tx,
             date: tx.date instanceof Timestamp ? tx.date.toDate() : new Date(tx.date)
         }));
-
-        // Add a default advisorId if it's missing for existing users
-        if (!data.advisorId) {
-            data.advisorId = 'advisor_123';
-        }
 
         return {
             ...data,
