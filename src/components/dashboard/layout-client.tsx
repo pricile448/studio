@@ -39,7 +39,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut, MessageSquare } from 'lucide-react';
+import { Bell, LogOut, MessageSquare, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -173,19 +173,21 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            {dict.chat && (
-              <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-                  <SheetTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                          <MessageSquare className="h-5 w-5" />
-                          <span className="sr-only">{dict.chat.title}</span>
-                      </Button>
-                  </SheetTrigger>
-                  <SheetContent className="p-0 w-full max-w-md">
-                      <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
-                  </SheetContent>
-              </Sheet>
-            )}
+            <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <MessageSquare className="h-5 w-5" />
+                        <span className="sr-only">Chat</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent className="p-0 w-full max-w-md">
+                   {user && userProfile && dict.chat ? (
+                     <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
+                   ) : (
+                     <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                   )}
+                </SheetContent>
+            </Sheet>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
