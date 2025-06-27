@@ -125,7 +125,7 @@ export function DashboardLayoutClient({
   return (
     <SidebarProvider key={lang}>
       <Sidebar>
-        <SidebarHeader className="bg-gradient-to-b from-blue-900 to-blue-800">
+        <SidebarHeader>
           <div className="flex items-center gap-2">
             <Logo text={dict.logo} />
             <h1 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
@@ -173,7 +173,7 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            {dict.chat && userProfile && (
+            {dict.chat && userProfile?.advisorId && (
               <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
                   <SheetTrigger asChild>
                       <Button variant="ghost" size="icon">

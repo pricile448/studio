@@ -11,11 +11,12 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, AlertTriangle } from 'lucide-react';
 import { getOrCreateChatId } from '@/lib/firebase/firestore';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
+import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 
 interface ChatClientProps {
     dict: Dictionary['chat'];
@@ -28,15 +29,23 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
     
-    // Use a default advisor ID if it's not present in the user's profile. This makes the feature robust for older accounts.
     const advisorId = userProfile?.advisorId || 'advisor_123';
 
     useEffect(() => {
-        // Now we can be sure advisorId exists.
         if (user.uid && advisorId) {
-            getOrCreateChatId(user.uid, advisorId).then(setChatId);
+            setIsLoading(true);
+            setError(null);
+            getOrCreateChatId(user.uid, advisorId)
+                .then(setChatId)
+                .catch(err => {
+                    console.error("Error getting chat ID:", err);
+                    setError("Could not establish a connection to the chat service.");
+                })
+                .finally(() => setIsLoading(false));
         }
     }, [user.uid, advisorId]);
 
@@ -56,6 +65,9 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 });
             });
             setMessages(msgs);
+        }, (err) => {
+            console.error("Error listening to messages:", err);
+            setError("Failed to load messages.");
         });
 
         return () => unsubscribe();
@@ -67,12 +79,12 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !user) return;
+        if (!newMessage.trim() || !user || !chatId) return;
         setIsSending(true);
         await sendMessage({
             text: newMessage,
             userId: user.uid,
-            advisorId: advisorId, // Use the guaranteed advisorId
+            advisorId: advisorId,
         });
         setNewMessage('');
         setIsSending(false);
@@ -81,6 +93,77 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('');
     }
+    
+    const renderContent = () => {
+        if (isLoading) {
+            return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+        }
+
+        if (error) {
+            return (
+                <div className="p-4">
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Connection Error</AlertTitle>
+                        <AlertDescription>
+                            {error} Please try again later.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            )
+        }
+        
+        return (
+            <>
+                <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-4">
+                        {messages.map((msg, index) => {
+                            const isUser = msg.senderId === user.uid;
+                            return (
+                                <div key={msg.id || index} className={cn('flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
+                                    {!isUser && (
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarFallback>{getInitials(dict.advisorName)}</AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                    <div className={cn(
+                                        'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm',
+                                        isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                                    )}>
+                                        <p>{msg.text}</p>
+                                        <p className={cn("text-xs mt-1", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
+                                            {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                    {isUser && (
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'user'} />
+                                            <AvatarFallback>{getInitials(user.displayName || 'U')}</AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div ref={scrollAreaEndRef} />
+                </ScrollArea>
+                <div className="p-4 border-t">
+                    <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                        <Input
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            placeholder={dict.inputPlaceholder}
+                            disabled={isSending || !chatId}
+                        />
+                        <Button type="submit" size="icon" disabled={isSending || !newMessage.trim() || !chatId}>
+                            {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                            <span className="sr-only">{dict.sendButton}</span>
+                        </Button>
+                    </form>
+                </div>
+            </>
+        )
+    }
 
     return (
         <div className="flex flex-col h-full">
@@ -88,52 +171,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 <SheetTitle>{dict.headerTitle}</SheetTitle>
                 <SheetDescription>{dict.headerDescription}</SheetDescription>
             </SheetHeader>
-            <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4">
-                    {messages.map((msg, index) => {
-                        const isUser = msg.senderId === user.uid;
-                        return (
-                            <div key={msg.id || index} className={cn('flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
-                                {!isUser && (
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarFallback>{getInitials(dict.advisorName)}</AvatarFallback>
-                                    </Avatar>
-                                )}
-                                <div className={cn(
-                                    'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm',
-                                    isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                                )}>
-                                    <p>{msg.text}</p>
-                                    <p className={cn("text-xs mt-1", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
-                                        {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
-                                </div>
-                                {isUser && (
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'user'} />
-                                        <AvatarFallback>{getInitials(user.displayName || 'U')}</AvatarFallback>
-                                    </Avatar>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-                 <div ref={scrollAreaEndRef} />
-            </ScrollArea>
-            <div className="p-4 border-t">
-                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                    <Input
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder={dict.inputPlaceholder}
-                        disabled={isSending}
-                    />
-                    <Button type="submit" size="icon" disabled={isSending || !newMessage.trim()}>
-                        {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        <span className="sr-only">{dict.sendButton}</span>
-                    </Button>
-                </form>
-            </div>
+            {renderContent()}
         </div>
     );
 }
