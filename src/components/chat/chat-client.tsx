@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -81,8 +82,8 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     return (
         <div className="flex flex-col h-full">
             <SheetHeader className="p-4 border-b">
-                <SheetTitle>{chatDict.headerTitle}</SheetTitle>
-                <SheetDescription>{chatDict.headerDescription}</SheetDescription>
+                <SheetTitle>{chatDict?.headerTitle}</SheetTitle>
+                <SheetDescription>{chatDict?.headerDescription}</SheetDescription>
             </SheetHeader>
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
@@ -92,7 +93,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                             <div key={msg.id || index} className={cn('flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
                                 {!isUser && (
                                     <Avatar className="h-8 w-8">
-                                        <AvatarFallback>{getInitials(chatDict.advisorName)}</AvatarFallback>
+                                        <AvatarFallback>{getInitials(chatDict?.advisorName || 'A')}</AvatarFallback>
                                     </Avatar>
                                 )}
                                 <div className={cn(
@@ -121,12 +122,12 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     <Input
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder={chatDict.inputPlaceholder}
+                        placeholder={chatDict?.inputPlaceholder}
                         disabled={isSending}
                     />
                     <Button type="submit" size="icon" disabled={isSending || !newMessage.trim()}>
                         {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        <span className="sr-only">{chatDict.sendButton}</span>
+                        <span className="sr-only">{chatDict?.sendButton}</span>
                     </Button>
                 </form>
             </div>
