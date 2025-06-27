@@ -1,56 +1,26 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      // Fonction d'aide pour vérifier si l'utilisateur est le propriétaire du document
-      function isOwner() {
-        return request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+
+    match /chats/{chatId} {
+      // Allow read/write on the chat document only to participants
+      allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
+
+      match /messages/{messageId} {
+        // Allow reading messages only to participants of the parent chat
+        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        
+        // Allow creating messages only by participants, and they can only send messages as themselves
+        allow create: if request.auth != null && 
+                      request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants &&
+                      request.resource.data.senderId == request.auth.uid;
       }
-
-      // Règle : Autoriser la lecture et la création uniquement pour le propriétaire du document.
-      allow read, create: if isOwner();
-
-      // Règle : Autoriser les mises à jour uniquement par le propriétaire, avec une sécurité stricte au niveau des champs.
-      allow update: if isOwner()
-        // --- Champs Immuables ---
-        // Ces champs ne doivent jamais être modifiés par l'utilisateur après la création.
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email
-        && request.resource.data.createdAt == resource.data.createdAt
-
-        // --- Champs réservés à l'administration (ne peuvent pas être modifiés par l'utilisateur) ---
-        // Un utilisateur ne peut pas changer son statut de vérification à 'verified'.
-        && (request.resource.data.kycStatus == 'verified' ? resource.data.kycStatus == 'verified' : true)
-        // Un utilisateur ne peut pas activer sa propre carte.
-        && (request.resource.data.cardStatus == 'active' ? resource.data.cardStatus == 'active' : true)
-        // Un utilisateur ne peut pas s'attribuer un IBAN ou un BIC.
-        && request.resource.data.get('iban', null) == resource.data.get('iban', null)
-        && request.resource.data.get('bic', null) == resource.data.get('bic', null)
-
-        // --- Intégrité des soldes de comptes ---
-        // La taille du tableau des comptes ne peut pas être modifiée par l'utilisateur.
-        && request.resource.data.accounts.size() == resource.data.accounts.size()
-        // Les règles Firestore ne supportent pas les boucles, donc nous vérifions les comptes statiquement.
-        // Un utilisateur ne peut jamais modifier le solde de ses comptes.
-        && (
-          size(request.resource.data.accounts) == 0 ||
-          (
-            size(request.resource.data.accounts) > 0 &&
-            request.resource.data.accounts[0].balance == resource.data.accounts[0].balance &&
-            (size(request.resource.data.accounts) == 1 || request.resource.data.accounts[1].balance == resource.data.accounts[1].balance) &&
-            (size(request.resource.data.accounts) == 2 || request.resource.data.accounts[2].balance == resource.data.accounts[2].balance)
-            // NOTE: Ajoutez d'autres lignes ici si vous prévoyez plus de 3 comptes par utilisateur.
-          )
-        )
-
-        // --- Intégrité des transactions ---
-        // Un utilisateur peut seulement ajouter des transactions, pas en supprimer ou en modifier.
-        // C'est utile pour des actions comme les demandes de virement.
-        // Pour une sécurité maximale, les transactions financières devraient être gérées par des Cloud Functions.
-        && (
-          request.resource.data.transactions.size() >= resource.data.transactions.size()
-        );
     }
   }
 }
