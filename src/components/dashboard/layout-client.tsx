@@ -125,7 +125,7 @@ export function DashboardLayoutClient({
   return (
     <SidebarProvider key={lang}>
       <Sidebar>
-        <SidebarHeader className="bg-sidebar">
+        <SidebarHeader className="bg-gradient-to-b from-blue-900 to-blue-800">
           <div className="flex items-center gap-2">
             <Logo text={dict.logo} />
             <h1 className="text-lg font-headline font-semibold group-data-[collapsible=icon]:hidden">
@@ -150,7 +150,7 @@ export function DashboardLayoutClient({
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                     <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
                     {userProfile.kycStatus === 'verified' ? (
-                        <span className="text-xs font-semibold text-green-400">{dict.sidebar.verified}</span>
+                        <span className="text-xs font-bold text-green-400">{dict.sidebar.verified}</span>
                     ) : (
                         <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
                     )}
@@ -172,18 +172,20 @@ export function DashboardLayoutClient({
           <div className="w-full flex-1">
             {/* Future search bar could go here */}
           </div>
-          <div className="flex items-center gap-4">
-            <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <MessageSquare className="h-5 w-5" />
-                        <span className="sr-only">{dict.chat?.title}</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent className="p-0 w-full max-w-md">
-                    <ChatClient dict={dict} user={user} userProfile={userProfile} />
-                </SheetContent>
-            </Sheet>
+          <div className="flex items-center gap-2">
+            {dict.chat && userProfile?.advisorId && (
+              <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+                  <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                          <MessageSquare className="h-5 w-5" />
+                          <span className="sr-only">{dict.chat.title}</span>
+                      </Button>
+                  </SheetTrigger>
+                  <SheetContent className="p-0 w-full max-w-md">
+                      <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
+                  </SheetContent>
+              </Sheet>
+            )}
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">

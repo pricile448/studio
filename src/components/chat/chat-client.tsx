@@ -18,7 +18,7 @@ import type { Dictionary } from '@/lib/dictionaries';
 import { SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 
 interface ChatClientProps {
-    dict: Dictionary;
+    dict: Dictionary['chat'];
     user: User;
     userProfile: UserProfile;
 }
@@ -29,7 +29,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
-    const chatDict = dict.chat;
 
     useEffect(() => {
         if (user.uid && userProfile?.advisorId) {
@@ -82,8 +81,8 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     return (
         <div className="flex flex-col h-full">
             <SheetHeader className="p-4 border-b">
-                <SheetTitle>{chatDict?.headerTitle || 'Chat with Advisor'}</SheetTitle>
-                <SheetDescription>{chatDict?.headerDescription || 'Ask your financial advisor any questions you have.'}</SheetDescription>
+                <SheetTitle>{dict.headerTitle}</SheetTitle>
+                <SheetDescription>{dict.headerDescription}</SheetDescription>
             </SheetHeader>
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
@@ -93,7 +92,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                             <div key={msg.id || index} className={cn('flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
                                 {!isUser && (
                                     <Avatar className="h-8 w-8">
-                                        <AvatarFallback>{getInitials(chatDict?.advisorName || 'A')}</AvatarFallback>
+                                        <AvatarFallback>{getInitials(dict.advisorName)}</AvatarFallback>
                                     </Avatar>
                                 )}
                                 <div className={cn(
@@ -122,12 +121,12 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     <Input
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder={chatDict?.inputPlaceholder || 'Type your message...'}
+                        placeholder={dict.inputPlaceholder}
                         disabled={isSending}
                     />
                     <Button type="submit" size="icon" disabled={isSending || !newMessage.trim()}>
                         {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        <span className="sr-only">{chatDict?.sendButton || 'Send'}</span>
+                        <span className="sr-only">{dict.sendButton}</span>
                     </Button>
                 </form>
             </div>
