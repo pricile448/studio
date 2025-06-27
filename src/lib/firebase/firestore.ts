@@ -1,4 +1,3 @@
-
 import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit } from "firebase/firestore";
 import { db } from "./config";
 
@@ -135,6 +134,11 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
             ...tx,
             date: tx.date instanceof Timestamp ? tx.date.toDate() : new Date(tx.date)
         }));
+
+        // Add a default advisorId if it's missing for existing users
+        if (!data.advisorId) {
+            data.advisorId = 'advisor_123';
+        }
 
         return {
             ...data,
