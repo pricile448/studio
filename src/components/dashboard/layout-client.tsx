@@ -181,11 +181,13 @@ export function DashboardLayoutClient({
                     </Button>
                 </SheetTrigger>
                 <SheetContent className="p-0 w-full max-w-md">
-                   {user && userProfile ? (
-                     <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
-                   ) : (
-                     <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-                   )}
+                   {isChatOpen ? (
+                     user && userProfile && dict.chat ? (
+                       <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
+                     ) : (
+                       <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                     )
+                   ) : null}
                 </SheetContent>
             </Sheet>
              <DropdownMenu>
