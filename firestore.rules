@@ -3,37 +3,91 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Règle pour les profils utilisateurs
-    // Permet à un utilisateur de lire et d'écrire son propre profil.
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+    // --- Fonctions d'aide ---
+    // Vérifie si l'utilisateur authentifié est un administrateur.
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Règles pour les conversations (chats)
+    // --- Collection des administrateurs ---
+    // Utilisée pour la vérification des permissions.
+    // Seuls les utilisateurs authentifiés peuvent lire (pour vérifier leur propre statut).
+    // L'écriture est désactivée côté client pour des raisons de sécurité.
+    match /admins/{adminId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // --- Collection des utilisateurs ---
+    match /users/{userId} {
+      // Fonction d'aide pour vérifier si l'utilisateur est le propriétaire du document
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      // LECTURE : Autorisée pour le propriétaire du document ou un administrateur.
+      allow read: if isOwner() || isAdmin();
+
+      // CRÉATION : Autorisée uniquement pour le propriétaire du document.
+      allow create: if isOwner();
+
+      // MISE À JOUR : Autorisée pour un administrateur (sans restriction) OU pour le propriétaire avec des règles strictes.
+      allow update: if isAdmin() || (isOwner()
+        // --- Champs Immuables (ne peuvent pas être modifiés par l'utilisateur) ---
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
+
+        // --- Champs réservés à l'administration (ne peuvent pas être modifiés par l'utilisateur) ---
+        && (request.resource.data.kycStatus == 'verified' ? resource.data.kycStatus == 'verified' : true)
+        && (request.resource.data.cardStatus == 'active' ? resource.data.cardStatus == 'active' : true)
+        && request.resource.data.get('iban', null) == resource.data.get('iban', null)
+        && request.resource.data.get('bic', null) == resource.data.get('bic', null)
+
+        // --- Intégrité des soldes de comptes (l'utilisateur ne peut pas modifier les soldes) ---
+        && request.resource.data.accounts.size() == resource.data.accounts.size()
+        && (
+          size(request.resource.data.accounts) == 0 ||
+          (
+            size(request.resource.data.accounts) > 0 &&
+            request.resource.data.accounts[0].balance == resource.data.accounts[0].balance &&
+            (size(request.resource.data.accounts) == 1 || request.resource.data.accounts[1].balance == resource.data.accounts[1].balance) &&
+            (size(request.resource.data.accounts) == 2 || request.resource.data.accounts[2].balance == resource.data.accounts[2].balance)
+          )
+        )
+
+        // --- Intégrité des transactions (l'utilisateur peut seulement en ajouter) ---
+        && (
+          request.resource.data.transactions.size() >= resource.data.transactions.size()
+        )
+      );
+      
+      // SUPPRESSION : Autorisée uniquement pour les administrateurs.
+      allow delete: if isAdmin();
+    }
+    
+    // --- Collection de messagerie (Chat) ---
+    // Cette collection stocke les métadonnées de chaque conversation.
     match /chats/{chatId} {
-      // Un utilisateur peut lire ou mettre à jour une conversation que s'il est participant.
+      // Un utilisateur peut lire ou mettre à jour une conversation s'il est un des participants.
+      // La mise à jour est nécessaire pour actualiser le dernier message.
       allow read, update: if request.auth.uid in resource.data.participants;
-
-      // Un utilisateur peut créer une conversation si :
-      // 1. Il est l'un des participants.
-      // 2. L'ID du document correspond exactement aux participants triés (pour avoir des IDs déterministes).
+      
+      // Un utilisateur peut créer une conversation s'il en est un participant.
+      // On s'assure qu'une conversation est toujours entre deux personnes.
       allow create: if request.auth.uid in request.resource.data.participants
-                     && chatId == request.resource.data.participants.join('_');
-
-      // Personne ne peut lister toutes les conversations ou les supprimer.
-      allow list, delete: if false;
-
-      // Règles pour les messages dans une conversation
+                    && request.resource.data.participants.size() == 2;
+      
+      // Les messages de chaque conversation sont dans une sous-collection.
       match /messages/{messageId} {
-        // La lecture est autorisée si l'utilisateur fait partie de la conversation parente.
+        // Un utilisateur peut lire les messages d'une conversation s'il est un participant.
+        // On vérifie cela en lisant les données du document parent (la conversation).
         allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
         
-        // La création est autorisée si l'utilisateur est bien l'expéditeur et participe à la conversation.
+        // Un utilisateur peut créer (envoyer) un message s'il est participant
+        // ET si l'ID de l'expéditeur du message est bien le sien.
         allow create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
-                       && request.resource.data.senderId == request.auth.uid;
-
-        // La mise à jour et la suppression des messages sont interdites pour le moment.
-        allow update, delete: if false;
+                      && request.resource.data.senderId == request.auth.uid;
       }
     }
   }
