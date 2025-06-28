@@ -15,7 +15,6 @@ import { Loader2, Send, AlertTriangle } from 'lucide-react';
 import { getOrCreateChatId } from '@/lib/firebase/firestore';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
-import { SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 
 interface ChatClientProps {
@@ -167,10 +166,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
 
     return (
         <div className="flex flex-col h-full">
-            <SheetHeader className="p-4 border-b">
-                <SheetTitle>{dict.headerTitle}</SheetTitle>
-                <SheetDescription>{dict.headerDescription}</SheetDescription>
-            </SheetHeader>
             {renderContent()}
         </div>
     );

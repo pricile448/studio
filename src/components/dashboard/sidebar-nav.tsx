@@ -22,6 +22,7 @@ import {
   Settings,
   HelpCircle,
   FileText,
+  MessageSquare,
 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 
@@ -38,6 +39,7 @@ const accountNavItems = [
   { href: '/cards', icon: CreditCard, labelKey: 'cards' },
   { href: '/history', icon: History, labelKey: 'history' },
   { href: '/budgets', icon: PieChart, labelKey: 'budgets' },
+  { href: '/chat', icon: MessageSquare, labelKey: 'chat' },
 ] as const;
 
 const otherNavItems = [

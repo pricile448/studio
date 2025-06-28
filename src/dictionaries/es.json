@@ -170,6 +170,7 @@
       "cards": "Tarjetas",
       "history": "Historial",
       "budgets": "Presupuestos",
+      "chat": "Chatear con mi asesor",
       "settings": "Configuración",
       "more": "Más",
       "help": "Ayuda y Soporte",
@@ -527,7 +528,7 @@
     },
     "chat": {
       "title": "Chat",
-      "headerTitle": "Chatear con su asesor",
+      "headerTitle": "Chatear con mi asesor",
       "headerDescription": "Haga cualquier pregunta a su asesor financiero.",
       "inputPlaceholder": "Escriba su mensaje...",
       "sendButton": "Enviar",

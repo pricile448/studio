@@ -39,12 +39,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut, MessageSquare } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
 import { useToast } from '@/hooks/use-toast';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ChatClient } from '@/components/chat/chat-client';
 
 export function DashboardLayoutClient({
   children,
@@ -59,7 +57,6 @@ export function DashboardLayoutClient({
   const router = useRouter();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const notificationsDict = dict.dashboard.notifications;
   const mockNotifications = [
@@ -104,8 +101,7 @@ export function DashboardLayoutClient({
     }
   }, [user, loading, router, lang, isLoggingOut]);
 
-  // DIAGNOSTIC CHANGE: Temporarily removed !userProfile from the condition to force the component to render.
-  if (loading || !user || !user.emailVerified || !dict) {
+  if (loading || !user || !user.emailVerified || !userProfile || !dict) {
     return (
         <div className="flex h-screen w-full bg-background">
             <div className="hidden md:block">
@@ -176,23 +172,6 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            <div style={{color: 'red'}}>ZONE TEST</div>
-            <Button variant="outline" onClick={() => alert('Le bouton de test fonctionne !')}>Test</Button>
-            
-            <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MessageSquare className="h-5 w-5" />
-                  <span className="sr-only">{dict.chat?.headerTitle || 'Chat'}</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="p-0 w-full max-w-sm">
-                {isChatOpen && user && userProfile && (
-                  <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
-                )}
-              </SheetContent>
-            </Sheet>
-
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">

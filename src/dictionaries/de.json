@@ -170,6 +170,7 @@
       "cards": "Karten",
       "history": "Verlauf",
       "budgets": "Budgets",
+      "chat": "Mit meinem Berater chatten",
       "settings": "Einstellungen",
       "more": "Mehr",
       "help": "Hilfe & Support",
@@ -527,7 +528,7 @@
     },
     "chat": {
       "title": "Chat",
-      "headerTitle": "Chatten Sie mit Ihrem Berater",
+      "headerTitle": "Mit meinem Berater chatten",
       "headerDescription": "Stellen Sie Ihrem Finanzberater alle Fragen, die Sie haben.",
       "inputPlaceholder": "Geben Sie Ihre Nachricht ein...",
       "sendButton": "Senden",
