@@ -533,7 +533,11 @@
       "inputPlaceholder": "Geben Sie Ihre Nachricht ein...",
       "sendButton": "Senden",
       "advisorName": "Berater",
-      "newMessageFromAdvisor": "Neue Nachricht von Ihrem Berater"
+      "newMessageFromAdvisor": "Neue Nachricht von Ihrem Berater",
+      "welcomeMessage": "Dies ist der Beginn Ihrer Unterhaltung.",
+      "welcomeMessageSubtext": "Sie können Fragen zu Ihrem Konto, Transaktionen oder anderen Themen stellen.",
+      "connectionError": "Verbindungsfehler",
+      "connectionErrorText": "Konnte keine Verbindung zum Chat-Dienst herstellen. Bitte versuchen Sie es später erneut."
     },
     "kyc": {
       "title": "Identitätsprüfung",

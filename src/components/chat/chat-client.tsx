@@ -42,11 +42,11 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 .then(setChatId)
                 .catch(err => {
                     console.error("Error getting chat ID:", err);
-                    setError("Could not establish a connection to the chat service.");
+                    setError(dict.connectionErrorText);
                 })
                 .finally(() => setIsLoading(false));
         }
-    }, [user.uid, advisorId]);
+    }, [user.uid, advisorId, dict.connectionErrorText]);
 
     useEffect(() => {
         if (!chatId) return;
@@ -100,13 +100,11 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
 
         if (error) {
             return (
-                <div className="p-4">
-                    <Alert variant="destructive">
+                <div className="flex items-center justify-center h-full p-4">
+                    <Alert variant="destructive" className="max-w-md">
                         <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Connection Error</AlertTitle>
-                        <AlertDescription>
-                            {error} Please try again later.
-                        </AlertDescription>
+                        <AlertTitle>{dict.connectionError}</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 </div>
             )
@@ -116,6 +114,12 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             <>
                 <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
+                        {messages.length === 0 && (
+                            <div className="text-center text-muted-foreground p-8">
+                                <p className="font-medium">{dict.welcomeMessage}</p>
+                                <p className="text-xs mt-2">{dict.welcomeMessageSubtext}</p>
+                            </div>
+                        )}
                         {messages.map((msg, index) => {
                             const isUser = msg.senderId === user.uid;
                             return (
@@ -126,7 +130,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                         </Avatar>
                                     )}
                                     <div className={cn(
-                                        'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm',
+                                        'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                     )}>
                                         <p>{msg.text}</p>

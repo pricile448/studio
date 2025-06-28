@@ -533,7 +533,11 @@
       "inputPlaceholder": "Écrivez votre message...",
       "sendButton": "Envoyer",
       "advisorName": "Conseiller",
-      "newMessageFromAdvisor": "Nouveau message de votre conseiller"
+      "newMessageFromAdvisor": "Nouveau message de votre conseiller",
+      "welcomeMessage": "Ceci est le début de votre conversation.",
+      "welcomeMessageSubtext": "Vous pouvez poser des questions sur votre compte, les transactions ou tout autre sujet.",
+      "connectionError": "Erreur de connexion",
+      "connectionErrorText": "Impossible d'établir une connexion avec le service de messagerie. Veuillez réessayer plus tard."
     },
     "kyc": {
       "title": "Vérification d'Identité",

@@ -1,3 +1,4 @@
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -8,19 +9,22 @@ service cloud.firestore {
     function isAdmin() {
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
+    
+    // Vérifie si l'ID de l'utilisateur authentifié est présent dans l'ID d'une conversation.
+    // L'ID du chat est au format "participant1_participant2".
+    function isParticipant(chatId) {
+      return request.auth.uid in chatId.split('_');
+    }
 
     // --- Collection des administrateurs ---
-    // Utilisée pour la vérification des permissions.
-    // Seuls les utilisateurs authentifiés peuvent lire (pour vérifier leur propre statut).
-    // L'écriture est désactivée côté client pour des raisons de sécurité.
     match /admins/{adminId} {
       allow read: if request.auth != null;
-      allow write: if false;
+      allow write: if false; // L'écriture est désactivée côté client pour des raisons de sécurité.
     }
 
     // --- Collection des utilisateurs ---
     match /users/{userId} {
-      // Fonction d'aide pour vérifier si l'utilisateur est le propriétaire du document
+      // Fonction d'aide pour vérifier si l'utilisateur est le propriétaire du document.
       function isOwner() {
         return request.auth != null && request.auth.uid == userId;
       }
@@ -65,43 +69,35 @@ service cloud.firestore {
       // SUPPRESSION : Autorisée uniquement pour les administrateurs.
       allow delete: if isAdmin();
     }
-
-    // --- Collection des conversations (chats) ---
+    
+    // --- Collection des conversations de messagerie ---
     match /chats/{chatId} {
-      // Fonction d'aide pour vérifier si l'utilisateur est un participant de la conversation.
-      // Cela est déterminé en vérifiant si l'UID de l'utilisateur est présent dans l'ID du document (chatId).
-      function isParticipant() {
-        return request.auth != null && request.auth.uid in chatId.split('_');
-      }
-
-      // LECTURE (GET) : Autorisée si l'utilisateur est un participant.
-      // Cette règle permet à l'application de vérifier si une conversation existe déjà.
-      allow get: if isParticipant();
-
-      // CRÉATION : Autorisée si l'utilisateur est un participant et qu'il est bien listé
-      // dans les données de la nouvelle conversation.
-      allow create: if isParticipant()
-                    && request.auth.uid in request.resource.data.participants
-                    && request.resource.data.participants.size() == 2;
-
-      // MISE À JOUR : Autorisée si l'utilisateur est un participant (pour mettre à jour le dernier message, etc.).
-      // Les participants ne doivent pas pouvoir être modifiés.
-      allow update: if isParticipant() && request.resource.data.participants == resource.data.participants;
-
-      // SUPPRESSION : Désactivée pour les clients.
-      allow delete: if false;
-
+      // LECTURE (get) : Autorisée si l'ID de l'utilisateur est dans l'ID du document de chat.
+      // Cela permet de vérifier si une conversation existe déjà, même si le document n'a pas encore été créé.
+      allow get: if isParticipant(chatId);
+      
+      // LISTE (list) : Interdite pour des raisons de sécurité et de performance.
+      allow list: if false;
+      
+      // CRÉATION (create) : Autorisée si l'utilisateur est un des participants de la conversation qu'il crée.
+      allow create: if isParticipant(chatId) && request.auth.uid in request.resource.data.participants;
+      
+      // MISE À JOUR (update) : Autorisée si l'utilisateur est un participant, pour mettre à jour le dernier message.
+      allow update: if isParticipant(chatId);
+      
+      // SUPPRESSION (delete) : Autorisée uniquement pour les administrateurs.
+      allow delete: if isAdmin();
 
       // --- Sous-collection des messages ---
       match /messages/{messageId} {
-        // LECTURE (LIST & GET) : Autorisée si l'utilisateur est un participant de la conversation parente.
-        allow read: if isParticipant();
+        // LECTURE (read) : Autorisée si l'utilisateur participe à la conversation parente.
+        allow read: if isParticipant(chatId);
 
-        // CRÉATION : Autorisée si l'utilisateur est l'expéditeur du message
-        // et un participant de la conversation parente.
-        allow create: if isParticipant() && request.resource.data.senderId == request.auth.uid;
+        // ÉCRITURE (create) : Autorisée si l'ID de l'utilisateur correspond au senderId du message
+        // et qu'il participe bien à la conversation.
+        allow create: if request.resource.data.senderId == request.auth.uid && isParticipant(chatId);
         
-        // La mise à jour et la suppression des messages sont désactivées côté client.
+        // La mise à jour et la suppression des messages sont interdites pour garantir l'intégrité de la conversation.
         allow update, delete: if false;
       }
     }

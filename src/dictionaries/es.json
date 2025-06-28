@@ -533,7 +533,11 @@
       "inputPlaceholder": "Escriba su mensaje...",
       "sendButton": "Enviar",
       "advisorName": "Asesor",
-      "newMessageFromAdvisor": "Nuevo mensaje de su asesor"
+      "newMessageFromAdvisor": "Nuevo mensaje de su asesor",
+      "welcomeMessage": "Este es el comienzo de su conversación.",
+      "welcomeMessageSubtext": "Puede hacer preguntas sobre su cuenta, transacciones o cualquier otro tema.",
+      "connectionError": "Error de conexión",
+      "connectionErrorText": "No se pudo establecer una conexión con el servicio de chat. Por favor, inténtelo de nuevo más tarde."
     },
     "kyc": {
       "title": "Verificación de Identidad",
