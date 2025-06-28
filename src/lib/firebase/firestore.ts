@@ -131,22 +131,34 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
     if (docSnap.exists()) {
         const data = docSnap.data();
         
-        const transactions = (data.transactions || []).map((tx: any) => ({
-            ...tx,
-            date: tx.date instanceof Timestamp ? tx.date.toDate() : new Date(tx.date)
-        }));
+        try {
+            const transactions = (data.transactions || []).map((tx: any) => ({
+                ...tx,
+                date: tx.date instanceof Timestamp ? tx.date.toDate() : (tx.date ? new Date(tx.date) : new Date())
+            }));
 
-        return {
-            ...data,
-            dob: data.dob instanceof Timestamp ? data.dob.toDate() : new Date(data.dob),
-            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
-            cardRequestedAt: data.cardRequestedAt instanceof Timestamp ? data.cardRequestedAt.toDate() : (data.cardRequestedAt ? new Date(data.cardRequestedAt) : undefined),
-            transactions,
-        } as UserProfile;
+            const dob = data.dob instanceof Timestamp ? data.dob.toDate() : (data.dob ? new Date(data.dob) : new Date());
+            const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date());
+            const cardRequestedAt = data.cardRequestedAt instanceof Timestamp ? data.cardRequestedAt.toDate() : (data.cardRequestedAt ? new Date(data.cardRequestedAt) : undefined);
+
+            return {
+                ...data,
+                dob,
+                createdAt,
+                cardRequestedAt,
+                transactions,
+            } as UserProfile;
+        } catch (error) {
+            console.error(`Erreur lors du traitement du profil utilisateur pour UID ${uid}:`, error);
+            console.error('Données brutes causant l\'erreur:', data);
+            return null; // Retourne null si le traitement échoue pour éviter un crash
+        }
     } else {
+        console.log(`Aucun document utilisateur trouvé pour l'UID: ${uid}`);
         return null;
     }
 }
+
 
 export async function updateUserInFirestore(uid: string, data: Partial<Omit<UserProfile, 'uid'>>) {
   const userRef = doc(db, "users", uid);
