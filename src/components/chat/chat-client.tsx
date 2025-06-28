@@ -5,14 +5,13 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { UserProfile, ChatMessage } from '@/lib/firebase/firestore';
-import { sendMessage } from '@/app/[lang]/(dashboard)/chat/actions';
+import { getOrCreateChatId, addMessageToChat } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Loader2, Send, AlertTriangle } from 'lucide-react';
-import { getOrCreateChatId } from '@/lib/firebase/firestore';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
@@ -79,14 +78,24 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim() || !user || !chatId) return;
+        
         setIsSending(true);
-        await sendMessage({
-            text: newMessage,
-            userId: user.uid,
-            advisorId: advisorId,
-        });
-        setNewMessage('');
-        setIsSending(false);
+        const textToSend = newMessage;
+        setNewMessage(''); // Clear input immediately for better UX
+
+        try {
+            await addMessageToChat(chatId, {
+                text: textToSend,
+                senderId: user.uid,
+                timestamp: Timestamp.now(),
+            });
+        } catch (error) {
+            console.error("Error sending message:", error);
+            // Restore message in the input box on failure
+            setNewMessage(textToSend); 
+        } finally {
+            setIsSending(false);
+        }
     };
 
     const getInitials = (name: string) => {
