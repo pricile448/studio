@@ -104,7 +104,8 @@ export function DashboardLayoutClient({
     }
   }, [user, loading, router, lang, isLoggingOut]);
 
-  if (loading || !user || !user.emailVerified || !userProfile || !dict) {
+  // DIAGNOSTIC CHANGE: Temporarily removed !userProfile from the condition to force the component to render.
+  if (loading || !user || !user.emailVerified || !dict) {
     return (
         <div className="flex h-screen w-full bg-background">
             <div className="hidden md:block">
@@ -145,13 +146,13 @@ export function DashboardLayoutClient({
                         <AvatarImage src={user.photoURL || ""} alt={displayName} />
                         <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
-                    {userProfile.kycStatus === 'verified' && (
+                    {userProfile?.kycStatus === 'verified' && (
                         <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar" />
                     )}
                 </div>
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                     <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
-                    {userProfile.kycStatus === 'verified' ? (
+                    {userProfile?.kycStatus === 'verified' ? (
                         <span className="text-xs font-bold text-green-400">{dict.sidebar.verified}</span>
                     ) : (
                         <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
@@ -175,7 +176,9 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
+            <div style={{color: 'red'}}>ZONE TEST</div>
             <Button variant="outline" onClick={() => alert('Le bouton de test fonctionne !')}>Test</Button>
+            
             <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
