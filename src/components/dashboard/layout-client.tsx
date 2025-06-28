@@ -39,10 +39,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
 import { useToast } from '@/hooks/use-toast';
+import { ChatPageClient } from '@/components/chat/chat-page-client';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 export function DashboardLayoutClient({
   children,
@@ -172,6 +180,24 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" onClick={() => alert('Test')}>
+                Test
+              </Button>
+               <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MessageSquare className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full max-w-md p-0 flex flex-col">
+                  <SheetHeader className="p-4 border-b">
+                    <SheetTitle>{dict.chat.headerTitle}</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex-1">
+                    <ChatPageClient dict={dict} />
+                  </div>
+                </SheetContent>
+              </Sheet>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -228,6 +254,7 @@ export function DashboardLayoutClient({
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+           <div style={{color: 'red'}}>ZONE TEST</div>
           {children}
         </main>
         <footer className="border-t bg-card/50">

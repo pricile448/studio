@@ -114,7 +114,7 @@
       "loginErrorTitle": "Falha no Login",
       "verifyEmailError": "Por favor, verifique o seu e-mail antes de iniciar sessão.",
       "inactivityLogoutTitle": "Sessão Expirada",
-      "inactivityLogoutDescription": "Por sua segurança, você foi desconectado due a inatividade."
+      "inactivityLogoutDescription": "Por sua segurança, você foi desconectado por inatividade."
     },
     "register": {
       "title": "Abrir uma conta no AmCbunq",
