@@ -197,33 +197,24 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
 
 
 export async function getOrCreateChatId(userId: string, advisorId: string): Promise<string> {
-    const chatCollection = collection(db, 'chats');
+    // Créer un ID de chat déterministe en triant les ID des participants
+    // pour garantir que l'ID est toujours le même, quel que soit l'ordre.
+    const participants = [userId, advisorId].sort();
+    const chatId = participants.join('_');
+    const chatRef = doc(db, 'chats', chatId);
 
-    // Query for chats where the current user is a participant
-    const q = query(
-        chatCollection,
-        where('participants', 'array-contains', userId)
-    );
+    const chatSnap = await getDoc(chatRef);
 
-    const querySnapshot = await getDocs(q);
-
-    // Filter the results to find the specific chat with the advisor
-    const existingChat = querySnapshot.docs.find(doc => {
-        const participants = doc.data().participants as string[];
-        // Ensure the chat is specifically between the user and the advisor
-        return participants.includes(advisorId) && participants.length === 2;
-    });
-
-    if (existingChat) {
-        return existingChat.id;
+    if (chatSnap.exists()) {
+        // La conversation existe déjà, on retourne son ID.
+        return chatSnap.id;
     } else {
-        // Create a new chat if it doesn't exist. Sort for consistency.
-        const participants = [userId, advisorId].sort();
-        const newChatRef = await addDoc(chatCollection, {
-            participants: participants,
+        // La conversation n'existe pas, on la crée.
+        await setDoc(chatRef, {
+            participants: participants, // On stocke les participants triés
             createdAt: serverTimestamp(),
         });
-        return newChatRef.id;
+        return chatId;
     }
 }
 
