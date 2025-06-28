@@ -130,29 +130,52 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
 
     if (docSnap.exists()) {
         const data = docSnap.data();
+
+        // This is a robust way to parse dates that might be Timestamps or something else.
+        const parseDate = (field: any): Date => {
+            if (field && typeof field.toDate === 'function') { // Check if it's a Firestore Timestamp
+                return field.toDate();
+            }
+            if (field) { // Try to parse it if it's a string or number
+                const d = new Date(field);
+                if (!isNaN(d.getTime())) return d;
+            }
+            // Fallback for missing or invalid dates
+            console.warn("Invalid or missing date encountered in user profile, using current date as fallback.", field);
+            return new Date(); 
+        };
         
-        try {
-            const transactions = (data.transactions || []).map((tx: any) => ({
-                ...tx,
-                date: tx.date instanceof Timestamp ? tx.date.toDate() : (tx.date ? new Date(tx.date) : new Date())
-            }));
+        const parseOptionalDate = (field: any): Date | undefined => {
+            if (!field) return undefined;
+             if (field && typeof field.toDate === 'function') {
+                return field.toDate();
+            }
+             if (field) {
+                const d = new Date(field);
+                if (!isNaN(d.getTime())) return d;
+            }
+            return undefined;
+        };
+        
+        // By removing the try/catch and handling dates safely, we prevent the function
+        // from returning null on a parsing error, which fixes the frozen loading screen.
+        const transactions = (data.transactions || []).map((tx: any) => ({
+            ...tx,
+            date: parseDate(tx.date)
+        }));
 
-            const dob = data.dob instanceof Timestamp ? data.dob.toDate() : (data.dob ? new Date(data.dob) : new Date());
-            const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date());
-            const cardRequestedAt = data.cardRequestedAt instanceof Timestamp ? data.cardRequestedAt.toDate() : (data.cardRequestedAt ? new Date(data.cardRequestedAt) : undefined);
+        const dob = parseDate(data.dob);
+        const createdAt = parseDate(data.createdAt);
+        const cardRequestedAt = parseOptionalDate(data.cardRequestedAt);
 
-            return {
-                ...data,
-                dob,
-                createdAt,
-                cardRequestedAt,
-                transactions,
-            } as UserProfile;
-        } catch (error) {
-            console.error(`Erreur lors du traitement du profil utilisateur pour UID ${uid}:`, error);
-            console.error('Données brutes causant l\'erreur:', data);
-            return null; // Retourne null si le traitement échoue pour éviter un crash
-        }
+        return {
+            ...data,
+            dob,
+            createdAt,
+            cardRequestedAt,
+            transactions,
+        } as UserProfile;
+
     } else {
         console.log(`Aucun document utilisateur trouvé pour l'UID: ${uid}`);
         return null;

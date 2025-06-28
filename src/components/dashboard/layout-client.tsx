@@ -180,7 +180,7 @@ export function DashboardLayoutClient({
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <MessageSquare className="h-5 w-5" />
-                  <span className="sr-only">{dict.chat?.title || 'Chat'}</span>
+                  <span className="sr-only">{dict.chat?.headerTitle || 'Chat'}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent className="p-0 w-full max-w-sm">
