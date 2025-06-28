@@ -65,29 +65,44 @@ service cloud.firestore {
       // SUPPRESSION : Autorisée uniquement pour les administrateurs.
       allow delete: if isAdmin();
     }
-    
-    // --- Collection de messagerie (Chat) ---
-    // Cette collection stocke les métadonnées de chaque conversation.
+
+    // --- Collection des conversations (chats) ---
     match /chats/{chatId} {
-      // Un utilisateur peut lire ou mettre à jour une conversation s'il est un des participants.
-      // La mise à jour est nécessaire pour actualiser le dernier message.
-      allow read, update: if request.auth.uid in resource.data.participants;
-      
-      // Un utilisateur peut créer une conversation s'il en est un participant.
-      // On s'assure qu'une conversation est toujours entre deux personnes.
-      allow create: if request.auth.uid in request.resource.data.participants
+      // Fonction d'aide pour vérifier si l'utilisateur est un participant de la conversation.
+      // Cela est déterminé en vérifiant si l'UID de l'utilisateur est présent dans l'ID du document (chatId).
+      function isParticipant() {
+        return request.auth != null && request.auth.uid in chatId.split('_');
+      }
+
+      // LECTURE (GET) : Autorisée si l'utilisateur est un participant.
+      // Cette règle permet à l'application de vérifier si une conversation existe déjà.
+      allow get: if isParticipant();
+
+      // CRÉATION : Autorisée si l'utilisateur est un participant et qu'il est bien listé
+      // dans les données de la nouvelle conversation.
+      allow create: if isParticipant()
+                    && request.auth.uid in request.resource.data.participants
                     && request.resource.data.participants.size() == 2;
-      
-      // Les messages de chaque conversation sont dans une sous-collection.
+
+      // MISE À JOUR : Autorisée si l'utilisateur est un participant (pour mettre à jour le dernier message, etc.).
+      // Les participants ne doivent pas pouvoir être modifiés.
+      allow update: if isParticipant() && request.resource.data.participants == resource.data.participants;
+
+      // SUPPRESSION : Désactivée pour les clients.
+      allow delete: if false;
+
+
+      // --- Sous-collection des messages ---
       match /messages/{messageId} {
-        // Un utilisateur peut lire les messages d'une conversation s'il est un participant.
-        // On vérifie cela en lisant les données du document parent (la conversation).
-        allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        // LECTURE (LIST & GET) : Autorisée si l'utilisateur est un participant de la conversation parente.
+        allow read: if isParticipant();
+
+        // CRÉATION : Autorisée si l'utilisateur est l'expéditeur du message
+        // et un participant de la conversation parente.
+        allow create: if isParticipant() && request.resource.data.senderId == request.auth.uid;
         
-        // Un utilisateur peut créer (envoyer) un message s'il est participant
-        // ET si l'ID de l'expéditeur du message est bien le sien.
-        allow create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
-                      && request.resource.data.senderId == request.auth.uid;
+        // La mise à jour et la suppression des messages sont désactivées côté client.
+        allow update, delete: if false;
       }
     }
   }
