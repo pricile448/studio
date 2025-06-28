@@ -141,7 +141,6 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
                 if (!isNaN(d.getTime())) return d;
             }
             // Fallback for missing or invalid dates
-            console.warn("Invalid or missing date encountered in user profile, using current date as fallback.", field);
             return new Date(); 
         };
         
@@ -157,8 +156,6 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
             return undefined;
         };
         
-        // By removing the try/catch and handling dates safely, we prevent the function
-        // from returning null on a parsing error, which fixes the frozen loading screen.
         const transactions = (data.transactions || []).map((tx: any) => ({
             ...tx,
             date: parseDate(tx.date)
@@ -201,18 +198,27 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
 
 export async function getOrCreateChatId(userId: string, advisorId: string): Promise<string> {
     const chatCollection = collection(db, 'chats');
-    const participants = [userId, advisorId].sort();
+
+    // Query for chats where the current user is a participant
     const q = query(
         chatCollection,
-        where('participants', '==', participants),
-        limit(1)
+        where('participants', 'array-contains', userId)
     );
 
     const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].id;
+    // Filter the results to find the specific chat with the advisor
+    const existingChat = querySnapshot.docs.find(doc => {
+        const participants = doc.data().participants as string[];
+        // Ensure the chat is specifically between the user and the advisor
+        return participants.includes(advisorId) && participants.length === 2;
+    });
+
+    if (existingChat) {
+        return existingChat.id;
     } else {
+        // Create a new chat if it doesn't exist. Sort for consistency.
+        const participants = [userId, advisorId].sort();
         const newChatRef = await addDoc(chatCollection, {
             participants: participants,
             createdAt: serverTimestamp(),
