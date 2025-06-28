@@ -180,6 +180,7 @@
       "notifications": "Benachrichtigungen",
       "verified": "Verifiziert",
       "unverified": "Nicht verifiziert",
+      "advisor": "Berateransicht",
       "userMenu": {
         "profile": "Profil",
         "billing": "Abrechnung",
@@ -573,7 +574,7 @@
       "unverified_budgets_title": "Verwalten Sie Ihre Budgets",
       "unverified_cards_title": "Verwalten Sie Ihre Karten",
       "pending_title": "Verifizierung läuft",
-      "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel 24 bis 48 Stunden. Sie können weiterhin Ihr Dashboard durchsuchen.",
+      "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel 24-48 Stunden. Sie können weiterhin Ihr Dashboard durchsuchen.",
       "selected": "ausgewählt",
       "clickNext": "Bitte klicken Sie auf 'Weiter', um fortzufahren.",
       "readyToProceed": "Bereit zum Fortfahren?",

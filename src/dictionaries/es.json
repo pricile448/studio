@@ -180,6 +180,7 @@
       "notifications": "Notificaciones",
       "verified": "Verificado",
       "unverified": "No verificado",
+      "advisor": "Vista de Asesor",
       "userMenu": {
         "profile": "Perfil",
         "billing": "Facturación",
@@ -311,7 +312,7 @@
       "freeze": "Bloquear Tarjeta",
       "freezeDescription": "Bloquee temporalmente su tarjeta.",
       "setLimit": "Establecer Límites de Gasto",
-      "setLimitDescription": "Controle sus gastos mensuales.",
+      "setLimitDescription": "Controle sus gastos mensules.",
       "viewPin": "Ver PIN",
       "viewPinDescription": "Vea el PIN de su tarjeta de forma segura.",
       "orderCardTitle": "Pedir una nueva tarjeta física",

@@ -23,8 +23,10 @@ import {
   HelpCircle,
   FileText,
   MessageSquare,
+  Shield,
 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
+import { useAuth } from '@/context/auth-context';
 
 interface SidebarNavProps {
   lang: Locale;
@@ -83,6 +85,7 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
   const pathname = usePathname();
   const sidebarDict = dict.sidebar;
   const sidebarGroupsDict = dict.sidebarGroups;
+  const { userProfile } = useAuth();
 
   return (
     <div className="flex h-full flex-col">
@@ -94,6 +97,22 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
         <SidebarGroup>
           <SidebarGroupLabel>{sidebarGroupsDict.settingsAndMore}</SidebarGroupLabel>
           <NavMenu items={otherNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
+           {userProfile?.kycStatus === 'verified' && (
+             <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(`/${lang}/advisor`)}
+                        tooltip={sidebarDict.advisor}
+                    >
+                        <Link href={`/${lang}/advisor`}>
+                            <Shield />
+                            <span>{sidebarDict.advisor}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+             </SidebarMenu>
+           )}
         </SidebarGroup>
       </div>
     </div>

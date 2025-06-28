@@ -180,6 +180,7 @@
       "notifications": "Notifications",
       "verified": "Verified",
       "unverified": "Unverified",
+      "advisor": "Advisor View",
       "userMenu": {
         "profile": "Profile",
         "billing": "Billing",
