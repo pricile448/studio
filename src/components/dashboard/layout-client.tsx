@@ -39,11 +39,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut, MessageSquare, Loader2 } from 'lucide-react';
+import { Bell, LogOut, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ChatClient } from '@/components/chat/chat-client';
 import { useToast } from '@/hooks/use-toast';
 
 export function DashboardLayoutClient({
@@ -59,7 +57,6 @@ export function DashboardLayoutClient({
   const router = useRouter();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const notificationsDict = dict.dashboard.notifications;
   const mockNotifications = [
@@ -102,7 +99,7 @@ export function DashboardLayoutClient({
     }
   }, [user, loading, router, lang, isLoggingOut]);
 
-  if (loading || !user || !user.emailVerified || !userProfile) {
+  if (loading || !user || !user.emailVerified || !userProfile || !dict) {
     return (
         <div className="flex h-screen w-full bg-background">
             <div className="hidden md:block">
@@ -173,23 +170,10 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <MessageSquare className="h-5 w-5" />
-                        <span className="sr-only">Chat</span>
-                    </Button>
-                </SheetTrigger>
-                <SheetContent className="p-0 w-full max-w-md">
-                   {isChatOpen ? (
-                     user && userProfile && dict.chat ? (
-                       <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
-                     ) : (
-                       <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-                     )
-                   ) : null}
-                </SheetContent>
-            </Sheet>
+            <Button variant="ghost" size="icon" onClick={() => alert('Test')}>
+                <MessageSquare className="h-5 w-5" />
+                <span className="sr-only">Chat</span>
+            </Button>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
