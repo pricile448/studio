@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -38,10 +39,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
 import { useToast } from '@/hooks/use-toast';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { ChatClient } from '@/components/chat/chat-client';
 
 export function DashboardLayoutClient({
   children,
@@ -56,6 +59,7 @@ export function DashboardLayoutClient({
   const router = useRouter();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const notificationsDict = dict.dashboard.notifications;
   const mockNotifications = [
@@ -73,19 +77,21 @@ export function DashboardLayoutClient({
 
   const [selectedNotification, setSelectedNotification] = useState<(typeof mockNotifications)[0] | null>(null);
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = useCallback(async (isInactive = false) => {
     if (isLoggingOut) return;
     
     setIsLoggingOut(true);
-    toast({
-        title: dict.login.inactivityLogoutTitle,
-        description: dict.login.inactivityLogoutDescription,
-    });
+    if (isInactive) {
+      toast({
+          title: dict.login.inactivityLogoutTitle,
+          description: dict.login.inactivityLogoutDescription,
+      });
+    }
     await logout();
-    router.push(`/${lang}/login?reason=inactivity`);
+    router.push(`/${lang}/login${isInactive ? '?reason=inactivity' : ''}`);
   }, [isLoggingOut, logout, router, lang, toast, dict]);
 
-  useInactivityLogout(15 * 60 * 1000, handleLogout);
+  useInactivityLogout(15 * 60 * 1000, () => handleLogout(true));
 
 
   useEffect(() => {
@@ -154,7 +160,7 @@ export function DashboardLayoutClient({
             </div>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleLogout} tooltip={dict.sidebar.userMenu.logout}>
+                    <SidebarMenuButton onClick={() => handleLogout(false)} tooltip={dict.sidebar.userMenu.logout}>
                         <LogOut />
                         <span>{dict.sidebar.userMenu.logout}</span>
                     </SidebarMenuButton>
@@ -169,9 +175,20 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => alert('Chat button clicked!')}>
-                Chat
-            </Button>
+            <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MessageSquare className="h-5 w-5" />
+                  <span className="sr-only">{dict.chat.title}</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="p-0 w-full max-w-sm">
+                {user && userProfile && (
+                  <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
+                )}
+              </SheetContent>
+            </Sheet>
+
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
