@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -39,7 +38,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut, MessageSquare } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
 import { useToast } from '@/hooks/use-toast';
@@ -170,9 +169,8 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => alert('Test')}>
-                <MessageSquare className="h-5 w-5" />
-                <span className="sr-only">Chat</span>
+            <Button variant="ghost" onClick={() => alert('Chat button clicked!')}>
+                Chat
             </Button>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
