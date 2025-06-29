@@ -8,7 +8,12 @@ const defaultLocale = 'fr'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Check if there is any supported locale in the pathname
+  // Exempter les routes admin de la logique de localisation
+  if (pathname.startsWith('/admin')) {
+    return NextResponse.next()
+  }
+
+  // Vérifier si une locale supportée est déjà dans le chemin
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
@@ -17,7 +22,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect if there is no locale, cloning the URL and prepending the default locale.
+  // Rediriger si aucune locale n'est présente, en ajoutant la locale par défaut.
   const url = request.nextUrl.clone()
   url.pathname = `/${defaultLocale}${pathname}`
   return NextResponse.redirect(url)
@@ -25,7 +30,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next) and static assets
+    // Exclure tous les chemins internes (_next) et les ressources statiques
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
