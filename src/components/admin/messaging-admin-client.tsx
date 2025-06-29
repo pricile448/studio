@@ -199,19 +199,14 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
                                     {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
-                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48 mb-2">
-                                            <Image
-                                                src={msg.fileUrl}
-                                                alt={msg.fileName || 'Image en pièce jointe'}
-                                                fill
-                                                style={{objectFit: 'cover'}}
-                                                className="rounded-md"
-                                            />
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48 mb-1">
+                                            <Image src={msg.fileUrl} alt={msg.fileName || 'Image en pièce jointe'} fill style={{objectFit: 'cover'}} className="rounded-md"/>
                                         </a>
-                                    ) : msg.fileUrl ? (
-                                        <a href={msg.fileUrl} download={msg.fileName} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline mb-2">
-                                            <FileIcon className="h-4 w-4" />
-                                            <span>{msg.fileName || 'Fichier partagé'}</span>
+                                    ) : null}
+                                    {msg.fileUrl && !msg.fileType?.startsWith('image/') ? (
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mb-1 underline">
+                                            <FileIcon className="h-5 w-5" />
+                                            <span className="truncate">{msg.fileName || 'Fichier partagé'}</span>
                                         </a>
                                     ) : null}
                                     {msg.text && <p>{msg.text}</p>}
@@ -269,7 +264,7 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID && p !== user.uid);
+                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
                 
                 let participantDetails = {
                     id: clientParticipantId || '',

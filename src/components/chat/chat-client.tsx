@@ -243,7 +243,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                     )}>
                                         {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
-                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48 mb-2">
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48 mb-1">
                                                 <Image
                                                     src={msg.fileUrl}
                                                     alt={msg.fileName || 'Image en pièce jointe'}
@@ -252,15 +252,14 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                     className="rounded-md"
                                                 />
                                             </a>
-                                        ) : msg.fileUrl ? (
-                                            <a href={msg.fileUrl} download={msg.fileName} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline mb-2">
-                                                <FileIcon className="h-4 w-4" />
-                                                <span>{msg.fileName || 'Fichier partagé'}</span>
+                                        ) : null}
+                                        {msg.fileUrl && !msg.fileType?.startsWith('image/') ? (
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mb-1 underline">
+                                                <FileIcon className="h-5 w-5" />
+                                                <span className="truncate">{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
                                         ) : null}
-                                        
                                         {msg.text && <p>{msg.text}</p>}
-
                                         <p className={cn("text-xs mt-1 text-right", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                             {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
