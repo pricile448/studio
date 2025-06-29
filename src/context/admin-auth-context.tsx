@@ -37,7 +37,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
         if (adminSnap.exists()) {
           setIsAdmin(true);
-          const profile = await getUserFromFirestore(user.uid);
+          const profile = await getUserFromFirestore(user.uid, adminDb);
           setUserProfile(profile);
         } else {
           setIsAdmin(false);

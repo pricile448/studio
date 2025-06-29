@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,6 +11,9 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { getFirebaseServices } from '@/lib/firebase/config';
+
+const { db: adminDb } = getFirebaseServices('admin');
 
 export function UsersClient() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -20,7 +22,7 @@ export function UsersClient() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const userList = await getAllUsers();
+                const userList = await getAllUsers(adminDb);
                 setUsers(userList);
             } catch (error) {
                 console.error("Erreur lors de la récupération des utilisateurs:", error);

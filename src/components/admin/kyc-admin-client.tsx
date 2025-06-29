@@ -10,6 +10,9 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { getFirebaseServices } from '@/lib/firebase/config';
+
+const { db: adminDb } = getFirebaseServices('admin');
 
 export function KycAdminClient() {
     const [requests, setRequests] = useState<UserProfile[]>([]);
@@ -19,7 +22,7 @@ export function KycAdminClient() {
     const fetchRequests = async () => {
         setLoading(true);
         try {
-            const requestList = await getPendingKycUsers();
+            const requestList = await getPendingKycUsers(adminDb);
             setRequests(requestList);
         } catch (error) {
             console.error("Erreur lors de la récupération des demandes KYC:", error);
@@ -36,7 +39,7 @@ export function KycAdminClient() {
     const handleKycAction = async (userId: string, status: 'verified' | 'unverified') => {
         setUpdatingId(userId);
         try {
-            await updateUserInFirestore(userId, { kycStatus: status });
+            await updateUserInFirestore(userId, { kycStatus: status }, adminDb);
             useToast().toast({ title: 'Statut KYC mis à jour', description: `L'utilisateur a été ${status === 'verified' ? 'approuvé' : 'rejeté'}.` });
             // Refresh list
             fetchRequests();

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +12,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { getFirebaseServices } from '@/lib/firebase/config';
+
+const { db: adminDb } = getFirebaseServices('admin');
 
 interface UserDetailClientProps {
     userProfile: UserProfile;
@@ -35,7 +37,7 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
         setIsSubmitting(true);
         try {
             const depositAmount = parseFloat(amount);
-            await addFundsToAccount(user.uid, selectedAccountId, depositAmount, reason);
+            await addFundsToAccount(user.uid, selectedAccountId, depositAmount, reason, adminDb);
             toast({ title: 'Dépôt réussi', description: `${depositAmount}€ ont été ajoutés au compte.` });
             
             // Optimistically update UI
@@ -117,7 +119,7 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
     const handleGenerateIban = async () => {
         setIsLoading(true);
         try {
-            const { iban, bic } = await generateUserIban(user.uid);
+            const { iban, bic } = await generateUserIban(user.uid, adminDb);
             toast({ title: 'RIB Généré', description: `Le RIB pour ${user.firstName} a été créé.` });
             onUpdate({ ...user, iban, bic });
         } catch (error) {

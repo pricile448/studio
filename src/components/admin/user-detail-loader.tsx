@@ -5,6 +5,9 @@ import { UserDetailClient } from '@/components/admin/user-detail-client';
 import { notFound } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { getFirebaseServices } from '@/lib/firebase/config';
+
+const { db: adminDb } = getFirebaseServices('admin');
 
 export function UserDetailLoader({ userId }: { userId: string }) {
     const [user, setUser] = useState<UserProfile | null>(null);
@@ -16,7 +19,7 @@ export function UserDetailLoader({ userId }: { userId: string }) {
             setLoading(true);
             setError(null);
             try {
-                const userProfile = await getUserFromFirestore(userId);
+                const userProfile = await getUserFromFirestore(userId, adminDb);
                 if (!userProfile) {
                     setError('User not found');
                 } else {

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, useTransition } from 'react';
 import { collection, query, onSnapshot, Timestamp, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
 import type { ChatMessage, UserProfile } from '@/lib/firebase/firestore';
 import { addMessageToChat, getUserFromFirestore } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from '@/hooks/use-toast';
+import { getFirebaseServices } from '@/lib/firebase/config';
+import type { Firestore } from 'firebase/firestore';
+
+const { db: adminDb } = getFirebaseServices('admin');
 
 interface ChatSession {
     id: string;
@@ -40,20 +43,20 @@ interface ChatSession {
     };
 }
 
-function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatSession, adminId: string, adminName: string }) {
+function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const q = query(collection(db, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
+        const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const msgs: ChatMessage[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChatMessage));
             setMessages(msgs);
         });
         return () => unsubscribe();
-    }, [chatSession.id]);
+    }, [chatSession.id, adminDb]);
 
     useEffect(() => {
         scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -69,7 +72,7 @@ function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatS
                 text: newMessage,
                 senderId: adminId,
                 timestamp: Timestamp.now(),
-            });
+            }, adminDb);
             setNewMessage('');
         } catch (error) {
             console.error("Erreur lors de l'envoi du message:", error);
@@ -156,11 +159,11 @@ export function MessagingAdminClient() {
     useEffect(() => {
         if (!user) return;
         
-        const q = query(collection(db, 'chats'));
+        const q = query(collection(adminDb, 'chats'));
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== user.uid && p !== 'advisor_123');
+                const clientParticipantId = data.participants.find((p: string) => p !== user.uid);
                 
                 let participantDetails = {
                     id: clientParticipantId || '',
@@ -169,7 +172,7 @@ export function MessagingAdminClient() {
                 };
 
                 if (clientParticipantId) {
-                    const userDoc = await getUserFromFirestore(clientParticipantId);
+                    const userDoc = await getUserFromFirestore(clientParticipantId, adminDb);
                     if (userDoc) {
                         participantDetails = {
                             id: userDoc.uid,
@@ -273,7 +276,7 @@ export function MessagingAdminClient() {
 
             <Card className="md:col-span-2 h-full flex flex-col">
                 {selectedChat ? (
-                    <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} />
+                    <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} />
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center p-8">
                         <MessageSquare className="h-16 w-16 text-muted-foreground/50" />

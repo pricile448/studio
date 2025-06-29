@@ -136,8 +136,8 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
   });
 }
 
-export async function getUserFromFirestore(uid: string): Promise<UserProfile | null> {
-    const userRef = doc(defaultDb, 'users', uid);
+export async function getUserFromFirestore(uid: string, db: Firestore = defaultDb): Promise<UserProfile | null> {
+    const userRef = doc(db, 'users', uid);
     const docSnap = await getDoc(userRef);
 
     if (docSnap.exists()) {
@@ -192,8 +192,8 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
 }
 
 
-export async function updateUserInFirestore(uid: string, data: Partial<Omit<UserProfile, 'uid'>>) {
-  const userRef = doc(defaultDb, "users", uid);
+export async function updateUserInFirestore(uid: string, data: Partial<Omit<UserProfile, 'uid'>>, db: Firestore = defaultDb) {
+  const userRef = doc(db, "users", uid);
   
   const dataToUpdate: { [key: string]: any } = { ...data };
   if (data.dob instanceof Date) {
@@ -207,10 +207,10 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
 }
 
 
-export async function getOrCreateChatId(userId: string, advisorId: string): Promise<string> {
+export async function getOrCreateChatId(userId: string, advisorId: string, db: Firestore = defaultDb): Promise<string> {
     const participants = [userId, advisorId].sort();
     const chatId = participants.join('_');
-    const chatRef = doc(defaultDb, 'chats', chatId);
+    const chatRef = doc(db, 'chats', chatId);
 
     const chatSnap = await getDoc(chatRef);
 
@@ -225,31 +225,29 @@ export async function getOrCreateChatId(userId: string, advisorId: string): Prom
     }
 }
 
-export async function addMessageToChat(chatId: string, message: Omit<ChatMessage, 'id'>) {
-    const messagesCollection = collection(defaultDb, 'chats', chatId, 'messages');
+export async function addMessageToChat(chatId: string, message: Omit<ChatMessage, 'id'>, db: Firestore = defaultDb) {
+    const messagesCollection = collection(db, 'chats', chatId, 'messages');
     await addDoc(messagesCollection, message);
-    await updateDoc(doc(defaultDb, 'chats', chatId), {
+    await updateDoc(doc(db, 'chats', chatId), {
         lastMessageText: message.text,
         lastMessageTimestamp: message.timestamp,
         lastMessageSenderId: message.senderId,
     });
 }
 
-export async function softDeleteUserMessage(chatId: string, messageId: string) {
-    const messageRef = doc(defaultDb, 'chats', chatId, 'messages', messageId);
+export async function softDeleteUserMessage(chatId: string, messageId: string, db: Firestore = defaultDb) {
+    const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
     await updateDoc(messageRef, { deletedForUser: true });
 }
 
 export async function deleteChatSession(chatId: string, dbInstance: Firestore = defaultDb) {
-    // Note: This deletes the chat document but not the subcollection of messages.
-    // In a production environment, a Cloud Function would be used for cascading deletes.
     const chatRef = doc(dbInstance, 'chats', chatId);
     await deleteDoc(chatRef);
 }
 
 
-export async function getAllUsers(): Promise<UserProfile[]> {
-    const usersCollection = collection(defaultDb, 'users');
+export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfile[]> {
+    const usersCollection = collection(db, 'users');
     const usersSnapshot = await getDocs(usersCollection);
     const usersList = usersSnapshot.docs.map(doc => {
         const data = doc.data();
@@ -280,8 +278,8 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     return usersList;
 }
 
-export async function getPendingKycUsers(): Promise<UserProfile[]> {
-    const usersCollection = collection(defaultDb, 'users');
+export async function getPendingKycUsers(db: Firestore = defaultDb): Promise<UserProfile[]> {
+    const usersCollection = collection(db, 'users');
     const q = query(usersCollection, where("kycStatus", "==", "pending"));
     
     const querySnapshot = await getDocs(q);
@@ -314,8 +312,8 @@ export async function getPendingKycUsers(): Promise<UserProfile[]> {
     return usersList;
 }
 
-export async function addFundsToAccount(userId: string, accountId: string, amount: number, description: string): Promise<void> {
-  const userRef = doc(defaultDb, "users", userId);
+export async function addFundsToAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
   if (!userSnap.exists()) {
@@ -352,8 +350,8 @@ export async function addFundsToAccount(userId: string, accountId: string, amoun
   });
 }
 
-export async function generateUserIban(userId: string): Promise<{iban: string, bic: string}> {
-  const userRef = doc(defaultDb, "users", userId);
+export async function generateUserIban(userId: string, db: Firestore = defaultDb): Promise<{iban: string, bic: string}> {
+  const userRef = doc(db, "users", userId);
   
   const countryCode = "FR76";
   const bankCode = "30004";
