@@ -209,7 +209,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                                             />
                                         </a>
                                     ) : msg.fileUrl ? (
-                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline mb-2">
+                                        <a href={msg.fileUrl} download={msg.fileName} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline mb-2">
                                             <FileIcon className="h-4 w-4" />
                                             <span>{msg.fileName || 'Fichier partagé'}</span>
                                         </a>
