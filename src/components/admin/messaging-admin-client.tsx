@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Firestore } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
+import Image from 'next/image';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -61,6 +62,8 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
+    const { deleteAdminMessage } = useAdminAuth();
+    const [isDeleting, startDeleteTransition] = useTransition();
 
     useEffect(() => {
         const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
@@ -125,6 +128,17 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
         }
     };
 
+    const handleDeleteAdminMessage = (messageId?: string) => {
+        if (!messageId) return;
+        startDeleteTransition(async () => {
+            try {
+                await deleteAdminMessage(chatSession.id, messageId);
+                toast({ title: "Message supprimé définitivement." });
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Erreur', description: "Impossible de supprimer le message." });
+            }
+        });
+    };
 
     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('') || 'A';
 
@@ -137,6 +151,8 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
                     {messages.map((msg) => {
+                        const isAdmin = msg.senderId === adminId;
+
                         if (msg.deletedForUser) {
                            return (
                              <div key={msg.id} className="flex justify-start">
@@ -146,9 +162,32 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                             </div>
                            )
                         }
-                        const isAdmin = msg.senderId === adminId;
+
                         return (
-                             <div key={msg.id} className={cn('flex items-end gap-2', isAdmin ? 'justify-end' : 'justify-start')}>
+                             <div key={msg.id} className={cn('group flex items-end gap-2', isAdmin ? 'justify-end' : 'justify-start')}>
+                                {isAdmin && (
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Supprimer ce message définitivement ?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Cette action est irréversible. Le message sera définitivement supprimé pour vous et pour l'utilisateur.
+                                            </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteAdminMessage(msg.id)} disabled={isDeleting}>
+                                                {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
+                                            </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                )}
                                 {!isAdmin && (
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src={chatSession.otherParticipant.avatar} />
@@ -159,14 +198,23 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                                     'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
-                                    {msg.fileUrl ? (
-                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline">
+                                    {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48 mb-2">
+                                            <Image
+                                                src={msg.fileUrl}
+                                                alt={msg.fileName || 'Image en pièce jointe'}
+                                                fill
+                                                style={{objectFit: 'cover'}}
+                                                className="rounded-md"
+                                            />
+                                        </a>
+                                    ) : msg.fileUrl ? (
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline mb-2">
                                             <FileIcon className="h-4 w-4" />
                                             <span>{msg.fileName || 'Fichier partagé'}</span>
                                         </a>
-                                    ) : (
-                                        <p>{msg.text}</p>
-                                    )}
+                                    ) : null}
+                                    {msg.text && <p>{msg.text}</p>}
                                     <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                         {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
@@ -221,7 +269,7 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
+                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID && p !== user.uid);
                 
                 let participantDetails = {
                     id: clientParticipantId || '',

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { getUserFromFirestore, UserProfile, deleteChatSession } from '@/lib/firebase/firestore';
+import { getUserFromFirestore, UserProfile, deleteChatSession, hardDeleteMessage } from '@/lib/firebase/firestore';
 import { doc, getDoc } from "firebase/firestore";
 
 // Initialize admin-specific Firebase services
@@ -17,6 +17,7 @@ type AdminAuthContextType = {
   login: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
   deleteConversation: (chatId: string) => Promise<void>;
+  deleteAdminMessage: (chatId: string, messageId: string) => Promise<void>;
 };
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
@@ -78,7 +79,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     await deleteChatSession(chatId, adminDb);
   };
 
-  const value = { user, userProfile, loading, isAdmin, login, logout, deleteConversation };
+  const deleteAdminMessage = async (chatId: string, messageId: string) => {
+      await hardDeleteMessage(chatId, messageId, adminDb);
+  };
+
+  const value = { user, userProfile, loading, isAdmin, login, logout, deleteConversation, deleteAdminMessage };
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }

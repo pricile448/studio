@@ -246,6 +246,11 @@ export async function softDeleteUserMessage(chatId: string, messageId: string, d
     await updateDoc(messageRef, { deletedForUser: true });
 }
 
+export async function hardDeleteMessage(chatId: string, messageId: string, db: Firestore = defaultDb) {
+    const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
+    await deleteDoc(messageRef);
+}
+
 export async function deleteChatSession(chatId: string, dbInstance: Firestore = defaultDb) {
     const chatRef = doc(dbInstance, 'chats', chatId);
     await deleteDoc(chatRef);

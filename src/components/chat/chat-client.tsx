@@ -29,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { uploadToCloudinary } from '@/services/cloudinary-service';
+import Image from 'next/image';
 
 interface ChatClientProps {
     dict: Dictionary['chat'];
@@ -241,15 +242,26 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                         'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                     )}>
-                                        {msg.fileUrl ? (
-                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline">
+                                        {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48 mb-2">
+                                                <Image
+                                                    src={msg.fileUrl}
+                                                    alt={msg.fileName || 'Image en pièce jointe'}
+                                                    fill
+                                                    style={{objectFit: 'cover'}}
+                                                    className="rounded-md"
+                                                />
+                                            </a>
+                                        ) : msg.fileUrl ? (
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline mb-2">
                                                 <FileIcon className="h-4 w-4" />
                                                 <span>{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
-                                        ) : (
-                                            <p>{msg.text}</p>
-                                        )}
-                                        <p className={cn("text-xs mt-1", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
+                                        ) : null}
+                                        
+                                        {msg.text && <p>{msg.text}</p>}
+
+                                        <p className={cn("text-xs mt-1 text-right", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                             {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
                                     </div>
