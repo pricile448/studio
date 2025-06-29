@@ -138,10 +138,11 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== user.uid);
+                const ADVISOR_ID = 'advisor_123'; // As defined in firestore.ts for new users
+                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
                 
                 let participantDetails = {
-                    id: '',
+                    id: clientParticipantId || '',
                     name: 'Utilisateur Inconnu',
                     avatar: ''
                 };
@@ -154,8 +155,6 @@ export function MessagingAdminClient() {
                             name: `${userDoc.firstName} ${userDoc.lastName}`,
                             avatar: userDoc.photoURL || ''
                         };
-                    } else {
-                        participantDetails.id = clientParticipantId;
                     }
                 }
 
