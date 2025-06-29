@@ -1,12 +1,14 @@
-
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { getFirebaseServices } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
+
+// Initialize default (client-side) Firebase services
+const { auth, db } = getFirebaseServices();
 
 type AuthContextType = {
   user: User | null;
@@ -162,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteConversation = async (chatId: string) => {
-    await deleteChatSession(chatId);
+    await deleteChatSession(chatId, db);
   };
 
   const deleteMessage = async (chatId: string, messageId: string) => {

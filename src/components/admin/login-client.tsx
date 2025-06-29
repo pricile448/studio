@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/auth-context';
+import { useAdminAuth } from '@/context/admin-auth-context';
 import { Logo } from '../logo';
 
 const loginSchema = z.object({
@@ -23,7 +23,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginClient() {
-  const { login } = useAuth();
+  const { login } = useAdminAuth();
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +42,7 @@ export function LoginClient() {
       toast({
         variant: 'destructive',
         title: 'Échec de la connexion',
-        description: "Vos identifiants sont incorrects ou vous n'êtes pas un administrateur.",
+        description: error.message || "Vos identifiants sont incorrects ou vous n'êtes pas un administrateur.",
       });
     } finally {
       setIsSubmitting(false);

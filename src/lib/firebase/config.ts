@@ -1,7 +1,7 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
+import { getStorage, FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,10 +12,39 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Singleton map to store initialized app instances
+const appInstances = new Map<string, FirebaseApp>();
+
+interface FirebaseServices {
+    app: FirebaseApp;
+    auth: Auth;
+    db: Firestore;
+    storage: FirebaseStorage;
+}
+
+export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServices {
+    if (appInstances.has(appName)) {
+        const app = appInstances.get(appName)!;
+        return {
+            app,
+            auth: getAuth(app),
+            db: getFirestore(app),
+            storage: getStorage(app),
+        };
+    }
+
+    const app = getApps().find(app => app.name === appName) || initializeApp(firebaseConfig, appName);
+    appInstances.set(appName, app);
+
+    return {
+        app,
+        auth: getAuth(app),
+        db: getFirestore(app),
+        storage: getStorage(app),
+    };
+}
+
+// Default export for convenience where only one instance is needed (client-side)
+const { app, auth, db, storage } = getFirebaseServices();
 
 export { app, auth, db, storage };

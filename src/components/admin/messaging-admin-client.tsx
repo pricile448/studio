@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useRef, useTransition } from 'react';
@@ -14,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Loader2, Send, MessageSquare, Trash2 } from 'lucide-react';
-import { useAuth } from '@/context/auth-context';
+import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
 import {
   AlertDialog,
@@ -147,7 +146,7 @@ function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatS
 }
 
 export function MessagingAdminClient() {
-    const { user, userProfile, deleteConversation } = useAuth();
+    const { user, userProfile, deleteConversation } = useAdminAuth();
     const [chats, setChats] = useState<ChatSession[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
