@@ -462,7 +462,16 @@
         "passwordLengthError": "La contraseña debe tener al menos 6 caracteres.",
         "passwordMismatchError": "Las contraseñas no coinciden.",
         "currentPasswordIncorrect": "La contraseña actual es incorrecta.",
-        "passwordRequiredError": "La contraseña es obligatoria."
+        "passwordRequiredError": "La contraseña es obligatoria.",
+        "inactivityTitle": "Cierre de sesión automático",
+        "inactivityDescription": "Por su seguridad, elija la duración de la inactividad tras la cual se cerrará automáticamente la sesión.",
+        "inactivityLabel": "Tiempo de espera antes de cerrar sesión",
+        "saveTimeoutButton": "Guardar tiempo de espera",
+        "saveSuccess": "¡Configuración guardada!",
+        "minutes_5": "5 minutos",
+        "minutes_15": "15 minutos",
+        "minutes_30": "30 minutos",
+        "never": "Nunca"
       },
       "notifications": {
         "title": "Notificaciones",

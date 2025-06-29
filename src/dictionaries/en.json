@@ -462,7 +462,16 @@
         "passwordLengthError": "Password must be at least 6 characters.",
         "passwordMismatchError": "Passwords do not match.",
         "currentPasswordIncorrect": "The current password is incorrect.",
-        "passwordRequiredError": "Password is required."
+        "passwordRequiredError": "Password is required.",
+        "inactivityTitle": "Automatic Logout",
+        "inactivityDescription": "For your security, choose the duration of inactivity after which your session will be automatically closed.",
+        "inactivityLabel": "Timeout before logout",
+        "saveTimeoutButton": "Save Timeout",
+        "saveSuccess": "Setting saved!",
+        "minutes_5": "5 minutes",
+        "minutes_15": "15 minutes",
+        "minutes_30": "30 minutes",
+        "never": "Never"
       },
       "notifications": {
         "title": "Notifications",

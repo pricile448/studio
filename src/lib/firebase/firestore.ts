@@ -63,6 +63,7 @@ export type UserProfile = {
     promotions: boolean;
     security: boolean;
   };
+  inactivityTimeout?: number; // in minutes, 0 for never
   createdAt: Date;
   kycStatus: 'unverified' | 'pending' | 'verified';
   cardStatus: 'none' | 'requested' | 'active';
@@ -111,6 +112,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
         promotions: false,
         security: true,
     },
+    inactivityTimeout: 15, // Default timeout of 15 minutes
     accounts: defaultAccounts,
     transactions: [],
     beneficiaries: [],

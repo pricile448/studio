@@ -462,7 +462,16 @@
         "passwordLengthError": "A senha deve ter pelo menos 6 caracteres.",
         "passwordMismatchError": "As senhas não correspondem.",
         "currentPasswordIncorrect": "A senha atual está incorreta.",
-        "passwordRequiredError": "A senha é obrigatória."
+        "passwordRequiredError": "A senha é obrigatória.",
+        "inactivityTitle": "Logout automático",
+        "inactivityDescription": "Por sua segurança, escolha a duração da inatividade após a qual a sua sessão será encerrada automaticamente.",
+        "inactivityLabel": "Tempo limite antes do logout",
+        "saveTimeoutButton": "Salvar tempo limite",
+        "saveSuccess": "Configuração salva!",
+        "minutes_5": "5 minutos",
+        "minutes_15": "15 minutos",
+        "minutes_30": "30 minutos",
+        "never": "Nunca"
       },
       "notifications": {
         "title": "Notificações",

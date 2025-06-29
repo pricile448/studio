@@ -96,7 +96,15 @@ export function DashboardLayoutClient({
     router.push(`/${lang}/login${isInactive ? '?reason=inactivity' : ''}`);
   }, [isLoggingOut, logout, router, lang, toast, dict]);
 
-  useInactivityLogout(15 * 60 * 1000, () => handleLogout(true));
+  // Read timeout from user profile, with a default of 15 minutes.
+  const timeoutMinutes = userProfile?.inactivityTimeout ?? 15;
+  const timeoutMs = timeoutMinutes * 60 * 1000;
+
+  // Only activate the hook if the timeout is greater than 0.
+  // A value of 0 means "Never".
+  if (timeoutMinutes > 0) {
+    useInactivityLogout(timeoutMs, () => handleLogout(true));
+  }
 
 
   useEffect(() => {
@@ -180,9 +188,6 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
-             <Button variant="ghost" size="icon" onClick={() => alert('Test')}>
-                Test
-              </Button>
                <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -254,7 +259,6 @@ export function DashboardLayoutClient({
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
-           <div style={{color: 'red'}}>ZONE TEST</div>
           {children}
         </main>
         <footer className="border-t bg-card/50">

@@ -462,7 +462,16 @@
         "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
         "passwordMismatchError": "Les mots de passe ne correspondent pas.",
         "currentPasswordIncorrect": "Le mot de passe actuel est incorrect.",
-        "passwordRequiredError": "Le mot de passe est requis."
+        "passwordRequiredError": "Le mot de passe est requis.",
+        "inactivityTitle": "Déconnexion automatique",
+        "inactivityDescription": "Pour votre sécurité, choisissez la durée d'inactivité après laquelle votre session sera automatiquement fermée.",
+        "inactivityLabel": "Délai avant déconnexion",
+        "saveTimeoutButton": "Enregistrer le délai",
+        "saveSuccess": "Paramètre enregistré !",
+        "minutes_5": "5 minutes",
+        "minutes_15": "15 minutes",
+        "minutes_30": "30 minutes",
+        "never": "Jamais"
       },
       "notifications": {
         "title": "Notifications",

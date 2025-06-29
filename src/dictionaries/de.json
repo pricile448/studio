@@ -462,7 +462,16 @@
         "passwordLengthError": "Das Passwort muss mindestens 6 Zeichen lang sein.",
         "passwordMismatchError": "Die Passwörter stimmen nicht überein.",
         "currentPasswordIncorrect": "Das aktuelle Passwort ist falsch.",
-        "passwordRequiredError": "Passwort ist erforderlich."
+        "passwordRequiredError": "Passwort ist erforderlich.",
+        "inactivityTitle": "Automatische Abmeldung",
+        "inactivityDescription": "Zu Ihrer Sicherheit, wählen Sie die Dauer der Inaktivität, nach der Ihre Sitzung automatisch geschlossen wird.",
+        "inactivityLabel": "Zeitlimit vor Abmeldung",
+        "saveTimeoutButton": "Zeitlimit speichern",
+        "saveSuccess": "Einstellung gespeichert!",
+        "minutes_5": "5 Minuten",
+        "minutes_15": "15 Minuten",
+        "minutes_30": "30 Minuten",
+        "never": "Niemals"
       },
       "notifications": {
         "title": "Benachrichtigungen",
