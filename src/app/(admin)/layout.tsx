@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, ReactNode } from 'react';
@@ -40,54 +39,84 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
     const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
     useEffect(() => {
-        if (authLoading) return;
-
-        if (!user) {
-            router.replace('/fr/login');
+        // Ne rien faire tant que l'authentification Firebase n'est pas chargée
+        if (authLoading) {
             return;
         }
 
-        const checkAdminStatus = async () => {
-            const adminRef = doc(db, 'admins', user.uid);
-            const adminSnap = await getDoc(adminRef);
-
-            if (adminSnap.exists()) {
-                setIsAdmin(true);
+        // Si l'utilisateur n'est pas connecté et n'est pas sur la page de connexion, rediriger vers la page de connexion admin
+        if (!user) {
+            if (pathname !== '/admin/login') {
+                router.replace('/admin/login');
             } else {
-                console.warn("Accès non autorisé à la section admin.");
-                router.replace('/fr/dashboard');
+                // Si sur la page de connexion, pas besoin de vérifier le statut admin
+                setIsCheckingAdmin(false);
             }
-            setIsCheckingAdmin(false);
+            return;
+        }
+
+        // Si l'utilisateur est connecté, vérifier s'il est admin
+        const checkAdminStatus = async () => {
+            setIsCheckingAdmin(true);
+            try {
+                const adminRef = doc(db, 'admins', user.uid);
+                const adminSnap = await getDoc(adminRef);
+
+                if (adminSnap.exists()) {
+                    setIsAdmin(true);
+                    // S'il est admin et sur la page de connexion, le rediriger vers le tableau de bord
+                    if (pathname === '/admin/login') {
+                        router.replace('/admin/dashboard');
+                    }
+                } else {
+                    console.warn("Accès non autorisé à la section admin. Redirection.");
+                    await logout(); // Déconnecter l'utilisateur non-admin
+                    router.replace('/fr/login'); // Le rediriger vers la page de connexion client
+                }
+            } catch (error) {
+                console.error("Erreur lors de la vérification du statut admin:", error);
+                await logout();
+                router.replace('/fr/login');
+            } finally {
+                setIsCheckingAdmin(false);
+            }
         };
 
         checkAdminStatus();
 
-    }, [user, authLoading, router]);
+    }, [user, authLoading, router, pathname, logout]);
 
     const handleLogout = async () => {
         await logout();
-        router.push('/fr/login');
+        router.push('/admin/login'); // Rediriger vers la page de connexion admin lors de la déconnexion
     };
 
-    if (authLoading || isCheckingAdmin || !userProfile) {
+    // Afficher un chargeur global pendant la vérification de l'état d'authentification ou du statut admin
+    if (authLoading || isCheckingAdmin) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
+    
+    // Si l'utilisateur n'est pas authentifié et est sur la page de connexion, afficher la page de connexion
+    if (!user && pathname === '/admin/login') {
+        return <>{children}</>;
+    }
 
+    // Ce cas gère un utilisateur connecté qui n'est pas admin, bien que l'effet devrait le rediriger. C'est une sécurité.
     if (!isAdmin) {
-        return (
+         return (
              <div className="flex h-screen w-full items-center justify-center bg-background">
                 <p>Redirection...</p>
             </div>
         );
     }
     
-    const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user?.displayName || 'Admin');
+    // À ce stade, l'utilisateur est un administrateur authentifié. Afficher la mise en page.
+    const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user?.email || 'Admin');
     const initials = userProfile ? `${userProfile.firstName?.charAt(0) ?? ''}${userProfile.lastName?.charAt(0) ?? ''}`.toUpperCase() : 'A';
-
 
     return (
         <SidebarProvider>
