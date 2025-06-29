@@ -92,14 +92,13 @@ service cloud.firestore {
 
         // --- Sous-collection des messages ---
         match /messages/{messageId} {
-            // Un utilisateur peut lire les messages d'une conversation s'il en est participant.
-            // On vérifie cela en lisant le document parent (/chats/{chatId}).
-            allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+            // Lecture autorisée si l'utilisateur est participant OU administrateur.
+            allow read: if (request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants) || isAdmin();
 
-            // Un utilisateur peut écrire un message s'il est participant ET s'il est l'auteur du message.
+            // Écriture autorisée si l'utilisateur est l'auteur du message ET (participant ou admin).
             allow write: if request.auth != null 
-                        && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
-                        && request.resource.data.senderId == request.auth.uid;
+                        && request.resource.data.senderId == request.auth.uid
+                        && (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin());
             
             // Personne ne peut supprimer un message individuel depuis le client pour garder l'intégrité.
             allow delete: if false;
