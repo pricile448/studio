@@ -2,9 +2,9 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { collection, query, orderBy, onSnapshot, where, Timestamp } from 'firebase/firestore';
+import { collection, query, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import type { ChatMessage, UserProfile } from '@/lib/firebase/firestore';
+import type { ChatMessage } from '@/lib/firebase/firestore';
 import { addMessageToChat, getUserFromFirestore } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,11 +13,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Loader2, Send, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { Skeleton } from '../ui/skeleton';
-import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 
 interface AdvisorClientProps {
     dict: Dictionary;
@@ -44,7 +43,7 @@ function ChatInterface({ chatSession, adminId, dict }: { chatSession: ChatSessio
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const q = query(collection(db, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
+        const q = query(collection(db, 'chats', chatSession.id, 'messages'), 'timestamp', 'asc');
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const msgs: ChatMessage[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChatMessage));
             setMessages(msgs);
@@ -141,11 +140,14 @@ export function AdvisorClient({ dict, lang }: AdvisorClientProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const q = query(collection(db, 'chats'), orderBy('lastMessageTimestamp', 'desc'));
+        if (!user) return;
+        
+        // This query no longer has orderBy, so it doesn't require a composite index.
+        const q = query(collection(db, 'chats'));
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const otherParticipantId = data.participants.find((p: string) => p !== user?.uid);
+                const otherParticipantId = data.participants.find((p: string) => p !== user.uid);
                 
                 let otherParticipant;
                 if (otherParticipantId) {
@@ -161,7 +163,16 @@ export function AdvisorClient({ dict, lang }: AdvisorClientProps) {
                     otherParticipant,
                 };
             });
+
             const resolvedChats = await Promise.all(chatSessionsPromises);
+
+            // Sort on the client side to maintain order without needing a complex index
+            resolvedChats.sort((a, b) => {
+                const timeA = a.lastMessageTimestamp?.toMillis() || 0;
+                const timeB = b.lastMessageTimestamp?.toMillis() || 0;
+                return timeB - timeA;
+            });
+            
             setChats(resolvedChats);
             setIsLoading(false);
         }, (error) => {
@@ -170,7 +181,7 @@ export function AdvisorClient({ dict, lang }: AdvisorClientProps) {
         });
 
         return () => unsubscribe();
-    }, [user?.uid]);
+    }, [user]);
 
     if (!userProfile) return <Skeleton className="h-full w-full" />;
 
@@ -187,7 +198,7 @@ export function AdvisorClient({ dict, lang }: AdvisorClientProps) {
                     <Separator />
                     <ScrollArea className="flex-1">
                         <CardContent className="p-0">
-                           {isLoading && <div className="p-6"><Skeleton className="h-10 w-full" /></div>}
+                           {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
                            {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
                            {chats.map(chat => (
                                <div key={chat.id} onClick={() => setSelectedChatId(chat.id)} className={cn("p-4 cursor-pointer hover:bg-muted/50 border-b", selectedChatId === chat.id && "bg-muted")}>
@@ -200,8 +211,8 @@ export function AdvisorClient({ dict, lang }: AdvisorClientProps) {
                 </Card>
 
                 <Card className="md:col-span-2 h-full flex flex-col">
-                   {selectedChat ? (
-                       <ChatInterface chatSession={selectedChat} adminId={userProfile.uid} dict={dict.chat} />
+                   {selectedChat && user ? (
+                       <ChatInterface chatSession={selectedChat} adminId={user.uid} dict={dict.chat} />
                    ) : (
                        <div className="flex flex-col items-center justify-center h-full text-center p-8">
                            <MessageSquare className="h-16 w-16 text-muted-foreground/50" />
