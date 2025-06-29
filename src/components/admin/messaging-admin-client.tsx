@@ -148,7 +148,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                 <CardTitle>Conversation avec {chatSession.otherParticipant.name}</CardTitle>
             </CardHeader>
             <Separator />
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea className="flex-1 min-h-0 p-4">
                 <div className="space-y-4">
                     {messages.map((msg) => {
                         const isAdmin = msg.senderId === adminId;
@@ -198,22 +198,20 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                                     'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
-                                    {msg.fileUrl && (
-                                        <div className="mb-1">
-                                        {msg.fileType?.startsWith('image/') ? (
-                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48">
-                                                <Image src={msg.fileUrl} alt={msg.fileName || 'Image en pièce jointe'} fill style={{objectFit: 'cover'}} className="rounded-md"/>
-                                            </a>
-                                        ) : (
-                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className={cn(
-                                                "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                                isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
-                                            )}>
-                                                <FileIcon className="h-6 w-6 flex-shrink-0" />
-                                                <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
-                                            </a>
-                                        )}
-                                        </div>
+                                    {msg.fileUrl && !msg.fileType?.startsWith('image/') && (
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className={cn(
+                                            "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                            isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10",
+                                            msg.text ? 'mb-1' : ''
+                                        )}>
+                                            <FileIcon className="h-6 w-6 flex-shrink-0" />
+                                            <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
+                                        </a>
+                                    )}
+                                    {msg.fileUrl && msg.fileType?.startsWith('image/') && (
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className={cn("block relative w-48 h-48", msg.text ? 'mb-1' : '')}>
+                                            <Image src={msg.fileUrl} alt={msg.fileName || 'Image en pièce jointe'} fill style={{objectFit: 'cover'}} className="rounded-md"/>
+                                        </a>
                                     )}
                                     {msg.text && <p>{msg.text}</p>}
                                     <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
@@ -344,7 +342,7 @@ export function MessagingAdminClient() {
                     <CardTitle>Conversations</CardTitle>
                 </CardHeader>
                 <Separator />
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 min-h-0">
                     <CardContent className="p-0">
                         {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
                         {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
