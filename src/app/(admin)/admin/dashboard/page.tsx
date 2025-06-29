@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase/config';
+import { getFirebaseServices } from '@/lib/firebase/config';
 import { collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ShieldCheck, MessageSquare, Loader2 } from "lucide-react";
+
+// Utiliser l'instance de base de données de l'administrateur
+const { db: adminDb } = getFirebaseServices('admin');
 
 interface Stat {
     title: string;
@@ -23,13 +26,13 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Récupérer le nombre total d'utilisateurs
-        const usersCollection = collection(db, "users");
+        // Récupérer le nombre total d'utilisateurs avec la base de données admin
+        const usersCollection = collection(adminDb, "users");
         const usersSnapshot = await getCountFromServer(usersCollection);
         const totalUsers = usersSnapshot.data().count;
 
-        // Récupérer les demandes KYC en attente
-        const kycQuery = query(collection(db, "users"), where("kycStatus", "==", "pending"));
+        // Récupérer les demandes KYC en attente avec la base de données admin
+        const kycQuery = query(collection(adminDb, "users"), where("kycStatus", "==", "pending"));
         const kycSnapshot = await getCountFromServer(kycQuery);
         const pendingKyc = kycSnapshot.data().count;
         
