@@ -4,39 +4,106 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user's UID is in the 'admins' collection
+    // --- Fonctions d'aide ---
+    // Vérifie si l'utilisateur authentifié est un administrateur.
     function isAdmin() {
+      // Un utilisateur est admin si son UID existe dans la collection 'admins'.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Rules for the 'users' collection
-    match /users/{userId} {
-      // Allow anyone to sign up.
-      allow create: if request.auth.uid == userId;
+    // --- Collection des administrateurs ---
+    // Utilisée pour la vérification des permissions.
+    // Seuls les utilisateurs authentifiés peuvent lire (pour vérifier leur propre statut).
+    // L'écriture est désactivée côté client pour des raisons de sécurité.
+    match /admins/{adminId} {
+      allow read: if request.auth != null;
+      allow write: if false; // La gestion des admins se fait via la console Firebase.
+    }
 
-      // Users can read/update their own profile.
-      // Admins can read/update ANY profile and LIST all profiles.
-      allow read, update: if request.auth.uid == userId || isAdmin();
-      allow list: if isAdmin();
+    // --- Collection des utilisateurs ---
+    match /users/{userId} {
+      // Fonction d'aide pour vérifier si l'utilisateur est le propriétaire du document
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      // LECTURE : Autorisée pour le propriétaire du document ou un administrateur.
+      allow read: if isOwner() || isAdmin();
+
+      // CRÉATION : Autorisée uniquement pour le propriétaire du document.
+      allow create: if isOwner();
+
+      // MISE À JOUR : Autorisée pour un administrateur (sans restriction) OU pour le propriétaire avec des règles strictes.
+      allow update: if isAdmin() || (isOwner()
+        // --- Champs Immuables (ne peuvent pas être modifiés par l'utilisateur) ---
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt
+
+        // --- Champs réservés à l'administration (ne peuvent pas être modifiés par l'utilisateur) ---
+        // L'utilisateur ne peut pas s'auto-valider. Seul un admin peut passer le statut à 'verified'.
+        && (
+            (request.resource.data.kycStatus == 'pending' && resource.data.kycStatus == 'unverified') ||
+            request.resource.data.kycStatus == resource.data.kycStatus
+           )
+        && request.resource.data.cardStatus == resource.data.cardStatus
+        && request.resource.data.get('iban', null) == resource.data.get('iban', null)
+        && request.resource.data.get('bic', null) == resource.data.get('bic', null)
+
+        // --- Intégrité des soldes de comptes (l'utilisateur ne peut pas modifier les soldes) ---
+        && request.resource.data.accounts.size() == resource.data.accounts.size()
+        && (
+          size(request.resource.data.accounts) == 0 ||
+          (
+            size(request.resource.data.accounts) > 0 &&
+            request.resource.data.accounts[0].balance == resource.data.accounts[0].balance &&
+            (size(request.resource.data.accounts) == 1 || request.resource.data.accounts[1].balance == resource.data.accounts[1].balance) &&
+            (size(request.resource.data.accounts) == 2 || request.resource.data.accounts[2].balance == resource.data.accounts[2].balance)
+          )
+        )
+
+        // --- Intégrité des transactions (l'utilisateur peut seulement en ajouter) ---
+        && (
+          request.resource.data.transactions.size() >= resource.data.transactions.size()
+        )
+      );
       
-      // Nobody can delete users from the client.
-      allow delete: if false;
+      // SUPPRESSION : Autorisée uniquement pour les administrateurs.
+      allow delete: if isAdmin();
     }
     
-    // Rules for the 'admins' collection
-    match /admins/{adminId} {
-      // Admins can see who other admins are.
-      allow read: if isAdmin();
-      
-      // Admin list is managed only from the server/console.
-      allow write: if false;
-    }
+    // --- Collection des conversations (chats) ---
+    match /chats/{chatId} {
+        // La lecture ('get') est autorisée si l'UID de l'utilisateur est dans l'ID du chat.
+        // Cela permet de vérifier l'existence d'un chat sans lire son contenu, ce qui est crucial avant la création.
+        allow get: if request.auth != null && request.auth.uid in chatId.split('_');
 
-    // Rules for the 'chats' collection and sub-collections
-    match /chats/{chatId}/{document=**} {
-        // Admins have full access to all chats and messages.
-        // Participants of a chat have full access to that chat and its messages.
-        allow read, write: if isAdmin() || request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        // La liste complète des conversations est réservée aux administrateurs (pour la vue conseiller).
+        allow list: if isAdmin();
+
+        // La création est autorisée si l'utilisateur fait partie des participants de la nouvelle conversation.
+        allow create: if request.auth != null && request.auth.uid in request.resource.data.participants;
+      
+        // La mise à jour (pour le dernier message) est autorisée pour les participants
+        allow update: if request.auth != null && request.auth.uid in resource.data.participants;
+        
+        // Seuls les administrateurs peuvent supprimer des conversations entières.
+        allow delete: if isAdmin();
+
+        // --- Sous-collection des messages ---
+        match /messages/{messageId} {
+            // Un utilisateur peut lire les messages d'une conversation s'il en est participant.
+            // On vérifie cela en lisant le document parent (/chats/{chatId}).
+            allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+
+            // Un utilisateur peut écrire un message s'il est participant ET s'il est l'auteur du message.
+            allow write: if request.auth != null 
+                        && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants
+                        && request.resource.data.senderId == request.auth.uid;
+            
+            // Personne ne peut supprimer un message individuel depuis le client pour garder l'intégrité.
+            allow delete: if false;
+        }
     }
   }
 }
