@@ -16,7 +16,7 @@ export function ChatPageClient({ dict }: { dict: Dictionary }) {
     
     return (
       <Card className="h-full">
-        <ChatClient dict={dict.chat} user={user} userProfile={userProfile} />
+        <ChatClient dict={dict} user={user} userProfile={userProfile} />
       </Card>
     )
 }

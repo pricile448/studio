@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon } from 'lucide-react';
+import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Download } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
@@ -28,11 +28,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 import Image from 'next/image';
 
 interface ChatClientProps {
-    dict: Dictionary['chat'];
+    dict: Dictionary;
     user: User;
     userProfile: UserProfile;
 }
@@ -58,8 +64,19 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
     const { deleteMessage } = useAuth();
+    const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
     
     const advisorId = userProfile?.advisorId || 'advisor_123';
+    const chatDict = dict.chat;
+
+    const getDownloadUrl = (url: string) => {
+        if (!url.includes('/upload/')) return url;
+        const parts = url.split('/upload/');
+        if (parts[1].startsWith('fl_attachment/')) {
+            return url;
+        }
+        return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
+    };
 
     useEffect(() => {
         if (user.uid && advisorId) {
@@ -69,11 +86,11 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 .then(setChatId)
                 .catch(err => {
                     console.error("Error getting chat ID:", err);
-                    setError(dict.connectionErrorText);
+                    setError(chatDict.connectionErrorText);
                 })
                 .finally(() => setIsLoading(false));
         }
-    }, [user.uid, advisorId, dict.connectionErrorText]);
+    }, [user.uid, advisorId, chatDict.connectionErrorText]);
 
     useEffect(() => {
         if (!chatId) return;
@@ -189,7 +206,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 <div className="flex items-center justify-center h-full p-4">
                     <Alert variant="destructive" className="max-w-md">
                         <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>{dict.connectionError}</AlertTitle>
+                        <AlertTitle>{chatDict.connectionError}</AlertTitle>
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 </div>
@@ -198,12 +215,38 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         
         return (
             <>
+                <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
+                    <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
+                        {previewImage && (
+                            <div className="relative w-full h-full flex flex-col">
+                                <div className="relative flex-1">
+                                    <Image src={previewImage.url} alt={previewImage.name || 'Preview'} fill style={{objectFit: 'contain'}} />
+                                </div>
+                                <DialogFooter className="p-2 sm:justify-between bg-black/50 backdrop-blur-sm border-t border-black/20 text-white">
+                                    <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
+                                    <div className="flex gap-2 w-full sm:w-auto justify-end">
+                                        <Button variant="secondary" asChild>
+                                           <a href={getDownloadUrl(previewImage.url)} download={previewImage.name}>
+                                              <Download className="mr-2 h-4 w-4" />
+                                              {dict.documents.download}
+                                           </a>
+                                        </Button>
+                                        <DialogClose asChild>
+                                            <Button variant="secondary">{dict.cards.closeButton}</Button>
+                                        </DialogClose>
+                                    </div>
+                                </DialogFooter>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
+
                 <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
                         {messages.length === 0 && (
                             <div className="text-center text-muted-foreground p-8">
-                                <p className="font-medium">{dict.welcomeMessage}</p>
-                                <p className="text-xs mt-2">{dict.welcomeMessageSubtext}</p>
+                                <p className="font-medium">{chatDict.welcomeMessage}</p>
+                                <p className="text-xs mt-2">{chatDict.welcomeMessageSubtext}</p>
                             </div>
                         )}
                         {messages.filter(msg => !msg.deletedForUser).map((msg, index) => {
@@ -235,7 +278,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                     )}
                                     {!isUser && (
                                         <Avatar className="h-8 w-8">
-                                            <AvatarFallback>{getInitials(dict.advisorName)}</AvatarFallback>
+                                            <AvatarFallback>{getInitials(chatDict.advisorName)}</AvatarFallback>
                                         </Avatar>
                                     )}
                                     <div className={cn(
@@ -243,19 +286,21 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                     )}>
                                        {msg.fileUrl && (
-                                            <div className="mb-1">
+                                            <div className={cn(msg.text ? "mb-1" : "")}>
                                             {msg.fileType?.startsWith('image/') ? (
-                                                <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="block relative w-48 h-48">
+                                                <button
+                                                    onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
+                                                    className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
+                                                >
                                                     <Image
                                                         src={msg.fileUrl}
                                                         alt={msg.fileName || 'Image en pièce jointe'}
                                                         fill
                                                         style={{objectFit: 'cover'}}
-                                                        className="rounded-md"
                                                     />
-                                                </a>
+                                                </button>
                                             ) : (
-                                                <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" download={msg.fileName || true} className={cn(
+                                                <a href={getDownloadUrl(msg.fileUrl)} download={msg.fileName || true} className={cn(
                                                     "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                     isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
                                                 )}>
@@ -265,7 +310,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                             )}
                                             </div>
                                         )}
-                                        {msg.text && <p>{msg.text}</p>}
+                                        {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
                                         <p className={cn("text-xs mt-1 text-right", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                             {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
@@ -287,7 +332,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                         <Input
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder={dict.inputPlaceholder}
+                            placeholder={chatDict.inputPlaceholder}
                             disabled={isSending || !chatId}
                         />
                         <input type="file" ref={fileInputRef} onChange={handleSendFile} className="hidden" />
@@ -297,7 +342,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                         </Button>
                         <Button type="submit" size="icon" disabled={isSending || !newMessage.trim() || !chatId}>
                             {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                            <span className="sr-only">{dict.sendButton}</span>
+                            <span className="sr-only">{chatDict.sendButton}</span>
                         </Button>
                     </form>
                 </div>

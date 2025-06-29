@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare, Trash2, Paperclip, File as FileIcon, ArrowLeft } from 'lucide-react';
+import { Loader2, Send, MessageSquare, Trash2, Paperclip, File as FileIcon, ArrowLeft, Download } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
 import {
@@ -25,7 +25,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Firestore } from 'firebase/firestore';
@@ -67,6 +73,16 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
     const { deleteAdminMessage } = useAdminAuth();
     const [isDeleting, startDeleteTransition] = useTransition();
     const isMobile = useIsMobile();
+    const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
+
+    const getDownloadUrl = (url: string) => {
+        if (!url.includes('/upload/')) return url;
+        const parts = url.split('/upload/');
+        if (parts[1].startsWith('fl_attachment/')) {
+            return url;
+        }
+        return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
+    };
 
     useEffect(() => {
         const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
@@ -147,6 +163,32 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
 
     return (
         <div className="flex flex-col h-full">
+            <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
+                <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
+                    {previewImage && (
+                        <div className="relative w-full h-full flex flex-col">
+                            <div className="relative flex-1">
+                                <Image src={previewImage.url} alt={previewImage.name || 'Preview'} fill style={{objectFit: 'contain'}} />
+                            </div>
+                            <DialogFooter className="p-2 sm:justify-between bg-black/50 backdrop-blur-sm border-t border-black/20 text-white">
+                                <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
+                                <div className="flex gap-2 w-full sm:w-auto justify-end">
+                                    <Button variant="secondary" asChild>
+                                       <a href={getDownloadUrl(previewImage.url)} download={previewImage.name}>
+                                          <Download className="mr-2 h-4 w-4" />
+                                          Télécharger
+                                       </a>
+                                    </Button>
+                                    <DialogClose asChild>
+                                        <Button variant="secondary">Fermer</Button>
+                                    </DialogClose>
+                                </div>
+                            </DialogFooter>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
             <CardHeader>
                 <div className="flex items-center gap-2">
                     {isMobile && onBack && (
@@ -208,22 +250,31 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                     'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
-                                    {msg.fileUrl && !msg.fileType?.startsWith('image/') && (
-                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className={cn(
-                                            "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                            isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10",
-                                            msg.text ? 'mb-1' : ''
-                                        )}>
-                                            <FileIcon className="h-6 w-6 flex-shrink-0" />
-                                            <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
-                                        </a>
+                                    {msg.fileUrl && (
+                                        <div className={cn(msg.text ? "mb-1" : "")}>
+                                            {msg.fileType?.startsWith("image/") ? (
+                                                <button
+                                                    onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
+                                                    className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
+                                                >
+                                                    <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
+                                                </button>
+                                            ) : (
+                                                <a 
+                                                    href={getDownloadUrl(msg.fileUrl)} 
+                                                    download={msg.fileName || true} 
+                                                    className={cn(
+                                                        "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                        isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                    )}
+                                                >
+                                                    <FileIcon className="h-6 w-6 flex-shrink-0" />
+                                                    <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
+                                                </a>
+                                            )}
+                                        </div>
                                     )}
-                                    {msg.fileUrl && msg.fileType?.startsWith('image/') && (
-                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className={cn("block relative w-48 h-48", msg.text ? 'mb-1' : '')}>
-                                            <Image src={msg.fileUrl} alt={msg.fileName || 'Image en pièce jointe'} fill style={{objectFit: 'cover'}} className="rounded-md"/>
-                                        </a>
-                                    )}
-                                    {msg.text && <p>{msg.text}</p>}
+                                    {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
                                     <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                         {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
@@ -279,7 +330,7 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
+                const clientParticipantId = data.participants.find((p: string) => p !== user.uid && p !== ADVISOR_ID);
                 
                 let participantDetails = {
                     id: clientParticipantId || '',
