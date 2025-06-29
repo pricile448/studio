@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare, Trash2, Paperclip, File as FileIcon } from 'lucide-react';
+import { Loader2, Send, MessageSquare, Trash2, Paperclip, File as FileIcon, ArrowLeft } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
 import {
@@ -31,6 +31,8 @@ import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Firestore } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 import Image from 'next/image';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -55,7 +57,7 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
-function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore }) {
+function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -64,6 +66,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
     const { toast } = useToast();
     const { deleteAdminMessage } = useAdminAuth();
     const [isDeleting, startDeleteTransition] = useTransition();
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
@@ -75,7 +78,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
     }, [chatSession.id, adminDb]);
 
     useEffect(() => {
-        scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     }, [messages]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
@@ -145,7 +148,14 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
     return (
         <div className="flex flex-col h-full">
             <CardHeader>
-                <CardTitle>Conversation avec {chatSession.otherParticipant.name}</CardTitle>
+                <div className="flex items-center gap-2">
+                    {isMobile && onBack && (
+                         <Button variant="ghost" size="icon" className="-ml-2 h-8 w-8 shrink-0" onClick={onBack}>
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                    )}
+                    <CardTitle className="truncate">Conversation avec {chatSession.otherParticipant.name}</CardTitle>
+                </div>
             </CardHeader>
             <Separator />
             <ScrollArea className="flex-1 min-h-0 p-4">
@@ -259,6 +269,7 @@ export function MessagingAdminClient() {
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
+    const isMobile = useIsMobile();
     const ADVISOR_ID = 'advisor_123';
 
     useEffect(() => {
@@ -328,67 +339,81 @@ export function MessagingAdminClient() {
         });
     }
 
-    if (!user || !userProfile) {
+    if (isLoading || !user || !userProfile) {
         return <Skeleton className="h-full w-full" />;
     }
 
-    const selectedChat = chats.find(c => c.id === selectedChatId);
+    const selectedChat = selectedChatId ? chats.find(c => c.id === selectedChatId) : null;
     const adminName = `${userProfile.firstName} ${userProfile.lastName}`;
+    
+    const conversationList = (
+        <>
+            <CardHeader>
+                <CardTitle>Conversations</CardTitle>
+            </CardHeader>
+            <Separator />
+            <ScrollArea className="flex-1 min-h-0">
+                <CardContent className="p-0">
+                    {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
+                    {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
+                    {chats.map(chat => (
+                        <div key={chat.id} className={cn("group flex items-center justify-between p-4 border-b hover:bg-muted/50", selectedChatId === chat.id && "bg-muted")}>
+                            <div onClick={() => setSelectedChatId(chat.id)} className="flex-1 cursor-pointer overflow-hidden pr-2">
+                                <p className="font-semibold truncate">{chat.otherParticipant?.name || 'Utilisateur'}</p>
+                                <p className="text-sm text-muted-foreground truncate">{chat.lastMessageText || 'Aucun message'}</p>
+                            </div>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette conversation ?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Cette action est irréversible. La conversation sera définitivement supprimée.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDelete(chat.id)} disabled={isDeleting}>
+                                        {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
+                                    </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    ))}
+                </CardContent>
+            </ScrollArea>
+        </>
+    );
+    
+    const chatView = selectedChat ? (
+        <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} onBack={() => setSelectedChatId(null)} />
+    ) : (
+        <div className="hidden md:flex flex-col items-center justify-center h-full text-center p-8">
+            <MessageSquare className="h-16 w-16 text-muted-foreground/50" />
+            <h3 className="mt-4 text-lg font-medium">Sélectionnez une conversation</h3>
+            <p className="text-muted-foreground">Choisissez une conversation dans la liste de gauche pour afficher les messages.</p>
+        </div>
+    );
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-            <Card className="md:col-span-1 h-full flex flex-col">
-                <CardHeader>
-                    <CardTitle>Conversations</CardTitle>
-                </CardHeader>
-                <Separator />
-                <ScrollArea className="flex-1 min-h-0">
-                    <CardContent className="p-0">
-                        {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
-                        {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
-                        {chats.map(chat => (
-                            <div key={chat.id} className={cn("group flex items-center justify-between p-4 border-b hover:bg-muted/50", selectedChatId === chat.id && "bg-muted")}>
-                                <div onClick={() => setSelectedChatId(chat.id)} className="flex-1 cursor-pointer overflow-hidden pr-2">
-                                    <p className="font-semibold truncate">{chat.otherParticipant?.name || 'Utilisateur'}</p>
-                                    <p className="text-sm text-muted-foreground truncate">{chat.lastMessageText || 'Aucun message'}</p>
-                                </div>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                        <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette conversation ?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Cette action est irréversible. La conversation sera définitivement supprimée.
-                                        </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDelete(chat.id)} disabled={isDeleting}>
-                                            {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
-                                        </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
-                        ))}
-                    </CardContent>
-                </ScrollArea>
+            <Card className={cn(
+                "md:col-span-1 h-full flex-col",
+                isMobile && selectedChatId ? "hidden" : "flex"
+            )}>
+                {conversationList}
             </Card>
 
-            <Card className="md:col-span-2 h-full flex flex-col">
-                {selectedChat ? (
-                    <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} />
-                ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                        <MessageSquare className="h-16 w-16 text-muted-foreground/50" />
-                        <h3 className="mt-4 text-lg font-medium">Sélectionnez une conversation</h3>
-                        <p className="text-muted-foreground">Choisissez une conversation dans la liste de gauche pour afficher les messages.</p>
-                    </div>
-                )}
+            <Card className={cn(
+                "md:col-span-2 h-full flex-col",
+                isMobile && !selectedChatId ? "hidden" : "flex"
+            )}>
+                {chatView}
             </Card>
         </div>
     );

@@ -12,7 +12,8 @@ import {
   SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarTrigger
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
@@ -119,7 +120,9 @@ export function AdminLayoutClient({ children }: { children: ReactNode }) {
                 </SidebarFooter>
             </Sidebar>
             <div className="flex-1 flex flex-col">
-                <header className="flex h-14 items-center justify-end gap-4 border-b bg-card/50 px-6">
+                <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card/50 px-6">
+                    <SidebarTrigger className="md:hidden" />
+                    <div className="flex-1" />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -145,7 +148,7 @@ export function AdminLayoutClient({ children }: { children: ReactNode }) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </header>
-                <main className="flex-1 p-6 bg-muted/40 h-full">
+                <main className="flex-1 p-6 bg-muted/40">
                     {children}
                 </main>
             </div>
