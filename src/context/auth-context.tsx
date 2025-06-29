@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateKycStatus = async (status: 'pending') => {
     if (!user) throw new Error("No user is signed in.");
-    await updateUserInFirestore(user.uid, { kycStatus: status });
+    await updateUserInFirestore(user.uid, { kycStatus: status, kycSubmittedAt: serverTimestamp() });
     // Refresh local state
     const profile = await getUserFromFirestore(user.uid);
     setUserProfile(profile);

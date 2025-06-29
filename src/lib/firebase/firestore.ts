@@ -66,6 +66,7 @@ export type UserProfile = {
   inactivityTimeout?: number; // in minutes, 0 for never
   createdAt: Date;
   kycStatus: 'unverified' | 'pending' | 'verified';
+  kycSubmittedAt?: Date;
   cardStatus: 'none' | 'requested' | 'active';
   cardRequestedAt?: Date;
   iban?: string;
@@ -133,16 +134,14 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
     if (docSnap.exists()) {
         const data = docSnap.data();
 
-        // This is a robust way to parse dates that might be Timestamps or something else.
         const parseDate = (field: any): Date => {
-            if (field && typeof field.toDate === 'function') { // Check if it's a Firestore Timestamp
+            if (field && typeof field.toDate === 'function') {
                 return field.toDate();
             }
-            if (field) { // Try to parse it if it's a string or number
+            if (field) {
                 const d = new Date(field);
                 if (!isNaN(d.getTime())) return d;
             }
-            // Fallback for missing or invalid dates
             return new Date(); 
         };
         
@@ -166,12 +165,14 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
         const dob = parseDate(data.dob);
         const createdAt = parseDate(data.createdAt);
         const cardRequestedAt = parseOptionalDate(data.cardRequestedAt);
+        const kycSubmittedAt = parseOptionalDate(data.kycSubmittedAt);
 
         return {
             ...data,
             dob,
             createdAt,
             cardRequestedAt,
+            kycSubmittedAt,
             transactions,
         } as UserProfile;
 
@@ -185,8 +186,7 @@ export async function getUserFromFirestore(uid: string): Promise<UserProfile | n
 export async function updateUserInFirestore(uid: string, data: Partial<Omit<UserProfile, 'uid'>>) {
   const userRef = doc(db, "users", uid);
   
-  // Convert JS Date objects back to Firestore Timestamps if they exist
-  const dataToUpdate = { ...data };
+  const dataToUpdate: { [key: string]: any } = { ...data };
   if (data.dob instanceof Date) {
     dataToUpdate.dob = Timestamp.fromDate(data.dob);
   }
@@ -199,8 +199,6 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
 
 
 export async function getOrCreateChatId(userId: string, advisorId: string): Promise<string> {
-    // Créer un ID de chat déterministe en triant les ID des participants
-    // pour garantir que l'ID est toujours le même, quel que soit l'ordre.
     const participants = [userId, advisorId].sort();
     const chatId = participants.join('_');
     const chatRef = doc(db, 'chats', chatId);
@@ -208,12 +206,10 @@ export async function getOrCreateChatId(userId: string, advisorId: string): Prom
     const chatSnap = await getDoc(chatRef);
 
     if (chatSnap.exists()) {
-        // La conversation existe déjà, on retourne son ID.
         return chatSnap.id;
     } else {
-        // La conversation n'existe pas, on la crée.
         await setDoc(chatRef, {
-            participants: participants, // On stocke les participants triés
+            participants: participants,
             createdAt: serverTimestamp(),
         });
         return chatId;
@@ -228,4 +224,70 @@ export async function addMessageToChat(chatId: string, message: Omit<ChatMessage
         lastMessageTimestamp: message.timestamp,
         lastMessageSenderId: message.senderId,
     });
+}
+
+export async function getAllUsers(): Promise<UserProfile[]> {
+    const usersCollection = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersCollection);
+    const usersList = usersSnapshot.docs.map(doc => {
+        const data = doc.data();
+        const parseDate = (field: any): Date => {
+            if (field && typeof field.toDate === 'function') {
+                return field.toDate();
+            }
+            return new Date();
+        };
+         const parseOptionalDate = (field: any): Date | undefined => {
+            if (!field) return undefined;
+             if (field && typeof field.toDate === 'function') {
+                return field.toDate();
+            }
+             if (field) {
+                const d = new Date(field);
+                if (!isNaN(d.getTime())) return d;
+            }
+            return undefined;
+        };
+        return {
+            ...data,
+            dob: parseDate(data.dob),
+            createdAt: parseDate(data.createdAt),
+            kycSubmittedAt: parseOptionalDate(data.kycSubmittedAt),
+        } as UserProfile;
+    });
+    return usersList;
+}
+
+export async function getPendingKycUsers(): Promise<UserProfile[]> {
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where("kycStatus", "==", "pending"));
+    
+    const querySnapshot = await getDocs(q);
+    const usersList = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        const parseDate = (field: any): Date => {
+            if (field && typeof field.toDate === 'function') {
+                return field.toDate();
+            }
+            return new Date();
+        };
+        const parseOptionalDate = (field: any): Date | undefined => {
+            if (!field) return undefined;
+             if (field && typeof field.toDate === 'function') {
+                return field.toDate();
+            }
+             if (field) {
+                const d = new Date(field);
+                if (!isNaN(d.getTime())) return d;
+            }
+            return undefined;
+        };
+        return {
+            ...data,
+            dob: parseDate(data.dob),
+            createdAt: parseDate(data.createdAt),
+            kycSubmittedAt: parseOptionalDate(data.kycSubmittedAt),
+        } as UserProfile;
+    });
+    return usersList;
 }

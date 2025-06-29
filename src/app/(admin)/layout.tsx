@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { Loader2, LayoutDashboard, Users, ShieldCheck, LogOut } from 'lucide-react';
+import { Loader2, LayoutDashboard, Users, ShieldCheck, LogOut, MessageSquare } from 'lucide-react';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/context/auth-context';
@@ -27,8 +27,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 
 const adminNavItems = [
     { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
-    { href: '#', icon: Users, label: 'Utilisateurs' },
-    { href: '#', icon: ShieldCheck, label: 'Vérifications KYC' },
+    { href: '/admin/users', icon: Users, label: 'Utilisateurs' },
+    { href: '/admin/kyc', icon: ShieldCheck, label: 'Vérifications KYC' },
+    { href: '/admin/messaging', icon: MessageSquare, label: 'Messagerie' },
 ];
 
 function AdminLayoutClient({ children }: { children: ReactNode }) {
@@ -135,7 +136,7 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
                              <SidebarMenuItem key={item.label}>
                                 <SidebarMenuButton
                                     asChild
-                                    isActive={pathname === item.href}
+                                    isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
                                 >
                                     <Link href={item.href}>
@@ -185,7 +186,7 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </header>
-                <main className="flex-1 p-6 bg-muted/40">
+                <main className="flex-1 p-6 bg-muted/40 h-full">
                     {children}
                 </main>
             </div>
