@@ -36,10 +36,13 @@ export type Budget = {
 
 export type ChatMessage = {
   id?: string;
-  text: string;
   senderId: string;
   timestamp: Timestamp;
   deletedForUser?: boolean;
+  text?: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileType?: string;
 };
 
 export type Document = {
@@ -228,8 +231,11 @@ export async function getOrCreateChatId(userId: string, advisorId: string, db: F
 export async function addMessageToChat(chatId: string, message: Omit<ChatMessage, 'id'>, db: Firestore = defaultDb) {
     const messagesCollection = collection(db, 'chats', chatId, 'messages');
     await addDoc(messagesCollection, message);
+
+    const lastMessageText = message.text || `Fichier: ${message.fileName || 'Fichier'}`;
+
     await updateDoc(doc(db, 'chats', chatId), {
-        lastMessageText: message.text,
+        lastMessageText: lastMessageText,
         lastMessageTimestamp: message.timestamp,
         lastMessageSenderId: message.senderId,
     });

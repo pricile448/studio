@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, AlertTriangle, Trash2 } from 'lucide-react';
+import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
@@ -28,12 +28,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { uploadToCloudinary } from '@/services/cloudinary-service';
 
 interface ChatClientProps {
     dict: Dictionary['chat'];
     user: User;
     userProfile: UserProfile;
 }
+
+const convertFileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
 
 export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [chatId, setChatId] = useState<string | null>(null);
@@ -43,6 +53,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
     const { deleteMessage } = useAuth();
@@ -73,10 +84,13 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 const data = doc.data();
                 msgs.push({
                     id: doc.id,
-                    text: data.text,
                     senderId: data.senderId,
                     timestamp: data.timestamp,
                     deletedForUser: data.deletedForUser,
+                    text: data.text,
+                    fileUrl: data.fileUrl,
+                    fileName: data.fileName,
+                    fileType: data.fileType,
                 });
             });
             setMessages(msgs);
@@ -126,6 +140,39 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         }
       });
     }
+
+    const handleSendFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!chatId) return;
+    
+        const file = event.target.files?.[0];
+        if (!file) return;
+    
+        setIsSending(true);
+        try {
+            const dataUri = await convertFileToDataUri(file);
+            const folder = `chat_attachments/${chatId}`;
+            const url = await uploadToCloudinary(dataUri, folder);
+    
+            await addMessageToChat(chatId, {
+                senderId: user.uid,
+                timestamp: Timestamp.now(),
+                fileUrl: url,
+                fileName: file.name,
+                fileType: file.type,
+            });
+    
+        } catch (error) {
+            console.error("Erreur lors de l'envoi du fichier:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Erreur',
+                description: 'Impossible d\'envoyer le fichier.',
+            });
+        } finally {
+            setIsSending(false);
+            if(fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
+        }
+    };
 
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('');
@@ -194,7 +241,14 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                         'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                     )}>
-                                        <p>{msg.text}</p>
+                                        {msg.fileUrl ? (
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline">
+                                                <FileIcon className="h-4 w-4" />
+                                                <span>{msg.fileName || 'Fichier partagé'}</span>
+                                            </a>
+                                        ) : (
+                                            <p>{msg.text}</p>
+                                        )}
                                         <p className={cn("text-xs mt-1", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                             {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
@@ -219,6 +273,11 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                             placeholder={dict.inputPlaceholder}
                             disabled={isSending || !chatId}
                         />
+                        <input type="file" ref={fileInputRef} onChange={handleSendFile} className="hidden" />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isSending || !chatId}>
+                            <Paperclip className="h-4 w-4" />
+                            <span className="sr-only">Joindre un fichier</span>
+                        </Button>
                         <Button type="submit" size="icon" disabled={isSending || !newMessage.trim() || !chatId}>
                             {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                             <span className="sr-only">{dict.sendButton}</span>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef, useTransition } from 'react';
@@ -11,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare, Trash2 } from 'lucide-react';
+import { Loader2, Send, MessageSquare, Trash2, Paperclip, File as FileIcon } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
 import {
@@ -28,6 +29,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Firestore } from 'firebase/firestore';
+import { uploadToCloudinary } from '@/services/cloudinary-service';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -43,11 +45,22 @@ interface ChatSession {
     };
 }
 
+const convertFileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
 function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
@@ -80,6 +93,38 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
             setIsSending(false);
         }
     };
+    
+    const handleSendFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsSending(true);
+        try {
+            const dataUri = await convertFileToDataUri(file);
+            const folder = `chat_attachments/${chatSession.id}`;
+            const url = await uploadToCloudinary(dataUri, folder);
+
+            await addMessageToChat(chatSession.id, {
+                senderId: adminId,
+                timestamp: Timestamp.now(),
+                fileUrl: url,
+                fileName: file.name,
+                fileType: file.type,
+            }, adminDb);
+
+        } catch (error) {
+            console.error("Erreur lors de l'envoi du fichier:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Erreur',
+                description: 'Impossible d\'envoyer le fichier.',
+            });
+        } finally {
+            setIsSending(false);
+            if(fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
+        }
+    };
+
 
     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('') || 'A';
 
@@ -114,7 +159,14 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                                     'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
-                                    <p>{msg.text}</p>
+                                    {msg.fileUrl ? (
+                                        <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 underline">
+                                            <FileIcon className="h-4 w-4" />
+                                            <span>{msg.fileName || 'Fichier partagé'}</span>
+                                        </a>
+                                    ) : (
+                                        <p>{msg.text}</p>
+                                    )}
                                     <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                         {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
@@ -138,6 +190,11 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                         placeholder="Répondez ici..."
                         disabled={isSending}
                     />
+                    <input type="file" ref={fileInputRef} onChange={handleSendFile} className="hidden" />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isSending}>
+                        <Paperclip className="h-4 w-4" />
+                        <span className="sr-only">Joindre un fichier</span>
+                    </Button>
                     <Button type="submit" size="icon" disabled={isSending || !newMessage.trim()}>
                         {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                         <span className="sr-only">Envoyer</span>
@@ -155,6 +212,7 @@ export function MessagingAdminClient() {
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
+    const ADVISOR_ID = 'advisor_123';
 
     useEffect(() => {
         if (!user) return;
@@ -163,7 +221,7 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== user.uid);
+                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
                 
                 let participantDetails = {
                     id: clientParticipantId || '',
