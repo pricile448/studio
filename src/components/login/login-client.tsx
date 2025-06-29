@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -145,7 +144,7 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
                   <FormItem>
                     <div className="flex items-center">
                        <Label htmlFor="password">{loginDict.passwordLabel}</Label>
-                       <Link href="#" className="ml-auto inline-block text-sm underline">
+                       <Link href={`/${lang}/forgot-password`} className="ml-auto inline-block text-sm underline">
                         {loginDict.forgotPassword}
                       </Link>
                     </div>

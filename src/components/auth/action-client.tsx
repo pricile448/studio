@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { applyActionCode } from 'firebase/auth';
+import { applyActionCode, verifyPasswordResetCode, confirmPasswordReset } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useAuth } from '@/context/auth-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
@@ -17,8 +16,23 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MailWarning, Loader2 } from 'lucide-react';
+import { MailWarning, Loader2, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+
+
+const passwordResetSchema = (dict: any) => z.object({
+  newPassword: z.string().min(6, dict.passwordLengthError),
+  confirmPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: dict.passwordMismatchError,
+  path: ['confirmPassword'],
+});
 
 
 interface AuthActionClientProps {
@@ -31,31 +45,43 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
   const searchParams = useSearchParams();
   const { logout } = useAuth();
 
+  const [mode, setMode] = useState<string | null>(null);
+  const [actionCode, setActionCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<z.infer<ReturnType<typeof passwordResetSchema>>>({
+    resolver: zodResolver(passwordResetSchema(dict.forgotPassword)),
+    defaultValues: { newPassword: '', confirmPassword: '' },
+  });
 
 
   useEffect(() => {
     if (!dict) return;
 
-    const mode = searchParams.get('mode');
-    const actionCode = searchParams.get('oobCode');
-    const verifyDict = dict.verifyEmail;
+    const currentMode = searchParams.get('mode');
+    const currentActionCode = searchParams.get('oobCode');
+    
+    setMode(currentMode);
+    setActionCode(currentActionCode);
 
-    if (mode === 'verifyEmail' && actionCode) {
-      handleVerifyEmail(actionCode, verifyDict);
+    if (currentMode === 'verifyEmail' && currentActionCode) {
+      handleVerifyEmail(currentActionCode, dict.verifyEmail);
+    } else if (currentMode === 'resetPassword' && currentActionCode) {
+      handleVerifyPasswordReset(currentActionCode, dict.forgotPassword);
     } else {
-      setError(verifyDict.invalidAction);
+      setError(dict.verifyEmail.invalidAction);
       setLoading(false);
     }
   }, [searchParams, dict]);
 
-  const handleVerifyEmail = async (actionCode: string, verifyDict: Dictionary['verifyEmail']) => {
+  const handleVerifyEmail = async (code: string, verifyDict: Dictionary['verifyEmail']) => {
     setLoading(true);
     setError(null);
     try {
-      await applyActionCode(auth, actionCode);
+      await applyActionCode(auth, code);
       setSuccess(true);
     } catch (e: any) {
       console.error(e);
@@ -64,11 +90,40 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
       setLoading(false);
     }
   };
+
+  const handleVerifyPasswordReset = async (code: string, forgotPasswordDict: Dictionary['forgotPassword']) => {
+    setLoading(true);
+    setError(null);
+    try {
+        await verifyPasswordResetCode(auth, code);
+        // Code is valid, stay on this page to show the password reset form
+    } catch (e: any) {
+        console.error(e);
+        setError(forgotPasswordDict.expiredLinkError);
+    } finally {
+        setLoading(false);
+    }
+  }
   
   const handleProceedToLogin = () => {
     logout(); 
     router.push(`/${lang}/login`);
   };
+
+  const handlePasswordResetSubmit = async (values: z.infer<ReturnType<typeof passwordResetSchema>>) => {
+      if (!actionCode) return;
+      setIsSubmitting(true);
+      setError(null);
+      try {
+          await confirmPasswordReset(auth, actionCode, values.newPassword);
+          setSuccess(true);
+      } catch (e: any) {
+          console.error(e);
+          setError(dict.forgotPassword.expiredLinkError);
+      } finally {
+          setIsSubmitting(false);
+      }
+  }
 
   const renderContent = () => {
     if (loading || !dict) {
@@ -95,8 +150,73 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
       );
     }
 
+    if (mode === 'resetPassword') {
+        const forgotPasswordDict = dict.forgotPassword;
+        return (
+            <div className="space-y-4">
+                 <div className="text-center space-y-2">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                        <KeyRound className="h-6 w-6 text-primary" />
+                    </div>
+                    <CardTitle className="mt-4 text-2xl font-headline">{forgotPasswordDict.resetTitle}</CardTitle>
+                    <CardDescription>{forgotPasswordDict.resetDescription}</CardDescription>
+                </div>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handlePasswordResetSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="newPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label>{dict.settings.security.newPasswordLabel}</Label>
+                                    <FormControl><Input type="password" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label>{dict.settings.security.confirmPasswordLabel}</Label>
+                                    <FormControl><Input type="password" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {forgotPasswordDict.resetSubmitButton}
+                        </Button>
+                    </form>
+                </Form>
+            </div>
+        )
+    }
+
     return null; // Success state is handled by the AlertDialog
   };
+
+  const getSuccessDialogContent = () => {
+    if (mode === 'verifyEmail') {
+      return {
+        title: dict?.verifyEmail.verificationSuccessTitle,
+        description: dict?.verifyEmail.verificationSuccessDescription,
+        buttonText: dict?.verifyEmail.proceedToLoginButton,
+      };
+    }
+    if (mode === 'resetPassword') {
+      return {
+        title: dict?.forgotPassword.resetSuccessTitle,
+        description: dict?.forgotPassword.resetSuccessDescription,
+        buttonText: dict?.verifyEmail.proceedToLoginButton,
+      };
+    }
+    return { title: '', description: '', buttonText: '' };
+  }
+
+  const { title, description, buttonText } = getSuccessDialogContent();
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
@@ -109,14 +229,14 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
       <AlertDialog open={success}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{dict?.verifyEmail.verificationSuccessTitle}</AlertDialogTitle>
+            <AlertDialogTitle>{title}</AlertDialogTitle>
             <AlertDialogDescription>
-              {dict?.verifyEmail.verificationSuccessDescription}
+              {description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={handleProceedToLogin}>
-                {dict?.verifyEmail.proceedToLoginButton}
+                {buttonText}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -116,6 +116,23 @@
       "inactivityLogoutTitle": "Sesión expirada",
       "inactivityLogoutDescription": "Por su seguridad, se ha cerrado la sesión por inactividad."
     },
+    "forgotPassword": {
+      "title": "¿Ha olvidado su contraseña?",
+      "description": "No se preocupe. Introduzca su dirección de correo electrónico y le enviaremos un enlace para restablecer su contraseña.",
+      "submitButton": "Enviar enlace de restablecimiento",
+      "errorTitle": "Error",
+      "successTitle": "¡Correo electrónico enviado!",
+      "successDescription": "Si existe una cuenta para esta dirección, se ha enviado un correo electrónico para restablecer la contraseña. Por favor, revise su bandeja de entrada.",
+      "resetTitle": "Restablecer su contraseña",
+      "resetDescription": "Por favor, introduzca su nueva contraseña a continuación.",
+      "resetSubmitButton": "Restablecer contraseña",
+      "passwordLengthError": "La contraseña debe tener al menos 6 caracteres.",
+      "passwordMismatchError": "Las contraseñas no coinciden.",
+      "expiredLinkError": "El enlace de restablecimiento no es válido o ha caducado. Por favor, solicite uno nuevo.",
+      "resetSuccessTitle": "¡Contraseña restablecida!",
+      "resetSuccessDescription": "Su contraseña se ha actualizado correctamente. Ahora puede iniciar sesión con su nueva contraseña.",
+      "emailInvalid": "Dirección de correo electrónico no válida."
+    },
     "register": {
       "title": "Abrir una cuenta en AmCbunq",
       "description": "Regístrese para comenzar a administrar sus finanzas.",

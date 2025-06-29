@@ -116,6 +116,23 @@
       "inactivityLogoutTitle": "Sitzung abgelaufen",
       "inactivityLogoutDescription": "Zu Ihrer Sicherheit wurden Sie aufgrund von Inaktivität abgemeldet."
     },
+    "forgotPassword": {
+      "title": "Passwort vergessen?",
+      "description": "Keine Sorge. Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, um Ihr Passwort zurückzusetzen.",
+      "submitButton": "Link zum Zurücksetzen senden",
+      "errorTitle": "Fehler",
+      "successTitle": "E-Mail gesendet!",
+      "successDescription": "Wenn für diese Adresse ein Konto existiert, wurde eine E-Mail zum Zurücksetzen des Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang.",
+      "resetTitle": "Passwort zurücksetzen",
+      "resetDescription": "Bitte geben Sie unten Ihr neues Passwort ein.",
+      "resetSubmitButton": "Passwort zurücksetzen",
+      "passwordLengthError": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      "passwordMismatchError": "Die Passwörter stimmen nicht überein.",
+      "expiredLinkError": "Der Link zum Zurücksetzen ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an.",
+      "resetSuccessTitle": "Passwort zurückgesetzt!",
+      "resetSuccessDescription": "Ihr Passwort wurde erfolgreich aktualisiert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+      "emailInvalid": "Ungültige E-Mail-Adresse."
+    },
     "register": {
       "title": "Kontoeröffnung bei AmCbunq",
       "description": "Registrieren Sie sich, um Ihre Finanzen zu verwalten.",
@@ -478,15 +495,15 @@
         "description": "Konfigurieren Sie, wie Sie Benachrichtigungen erhalten.",
         "email": {
           "title": "E-Mail-Benachrichtigungen",
-          "description": "Erhalten Sie E-Mails über Ihre Kontoaktivität."
+          "description": "Erhalten Sie E-mails über Ihre Kontoaktivität."
         },
         "promotions": {
           "title": "Marketing-E-Mails",
-          "description": "Erhalten Sie E-Mails über neue Produkte, Funktionen und Werbeaktionen."
+          "description": "Erhalten Sie E-mails über neue Produkte, Funktionen und Werbeaktionen."
         },
         "security": {
           "title": "Sicherheitswarnungen",
-          "description": "Erhalten Sie E-Mails zu Sicherheitswarnungen für Ihr Konto."
+          "description": "Erhalten Sie E-mails zu Sicherheitswarnungen für Ihr Konto."
         },
         "saveButton": "Einstellungen speichern",
         "saveSuccess": "Einstellungen gespeichert!"

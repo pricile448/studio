@@ -116,6 +116,23 @@
       "inactivityLogoutTitle": "Session Expired",
       "inactivityLogoutDescription": "For your security, you have been logged out due to inactivity."
     },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "description": "No worries. Enter your email address and we'll send you a link to reset your password.",
+      "submitButton": "Send Reset Link",
+      "errorTitle": "Error",
+      "successTitle": "Email Sent!",
+      "successDescription": "If an account exists for this address, a password reset email has been sent. Please check your inbox.",
+      "resetTitle": "Reset Your Password",
+      "resetDescription": "Please enter your new password below.",
+      "resetSubmitButton": "Reset Password",
+      "passwordLengthError": "Password must be at least 6 characters.",
+      "passwordMismatchError": "Passwords do not match.",
+      "expiredLinkError": "The reset link is invalid or has expired. Please request a new one.",
+      "resetSuccessTitle": "Password Reset!",
+      "resetSuccessDescription": "Your password has been successfully updated. You can now log in with your new password.",
+      "emailInvalid": "Invalid email address."
+    },
     "register": {
       "title": "Open an account with AmCbunq",
       "description": "Sign up to start managing your finances.",

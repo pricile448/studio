@@ -116,6 +116,23 @@
       "inactivityLogoutTitle": "Session expirée",
       "inactivityLogoutDescription": "Pour votre sécurité, vous avez été déconnecté pour cause d'inactivité."
     },
+    "forgotPassword": {
+      "title": "Mot de passe oublié ?",
+      "description": "Pas de souci. Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+      "submitButton": "Envoyer le lien de réinitialisation",
+      "errorTitle": "Erreur",
+      "successTitle": "E-mail envoyé !",
+      "successDescription": "Si un compte existe pour cette adresse, un e-mail de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.",
+      "resetTitle": "Réinitialiser votre mot de passe",
+      "resetDescription": "Veuillez saisir votre nouveau mot de passe ci-dessous.",
+      "resetSubmitButton": "Réinitialiser le mot de passe",
+      "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
+      "passwordMismatchError": "Les mots de passe ne correspondent pas.",
+      "expiredLinkError": "Le lien de réinitialisation est invalide ou a expiré. Veuillez refaire une demande.",
+      "resetSuccessTitle": "Mot de passe réinitialisé !",
+      "resetSuccessDescription": "Votre mot de passe a été mis à jour avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+      "emailInvalid": "Adresse e-mail invalide."
+    },
     "register": {
       "title": "Ouverture d'un compte chez AmCbunq",
       "description": "Inscrivez-vous pour commencer à gérer vos finances.",

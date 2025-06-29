@@ -116,6 +116,23 @@
       "inactivityLogoutTitle": "Sessão Expirada",
       "inactivityLogoutDescription": "Por sua segurança, você foi desconectado por inatividade."
     },
+    "forgotPassword": {
+      "title": "Esqueceu a sua senha?",
+      "description": "Não se preocupe. Insira o seu endereço de e-mail e enviaremos um link para redefinir a sua senha.",
+      "submitButton": "Enviar Link de Redefinição",
+      "errorTitle": "Erro",
+      "successTitle": "E-mail Enviado!",
+      "successDescription": "Se existir uma conta para este endereço, foi enviado um e-mail de redefinição de senha. Por favor, verifique a sua caixa de entrada.",
+      "resetTitle": "Redefinir a sua Senha",
+      "resetDescription": "Por favor, introduza a sua nova senha abaixo.",
+      "resetSubmitButton": "Redefinir Senha",
+      "passwordLengthError": "A senha deve ter pelo menos 6 caracteres.",
+      "passwordMismatchError": "As senhas não correspondem.",
+      "expiredLinkError": "O link de redefinição é inválido ou expirou. Por favor, solicite um novo.",
+      "resetSuccessTitle": "Senha Redefinida!",
+      "resetSuccessDescription": "A sua senha foi atualizada com sucesso. Agora pode iniciar sessão com a sua nova senha.",
+      "emailInvalid": "Endereço de e-mail inválido."
+    },
     "register": {
       "title": "Abrir uma conta no AmCbunq",
       "description": "Cadastre-se para começar a gerenciar suas finanças.",
