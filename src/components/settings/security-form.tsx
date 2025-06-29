@@ -118,8 +118,8 @@ function PasswordChangeForm({ dict }: { dict: Dictionary['settings']['security']
   );
 }
 
-const inactivitySchema = (dict: any) => z.object({
-  inactivityTimeout: z.coerce.number(),
+const inactivitySchema = z.object({
+  inactivityTimeout: z.string(),
 });
 
 type InactivityFormValues = z.infer<ReturnType<typeof inactivitySchema>>;
@@ -130,15 +130,15 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const form = useForm<InactivityFormValues>({
-        resolver: zodResolver(inactivitySchema(dict)),
+        resolver: zodResolver(inactivitySchema),
         defaultValues: {
-            inactivityTimeout: 15,
+            inactivityTimeout: '15',
         },
     });
 
     useEffect(() => {
         if (userProfile?.inactivityTimeout !== undefined) {
-            form.setValue('inactivityTimeout', userProfile.inactivityTimeout);
+            form.setValue('inactivityTimeout', String(userProfile.inactivityTimeout));
         }
     }, [userProfile, form]);
     
@@ -146,7 +146,7 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
         if (!user) return;
         setIsSubmitting(true);
         try {
-            await updateUserProfileData({ inactivityTimeout: data.inactivityTimeout });
+            await updateUserProfileData({ inactivityTimeout: Number(data.inactivityTimeout) });
             toast({ title: dict.saveSuccess });
         } catch (error) {
             toast({ variant: 'destructive', title: "Error", description: (error as Error).message });
@@ -164,7 +164,7 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>{dict.inactivityLabel}</FormLabel>
-                            <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a timeout" />
