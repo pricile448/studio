@@ -32,9 +32,12 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
   });
 
   try {
+    const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
+    const resource_type = mimeType.startsWith('image/') ? 'image' : 'raw';
+    
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: folder,
-      resource_type: 'auto',
+      resource_type: resource_type,
     });
     return result.secure_url;
   } catch (error: any) {
