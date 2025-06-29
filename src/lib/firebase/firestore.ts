@@ -1,4 +1,4 @@
-import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch } from "firebase/firestore";
 import { db as defaultDb } from "./config";
 
 export type Account = {
@@ -252,6 +252,18 @@ export async function hardDeleteMessage(chatId: string, messageId: string, db: F
 }
 
 export async function deleteChatSession(chatId: string, dbInstance: Firestore = defaultDb) {
+    const messagesRef = collection(dbInstance, 'chats', chatId, 'messages');
+    const messagesQuery = query(messagesRef);
+    const messagesSnap = await getDocs(messagesQuery);
+
+    if (!messagesSnap.empty) {
+        const batch = writeBatch(dbInstance);
+        messagesSnap.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+    }
+
     const chatRef = doc(dbInstance, 'chats', chatId);
     await deleteDoc(chatRef);
 }
