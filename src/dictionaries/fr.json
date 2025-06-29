@@ -460,7 +460,9 @@
         "passwordUpdateError": "Une erreur est survenue.",
         "reauthenticationRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter avant de réessayer.",
         "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
-        "passwordMismatchError": "Les mots de passe ne correspondent pas."
+        "passwordMismatchError": "Les mots de passe ne correspondent pas.",
+        "currentPasswordIncorrect": "Le mot de passe actuel est incorrect.",
+        "passwordRequiredError": "Le mot de passe est requis."
       },
       "notifications": {
         "title": "Notifications",

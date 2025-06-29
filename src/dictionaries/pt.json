@@ -252,7 +252,7 @@
     "accounts": {
       "title": "Minhas Contas",
       "totalBalance": "Saldo Total",
-      "totalBalanceDescription": "Total de ativos em todas as suas contas.",
+      "totalBalanceDescription": "Total de ativos em todas as sua conta.",
       "addAccount": "Adicionar Conta",
       "details": "Ver Detalhes",
       "checking": "Conta Corrente",
@@ -460,7 +460,9 @@
         "passwordUpdateError": "Ocorreu um erro.",
         "reauthenticationRequired": "Esta é uma operação sensível e requer autenticação recente. Por favor, inicie sessão novamente antes de tentar de novo.",
         "passwordLengthError": "A senha deve ter pelo menos 6 caracteres.",
-        "passwordMismatchError": "As senhas não correspondem."
+        "passwordMismatchError": "As senhas não correspondem.",
+        "currentPasswordIncorrect": "A senha atual está incorreta.",
+        "passwordRequiredError": "A senha é obrigatória."
       },
       "notifications": {
         "title": "Notificações",

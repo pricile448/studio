@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +12,7 @@ import { Separator } from '../ui/separator';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 interface SecurityFormProps {
   dict: Dictionary['settings']['security'];
@@ -20,6 +20,7 @@ interface SecurityFormProps {
 }
 
 const securityFormSchema = (dict: Dictionary['settings']['security']) => z.object({
+  currentPassword: z.string().min(1, { message: dict.passwordRequiredError }),
   newPassword: z.string().min(6, dict.passwordLengthError),
   confirmPassword: z.string(),
 }).refine(data => data.newPassword === data.confirmPassword, {
@@ -30,27 +31,38 @@ const securityFormSchema = (dict: Dictionary['settings']['security']) => z.objec
 type SecurityFormValues = z.infer<ReturnType<typeof securityFormSchema>>;
 
 export function SecurityForm({ dict, lang }: SecurityFormProps) {
-  const { updateUserPassword } = useAuth();
+  const { user, updateUserPassword } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SecurityFormValues>({
     resolver: zodResolver(securityFormSchema(dict)),
     defaultValues: {
+      currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     },
   });
 
   const onSubmit = async (data: SecurityFormValues) => {
+    if (!user || !user.email) return;
+
     setIsSubmitting(true);
     try {
+      const credential = EmailAuthProvider.credential(user.email, data.currentPassword);
+      // Re-authenticate before updating password
+      await reauthenticateWithCredential(user, credential);
+      
+      // If successful, update the password
       await updateUserPassword(data.newPassword);
+
       toast({ title: dict.passwordUpdateSuccess });
       form.reset();
     } catch (error: any) {
       let description = dict.passwordUpdateError;
-      if (error.code === 'auth/requires-recent-login') {
+      if (error.code === 'auth/wrong-password') {
+        description = dict.currentPasswordIncorrect;
+      } else if (error.code === 'auth/requires-recent-login') {
         description = dict.reauthenticationRequired;
       }
       toast({ variant: 'destructive', title: dict.passwordUpdateErrorTitle, description });
@@ -62,6 +74,19 @@ export function SecurityForm({ dict, lang }: SecurityFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="currentPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{dict.currentPasswordLabel}</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="newPassword"

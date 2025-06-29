@@ -460,7 +460,9 @@
         "passwordUpdateError": "Ocurrió un error.",
         "reauthenticationRequired": "Esta es una operación sensible y requiere autenticación reciente. Por favor, inicie sesión de nuevo antes de volver a intentarlo.",
         "passwordLengthError": "La contraseña debe tener al menos 6 caracteres.",
-        "passwordMismatchError": "Las contraseñas no coinciden."
+        "passwordMismatchError": "Las contraseñas no coinciden.",
+        "currentPasswordIncorrect": "La contraseña actual es incorrecta.",
+        "passwordRequiredError": "La contraseña es obligatoria."
       },
       "notifications": {
         "title": "Notificaciones",

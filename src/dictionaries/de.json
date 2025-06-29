@@ -460,7 +460,9 @@
         "passwordUpdateError": "Ein Fehler ist aufgetreten.",
         "reauthenticationRequired": "Dieser Vorgang ist sensibel und erfordert eine kürzliche Authentifizierung. Bitte melden Sie sich erneut an, bevor Sie es erneut versuchen.",
         "passwordLengthError": "Das Passwort muss mindestens 6 Zeichen lang sein.",
-        "passwordMismatchError": "Die Passwörter stimmen nicht überein."
+        "passwordMismatchError": "Die Passwörter stimmen nicht überein.",
+        "currentPasswordIncorrect": "Das aktuelle Passwort ist falsch.",
+        "passwordRequiredError": "Passwort ist erforderlich."
       },
       "notifications": {
         "title": "Benachrichtigungen",

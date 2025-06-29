@@ -460,7 +460,9 @@
         "passwordUpdateError": "An error occurred.",
         "reauthenticationRequired": "This is a sensitive operation and requires recent authentication. Please log in again before retrying.",
         "passwordLengthError": "Password must be at least 6 characters.",
-        "passwordMismatchError": "Passwords do not match."
+        "passwordMismatchError": "Passwords do not match.",
+        "currentPasswordIncorrect": "The current password is incorrect.",
+        "passwordRequiredError": "Password is required."
       },
       "notifications": {
         "title": "Notifications",
