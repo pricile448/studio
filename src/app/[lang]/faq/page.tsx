@@ -22,17 +22,17 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default function FaqPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+export default function FaqPage({ params: paramsPromise }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(paramsPromise);
   const dict = use(getDictionary(lang));
   const homeDict = dict.homePage;
   const helpDict = dict.help;
 
   const navLinks = [
-    { href: `/${params.lang}`, label: homeDict.nav.home },
-    { href: `/${params.lang}/features`, label: homeDict.nav.features },
-    { href: `/${params.lang}/pricing`, label: homeDict.nav.pricing },
-    { href: `/${params.lang}/faq`, label: homeDict.nav.help },
+    { href: `/${lang}`, label: homeDict.nav.home },
+    { href: `/${lang}/features`, label: homeDict.nav.features },
+    { href: `/${lang}/pricing`, label: homeDict.nav.pricing },
+    { href: `/${lang}/faq`, label: homeDict.nav.help },
   ];
 
   const langLinks = [
@@ -47,7 +47,7 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
     <div className="flex min-h-screen flex-col bg-background font-body">
       {/* Header */}
       <header className="container mx-auto flex h-20 items-center justify-between px-4">
-        <Link href={`/${params.lang}`} className="flex items-center gap-4">
+        <Link href={`/${lang}`} className="flex items-center gap-4">
           <Logo text={dict.logo} />
           <div>
             <h1 className="text-xl font-bold font-headline">{dict.logo}</h1>
@@ -65,10 +65,10 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
         </nav>
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" asChild>
-            <Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link>
+            <Link href={`/${lang}/login`}>{homeDict.nav.login}</Link>
           </Button>
           <Button asChild>
-            <Link href={`/${params.lang}/register`}>{homeDict.nav.openAccount}</Link>
+            <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
           </Button>
           <ThemeToggleButton />
           <DropdownMenu>
@@ -97,7 +97,7 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
             <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0">
               <SheetHeader className="p-6 pb-4 border-b">
                  <SheetTitle asChild>
-                    <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
+                    <Link href={`/${lang}`} className="flex items-center gap-2 text-lg font-semibold">
                       <Logo text={dict.logo} />
                       <span>{dict.logo}</span>
                     </Link>
@@ -114,8 +114,8 @@ export default function FaqPage({ params }: { params: { lang: Locale } }) {
                   </nav>
                   <Separator />
                   <div className="grid gap-2">
-                    <Button variant="outline" asChild className="w-full"><Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link></Button>
-                    <Button asChild className="w-full"><Link href={`/${params.lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
+                    <Button variant="outline" asChild className="w-full"><Link href={`/${lang}/login`}>{homeDict.nav.login}</Link></Button>
+                    <Button asChild className="w-full"><Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
                   </div>
                   <Separator />
                   <div className="grid gap-4">

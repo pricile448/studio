@@ -20,12 +20,13 @@ function AuthActionFallback() {
     )
 }
 
-export default function AuthActionPage({ params }: { params: { lang: Locale }}) {
-  const dict = use(getDictionary(params.lang));
+export default function AuthActionPage({ params: paramsPromise }: { params: Promise<{ lang: Locale }>}) {
+  const { lang } = use(paramsPromise);
+  const dict = use(getDictionary(lang));
 
   return (
     <Suspense fallback={<AuthActionFallback />}>
-      <AuthActionClient dict={dict} lang={params.lang} />
+      <AuthActionClient dict={dict} lang={lang} />
     </Suspense>
   );
 }

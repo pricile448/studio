@@ -22,16 +22,16 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+export default function FeaturesPage({ params: paramsPromise }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = use(paramsPromise);
   const dict = use(getDictionary(lang));
   const homeDict = dict.homePage;
 
   const navLinks = [
-    { href: `/${params.lang}`, label: homeDict.nav.home },
-    { href: `/${params.lang}/features`, label: homeDict.nav.features },
-    { href: `/${params.lang}/pricing`, label: homeDict.nav.pricing },
-    { href: `/${params.lang}/faq`, label: homeDict.nav.help },
+    { href: `/${lang}`, label: homeDict.nav.home },
+    { href: `/${lang}/features`, label: homeDict.nav.features },
+    { href: `/${lang}/pricing`, label: homeDict.nav.pricing },
+    { href: `/${lang}/faq`, label: homeDict.nav.help },
   ];
 
   const langLinks = [
@@ -46,7 +46,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
     <div className="flex min-h-screen flex-col bg-background font-body">
       {/* Header */}
       <header className="container mx-auto flex h-20 items-center justify-between px-4">
-        <Link href={`/${params.lang}`} className="flex items-center gap-4">
+        <Link href={`/${lang}`} className="flex items-center gap-4">
           <Logo text={dict.logo} />
           <div>
             <h1 className="text-xl font-bold font-headline">{dict.logo}</h1>
@@ -64,10 +64,10 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
         </nav>
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" asChild>
-            <Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link>
+            <Link href={`/${lang}/login`}>{homeDict.nav.login}</Link>
           </Button>
           <Button asChild>
-            <Link href={`/${params.lang}/register`}>{homeDict.nav.openAccount}</Link>
+            <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
           </Button>
           <ThemeToggleButton />
           <DropdownMenu>
@@ -96,7 +96,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
             <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0">
               <SheetHeader className="p-6 pb-4 border-b">
                  <SheetTitle asChild>
-                    <Link href={`/${params.lang}`} className="flex items-center gap-2 text-lg font-semibold">
+                    <Link href={`/${lang}`} className="flex items-center gap-2 text-lg font-semibold">
                       <Logo text={dict.logo} />
                       <span>{dict.logo}</span>
                     </Link>
@@ -113,8 +113,8 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
                   </nav>
                   <Separator />
                   <div className="grid gap-2">
-                    <Button variant="outline" asChild className="w-full"><Link href={`/${params.lang}/login`}>{homeDict.nav.login}</Link></Button>
-                    <Button asChild className="w-full"><Link href={`/${params.lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
+                    <Button variant="outline" asChild className="w-full"><Link href={`/${lang}/login`}>{homeDict.nav.login}</Link></Button>
+                    <Button asChild className="w-full"><Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
                   </div>
                   <Separator />
                   <div className="grid gap-4">
@@ -154,7 +154,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature1.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature1.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
-                    <Link href={`/${params.lang}/register`}>{homeDict.featuresSection.feature1.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
+                    <Link href={`/${lang}/register`}>{homeDict.featuresSection.feature1.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -164,7 +164,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature2.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature2.description}</p>
                   <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
-                    <Link href={`/${params.lang}/register`}>{homeDict.featuresSection.feature2.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
+                    <Link href={`/${lang}/register`}>{homeDict.featuresSection.feature2.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -174,7 +174,7 @@ export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
                   <h3 className="text-xl font-bold font-headline">{homeDict.featuresSection.feature3.title}</h3>
                   <p className="mt-2 flex-1 text-muted-foreground">{homeDict.featuresSection.feature3.description}</p>
                    <Button variant="link" className="p-0 h-auto mt-4 self-start" asChild>
-                    <Link href={`/${params.lang}/register`}>{homeDict.featuresSection.feature3.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
+                    <Link href={`/${lang}/register`}>{homeDict.featuresSection.feature3.cta} <MoveRight className="ml-2 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
               </Card>
