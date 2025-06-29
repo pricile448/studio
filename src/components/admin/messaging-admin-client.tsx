@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -21,7 +22,7 @@ interface ChatSession {
     participants: string[];
     lastMessageText?: string;
     lastMessageTimestamp?: Timestamp;
-    otherParticipant?: {
+    otherParticipant: {
         id: string;
         name: string;
         avatar: string;
@@ -71,19 +72,19 @@ function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatS
     return (
         <div className="flex flex-col h-full">
             <CardHeader>
-                <CardTitle>Conversation avec {chatSession.otherParticipant?.name || 'Utilisateur'}</CardTitle>
+                <CardTitle>Conversation avec {chatSession.otherParticipant.name}</CardTitle>
             </CardHeader>
             <Separator />
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
-                    {messages.map((msg, index) => {
+                    {messages.map((msg) => {
                         const isAdmin = msg.senderId === adminId;
                         return (
-                             <div key={msg.id || index} className={cn('flex items-end gap-2', isAdmin ? 'justify-end' : 'justify-start')}>
+                             <div key={msg.id} className={cn('flex items-end gap-2', isAdmin ? 'justify-end' : 'justify-start')}>
                                 {!isAdmin && (
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={chatSession.otherParticipant?.avatar} />
-                                        <AvatarFallback>{getInitials(chatSession.otherParticipant?.name || 'U')}</AvatarFallback>
+                                        <AvatarImage src={chatSession.otherParticipant.avatar} />
+                                        <AvatarFallback>{getInitials(chatSession.otherParticipant.name || 'U')}</AvatarFallback>
                                     </Avatar>
                                 )}
                                 <div className={cn(
@@ -91,7 +92,7 @@ function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatS
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
                                     <p>{msg.text}</p>
-                                    <p className={cn("text-xs mt-1", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
+                                    <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                         {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>
@@ -139,10 +140,23 @@ export function MessagingAdminClient() {
                 const data = doc.data();
                 const clientParticipantId = data.participants.find((p: string) => p !== user.uid);
                 
-                let clientParticipant;
+                let participantDetails = {
+                    id: '',
+                    name: 'Utilisateur Inconnu',
+                    avatar: ''
+                };
+
                 if (clientParticipantId) {
                     const userDoc = await getUserFromFirestore(clientParticipantId);
-                    clientParticipant = userDoc ? { id: userDoc.uid, name: `${userDoc.firstName} ${userDoc.lastName}`, avatar: userDoc.photoURL || '' } : { id: clientParticipantId, name: 'Utilisateur Inconnu', avatar: ''};
+                    if (userDoc) {
+                        participantDetails = {
+                            id: userDoc.uid,
+                            name: `${userDoc.firstName} ${userDoc.lastName}`,
+                            avatar: userDoc.photoURL || ''
+                        };
+                    } else {
+                        participantDetails.id = clientParticipantId;
+                    }
                 }
 
                 return {
@@ -150,7 +164,7 @@ export function MessagingAdminClient() {
                     participants: data.participants,
                     lastMessageText: data.lastMessageText,
                     lastMessageTimestamp: data.lastMessageTimestamp,
-                    otherParticipant: clientParticipant,
+                    otherParticipant: participantDetails,
                 };
             });
 
