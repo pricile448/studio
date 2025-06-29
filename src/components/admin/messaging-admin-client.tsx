@@ -205,7 +205,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb }: { chatSessi
                                                 <Image src={msg.fileUrl} alt={msg.fileName || 'Image en pièce jointe'} fill style={{objectFit: 'cover'}} className="rounded-md"/>
                                             </a>
                                         ) : (
-                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" download={msg.fileName || true} className={cn(
+                                            <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer" className={cn(
                                                 "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                 isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
                                             )}>
@@ -349,14 +349,14 @@ export function MessagingAdminClient() {
                         {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
                         {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
                         {chats.map(chat => (
-                            <div key={chat.id} className={cn("group p-4 cursor-pointer hover:bg-muted/50 border-b relative", selectedChatId === chat.id && "bg-muted")}>
-                                <div onClick={() => setSelectedChatId(chat.id)}>
-                                    <p className="font-semibold">{chat.otherParticipant?.name || 'Utilisateur'}</p>
+                            <div key={chat.id} className={cn("group flex items-center justify-between p-4 border-b hover:bg-muted/50", selectedChatId === chat.id && "bg-muted")}>
+                                <div onClick={() => setSelectedChatId(chat.id)} className="flex-1 cursor-pointer overflow-hidden pr-2">
+                                    <p className="font-semibold truncate">{chat.otherParticipant?.name || 'Utilisateur'}</p>
                                     <p className="text-sm text-muted-foreground truncate">{chat.lastMessageText || 'Aucun message'}</p>
                                 </div>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Trash2 className="h-4 w-4 text-destructive" />
                                         </Button>
                                     </AlertDialogTrigger>
