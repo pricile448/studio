@@ -31,6 +31,8 @@ import {
   DialogContent,
   DialogFooter,
   DialogClose,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { getFirebaseServices } from '@/lib/firebase/config';
@@ -78,10 +80,11 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
     const getDownloadUrl = (url: string) => {
         if (!url.includes('/upload/')) return url;
         const parts = url.split('/upload/');
-        if (parts[1].startsWith('fl_attachment/')) {
-            return url;
+        // Add the download flag for non-image files
+        if (!parts[1].startsWith('image/')) {
+            return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
         }
-        return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
+        return url;
     };
 
     useEffect(() => {
@@ -165,6 +168,9 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
         <div className="flex flex-col h-full">
             <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
                 <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
+                     <DialogHeader className="sr-only">
+                        <DialogTitle>Aperçu de l'image</DialogTitle>
+                     </DialogHeader>
                     {previewImage && (
                         <div className="relative w-full h-full flex flex-col">
                             <div className="relative flex-1">
@@ -250,30 +256,30 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                     'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
-                                    {msg.fileUrl && (
-                                        <div className={cn(msg.text ? "mb-1" : "")}>
-                                            {msg.fileType?.startsWith("image/") ? (
-                                                <button
-                                                    onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
-                                                    className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
-                                                >
-                                                    <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
-                                                </button>
-                                            ) : (
-                                                <a 
-                                                    href={getDownloadUrl(msg.fileUrl)} 
-                                                    download={msg.fileName || true} 
-                                                    className={cn(
-                                                        "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                                        isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
-                                                    )}
-                                                >
-                                                    <FileIcon className="h-6 w-6 flex-shrink-0" />
-                                                    <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
-                                                </a>
-                                            )}
-                                        </div>
-                                    )}
+                                    <div className={cn(msg.text ? "mb-1" : "")}>
+                                        {msg.fileUrl && msg.fileType?.startsWith("image/") ? (
+                                            <button
+                                                onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
+                                                className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
+                                            >
+                                                <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
+                                            </button>
+                                        ) : msg.fileUrl && (
+                                            <a 
+                                                href={getDownloadUrl(msg.fileUrl)} 
+                                                download={msg.fileName || true} 
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={cn(
+                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                    isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                )}
+                                            >
+                                                <FileIcon className="h-6 w-6 flex-shrink-0" />
+                                                <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
+                                            </a>
+                                        )}
+                                    </div>
                                     {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
                                     <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                         {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
