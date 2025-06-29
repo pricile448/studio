@@ -291,3 +291,60 @@ export async function getPendingKycUsers(): Promise<UserProfile[]> {
     });
     return usersList;
 }
+
+export async function addFundsToAccount(userId: string, accountId: string, amount: number, description: string): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const userData = userSnap.data();
+  
+  const accounts: Account[] = userData.accounts || [];
+  const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+
+  if (accountIndex === -1) {
+    throw new Error("Compte non trouvé.");
+  }
+
+  accounts[accountIndex].balance += amount;
+  
+  const newTransaction = {
+    id: `txn_${Date.now()}`,
+    accountId: accountId,
+    date: Timestamp.now(),
+    description: description,
+    amount: amount,
+    currency: 'EUR',
+    category: 'Dépôt Administratif',
+    status: 'completed'
+  };
+  
+  const transactions = userData.transactions ? [...userData.transactions, newTransaction] : [newTransaction];
+
+  await updateDoc(userRef, {
+    accounts: accounts,
+    transactions: transactions
+  });
+}
+
+export async function generateUserIban(userId: string): Promise<{iban: string, bic: string}> {
+  const userRef = doc(db, "users", userId);
+  
+  const countryCode = "FR76";
+  const bankCode = "30004";
+  const branchCode = "00001";
+  const accountNumber = Math.floor(10000000000 + Math.random() * 90000000000).toString();
+  const key = "85";
+  const iban = `${countryCode} ${bankCode} ${branchCode} ${accountNumber} ${key}`;
+  const bic = "BNPAFRPPXXX";
+
+  await updateDoc(userRef, {
+    iban: iban,
+    bic: bic
+  });
+
+  return { iban, bic };
+}

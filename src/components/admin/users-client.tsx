@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 export function UsersClient() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -76,6 +79,7 @@ export function UsersClient() {
                             <TableHead>Email</TableHead>
                             <TableHead>Statut KYC</TableHead>
                             <TableHead>Date d'inscription</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -90,6 +94,11 @@ export function UsersClient() {
                                 </TableCell>
                                 <TableCell>
                                     {format(new Date(user.createdAt), 'dd MMMM yyyy', { locale: fr })}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={`/admin/users/${user.uid}`}>Gérer</Link>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
