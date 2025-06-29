@@ -132,7 +132,7 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
     const form = useForm<InactivityFormValues>({
         resolver: zodResolver(inactivitySchema),
         defaultValues: {
-            inactivityTimeout: '15',
+            inactivityTimeout: '5',
         },
     });
 
@@ -167,7 +167,7 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
                             <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select a timeout" />
+                                        <SelectValue />
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>

@@ -112,7 +112,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
         promotions: false,
         security: true,
     },
-    inactivityTimeout: 15, // Default timeout of 15 minutes
+    inactivityTimeout: 5, // Default timeout of 5 minutes
     accounts: defaultAccounts,
     transactions: [],
     beneficiaries: [],
