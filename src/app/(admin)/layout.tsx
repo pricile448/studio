@@ -6,9 +6,6 @@ import { useAuth } from '@/context/auth-context';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { Loader2, LayoutDashboard, Users, ShieldCheck, LogOut, MessageSquare } from 'lucide-react';
-import { Toaster } from "@/components/ui/toaster";
-import { cn } from '@/lib/utils';
-import { AuthProvider } from '@/context/auth-context';
 import {
   SidebarProvider,
   Sidebar,
@@ -32,7 +29,7 @@ const adminNavItems = [
     { href: '/admin/messaging', icon: MessageSquare, label: 'Messagerie' },
 ];
 
-function AdminLayoutClient({ children }: { children: ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
     const { user, userProfile, loading: authLoading, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
@@ -40,39 +37,33 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
     const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
     useEffect(() => {
-        // Ne rien faire tant que l'authentification Firebase n'est pas chargée
         if (authLoading) {
             return;
         }
 
-        // Si l'utilisateur n'est pas connecté et n'est pas sur la page de connexion, rediriger vers la page de connexion admin
         if (!user) {
             if (pathname !== '/admin/login') {
                 router.replace('/admin/login');
             } else {
-                // Si sur la page de connexion, pas besoin de vérifier le statut admin
                 setIsCheckingAdmin(false);
             }
             return;
         }
-
-        // Si l'utilisateur est connecté, vérifier s'il est admin
+        
         const checkAdminStatus = async () => {
             setIsCheckingAdmin(true);
             try {
                 const adminRef = doc(db, 'admins', user.uid);
                 const adminSnap = await getDoc(adminRef);
-
                 if (adminSnap.exists()) {
                     setIsAdmin(true);
-                    // S'il est admin et sur la page de connexion, le rediriger vers le tableau de bord
                     if (pathname === '/admin/login') {
                         router.replace('/admin/dashboard');
                     }
                 } else {
                     console.warn("Accès non autorisé à la section admin. Redirection.");
-                    await logout(); // Déconnecter l'utilisateur non-admin
-                    router.replace('/fr/login'); // Le rediriger vers la page de connexion client
+                    await logout();
+                    router.replace('/fr/login');
                 }
             } catch (error) {
                 console.error("Erreur lors de la vérification du statut admin:", error);
@@ -82,17 +73,14 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
                 setIsCheckingAdmin(false);
             }
         };
-
         checkAdminStatus();
-
     }, [user, authLoading, router, pathname, logout]);
 
     const handleLogout = async () => {
         await logout();
-        router.push('/admin/login'); // Rediriger vers la page de connexion admin lors de la déconnexion
+        router.push('/admin/login');
     };
 
-    // Afficher un chargeur global pendant la vérification de l'état d'authentification ou du statut admin
     if (authLoading || isCheckingAdmin) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -101,12 +89,12 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
         );
     }
     
-    // Si l'utilisateur n'est pas authentifié et est sur la page de connexion, afficher la page de connexion
-    if (!user && pathname === '/admin/login') {
+    // Si nous sommes sur la page de connexion, n'affichez que son contenu sans le layout principal
+    if (pathname === '/admin/login') {
         return <>{children}</>;
     }
 
-    // Ce cas gère un utilisateur connecté qui n'est pas admin, bien que l'effet devrait le rediriger. C'est une sécurité.
+    // Si un utilisateur non-admin est toujours là, affichez une redirection.
     if (!isAdmin) {
          return (
              <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -115,7 +103,6 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
         );
     }
     
-    // À ce stade, l'utilisateur est un administrateur authentifié. Afficher la mise en page.
     const displayName = userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : (user?.email || 'Admin');
     const initials = userProfile ? `${userProfile.firstName?.charAt(0) ?? ''}${userProfile.lastName?.charAt(0) ?? ''}`.toUpperCase() : 'A';
 
@@ -191,25 +178,5 @@ function AdminLayoutClient({ children }: { children: ReactNode }) {
                 </main>
             </div>
         </SidebarProvider>
-    );
-}
-
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <html lang="fr" suppressHydrationWarning>
-            <head>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-            </head>
-            <body className={cn("font-body antialiased", process.env.NODE_ENV === 'development' ? 'debug-screens' : undefined)}>
-                <AuthProvider>
-                    <AdminLayoutClient>
-                        {children}
-                    </AdminLayoutClient>
-                    <Toaster />
-                </AuthProvider>
-            </body>
-        </html>
     );
 }
