@@ -4,8 +4,9 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData } from '@/lib/firebase/firestore';
-import { serverTimestamp } from 'firebase/firestore';
+import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession } from '@/lib/firebase/firestore';
+import { serverTimestamp, Timestamp } from 'firebase/firestore';
+import { uploadToCloudinary } from '@/services/cloudinary-service';
 
 type AuthContextType = {
   user: User | null;
@@ -20,6 +21,9 @@ type AuthContextType = {
   updateUserPassword: (password: string) => Promise<void>;
   updateKycStatus: (status: 'pending') => Promise<void>;
   requestCard: () => Promise<void>;
+  uploadDocument: (file: File, documentName: string) => Promise<void>;
+  deleteConversation: (chatId: string) => Promise<void>;
+  deleteMessage: (chatId: string, messageId: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,7 +132,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserProfile(profile);
   };
 
-  const value = { user, userProfile, loading, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard };
+  const uploadDocument = async (file: File, documentName: string) => {
+      if (!user || !userProfile) throw new Error("User not authenticated");
+      
+      const reader = new FileReader();
+      const fileReadPromise = new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      
+      const dataUri = await fileReadPromise;
+      const folder = `user_documents/${user.uid}`;
+      const url = await uploadToCloudinary(dataUri, folder);
+      
+      const newDocument: Document = {
+        id: `doc_${Date.now()}`,
+        name: documentName,
+        url: url,
+        createdAt: Timestamp.now()
+      };
+
+      const updatedDocuments = [...(userProfile.documents || []), newDocument];
+      await updateUserInFirestore(user.uid, { documents: updatedDocuments });
+      
+      // Refresh local state
+      const profile = await getUserFromFirestore(user.uid);
+      setUserProfile(profile);
+  };
+
+  const deleteConversation = async (chatId: string) => {
+    await deleteChatSession(chatId);
+  };
+
+  const deleteMessage = async (chatId: string, messageId: string) => {
+    await softDeleteUserMessage(chatId, messageId);
+  };
+
+  const value = { user, userProfile, loading, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, uploadDocument, deleteConversation, deleteMessage };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

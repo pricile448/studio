@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useTransition } from 'react';
 import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { UserProfile, ChatMessage } from '@/lib/firebase/firestore';
@@ -11,10 +11,23 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, AlertTriangle } from 'lucide-react';
+import { Loader2, Send, AlertTriangle, Trash2 } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ChatClientProps {
     dict: Dictionary['chat'];
@@ -30,6 +43,9 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const { toast } = useToast();
+    const { deleteMessage } = useAuth();
     
     const advisorId = userProfile?.advisorId || 'advisor_123';
 
@@ -60,6 +76,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     text: data.text,
                     senderId: data.senderId,
                     timestamp: data.timestamp,
+                    deletedForUser: data.deletedForUser,
                 });
             });
             setMessages(msgs);
@@ -97,6 +114,18 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             setIsSending(false);
         }
     };
+    
+    const handleDeleteMessage = (messageId?: string) => {
+      if (!chatId || !messageId) return;
+      startDeleteTransition(async () => {
+        try {
+          await deleteMessage(chatId, messageId);
+          toast({ title: 'Message deleted' });
+        } catch (error) {
+          toast({ variant: 'destructive', title: 'Error', description: "Could not delete message." });
+        }
+      });
+    }
 
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('');
@@ -129,10 +158,33 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                 <p className="text-xs mt-2">{dict.welcomeMessageSubtext}</p>
                             </div>
                         )}
-                        {messages.map((msg, index) => {
+                        {messages.filter(msg => !msg.deletedForUser).map((msg, index) => {
                             const isUser = msg.senderId === user.uid;
                             return (
-                                <div key={msg.id || index} className={cn('flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
+                                <div key={msg.id || index} className={cn('group flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
+                                    {isUser && (
+                                       <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>Supprimer ce message ?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Cette action ne peut pas être annulée. Le message sera masqué pour vous.
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDeleteMessage(msg.id)} disabled={isDeleting}>
+                                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
+                                                </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    )}
                                     {!isUser && (
                                         <Avatar className="h-8 w-8">
                                             <AvatarFallback>{getInitials(dict.advisorName)}</AvatarFallback>

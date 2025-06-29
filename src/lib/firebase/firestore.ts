@@ -1,5 +1,5 @@
 
-import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc } from "firebase/firestore";
 import { db } from "./config";
 
 export type Account = {
@@ -40,6 +40,14 @@ export type ChatMessage = {
   text: string;
   senderId: string;
   timestamp: Timestamp;
+  deletedForUser?: boolean;
+};
+
+export type Document = {
+  id: string;
+  name: string;
+  url: string;
+  createdAt: Timestamp;
 };
 
 export type UserProfile = {
@@ -75,6 +83,7 @@ export type UserProfile = {
   transactions: Transaction[];
   beneficiaries: Beneficiary[];
   budgets: Budget[];
+  documents: Document[];
   advisorId?: string;
 };
 
@@ -118,6 +127,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
     transactions: [],
     beneficiaries: [],
     budgets: [],
+    documents: [],
     advisorId: 'advisor_123'
   };
 
@@ -225,6 +235,19 @@ export async function addMessageToChat(chatId: string, message: Omit<ChatMessage
         lastMessageSenderId: message.senderId,
     });
 }
+
+export async function softDeleteUserMessage(chatId: string, messageId: string) {
+    const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
+    await updateDoc(messageRef, { deletedForUser: true });
+}
+
+export async function deleteChatSession(chatId: string) {
+    // Note: This deletes the chat document but not the subcollection of messages.
+    // In a production environment, a Cloud Function would be used for cascading deletes.
+    const chatRef = doc(db, 'chats', chatId);
+    await deleteDoc(chatRef);
+}
+
 
 export async function getAllUsers(): Promise<UserProfile[]> {
     const usersCollection = collection(db, 'users');

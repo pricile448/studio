@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useTransition } from 'react';
 import { collection, query, onSnapshot, Timestamp, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { ChatMessage, UserProfile } from '@/lib/firebase/firestore';
@@ -13,9 +13,21 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare } from 'lucide-react';
+import { Loader2, Send, MessageSquare, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '../ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatSession {
     id: string;
@@ -78,6 +90,15 @@ function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatS
             <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
                     {messages.map((msg) => {
+                        if (msg.deletedForUser) {
+                           return (
+                             <div key={msg.id} className="flex justify-start">
+                                <div className="text-sm italic text-muted-foreground p-2">
+                                    [Message supprimé par l'utilisateur]
+                                </div>
+                            </div>
+                           )
+                        }
                         const isAdmin = msg.senderId === adminId;
                         return (
                              <div key={msg.id} className={cn('flex items-end gap-2', isAdmin ? 'justify-end' : 'justify-start')}>
@@ -126,10 +147,12 @@ function ChatInterface({ chatSession, adminId, adminName }: { chatSession: ChatS
 }
 
 export function MessagingAdminClient() {
-    const { user, userProfile } = useAuth();
+    const { user, userProfile, deleteConversation } = useAuth();
     const [chats, setChats] = useState<ChatSession[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (!user) return;
@@ -138,8 +161,7 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const ADVISOR_ID = 'advisor_123'; // As defined in firestore.ts for new users
-                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
+                const clientParticipantId = data.participants.find((p: string) => p !== user.uid && p !== 'advisor_123');
                 
                 let participantDetails = {
                     id: clientParticipantId || '',
@@ -185,6 +207,20 @@ export function MessagingAdminClient() {
         return () => unsubscribe();
     }, [user]);
 
+    const handleDelete = (chatId: string) => {
+        startDeleteTransition(async () => {
+            try {
+                await deleteConversation(chatId);
+                toast({ title: 'Conversation supprimée', description: 'La conversation a été supprimée avec succès.' });
+                if(selectedChatId === chatId) {
+                    setSelectedChatId(null);
+                }
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer la conversation.' });
+            }
+        });
+    }
+
     if (!user || !userProfile) {
         return <Skeleton className="h-full w-full" />;
     }
@@ -204,9 +240,32 @@ export function MessagingAdminClient() {
                         {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
                         {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
                         {chats.map(chat => (
-                            <div key={chat.id} onClick={() => setSelectedChatId(chat.id)} className={cn("p-4 cursor-pointer hover:bg-muted/50 border-b", selectedChatId === chat.id && "bg-muted")}>
-                                <p className="font-semibold">{chat.otherParticipant?.name || 'Utilisateur'}</p>
-                                <p className="text-sm text-muted-foreground truncate">{chat.lastMessageText || 'Aucun message'}</p>
+                            <div key={chat.id} className={cn("group p-4 cursor-pointer hover:bg-muted/50 border-b relative", selectedChatId === chat.id && "bg-muted")}>
+                                <div onClick={() => setSelectedChatId(chat.id)}>
+                                    <p className="font-semibold">{chat.otherParticipant?.name || 'Utilisateur'}</p>
+                                    <p className="text-sm text-muted-foreground truncate">{chat.lastMessageText || 'Aucun message'}</p>
+                                </div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette conversation ?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Cette action est irréversible. La conversation sera définitivement supprimée.
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDelete(chat.id)} disabled={isDeleting}>
+                                            {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
+                                        </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         ))}
                     </CardContent>

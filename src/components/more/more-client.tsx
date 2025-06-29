@@ -5,10 +5,12 @@ import jsPDF from 'jspdf';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, FileDown, FileText } from 'lucide-react';
+import { FileDown, FileText } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AddDocumentDialog } from './add-document-dialog';
+import { useState } from 'react';
 
 interface MoreClientProps {
   dict: Dictionary;
@@ -17,6 +19,8 @@ interface MoreClientProps {
 
 export function MoreClient({ dict, lang }: MoreClientProps) {
   const { userProfile, loading } = useAuth();
+  // We add a state to force a re-render when a new document is uploaded
+  const [, setRefresh] = useState(0);
 
   if (loading || !userProfile) {
     return (
@@ -33,14 +37,14 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
     { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const },
     { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const },
   ];
+  
+  const userUploadedDocuments = (userProfile.documents || []).map(doc => ({
+    ...doc,
+    date: doc.createdAt.toDate().toLocaleDateString(lang),
+    type: 'user' as const
+  }));
 
-  // In a real app, user-specific documents would be fetched from Firestore/Storage for verified users.
-  const userUploadedDocuments: any[] = userProfile.kycStatus === 'verified' ? [
-    // This is where admin-added documents would appear.
-    // For now, it's empty for a newly-verified user.
-  ] : [];
-
-  const documentsToDisplay = [...defaultDocuments, ...userUploadedDocuments];
+  const documentsToDisplay = [...defaultDocuments, ...userUploadedDocuments].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleDownloadDefault = (docType: 'contract' | 'privacy') => {
     const doc = new jsPDF();
@@ -67,10 +71,7 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
          <h1 className="text-3xl font-bold font-headline">{docDict.title}</h1>
          {userProfile.kycStatus === 'verified' && (
-            <Button>
-                <Upload className="mr-2" />
-                {docDict.upload}
-            </Button>
+            <AddDocumentDialog dict={docDict} onUpload={() => setRefresh(r => r + 1)} />
          )}
        </div>
       
@@ -103,9 +104,11 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
                         {docDict.download}
                       </Button>
                     ) : (
-                      <Button variant="outline" size="sm" disabled>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        {docDict.download}
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                            <FileDown className="mr-2 h-4 w-4" />
+                            {docDict.download}
+                        </a>
                       </Button>
                     )}
                    </TableCell>
