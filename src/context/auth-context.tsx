@@ -161,7 +161,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedVirtualCards = [...(userProfile.virtualCards || []), newCard];
     await updateUserInFirestore(user.uid, { virtualCards: updatedVirtualCards });
 
-    await refreshUserProfile();
+    // Perform an optimistic update on the local state
+    // This will trigger a re-render in components using the context
+    setUserProfile(currentProfile => {
+        if (!currentProfile) return null; // Should not happen if we got this far
+        return {
+            ...currentProfile,
+            virtualCards: updatedVirtualCards,
+        };
+    });
   };
 
   const uploadDocument = async (file: File, documentName: string) => {
