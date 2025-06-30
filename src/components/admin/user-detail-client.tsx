@@ -261,7 +261,7 @@ function CardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
                        {user.cardStatus === 'none' && (
                             <Button onClick={requestCard} disabled={isLoading || user.kycStatus !== 'verified'}>
                                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Créer une demande de carte
+                                Forcer une demande de carte
                             </Button>
                         )}
                         {user.cardStatus === 'requested' && (

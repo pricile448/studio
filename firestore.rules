@@ -1,44 +1,67 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-
+    // --- Fonctions Utilitaires ---
     function isAdmin() {
+      // Un utilisateur est admin si un document avec son UID existe dans la collection 'admins'.
       return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
+
+    // Vérifie si l'utilisateur authentifié est un participant du chat, basé sur l'ID du chat.
+    // L'ID du chat est construit comme 'participant1_participant2'.
+    function isChatParticipant(chatId) {
+      return request.auth != null && request.auth.uid in chatId.split('_');
+    }
     
-    // Les administrateurs ont un accès complet
+    // --- Règles Administrateur ---
+    // Les administrateurs ont un accès complet en lecture/écriture à toutes les collections pour la gestion.
     match /{document=**} {
       allow read, write: if isAdmin();
     }
 
-    // Règles pour les clients
+    // --- Règles Utilisateurs ---
     match /users/{userId} {
-      allow read, create: if isOwner(userId);
+      // Un utilisateur peut lire son propre profil.
+      allow read: if request.auth != null && request.auth.uid == userId;
       
-      // Autorise un utilisateur à mettre à jour son propre document, MAIS il ne peut pas changer les champs protégés.
-      // Cela permet la mise à jour des champs 'accounts' et 'transactions' pour le virement.
-      allow update: if isOwner(userId) &&
-        request.resource.data.kycStatus == resource.data.kycStatus &&
-        request.resource.data.cardStatus == resource.data.cardStatus;
+      // Un utilisateur peut créer son propre profil lors de l'inscription.
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Un utilisateur peut mettre à jour son propre profil, mais avec des restrictions.
+      allow update: if request.auth != null && request.auth.uid == userId &&
+                       // Champs strictement interdits à la modification directe par l'utilisateur
+                       !('kycStatus' in request.resource.data) &&
+                       !('iban' in request.resource.data) &&
+                       !('bic' in request.resource.data) &&
+                       // Condition spéciale pour cardStatus: non modifiable, SAUF pour faire une demande.
+                       (
+                         !('cardStatus' in request.resource.data) ||
+                         (request.resource.data.cardStatus == 'requested' && resource.data.cardStatus == 'none')
+                       );
     }
 
+    // --- Règles de Messagerie ---
     match /chats/{chatId} {
-        function isChatParticipant() {
-            return request.auth != null && request.auth.uid in chatId.split('_');
-        }
-        allow read, create, update: if isChatParticipant();
+      // Un utilisateur peut lire, créer ou mettre à jour une conversation s'il en est un participant (vérifié via l'ID).
+      allow read, create, update: if isChatParticipant(chatId);
       
-        match /messages/{messageId} {
-            allow read, create: if isChatParticipant();
-            // Permet à un utilisateur de "supprimer logiquement" son propre message
-            allow update: if isOwner(resource.data.senderId) && 'deletedForUser' in request.resource.data;
-            allow delete: if false; // Les clients ne peuvent pas supprimer définitivement les messages.
-        }
+      // La suppression est gérée par la règle globale de l'administrateur.
+
+      match /messages/{messageId} {
+        // Un utilisateur peut lire ou créer des messages s'il est participant au chat.
+        // Cette règle évite d'utiliser get() et ne cause pas d'erreur si le document parent est momentanément indisponible.
+        allow read, create: if isChatParticipant(chatId);
+        
+        // Un utilisateur peut "supprimer logiquement" (mettre à jour) son propre message.
+        allow update: if request.auth != null && request.auth.uid == resource.data.senderId &&
+                         'deletedForUser' in request.resource.data;
+
+        // Seuls les administrateurs peuvent supprimer définitivement les messages (règle globale).
+        allow delete: if false; 
+      }
     }
   }
 }
