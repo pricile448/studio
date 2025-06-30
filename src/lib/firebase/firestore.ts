@@ -368,7 +368,7 @@ export async function addFundsToAccount(userId: string, accountId: string, amoun
     description: description,
     amount: amount,
     currency: 'EUR',
-    category: 'Ajustement de solde',
+    category: 'AmCBunq Service',
     status: 'completed'
   };
   
@@ -407,7 +407,7 @@ export async function debitFundsFromAccount(userId: string, accountId: string, a
     description: description,
     amount: debitAmount,
     currency: 'EUR',
-    category: 'Ajustement de solde',
+    category: 'AmCBunq Service',
     status: 'completed'
   };
   
@@ -470,7 +470,7 @@ export async function resetAccountBalance(userId: string, accountId: string, db:
             description: "Correction de solde",
             amount: adjustmentAmount,
             currency: 'EUR',
-            category: 'Ajustement de solde',
+            category: 'AmCBunq Service',
             status: 'completed'
         };
         const transactions = userData.transactions ? [...userData.transactions, newTransaction] : [newTransaction];
