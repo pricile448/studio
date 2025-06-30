@@ -56,9 +56,10 @@ const convertFileToDataUri = (file: File): Promise<string> => {
 
 const getCloudinaryDownloadUrl = (url: string): string => {
     if (!url) return '';
+    // This logic works for both 'image/upload/' and 'raw/upload/' URLs
     const urlParts = url.split('/upload/');
     if (urlParts.length !== 2) {
-        return url;
+        return url; // return original if format is unexpected
     }
     const [baseUrl, assetPath] = urlParts;
     return `${baseUrl}/upload/fl_attachment/${assetPath}`;
@@ -204,7 +205,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         try {
             const dataUri = await convertFileToDataUri(file);
             const folder = `chat_attachments/${chatId}`;
-            const url = await uploadToCloudinary(dataUri, folder);
+            const url = await uploadToCloudinary(dataUri, folder, file.name);
     
             await addMessageToChat(chatId, {
                 senderId: user.uid,

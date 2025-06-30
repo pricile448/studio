@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -146,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const dataUri = await fileReadPromise;
       const folder = `user_documents/${user.uid}`;
-      const url = await uploadToCloudinary(dataUri, folder);
+      const url = await uploadToCloudinary(dataUri, folder, file.name);
       
       const newDocument: Document = {
         id: `doc_${Date.now()}`,

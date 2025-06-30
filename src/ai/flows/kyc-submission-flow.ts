@@ -53,10 +53,11 @@ const kycSubmissionFlow = ai.defineFlow(
     try {
         const uploadFolder = `kyc_documents/${input.userId}`;
 
+        // Use static but descriptive names for KYC documents
         [idDocumentUrl, proofOfAddressUrl, selfieUrl] = await Promise.all([
-            uploadToCloudinary(input.idDocumentDataUri, uploadFolder),
-            uploadToCloudinary(input.proofOfAddressDataUri, uploadFolder),
-            uploadToCloudinary(input.selfieDataUri, uploadFolder)
+            uploadToCloudinary(input.idDocumentDataUri, uploadFolder, 'identity_document'),
+            uploadToCloudinary(input.proofOfAddressDataUri, uploadFolder, 'proof_of_address'),
+            uploadToCloudinary(input.selfieDataUri, uploadFolder, 'selfie_photo')
         ]);
 
     } catch (error: any) {

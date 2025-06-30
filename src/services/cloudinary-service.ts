@@ -5,15 +5,21 @@
  * This file exports a function to upload data URIs to Cloudinary.
  */
 
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, type UploadApiResponse } from 'cloudinary';
+
+// Function to extract filename without extension
+const getFileName = (fileName: string): string => {
+    return fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+}
 
 /**
  * Uploads a file from a data URI to Cloudinary.
  * @param dataUri The data URI of the file to upload.
  * @param folder The folder in Cloudinary to upload the file to.
+ * @param originalFileName The original name of the file, including extension.
  * @returns The secure URL of the uploaded file.
  */
-export async function uploadToCloudinary(dataUri: string, folder: string): Promise<string> {
+export async function uploadToCloudinary(dataUri: string, folder: string, originalFileName: string): Promise<string> {
   const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
   const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
   const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
@@ -31,13 +37,15 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     secure: true,
   });
 
+  const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
+  const resourceType = mimeType.startsWith('image/') ? 'image' : 'raw';
+
   try {
-    const result = await cloudinary.uploader.upload(dataUri, {
+    const result: UploadApiResponse = await cloudinary.uploader.upload(dataUri, {
       folder: folder,
-      resource_type: 'auto', // Let Cloudinary detect the resource type
-      use_filename: true,
-      unique_filename: true, 
-      overwrite: false
+      resource_type: resourceType,
+      public_id: getFileName(originalFileName), // Use original filename as public_id
+      overwrite: false, // Don't overwrite existing files with same name
     });
     return result.secure_url;
   } catch (error: any) {
