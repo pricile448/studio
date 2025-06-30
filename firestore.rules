@@ -30,12 +30,10 @@ service cloud.firestore {
       // Un utilisateur peut créer son propre profil lors de l'inscription.
       allow create: if request.auth != null && request.auth.uid == userId;
       
-      // Un utilisateur peut mettre à jour son propre profil, mais pas les champs protégés.
+      // Un utilisateur peut mettre à jour son propre profil.
+      // Cette règle empêche la modification des champs protégés qui ne doivent être modifiés que par les administrateurs ou des fonctions serveur spécifiques.
       allow update: if request.auth != null && request.auth.uid == userId &&
-                       !('kycStatus' in request.resource.data) &&
-                       !('cardStatus' in request.resource.data) &&
-                       !('iban' in request.resource.data) &&
-                       !('bic' in request.resource.data);
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(['kycStatus', 'cardStatus', 'cardRequestedAt', 'kycSubmittedAt', 'iban', 'bic', 'advisorId']);
     }
 
     // --- Règles de Messagerie ---
@@ -47,12 +45,12 @@ service cloud.firestore {
 
       match /messages/{messageId} {
         // Un utilisateur peut lire ou créer des messages s'il est participant au chat.
-        // Cette règle évite d'utiliser get() et ne cause pas d'erreur si le document parent est momentanément indisponible.
         allow read, create: if isChatParticipant(chatId);
         
         // Un utilisateur peut "supprimer logiquement" (mettre à jour) son propre message.
         allow update: if request.auth != null && request.auth.uid == resource.data.senderId &&
-                         'deletedForUser' in request.resource.data;
+                         'deletedForUser' in request.resource.data &&
+                         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['senderId', 'timestamp', 'text', 'fileUrl', 'fileName', 'fileType']);
 
         // Seuls les administrateurs peuvent supprimer définitivement les messages (règle globale).
         allow delete: if false; 

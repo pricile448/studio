@@ -10,12 +10,12 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
+import { doc, runTransaction, Timestamp } from "firebase/firestore";
 import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Account } from '@/lib/firebase/firestore';
 
-// Use the admin database instance for secure server-side operations
-const { db: adminDb } = getFirebaseServices('admin');
+// Utiliser l'instance de base de données du client car le flow est authentifié comme l'utilisateur
+const { db } = getFirebaseServices();
 
 const InternalTransferInputSchema = z.object({
   userId: z.string().describe('The ID of the user performing the transfer.'),
@@ -39,64 +39,66 @@ const internalTransferFlow = ai.defineFlow(
   },
   async (input) => {
     const { userId, fromAccountId, toAccountId, amount } = input;
-    const userRef = doc(adminDb, "users", userId);
+    const userRef = doc(db, "users", userId);
 
     try {
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-            throw new Error("Utilisateur non trouvé.");
-        }
+        await runTransaction(db, async (transaction) => {
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists()) {
+                throw new Error("Utilisateur non trouvé.");
+            }
 
-        const userData = userSnap.data();
-        const accounts: Account[] = userData.accounts || [];
+            const userData = userSnap.data();
+            const accounts: Account[] = userData.accounts || [];
 
-        const fromAccountIndex = accounts.findIndex(acc => acc.id === fromAccountId);
-        const toAccountIndex = accounts.findIndex(acc => acc.id === toAccountId);
+            const fromAccountIndex = accounts.findIndex(acc => acc.id === fromAccountId);
+            const toAccountIndex = accounts.findIndex(acc => acc.id === toAccountId);
 
-        if (fromAccountIndex === -1 || toAccountIndex === -1) {
-            throw new Error("Un ou plusieurs comptes sont introuvables.");
-        }
-        
-        if (accounts[fromAccountIndex].balance < amount) {
-            throw new Error("Solde insuffisant sur le compte de départ.");
-        }
+            if (fromAccountIndex === -1 || toAccountIndex === -1) {
+                throw new Error("Un ou plusieurs comptes sont introuvables.");
+            }
+            
+            if (accounts[fromAccountIndex].balance < amount) {
+                throw new Error("Solde insuffisant sur le compte de départ.");
+            }
 
-        // Update balances
-        accounts[fromAccountIndex].balance -= amount;
-        accounts[toAccountIndex].balance += amount;
-        
-        // Create transactions
-        const now = Timestamp.now();
-        const fromAccountName = accounts[fromAccountIndex].name === 'checking' ? 'Compte Courant' : (accounts[fromAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
-        const toAccountName = accounts[toAccountIndex].name === 'checking' ? 'Compte Courant' : (accounts[toAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
+            // Update balances
+            accounts[fromAccountIndex].balance -= amount;
+            accounts[toAccountIndex].balance += amount;
+            
+            // Create transactions
+            const now = Timestamp.now();
+            const fromAccountName = accounts[fromAccountIndex].name === 'checking' ? 'Compte Courant' : (accounts[fromAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
+            const toAccountName = accounts[toAccountIndex].name === 'checking' ? 'Compte Courant' : (accounts[toAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
 
-        const debitTransaction = {
-            id: `txn_d_${Date.now()}`,
-            accountId: fromAccountId,
-            date: now,
-            description: `Virement vers ${toAccountName}`,
-            amount: -amount,
-            currency: 'EUR',
-            category: 'Virement interne',
-            status: 'completed'
-        };
-        
-        const creditTransaction = {
-            id: `txn_c_${Date.now()}`,
-            accountId: toAccountId,
-            date: now,
-            description: `Virement depuis ${fromAccountName}`,
-            amount: amount,
-            currency: 'EUR',
-            category: 'Virement interne',
-            status: 'completed'
-        };
+            const debitTransaction = {
+                id: `txn_d_${Date.now()}`,
+                accountId: fromAccountId,
+                date: now,
+                description: `Virement vers ${toAccountName}`,
+                amount: -amount,
+                currency: 'EUR',
+                category: 'Virement interne',
+                status: 'completed'
+            };
+            
+            const creditTransaction = {
+                id: `txn_c_${Date.now()}`,
+                accountId: toAccountId,
+                date: now,
+                description: `Virement depuis ${fromAccountName}`,
+                amount: amount,
+                currency: 'EUR',
+                category: 'Virement interne',
+                status: 'completed'
+            };
 
-        const transactions = userData.transactions ? [...userData.transactions, debitTransaction, creditTransaction] : [debitTransaction, creditTransaction];
-        
-        await updateDoc(userRef, {
-            accounts: accounts,
-            transactions: transactions
+            const transactions = userData.transactions ? [...userData.transactions, debitTransaction, creditTransaction] : [debitTransaction, creditTransaction];
+            
+            transaction.update(userRef, {
+                accounts: accounts,
+                transactions: transactions
+            });
         });
 
         return { success: true };
