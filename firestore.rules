@@ -4,58 +4,62 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Fonction utilitaire pour vérifier si un utilisateur est un administrateur authentifié.
-    function isAdmin(request) {
-      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-
-    // Les administrateurs ont un accès complet en lecture/écriture à toutes les collections.
-    match /{document=**} {
-      allow read, write: if isAdmin(request);
+    // --- Fonctions d'aide ---
+    
+    // Vérifie si l'utilisateur authentifié est un administrateur.
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
-    // Règles pour la collection 'users'.
-    match /users/{userId} {
-      // Un utilisateur peut lire son propre profil.
-      allow read: if request.auth != null && request.auth.uid == userId;
-      
-      // Un utilisateur peut créer son propre profil lors de l'inscription.
-      allow create: if request.auth != null && request.auth.uid == userId;
-      
-      // Un utilisateur peut mettre à jour son propre profil.
-      // Nous vérifions qu'il n'essaie pas de modifier son statut KYC ou d'autres champs protégés.
-      allow update: if request.auth != null && request.auth.uid == userId &&
-                       !('kycStatus' in request.resource.data) &&
-                       !('cardStatus' in request.resource.data) &&
-                       !('iban' in request.resource.data) &&
-                       !('bic' in request.resource.data);
+    // Vérifie si l'utilisateur authentifié est bien le propriétaire du document demandé.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
-    // Règles pour la collection 'chats'.
-    match /chats/{chatId} {
-      // Un utilisateur peut lire/écrire dans une conversation s'il en est un participant.
-      allow read, write, create: if request.auth != null && request.auth.uid in resource.data.participants;
-      
-      // Un utilisateur peut supprimer sa propre session de chat. L'admin peut également le faire via sa règle globale.
-      allow delete: if request.auth != null && request.auth.uid in resource.data.participants;
-      
-      match /messages/{messageId} {
-        // Un utilisateur peut lire les messages s'il participe à la conversation parente.
-        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+    // Vérifie si l'utilisateur est un participant de la conversation.
+    // Règle CLÉ : vérifie d'abord si la conversation existe avant d'accéder à ses données.
+    function isChatParticipant(chatId) {
+      let chatDoc = get(/databases/$(database)/documents/chats/$(chatId));
+      return exists(/databases/$(database)/documents/chats/$(chatId)) &&
+             request.auth.uid in chatDoc.data.participants;
+    }
 
-        // Un utilisateur peut créer un message s'il est un participant.
-        allow create: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        
-        // Un utilisateur peut "supprimer logiquement" (mettre à jour) son propre message.
-        // Il ne peut pas modifier d'autres champs.
-        allow update: if request.auth != null &&
-                        request.auth.uid == resource.data.senderId &&
-                        'deletedForUser' in request.resource.data &&
-                        request.resource.data.keys().hasOnly(['deletedForUser', 'senderId', 'text', 'timestamp', 'fileUrl', 'fileName', 'fileType']);
-                        
-        // Personne ne peut supprimer définitivement les messages via l'application cliente, sauf les administrateurs (couvert par la règle globale).
-        allow delete: if false;
-      }
+
+    // --- Règles de collections ---
+
+    // Profils utilisateurs
+    match /users/{userId} {
+      // Un administrateur peut lire/écrire n'importe quel profil.
+      // Un utilisateur peut lire/écrire son propre profil.
+      allow read, write: if isAdmin() || isOwner(userId);
+    }
+
+    // Conversations de messagerie
+    match /chats/{chatId} {
+      // L'administrateur peut tout faire.
+      allow read, write, delete: if isAdmin();
+      // Un utilisateur peut lire/écrire s'il participe à la conversation.
+      allow read, write: if isChatParticipant(chatId);
+    }
+
+    // Messages dans une conversation
+    match /chats/{chatId}/messages/{messageId} {
+       // L'administrateur peut tout faire.
+      allow read, write, delete: if isAdmin();
+      
+      // Un utilisateur peut lire ou créer des messages s'il participe à la conversation.
+      allow read, create: if isChatParticipant(chatId);
+                             
+      // Un utilisateur ne peut modifier/supprimer que ses propres messages.
+      allow update, delete: if isChatParticipant(chatId) && request.auth.uid == resource.data.senderId;
+    }
+    
+    // Collection des administrateurs
+    match /admins/{adminId} {
+      // Seuls les administrateurs peuvent lire la liste (pour la sécurité).
+      allow read: if isAdmin();
+      // Personne ne peut écrire depuis le client pour éviter toute manipulation.
+      allow write: if false;
     }
   }
 }
