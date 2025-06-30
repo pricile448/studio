@@ -254,7 +254,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                     <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                                         <Button variant="secondary" asChild>
-                                           <a href={getCloudinaryDownloadUrl(previewImage.url, previewImage.name)} download>
+                                           <a href={getCloudinaryDownloadUrl(previewImage.url)} download={previewImage.name}>
                                               <Download className="mr-2 h-4 w-4" />
                                               {dict.documents.download}
                                            </a>
@@ -328,8 +328,9 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                 </button>
                                             ) : msg.fileUrl ? (
                                                 <a
-                                                    href={getCloudinaryDownloadUrl(msg.fileUrl, msg.fileName)}
-                                                    download
+                                                    href={msg.fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                     className={cn(
                                                         "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                         isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
