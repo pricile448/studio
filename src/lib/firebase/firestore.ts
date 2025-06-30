@@ -1,4 +1,4 @@
-import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch, deleteField } from "firebase/firestore";
 import { db as defaultDb } from "./config";
 
 export type Account = {
@@ -253,40 +253,24 @@ export async function hardDeleteMessage(chatId: string, messageId: string, db: F
 
 export async function deleteChatSession(chatId: string, dbInstance: Firestore = defaultDb) {
     const chatRef = doc(dbInstance, 'chats', chatId);
-
-    // Étape 1 : Récupérer les participants avant la suppression.
-    const chatSnap = await getDoc(chatRef);
-    const participants = chatSnap.exists() ? chatSnap.data().participants : null;
-
-    if (!participants) {
-        console.warn(`Conversation ${chatId} non trouvée. Impossible de réinitialiser.`);
-        // Si elle n'existe pas déjà, il n'y a rien à faire.
-        return;
-    }
-
-    // Étape 2 : Supprimer tous les messages dans la sous-collection.
     const messagesRef = collection(dbInstance, 'chats', chatId, 'messages');
-    const messagesQuery = query(messagesRef);
-    const messagesSnap = await getDocs(messagesQuery);
-
-    // Utilisation d'un batch pour assurer la suppression atomique des messages.
-    const deleteBatch = writeBatch(dbInstance);
+    
+    // Étape 1 : Supprimer tous les messages dans la sous-collection.
+    const messagesSnap = await getDocs(messagesRef);
     if (!messagesSnap.empty) {
+        const deleteBatch = writeBatch(dbInstance);
         messagesSnap.forEach(doc => {
             deleteBatch.delete(doc.ref);
         });
+        await deleteBatch.commit();
     }
-    // Valider la suppression des messages avant de continuer.
-    await deleteBatch.commit();
 
-    // Étape 3 : Supprimer le document de conversation principal.
-    await deleteDoc(chatRef);
-    
-    // Étape 4 : Le recréer immédiatement avec le même ID et les mêmes participants.
-    // Ceci réinitialise la conversation à un état propre.
-    await setDoc(chatRef, {
-        participants: participants,
-        createdAt: serverTimestamp(),
+    // Étape 2 : Réinitialiser les champs du document de conversation principal
+    // au lieu de le supprimer. Cela évite les erreurs de permission côté client.
+    await updateDoc(chatRef, {
+        lastMessageText: deleteField(),
+        lastMessageTimestamp: deleteField(),
+        lastMessageSenderId: deleteField()
     });
 }
 
