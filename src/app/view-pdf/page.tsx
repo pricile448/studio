@@ -36,6 +36,9 @@ function PdfViewer() {
         );
     }
 
+    // Utilise le visualiseur Google Docs pour intégrer le PDF de manière robuste.
+    const embedUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+
     return (
         <div className="flex flex-col h-screen bg-muted">
             <header className="flex items-center justify-between p-4 bg-background border-b shadow-sm shrink-0">
@@ -52,7 +55,7 @@ function PdfViewer() {
             </header>
             <main className="flex-1 w-full h-full">
                 <iframe
-                    src={pdfUrl}
+                    src={embedUrl}
                     title="PDF Viewer"
                     className="w-full h-full border-0"
                 />
