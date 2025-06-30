@@ -1,66 +1,85 @@
-rules_version = '2';
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    function isAuthenticated() {
-      return request.auth != null;
+    function isUpdatingOwnProfile() {
+      let allowedFields = [
+        'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality',
+        'residenceCountry', 'address', 'city', 'postalCode', 'profession',
+        'salary', 'notificationPrefs', 'inactivityTimeout'
+      ];
+      // Check that only allowed fields are modified
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
     }
     
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    function isRequestingCard() {
+      return request.resource.data.cardStatus == 'requested' &&
+             resource.data.cardStatus == 'none' &&
+             request.resource.data.cardRequestedAt == request.time &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt']);
     }
 
-    function isAppendingToList(listName) {
-      // Handle the case where the list doesn't exist yet
-      let beforeSize = resource.data.keys().has(listName) ? resource.data[listName].size() : 0;
-      return request.resource.data[listName].size() == beforeSize + 1;
+    function isAddingVirtualCard() {
+      let oldCards = 'virtualCards' in resource.data ? resource.data.virtualCards : [];
+      let newCards = request.resource.data.virtualCards;
+      
+      if (newCards.size() != oldCards.size() + 1) {
+        return false;
+      }
+      if (oldCards.size() > 0 && !newCards[0:oldCards.size()].isEqualTo(oldCards)) {
+        return false;
+      }
+
+      let newCard = newCards[newCards.size() - 1];
+      // Validate the new card's structure and values
+      return newCard.keys().hasAll(['id', 'type', 'status', 'name', 'number', 'expiry', 'cvv', 'limit', 'isFrozen', 'createdAt']) &&
+             newCard.id is string && newCard.id.matches('^vc_.*') &&
+             newCard.type == 'virtual' &&
+             newCard.status == 'active' &&
+             newCard.name == 'Carte virtuelle' &&
+             newCard.number is string &&
+             newCard.expiry is string &&
+             newCard.cvv is string &&
+             newCard.limit == 1000 &&
+             newCard.isFrozen == false &&
+             newCard.createdAt is timestamp &&
+             // Allow for some clock skew between client and server (2 minutes)
+             newCard.createdAt.toMillis() > request.time.toMillis() - 120000 &&
+             newCard.createdAt.toMillis() < request.time.toMillis() + 120000 &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards']);
     }
 
-    match /admins/{adminId} {
-      allow read, write: if isAuthenticated() && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true;
+    function isDeletingOwnMessage(chatId, messageId) {
+      let message = get(/databases/$(database)/documents/chats/$(chatId)/messages/$(messageId));
+      return message.data.senderId == request.auth.uid &&
+             request.resource.data.deletedForUser == true &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
     }
     
     match /users/{userId} {
-      allow read, create: if isOwner(userId);
+      allow read, create: if request.auth.uid == userId;
 
-      allow update: if isAuthenticated() && isOwner(userId) && (
-        // Profile Update: Allow updating a specific set of non-sensitive fields.
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'firstName', 'lastName', 'phone', 'dob', 'address', 'city', 
-            'postalCode', 'residenceCountry', 'profession', 'salary', 
-            'notificationPrefs', 'inactivityTimeout'
-        ])
-        ||
-        // Physical Card Request: Allow user to change status from 'none' to 'requested' and add a timestamp.
-        (
-          request.resource.data.cardStatus == 'requested' &&
-          resource.data.cardStatus == 'none' &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt'])
-        )
-        ||
-        // Virtual Card Generation: Allow user to add one card to the virtualCards list.
-        (
-          isAppendingToList('virtualCards') &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards'])
-        )
+      allow update: if request.auth.uid == userId && (
+        isUpdatingOwnProfile() || 
+        isRequestingCard() ||
+        isAddingVirtualCard()
       );
     }
-
+    
+    match /admins/{adminId} {
+      allow read: if request.auth.uid == adminId;
+    }
+    
     match /chats/{chatId} {
-      allow read, write: if isAuthenticated() && request.auth.uid in resource.data.participants;
-
+      // Users can only interact with chats they are a part of
+      allow read, create, update: if request.auth.uid in resource.data.participants;
+      
       match /messages/{messageId} {
-        allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        
-        allow create: if isAuthenticated() 
-                      && request.auth.uid == request.resource.data.senderId 
-                      && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-
-        allow update: if isAuthenticated()
-                      && resource.data.senderId == request.auth.uid
-                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser'])
-                      && request.resource.data.deletedForUser == true;
+        // Users can read/create messages in chats they participate in
+        allow read, create: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+        // Users can only "soft delete" their own messages
+        allow update: if isDeletingOwnMessage(chatId, messageId);
       }
     }
   }
