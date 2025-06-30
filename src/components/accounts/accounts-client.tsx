@@ -15,9 +15,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { format } from 'date-fns';
-import { performSecureTransfer } from '@/ai/flows/internal-transfer-flow';
 import type { Account } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { runTransaction, doc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 const accountIcons: { [key: string]: React.ElementType } = {
   checking: DollarSign,
@@ -54,25 +55,75 @@ function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { account
 
     setIsTransferring(true);
     try {
-      const result = await performSecureTransfer({
-        userId: user.uid,
-        fromAccountId,
-        toAccountId,
-        amount: transferAmount,
-      });
-      
-      if (result.success) {
-        toast({ title: 'Succès', description: 'Le virement interne a été effectué.' });
-        setFromAccountId('');
-        setToAccountId('');
-        setAmount('');
-        onTransferSuccess();
-      } else {
-        throw new Error(result.error || 'Une erreur est survenue lors du virement.');
-      }
+        const userRef = doc(db, "users", user.uid);
+        await runTransaction(db, async (transaction) => {
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists()) {
+                throw new Error("Utilisateur non trouvé.");
+            }
+
+            const userData = userSnap.data();
+            const currentAccounts: Account[] = userData.accounts || [];
+
+            const fromAccountIndex = currentAccounts.findIndex(acc => acc.id === fromAccountId);
+            const toAccountIndex = currentAccounts.findIndex(acc => acc.id === toAccountId);
+
+            if (fromAccountIndex === -1 || toAccountIndex === -1) {
+                throw new Error("Un ou plusieurs comptes sont introuvables.");
+            }
+            
+            if (currentAccounts[fromAccountIndex].balance < transferAmount) {
+                throw new Error("Solde insuffisant sur le compte de départ.");
+            }
+
+            // Update balances
+            currentAccounts[fromAccountIndex].balance -= transferAmount;
+            currentAccounts[toAccountIndex].balance += transferAmount;
+            
+            // Create transactions
+            const now = Timestamp.now();
+            const fromAccountName = currentAccounts[fromAccountIndex].name === 'checking' ? 'Compte Courant' : (currentAccounts[fromAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
+            const toAccountName = currentAccounts[toAccountIndex].name === 'checking' ? 'Compte Courant' : (currentAccounts[toAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
+
+            const debitTransaction = {
+                id: `txn_d_${Date.now()}`,
+                accountId: fromAccountId,
+                date: now,
+                description: `Virement vers ${toAccountName}`,
+                amount: -transferAmount,
+                currency: 'EUR',
+                category: 'Virement interne',
+                status: 'completed'
+            };
+            
+            const creditTransaction = {
+                id: `txn_c_${Date.now()}`,
+                accountId: toAccountId,
+                date: now,
+                description: `Virement depuis ${fromAccountName}`,
+                amount: transferAmount,
+                currency: 'EUR',
+                category: 'Virement interne',
+                status: 'completed'
+            };
+
+            const transactions = userData.transactions ? [...userData.transactions, debitTransaction, creditTransaction] : [debitTransaction, creditTransaction];
+            
+            transaction.update(userRef, {
+                accounts: currentAccounts,
+                transactions: transactions
+            });
+        });
+
+      toast({ title: 'Succès', description: 'Le virement interne a été effectué.' });
+      setFromAccountId('');
+      setToAccountId('');
+      setAmount('');
+      onTransferSuccess();
+
     } catch (error) {
-      console.error(error);
-      toast({ variant: 'destructive', title: 'Erreur de virement', description: (error as Error).message });
+      console.error("Internal Transfer Error:", error);
+      toast({ variant: 'destructive', title: 'Erreur de virement', description: (error as Error).message || 'Une erreur inconnue est survenue.' });
     } finally {
       setIsTransferring(false);
     }
