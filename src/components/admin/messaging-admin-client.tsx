@@ -67,6 +67,18 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
+const getCloudinaryDownloadUrl = (url: string, filename?: string): string => {
+    const urlParts = url.split('/upload/');
+    if (urlParts.length !== 2) {
+        return url; // Return original URL if it cannot be parsed
+    }
+
+    const [baseUrl, assetPath] = urlParts;
+    const attachmentFlag = filename ? `fl_attachment:${encodeURIComponent(filename.replace(/ /g, '_'))}` : 'fl_attachment';
+
+    return `${baseUrl}/upload/${attachmentFlag}/${assetPath}`;
+};
+
 function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -174,7 +186,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                 <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                 <div className="flex gap-2 w-full sm:w-auto justify-end">
                                     <Button variant="secondary" asChild>
-                                       <a href={previewImage.url} download={previewImage.name}>
+                                       <a href={getCloudinaryDownloadUrl(previewImage.url, previewImage.name)}>
                                           <Download className="mr-2 h-4 w-4" />
                                           Télécharger
                                        </a>
