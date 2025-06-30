@@ -116,15 +116,15 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             });
             setMessages(msgs);
         }, (err) => {
-            console.error("Error listening to messages:", err);
             if (err.code === 'permission-denied') {
-                // This likely means the chat document was deleted by an admin.
-                // We reset the chat state to allow starting a new conversation.
-                console.log("Chat was likely deleted by admin. Resetting interface.");
+                // This is an expected error when an admin deletes a conversation.
+                // We'll log it as a warning and reset the UI gracefully.
+                console.warn("Chat session listener failed (likely deleted by admin):", err.message);
                 setMessages([]);
-                setError(null);
-                // The getOrCreate function will handle creating a new chat doc if needed.
+                setError(null); // Clear any previous errors
             } else {
+                 // For other, unexpected errors, we should still show them.
+                 console.error("Unexpected chat error:", err);
                  setError(chatDict.connectionErrorText);
             }
         });
