@@ -2,78 +2,84 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions ---
-    function isAdmin() {
-      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-
+    
+    // Helper function to check if the user is the owner of the document.
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
     
-    function isChatParticipant(chatId) {
-      return request.auth != null && request.auth.uid in chatId.split('_');
+    // Helper function to check if a user is a verified admin.
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // --- Global Admin Rule ---
-    // Admins have full read/write access to all collections for management.
-    match /{document=**} {
-      allow read, write: if isAdmin();
+    // Helper functions for user profile updates
+    function isUpdatingProfile(request, resource) {
+      let modifiableFields = ['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout'];
+      // Ensures no other fields besides the modifiable ones are being changed.
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(modifiableFields);
+    }
+    
+    function isRequestingCard(request, resource) {
+      let isChangingStatus = request.resource.data.cardStatus == 'requested' && resource.data.cardStatus == 'none';
+      // Ensures the card request happens in one go with its timestamp
+      return isChangingStatus && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt']);
     }
 
-    // --- User Profile Rules ---
+    function isManagingVirtualCards(request, resource) {
+      // Allows adding a card. For simplicity, we don't check for removal or modification here,
+      // as client logic handles creation only. A more robust rule could check array item properties.
+      let isAdding = request.resource.data.virtualCards.size() > resource.data.virtualCards.size();
+      // Ensures only the virtualCards field is being modified.
+      let isOnlyThisField = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards']);
+      return isAdding && isOnlyThisField;
+    }
+    
+    // Rules for the 'users' collection
     match /users/{userId} {
+      // Users can read their own data. Admins can read any user data.
+      allow read: if isOwner(userId) || isAdmin();
       
-      // READ: A user can read their own profile.
-      allow read: if isOwner(userId);
-      
-      // CREATE: A user can create their own profile document.
+      // Users can only create their own document.
       allow create: if isOwner(userId);
-
-      // UPDATE: A user can update their own profile under specific conditions.
-      allow update: if isOwner(userId) && (
-        // Condition 1: General profile update (safe fields that a user can change)
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasAll(['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'notificationPrefs', 'inactivityTimeout'])
-        ) ||
-        // Condition 2: Requesting a card
-        (
-          request.resource.data.cardStatus == 'requested' &&
-          resource.data.cardStatus == 'none' &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt'])
-        ) ||
-        // Condition 3: Making an internal transfer
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['accounts', 'transactions'])
-        ) ||
-        // Condition 4: Creating/updating budgets or beneficiaries
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['budgets', 'beneficiaries', 'documents'])
-        ) ||
-        // Condition 5: KYC Submission (client only updates status to pending)
-        (
-            request.resource.data.kycStatus == 'pending' &&
-            resource.data.kycStatus == 'unverified' &&
-            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycSubmittedAt'])
-        )
-      );
-    }
-
-    // --- Messaging Rules ---
-    match /chats/{chatId} {
-      allow read, create, update: if isChatParticipant(chatId);
       
-      match /messages/{messageId} {
-        allow read, create: if isChatParticipant(chatId);
-        
-        // A user can "soft delete" (update) their own message.
-        allow update: if isOwner(resource.data.senderId) &&
-                         'deletedForUser' in request.resource.data &&
-                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
+      // Update logic:
+      // 1. Users can update their own profile with specific rules.
+      // 2. Admins can update any user profile.
+      allow update: if (isOwner(userId) && (
+                      isUpdatingProfile(request, resource) || 
+                      isRequestingCard(request, resource) ||
+                      isManagingVirtualCards(request, resource)
+                    )) || isAdmin();
+      
+      // No one can delete a user document through client-side requests.
+      allow delete: if false;
+    }
+    
+    // Rules for the 'admins' collection
+    match /admins/{adminId} {
+        // Only other authenticated admins can read admin data
+        allow read: if isAdmin();
+        // Disallow client-side creation, update, or deletion of admins
+        allow write: if false;
+    }
+    
+    // Rules for the 'chats' collection
+    match /chats/{chatId} {
+      // Participants of the chat or admins can read/write the main chat document.
+      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
 
-        // Only admins can permanently delete messages (via global rule).
-        allow delete: if false; 
+      // Rules for the 'messages' subcollection within a chat
+      match /messages/{messageId} {
+        // Allow read for chat participants or admins.
+        allow read: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]) || isAdmin();
+
+        // Allow creating messages if the user is a participant.
+        // Allow updating only the 'deletedForUser' field if they are the sender.
+        // Admins can hard delete any message.
+        allow create: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']) && resource.data.senderId == request.auth.uid;
+        allow delete: if isAdmin();
       }
     }
   }

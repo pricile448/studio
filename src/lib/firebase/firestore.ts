@@ -53,6 +53,20 @@ export type Document = {
   createdAt: Timestamp;
 };
 
+export type VirtualCard = {
+  id: string;
+  name: string;
+  number: string;
+  expiry: string; // MM/YY
+  cvv: string;
+  limit: number;
+  isFrozen: boolean;
+  createdAt: Timestamp;
+  type: 'virtual';
+  status: 'active' | 'suspended';
+};
+
+
 export type UserProfile = {
   uid: string;
   email: string;
@@ -96,6 +110,7 @@ export type UserProfile = {
   beneficiaries: Beneficiary[];
   budgets: Budget[];
   documents: Document[];
+  virtualCards: VirtualCard[];
   advisorId?: string;
 };
 
@@ -141,6 +156,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
     beneficiaries: [],
     budgets: [],
     documents: [],
+    virtualCards: [],
     advisorId: 'advisor_123'
   };
 

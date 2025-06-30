@@ -17,8 +17,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CheckCircle, CreditCard, Smartphone } from 'lucide-react';
+import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CheckCircle, CreditCard, Smartphone, Loader2 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
+import type { VirtualCard } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -27,12 +28,50 @@ import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 
+function VirtualCardDisplay({ card, dict }: { card: VirtualCard, dict: Dictionary['cards'] }) {
+    const [showDetails, setShowDetails] = useState(false);
+    return (
+        <Card className="bg-muted/30">
+            <CardHeader>
+                <CardTitle className="text-lg">{card.name}</CardTitle>
+                <CardDescription>
+                    {dict.limit}: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(card.limit)}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="font-mono space-y-2">
+                <div>
+                    <Label className="text-xs">{dict.cardHolder}</Label>
+                    <p className="tracking-widest">{showDetails ? card.number : "**** **** **** " + card.number.slice(-4)}</p>
+                </div>
+                <div className="flex gap-4">
+                    <div>
+                        <Label className="text-xs">{dict.validThru}</Label>
+                        <p>{showDetails ? card.expiry : "**/**"}</p>
+                    </div>
+                     <div>
+                        <Label className="text-xs">CVV</Label>
+                        <p>{showDetails ? card.cvv : "***"}</p>
+                    </div>
+                </div>
+            </CardContent>
+            <CardFooter>
+                 <Button variant="secondary" onClick={() => setShowDetails(!showDetails)}>
+                    {showDetails ? <EyeOff className="mr-2"/> : <Eye className="mr-2"/>}
+                    {showDetails ? dict.hidePin : dict.showPin}
+                 </Button>
+            </CardFooter>
+        </Card>
+    );
+}
+
+
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, requestCard } = useAuth();
+  const { userProfile, loading, requestCard, generateVirtualCard } = useAuth();
   const [isFrozen, setIsFrozen] = useState(false);
   const [limit, setLimit] = useState(2000);
   const [newLimit, setNewLimit] = useState(limit);
   const [showPin, setShowPin] = useState(false);
+  const [isOrdering, setIsOrdering] = useState(false);
   const { toast } = useToast();
   
   const cardsDict = dict.cards;
@@ -69,7 +108,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     });
   };
 
-  const handleOrderCard = async () => {
+  const handleOrderPhysicalCard = async () => {
+     setIsOrdering(true);
      try {
        await requestCard();
        toast({
@@ -82,14 +122,29 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         title: "Error",
         description: (error as Error).message
        })
+     } finally {
+        setIsOrdering(false);
      }
   }
 
-  const handleOrderVirtualCard = () => {
-    toast({
-      title: cardsDict.virtualCardComingSoonTitle,
-      description: cardsDict.virtualCardComingSoonDescription,
-    });
+  const handleGenerateVirtualCard = async () => {
+    setIsOrdering(true);
+    try {
+      await generateVirtualCard();
+      toast({
+        title: "Carte virtuelle générée !",
+        description: "Votre nouvelle carte virtuelle est prête à être utilisée."
+      });
+    } catch (error) {
+       console.error(error);
+       toast({
+        variant: 'destructive',
+        title: "Erreur",
+        description: (error as Error).message
+       })
+    } finally {
+      setIsOrdering(false);
+    }
   };
 
   const renderContent = () => {
@@ -113,8 +168,10 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
 
     if (userProfile.cardStatus === 'active') {
        return (
+        <>
          <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-1">
+            <h2 className="text-lg font-semibold mb-2">{cardsDict.physicalCard}</h2>
             <Card className={cn(
               "aspect-[85.6/53.98] bg-gradient-to-r from-primary to-primary-gradient-end text-primary-foreground p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
               isFrozen && "grayscale opacity-50"
@@ -144,9 +201,10 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
             </Card>
           </div>
           <div className="lg:col-span-2">
+            <h2 className="text-lg font-semibold mb-2">{cardsDict.settings}</h2>
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">{cardsDict.settings}</CardTitle>
+                <CardTitle className="font-headline">{dict.settings.tabs.security}</CardTitle>
                 <CardDescription>{cardsDict.settingsDescription}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -227,11 +285,21 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                       </DialogFooter>
                   </DialogContent>
                 </Dialog>
-
               </CardContent>
             </Card>
           </div>
-        </div>
+         </div>
+         <Separator className="my-8" />
+          <div>
+            <h2 className="text-lg font-semibold mb-4">{cardsDict.virtualCard}s</h2>
+            <div className="grid gap-6 md:grid-cols-2">
+              {(userProfile.virtualCards || []).map(card => <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} />)}
+              {(!userProfile.virtualCards || userProfile.virtualCards.length === 0) && (
+                <p className="text-muted-foreground col-span-full">{cardsDict.noVirtualCards}</p>
+              )}
+            </div>
+          </div>
+        </>
        )
     }
 
@@ -260,9 +328,9 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         <CardFooter>
             <Dialog>
                 <DialogTrigger asChild>
-                    <Button>
-                    <PlusCircle className="mr-2" />
-                    {cardsDict.orderCard}
+                    <Button disabled={isOrdering}>
+                        {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : <PlusCircle className="mr-2" />}
+                        {cardsDict.orderCard}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-3xl">
@@ -278,7 +346,10 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                             </CardHeader>
                              <CardFooter className="mt-auto">
                                 <DialogClose asChild>
-                                    <Button onClick={handleOrderCard} className="w-full">{cardsDict.orderPhysical}</Button>
+                                    <Button onClick={handleOrderPhysicalCard} className="w-full" disabled={isOrdering}>
+                                        {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
+                                        {cardsDict.orderPhysical}
+                                    </Button>
                                 </DialogClose>
                             </CardFooter>
                         </Card>
@@ -289,7 +360,12 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                                 <CardDescription>{cardsDict.virtualCardDescription}</CardDescription>
                             </CardHeader>
                             <CardFooter className="mt-auto">
-                                <Button onClick={handleOrderVirtualCard} className="w-full">{cardsDict.generateVirtual}</Button>
+                                <DialogClose asChild>
+                                    <Button onClick={handleGenerateVirtualCard} className="w-full" disabled={isOrdering}>
+                                        {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
+                                        {cardsDict.generateVirtual}
+                                    </Button>
+                                </DialogClose>
                             </CardFooter>
                         </Card>
                     </div>
@@ -306,9 +382,32 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{cardsDict.title}</h1>
          {userProfile.cardStatus === 'active' && (
-           <Button disabled>
-              <CheckCircle className="mr-2" />
-              {cardsDict.cardActive}
+           <Button variant="secondary" asChild>
+              <Dialog>
+                  <DialogTrigger asChild>
+                      <Button>
+                          <PlusCircle className="mr-2" />
+                          {cardsDict.orderCard}
+                      </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                      <DialogHeader>
+                          <DialogTitle>Générer une nouvelle carte virtuelle</DialogTitle>
+                      </DialogHeader>
+                       <DialogDescription>
+                         Vous pouvez générer une nouvelle carte virtuelle instantanément.
+                       </DialogDescription>
+                      <DialogFooter>
+                          <DialogClose asChild><Button variant="ghost">Annuler</Button></DialogClose>
+                          <DialogClose asChild>
+                             <Button onClick={handleGenerateVirtualCard} disabled={isOrdering}>
+                                {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
+                                {cardsDict.generateVirtual}
+                              </Button>
+                          </DialogClose>
+                      </DialogFooter>
+                  </DialogContent>
+              </Dialog>
            </Button>
          )}
       </div>
