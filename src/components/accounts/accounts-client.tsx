@@ -18,6 +18,12 @@ import { format } from 'date-fns';
 import { performInternalTransfer, type Account } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
+const accountIcons: { [key: string]: React.ElementType } = {
+  checking: DollarSign,
+  savings: PiggyBank,
+  credit: CreditCard,
+};
+
 function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { accounts: Account[], dict: Dictionary['accounts'], lang: Locale, onTransferSuccess: () => void }) {
   const { user } = useAuth();
   const { toast } = useToast();
