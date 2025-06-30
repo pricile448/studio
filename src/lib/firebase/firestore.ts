@@ -368,7 +368,7 @@ export async function addFundsToAccount(userId: string, accountId: string, amoun
     description: description,
     amount: amount,
     currency: 'EUR',
-    category: 'Dépôt Administratif',
+    category: 'Ajustement de solde',
     status: 'completed'
   };
   
@@ -407,7 +407,7 @@ export async function debitFundsFromAccount(userId: string, accountId: string, a
     description: description,
     amount: debitAmount,
     currency: 'EUR',
-    category: 'Prélèvement Administratif',
+    category: 'Ajustement de solde',
     status: 'completed'
   };
   
@@ -467,10 +467,10 @@ export async function resetAccountBalance(userId: string, accountId: string, db:
             id: `txn_${Date.now()}`,
             accountId: accountId,
             date: Timestamp.now(),
-            description: "Remise à zéro du compte par un administrateur",
+            description: "Correction de solde",
             amount: adjustmentAmount,
             currency: 'EUR',
-            category: 'Ajustement Administratif',
+            category: 'Ajustement de solde',
             status: 'completed'
         };
         const transactions = userData.transactions ? [...userData.transactions, newTransaction] : [newTransaction];
@@ -539,6 +539,60 @@ export async function deleteTransaction(userId: string, transactionId: string, d
     transactions: updatedTransactions
   });
 }
+
+export async function deleteSelectedTransactions(userId: string, transactionIds: string[], db: Firestore = defaultDb): Promise<void> {
+  if (transactionIds.length === 0) return;
+
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const userData = userSnap.data();
+  let accounts: Account[] = JSON.parse(JSON.stringify(userData.accounts || []));
+  let transactions: any[] = userData.transactions || [];
+  
+  const transactionsToDelete = transactions.filter(tx => transactionIds.includes(tx.id));
+
+  // Revert balances
+  for (const tx of transactionsToDelete) {
+    const accountIndex = accounts.findIndex(acc => acc.id === tx.accountId);
+    if (accountIndex !== -1) {
+      accounts[accountIndex].balance -= tx.amount;
+    }
+  }
+  
+  const updatedTransactions = transactions.filter(tx => !transactionIds.includes(tx.id));
+
+  await updateDoc(userRef, {
+    accounts: accounts,
+    transactions: updatedTransactions
+  });
+}
+
+export async function deleteAllTransactions(userId: string, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const userData = userSnap.data();
+  let accounts: Account[] = userData.accounts || [];
+
+  // Reset all account balances to 0
+  accounts.forEach(acc => acc.balance = 0);
+
+  // Clear all transactions
+  await updateDoc(userRef, {
+    accounts: accounts,
+    transactions: []
+  });
+}
+
 
 export async function deleteBudget(userId: string, budgetId: string, db: Firestore = defaultDb): Promise<void> {
   const userRef = doc(db, "users", userId);

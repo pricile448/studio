@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Checkbox } from '../ui/checkbox';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -270,78 +271,132 @@ function FundsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upd
 function TransactionsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
-    const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    
+    const transactions = [...user.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const isAllSelected = transactions.length > 0 && selectedIds.length === transactions.length;
 
-    const handleDelete = async () => {
-        if (!transactionToDelete) return;
+    const handleSelect = (id: string, checked: boolean) => {
+        setSelectedIds(prev => checked ? [...prev, id] : prev.filter(selectedId => selectedId !== id));
+    };
+    
+    const handleSelectAll = (checked: boolean) => {
+        setSelectedIds(checked ? transactions.map(tx => tx.id) : []);
+    };
+    
+    const handleDeleteSelected = async () => {
+        if (selectedIds.length === 0) return;
         setIsLoading(true);
         try {
-            await deleteTransaction(user.uid, transactionToDelete.id, adminDb);
-            const updatedTransactions = user.transactions.filter(t => t.id !== transactionToDelete.id);
+            await deleteSelectedTransactions(user.uid, selectedIds, adminDb);
             
-            let updatedAccounts = user.accounts;
-            const accountToUpdate = user.accounts.find(a => a.id === transactionToDelete.accountId);
-            if (accountToUpdate) {
-                const newBalance = accountToUpdate.balance - transactionToDelete.amount;
-                updatedAccounts = user.accounts.map(a => a.id === transactionToDelete.accountId ? { ...a, balance: newBalance } : a);
+            // Recalculate state locally
+            const transactionsToDelete = user.transactions.filter(tx => selectedIds.includes(tx.id));
+            let updatedAccounts = JSON.parse(JSON.stringify(user.accounts));
+
+            for (const tx of transactionsToDelete) {
+                const accountIndex = updatedAccounts.findIndex((acc: Account) => acc.id === tx.accountId);
+                if (accountIndex !== -1) {
+                    updatedAccounts[accountIndex].balance -= tx.amount;
+                }
             }
+            const updatedTransactions = user.transactions.filter(tx => !selectedIds.includes(tx.id));
+            
             onUpdate({ ...user, transactions: updatedTransactions, accounts: updatedAccounts });
-            toast({ title: 'Succès', description: 'Transaction supprimée.' });
+            toast({ title: 'Succès', description: `${selectedIds.length} transaction(s) supprimée(s).` });
+            setSelectedIds([]);
         } catch (error) {
-            console.error('Erreur lors de la suppression de la transaction.', error);
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression de la transaction.' });
+            console.error('Erreur lors de la suppression des transactions.', error);
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression des transactions.' });
         } finally {
             setIsLoading(false);
-            setTransactionToDelete(null);
         }
     };
     
-    const transactions = [...user.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
+    const handleDeleteAll = async () => {
+        setIsLoading(true);
+        try {
+            await deleteAllTransactions(user.uid, adminDb);
+            const updatedAccounts = user.accounts.map(acc => ({...acc, balance: 0}));
+            onUpdate({ ...user, transactions: [], accounts: updatedAccounts });
+            toast({ title: 'Succès', description: 'Toutes les transactions ont été supprimées.' });
+            setSelectedIds([]);
+        } catch (error) {
+            console.error('Erreur lors de la suppression de toutes les transactions.', error);
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression de toutes les transactions.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Historique des transactions</CardTitle>
                 <CardDescription>Gérer toutes les transactions de l'utilisateur.</CardDescription>
+                <div className="flex flex-wrap gap-2 pt-4">
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" disabled={selectedIds.length === 0 || isLoading}>Supprimer la sélection ({selectedIds.length})</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Cette action est irréversible. Elle supprimera les {selectedIds.length} transactions sélectionnées et ajustera les soldes des comptes associés.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDeleteSelected} disabled={isLoading}>
+                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Confirmer"}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" disabled={transactions.length === 0 || isLoading}>Supprimer tout</Button>
+                        </AlertDialogTrigger>
+                         <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmer la suppression totale</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Cette action est irréversible. Elle supprimera TOUTES les transactions et réinitialisera les soldes de TOUS les comptes à zéro.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDeleteAll} disabled={isLoading}>
+                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Tout supprimer"}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
             </CardHeader>
             <CardContent>
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead className="w-[50px]">
+                                <Checkbox checked={isAllSelected} onCheckedChange={(checked) => handleSelectAll(!!checked)} aria-label="Tout sélectionner" />
+                            </TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Description</TableHead>
                             <TableHead>Montant</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {transactions.map(tx => (
-                            <TableRow key={tx.id}>
+                            <TableRow key={tx.id} data-state={selectedIds.includes(tx.id) && "selected"}>
+                                <TableCell>
+                                    <Checkbox checked={selectedIds.includes(tx.id)} onCheckedChange={(checked) => handleSelect(tx.id, !!checked)} aria-label="Sélectionner la transaction"/>
+                                </TableCell>
                                 <TableCell>{format(new Date(tx.date), 'dd/MM/yyyy', { locale: fr })}</TableCell>
                                 <TableCell>{tx.description}</TableCell>
                                 <TableCell className={cn('font-medium', tx.amount > 0 ? 'text-green-600' : 'text-red-600')}>
                                     {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(tx.amount)}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="destructive" size="sm" onClick={() => setTransactionToDelete(tx)}>Supprimer</Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    Cette action est irréversible. Elle supprimera la transaction et ajustera le solde du compte associé.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel onClick={() => setTransactionToDelete(null)}>Annuler</AlertDialogCancel>
-                                                <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
-                                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Confirmer"}
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -352,6 +407,7 @@ function TransactionsManagement({ user, onUpdate }: { user: UserProfile, onUpdat
         </Card>
     );
 }
+
 
 function BudgetsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
