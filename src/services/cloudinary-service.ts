@@ -23,7 +23,6 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     throw new Error(errorMsg);
   }
 
-  // Configure Cloudinary within the function call to ensure it's always set correctly.
   cloudinary.config({
     cloud_name: CLOUDINARY_CLOUD_NAME,
     api_key: CLOUDINARY_API_KEY,
@@ -31,19 +30,30 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     secure: true,
   });
 
+  // Determine resource type based on MIME type for better handling of PDFs and other files.
+  // Default to 'raw' for non-media files like PDFs to ensure they are publicly accessible.
+  let resourceType: 'image' | 'video' | 'raw' = 'raw'; 
   try {
-    // Set resource_type to 'auto' to let Cloudinary automatically detect
-    // the file type (image, video, raw for PDFs/docs). This is the most robust method.
+    const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
+    if (mimeType.startsWith('image/')) {
+        resourceType = 'image';
+    } else if (mimeType.startsWith('video/')) {
+        resourceType = 'video';
+    }
+  } catch (e) {
+      console.warn("Could not determine MIME type from data URI, defaulting to 'raw'.", e);
+      resourceType = 'raw'; // Fallback safely
+  }
+
+  try {
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: folder,
-      resource_type: 'auto',
+      resource_type: resourceType,
     });
     return result.secure_url;
   } catch (error: any) {
-    // Log the full error to the server console for detailed debugging
     console.error('Detailed Cloudinary Upload Error:', JSON.stringify(error, null, 2));
 
-    // Propagate a more helpful error message to the client
     const errorMessage = error.message || (error.error && error.error.message) || 'An unknown error occurred during Cloudinary upload.';
     throw new Error(`Cloudinary Error: ${errorMessage}`);
   }
