@@ -458,31 +458,13 @@ export async function resetAccountBalance(userId: string, accountId: string, db:
         throw new Error("Compte non trouvé.");
     }
     
-    const currentBalance = accounts[accountIndex].balance;
-    const adjustmentAmount = -currentBalance;
+    // Set balance to 0
     accounts[accountIndex].balance = 0;
 
-    if (adjustmentAmount !== 0) {
-        const newTransaction = {
-            id: `txn_${Date.now()}`,
-            accountId: accountId,
-            date: Timestamp.now(),
-            description: "Correction de solde",
-            amount: adjustmentAmount,
-            currency: 'EUR',
-            category: 'AmCBunq Service',
-            status: 'completed'
-        };
-        const transactions = userData.transactions ? [...userData.transactions, newTransaction] : [newTransaction];
-        await updateDoc(userRef, {
-            accounts: accounts,
-            transactions: transactions
-        });
-    } else {
-        await updateDoc(userRef, {
-            accounts: accounts
-        });
-    }
+    // Update only the accounts array, without adding a transaction
+    await updateDoc(userRef, {
+        accounts: accounts
+    });
 }
 
 export async function generateUserIban(userId: string, db: Firestore = defaultDb): Promise<{iban: string, bic: string}> {
