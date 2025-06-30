@@ -74,7 +74,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const getDownloadUrl = (url: string) => {
         if (!url.includes('/upload/')) return url;
         const parts = url.split('/upload/');
-        // Add the download flag for non-image files
         if (!parts[1].startsWith('image/')) {
             return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
         }
@@ -98,59 +97,63 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         }
     }, [chatId, user.uid, advisorId, chatDict.connectionErrorText]);
 
-    // Effect to listen for chat document deletion by the admin
+    // Combined effect to manage listeners and prevent race conditions
     useEffect(() => {
-        if (!chatId) return;
+        if (!chatId) {
+            setMessages([]);
+            return;
+        }
 
-        const unsubscribeDoc = onSnapshot(doc(db, 'chats', chatId), 
+        let unsubscribeMessages = () => {};
+
+        const unsubscribeDoc = onSnapshot(doc(db, 'chats', chatId),
             (docSnap) => {
-                if (!docSnap.exists()) {
+                if (docSnap.exists()) {
+                    // Chat exists, safe to listen for messages.
+                    const messagesQuery = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'));
+                    unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+                        const msgs: ChatMessage[] = [];
+                        snapshot.forEach((doc) => {
+                            const data = doc.data();
+                            msgs.push({
+                                id: doc.id,
+                                senderId: data.senderId,
+                                timestamp: data.timestamp,
+                                deletedForUser: data.deletedForUser,
+                                text: data.text,
+                                fileUrl: data.fileUrl,
+                                fileName: data.fileName,
+                                fileType: data.fileType,
+                            });
+                        });
+                        setMessages(msgs);
+                        setError(null); // Clear previous errors on success
+                    }, (err) => {
+                        console.error('Error listening to messages subcollection:', err);
+                        setError(chatDict.connectionErrorText);
+                    });
+                } else {
+                    // Chat was deleted. This is the key part of the fix.
+                    // We immediately stop listening to messages and reset the chat state.
                     console.warn("Chat document was deleted. Resetting chat state.");
-                    setChatId(null); // This will trigger a clean re-initialization of the chat
+                    unsubscribeMessages(); // Stop listening to the old message path first.
+                    setChatId(null);       // Then, trigger the re-initialization flow.
                 }
             },
             (err) => {
-                 console.warn("Error listening to chat document, likely deleted:", err);
-                 setChatId(null); // Also reset on error
+                console.error("Error listening to chat document:", err);
+                unsubscribeMessages(); // Also clean up on error
+                setChatId(null);
+                setError(chatDict.connectionErrorText);
             }
         );
 
-        return () => unsubscribeDoc();
-    }, [chatId]);
-
-    // Effect to listen for new messages
-    useEffect(() => {
-        if (!chatId) {
-            setMessages([]); // Clear messages if chat is reset
-            return;
+        // Main cleanup for the entire effect
+        return () => {
+            unsubscribeDoc();
+            unsubscribeMessages();
         };
-
-        const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const msgs: ChatMessage[] = [];
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                msgs.push({
-                    id: doc.id,
-                    senderId: data.senderId,
-                    timestamp: data.timestamp,
-                    deletedForUser: data.deletedForUser,
-                    text: data.text,
-                    fileUrl: data.fileUrl,
-                    fileName: data.fileName,
-                    fileType: data.fileType,
-                });
-            });
-            setMessages(msgs);
-            setError(null); // Clear any previous errors on successful fetch
-        }, (err) => {
-            // This error is expected if the admin deletes the chat.
-            // We just log it and let the document listener above handle the state reset.
-            console.warn("Message listener encountered an error:", err.message);
-        });
-
-        return () => unsubscribe();
-    }, [chatId]);
+    }, [chatId, chatDict.connectionErrorText]);
 
     useEffect(() => {
         scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -162,7 +165,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         
         setIsSending(true);
         const textToSend = newMessage;
-        setNewMessage(''); // Clear input immediately for better UX
+        setNewMessage('');
 
         try {
             await addMessageToChat(chatId, {
@@ -172,7 +175,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             });
         } catch (error) {
             console.error("Error sending message:", error);
-            // Restore message in the input box on failure
             setNewMessage(textToSend); 
         } finally {
             setIsSending(false);
@@ -276,7 +278,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     </DialogContent>
                 </Dialog>
 
-                <ScrollArea className="flex-1 p-4">
+                <ScrollArea className="flex-1 p-4 min-h-0">
                     <div className="space-y-4">
                         {messages.length === 0 && (
                             <div className="text-center text-muted-foreground p-8">
