@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Cloudinary service for uploading files.
@@ -31,18 +32,18 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
   });
 
   // Determine resource type based on MIME type for better handling of PDFs and other files.
-  // Default to 'raw' for non-media files like PDFs to ensure they are publicly accessible.
+  // We upload PDFs as 'image' type so they are web-accessible by default for the viewer.
   let resourceType: 'image' | 'video' | 'raw' = 'raw'; 
   try {
     const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
-    if (mimeType.startsWith('image/')) {
+    if (mimeType.startsWith('image/') || mimeType === 'application/pdf') {
         resourceType = 'image';
     } else if (mimeType.startsWith('video/')) {
         resourceType = 'video';
     }
   } catch (e) {
       console.warn("Could not determine MIME type from data URI, defaulting to 'raw'.", e);
-      resourceType = 'raw'; // Fallback safely
+      resourceType = 'raw';
   }
 
   try {
