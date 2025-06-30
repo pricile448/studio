@@ -44,6 +44,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 
 const { db: adminDb } = getFirebaseServices('admin');
+const ADVISOR_ID = 'advisor_123';
 
 interface ChatSession {
     id: string;
@@ -307,7 +308,6 @@ export function MessagingAdminClient() {
     const [isResetting, startResetTransition] = useTransition();
     const { toast } = useToast();
     const isMobile = useIsMobile();
-    const ADVISOR_ID = 'advisor_123';
     
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
     const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
@@ -321,7 +321,8 @@ export function MessagingAdminClient() {
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                const clientParticipantId = data.participants.find((p: string) => p !== user.uid && p !== ADVISOR_ID);
+                // Find the participant who is not the generic advisor
+                const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
                 
                 let participantDetails = {
                     id: clientParticipantId || '',
@@ -400,7 +401,8 @@ export function MessagingAdminClient() {
     const handleSelectUserForNewChat = async (selectedUser: UserProfile) => {
         if (!user) return;
         try {
-            const newChatId = await getOrCreateChatId(selectedUser.uid, user.uid, adminDb);
+            // Use the generic advisor ID to create the chat session
+            const newChatId = await getOrCreateChatId(selectedUser.uid, ADVISOR_ID, adminDb);
             setSelectedChatId(newChatId);
             setIsNewChatDialogOpen(false);
         } catch (e) {
