@@ -12,6 +12,8 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
+import { getFirebaseServices } from '@/lib/firebase/config';
+import { updateUserInFirestore } from '@/lib/firebase/firestore';
 
 const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
@@ -34,6 +36,7 @@ export async function submitKycDocuments(input: KycSubmissionInput): Promise<{su
 }
 
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
+const { db: adminDb } = getFirebaseServices('admin');
 
 const kycSubmissionFlow = ai.defineFlow(
   {
@@ -53,15 +56,17 @@ const kycSubmissionFlow = ai.defineFlow(
     try {
         const uploadFolder = `kyc_documents/${input.userId}`;
 
-        // Use static but descriptive names for KYC documents
         [idDocumentUrl, proofOfAddressUrl, selfieUrl] = await Promise.all([
             uploadToCloudinary(input.idDocumentDataUri, uploadFolder, 'identity_document'),
             uploadToCloudinary(input.proofOfAddressDataUri, uploadFolder, 'proof_of_address'),
             uploadToCloudinary(input.selfieDataUri, uploadFolder, 'selfie_photo')
         ]);
 
+        const kycDocuments = { idDocumentUrl, proofOfAddressUrl, selfieUrl };
+        await updateUserInFirestore(input.userId, { kycDocuments }, adminDb);
+
     } catch (error: any) {
-        console.error("Failed to upload documents to Cloudinary:", error);
+        console.error("Failed to upload documents or update user profile:", error);
         return { success: false, error: error.message || 'Failed to upload one or more documents.' };
     }
 

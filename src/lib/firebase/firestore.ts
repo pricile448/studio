@@ -78,6 +78,11 @@ export type UserProfile = {
   createdAt: Date;
   kycStatus: 'unverified' | 'pending' | 'verified';
   kycSubmittedAt?: Date;
+  kycDocuments?: {
+    idDocumentUrl: string;
+    proofOfAddressUrl: string;
+    selfieUrl: string;
+  };
   cardStatus: 'none' | 'requested' | 'active';
   cardRequestedAt?: Date;
   iban?: string;
@@ -465,25 +470,6 @@ export async function resetAccountBalance(userId: string, accountId: string, db:
     await updateDoc(userRef, {
         accounts: accounts
     });
-}
-
-export async function generateUserIban(userId: string, db: Firestore = defaultDb): Promise<{iban: string, bic: string}> {
-  const userRef = doc(db, "users", userId);
-  
-  const countryCode = "FR76";
-  const bankCode = "30004";
-  const branchCode = "00001";
-  const accountNumber = Math.floor(10000000000 + Math.random() * 90000000000).toString();
-  const key = "85";
-  const iban = `${countryCode} ${bankCode} ${branchCode} ${accountNumber} ${key}`;
-  const bic = "BNPAFRPPXXX";
-
-  await updateDoc(userRef, {
-    iban: iban,
-    bic: bic
-  });
-
-  return { iban, bic };
 }
 
 export async function deleteTransaction(userId: string, transactionId: string, db: Firestore = defaultDb): Promise<void> {

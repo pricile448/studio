@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions } from '@/lib/firebase/firestore';
+import { useState, useTransition, useEffect } from 'react';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions, updateUserInFirestore } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -23,12 +23,219 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Checkbox } from '../ui/checkbox';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Calendar } from '../ui/calendar';
+import Link from 'next/link';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
 interface UserDetailClientProps {
     userProfile: UserProfile;
 }
+
+const personalInfoSchema = z.object({
+  firstName: z.string().min(1, 'Prénom requis'),
+  lastName: z.string().min(1, 'Nom requis'),
+  phone: z.string().min(1, 'Téléphone requis'),
+  dob: z.date({ required_error: 'Date de naissance requise' }),
+  pob: z.string().min(1, 'Lieu de naissance requis'),
+  nationality: z.string().min(1, 'Nationalité requise'),
+  residenceCountry: z.string().min(1, 'Pays de résidence requis'),
+  address: z.string().min(1, 'Adresse requise'),
+  city: z.string().min(1, 'Ville requise'),
+  postalCode: z.string().min(1, 'Code postal requis'),
+  profession: z.string().min(1, 'Profession requise'),
+  salary: z.coerce.number().positive('Le salaire doit être positif'),
+});
+type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
+
+function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const { toast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const form = useForm<PersonalInfoFormValues>({
+        resolver: zodResolver(personalInfoSchema),
+        defaultValues: { ...user, dob: new Date(user.dob) }
+    });
+
+    useEffect(() => {
+        form.reset({ ...user, dob: new Date(user.dob) });
+    }, [user, form]);
+
+    const handleSubmit = async (data: PersonalInfoFormValues) => {
+        setIsSubmitting(true);
+        try {
+            await updateUserInFirestore(user.uid, data, adminDb);
+            onUpdate({ ...user, ...data });
+            toast({ title: "Succès", description: "Informations de l'utilisateur mises à jour." });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Informations personnelles modifiables</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Prénom</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Nom</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Téléphone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="dob" render={({ field }) => (
+                                    <FormItem className="flex flex-col pt-2"><FormLabel>Date de naissance</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className="font-normal justify-start">{field.value ? format(field.value, 'dd/MM/yyyy') : <span>Choisir une date</span>}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="pob" render={({ field }) => (<FormItem><FormLabel>Lieu de naissance</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="nationality" render={({ field }) => (<FormItem><FormLabel>Nationalité</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="residenceCountry" render={({ field }) => (<FormItem><FormLabel>Pays de résidence</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Adresse</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>Ville</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="postalCode" render={({ field }) => (<FormItem><FormLabel>Code postal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="profession" render={({ field }) => (<FormItem><FormLabel>Profession</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                            <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer les modifications</Button>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader><CardTitle>Documents KYC</CardTitle></CardHeader>
+                <CardContent>
+                    {user.kycDocuments ? (
+                        <ul className="space-y-2">
+                            <li><Button variant="link" asChild><a href={user.kycDocuments.idDocumentUrl} target="_blank" rel="noopener noreferrer"><LinkIcon className="mr-2" />Voir la pièce d'identité</a></Button></li>
+                            <li><Button variant="link" asChild><a href={user.kycDocuments.proofOfAddressUrl} target="_blank" rel="noopener noreferrer"><LinkIcon className="mr-2" />Voir le justificatif de domicile</a></Button></li>
+                            <li><Button variant="link" asChild><a href={user.kycDocuments.selfieUrl} target="_blank" rel="noopener noreferrer"><LinkIcon className="mr-2" />Voir le selfie</a></Button></li>
+                        </ul>
+                    ) : (
+                        <p className="text-muted-foreground">Aucun document KYC soumis par l'utilisateur.</p>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+const ibanSchema = z.object({
+  iban: z.string().min(1, 'IBAN est requis'),
+  bic: z.string().min(1, 'BIC est requis'),
+});
+type IbanFormValues = z.infer<typeof ibanSchema>;
+
+function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const { toast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const form = useForm<IbanFormValues>({
+        resolver: zodResolver(ibanSchema),
+        defaultValues: { iban: user.iban || '', bic: user.bic || '' }
+    });
+
+    const handleSubmit = async (data: IbanFormValues) => {
+        setIsSubmitting(true);
+        try {
+            await updateUserInFirestore(user.uid, data, adminDb);
+            onUpdate({ ...user, ...data });
+            toast({ title: "Succès", description: "RIB de l'utilisateur mis à jour." });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Gestion du RIB / IBAN</CardTitle>
+                <CardDescription>Gérer les informations bancaires de l'utilisateur.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                        <FormField control={form.control} name="iban" render={({ field }) => (<FormItem><FormLabel>IBAN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="bic" render={({ field }) => (<FormItem><FormLabel>BIC</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer le RIB</Button>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
+    );
+}
+
+function CardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleAction = async (action: () => Promise<void>, successMsg: string) => {
+        setIsLoading(true);
+        try {
+            await action();
+            toast({ title: 'Succès', description: successMsg });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const requestCard = () => handleAction(async () => {
+        await updateUserInFirestore(user.uid, { cardStatus: 'requested', cardRequestedAt: new Date() }, adminDb);
+        onUpdate({ ...user, cardStatus: 'requested', cardRequestedAt: new Date() });
+    }, "Demande de carte enregistrée.");
+
+    const activateCard = () => handleAction(async () => {
+        await updateUserInFirestore(user.uid, { cardStatus: 'active' }, adminDb);
+        onUpdate({ ...user, cardStatus: 'active' });
+    }, "Carte activée.");
+    
+    // Pour l'instant, suspendre/réactiver ne fait que changer le statut.
+    const suspendCard = () => handleAction(async () => {
+        // Envisagez d'ajouter un champ `cardStatusReason` ou similaire.
+    }, "Action non implémentée.");
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Gestion des cartes</CardTitle>
+                <CardDescription>Statut actuel : <Badge>{user.cardStatus}</Badge></CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {user.kycStatus !== 'verified' && (
+                    <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
+                )}
+                {user.cardStatus === 'none' && (
+                    <Button onClick={requestCard} disabled={isLoading || user.kycStatus !== 'verified'}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Demander une carte pour l'utilisateur
+                    </Button>
+                )}
+                {user.cardStatus === 'requested' && (
+                    <Button onClick={activateCard} disabled={isLoading || user.kycStatus !== 'verified'}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Activer la carte manuellement
+                    </Button>
+                )}
+                {user.cardStatus === 'active' && (
+                    <div className="flex gap-2">
+                        <Button variant="destructive" onClick={suspendCard} disabled={isLoading}>Suspendre</Button>
+                        {/* Ajouter la logique de réactivation si nécessaire */}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 
 function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
@@ -470,56 +677,6 @@ function BudgetsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
     );
 }
 
-function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
-    const [isLoading, setIsLoading] = useState(false);
-    const { toast } = useToast();
-
-    const handleGenerateIban = async () => {
-        setIsLoading(true);
-        try {
-            const { iban, bic } = await generateUserIban(user.uid, adminDb);
-            toast({ title: 'RIB Généré', description: `Le RIB pour ${user.firstName} a été créé.` });
-            onUpdate({ ...user, iban, bic });
-        } catch (error) {
-            console.error('Failed to generate IBAN:', error);
-            toast({ variant: 'destructive', title: 'Erreur de génération', description: (error as Error).message });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>RIB / IBAN</CardTitle>
-                <CardDescription>Gérer les informations bancaires de l'utilisateur.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {user.iban ? (
-                    <div className="space-y-4">
-                        <div>
-                            <Label>IBAN</Label>
-                            <p className="font-mono text-lg p-2 bg-muted rounded-md">{user.iban}</p>
-                        </div>
-                         <div>
-                            <Label>BIC</Label>
-                            <p className="font-mono text-lg p-2 bg-muted rounded-md">{user.bic}</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="text-center py-8 space-y-4">
-                        <p className="text-muted-foreground">Cet utilisateur n'a pas encore de RIB.</p>
-                        <Button onClick={handleGenerateIban} disabled={isLoading}>
-                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Générer un RIB
-                        </Button>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-    )
-}
-
 export function UserDetailClient({ userProfile }: UserDetailClientProps) {
     const router = useRouter();
     const [user, setUser] = useState(userProfile);
@@ -541,7 +698,7 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto pt-6 space-y-6">
-                <Tabs defaultValue="accounts">
+                <Tabs defaultValue="overview">
                     <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-6">
                         <TabsTrigger value="overview">Aperçu</TabsTrigger>
                         <TabsTrigger value="accounts">Comptes</TabsTrigger>
@@ -551,17 +708,7 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                         <TabsTrigger value="cards">Cartes</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Informations personnelles</CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid md:grid-cols-2 gap-4">
-                                <p><strong>Téléphone:</strong> {user.phone}</p>
-                                <p><strong>Date de naissance:</strong> {new Date(user.dob).toLocaleDateString('fr-FR')}</p>
-                                <p><strong>Pays de résidence:</strong> {user.residenceCountry}</p>
-                                <p><strong>Adresse:</strong> {user.address}, {user.postalCode} {user.city}</p>
-                            </CardContent>
-                        </Card>
+                        <PersonalInformation user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="accounts" className="space-y-6">
                         <AccountManagement user={user} onUpdate={handleUpdate} />
@@ -577,12 +724,7 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                         <IbanManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="cards">
-                        <Card>
-                            <CardHeader><CardTitle>Gestion des cartes</CardTitle></CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground">La gestion des cartes sera bientôt disponible ici.</p>
-                            </CardContent>
-                        </Card>
+                        <CardManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                 </Tabs>
             </div>
