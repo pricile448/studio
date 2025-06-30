@@ -3,37 +3,59 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper function to check for admin role
-    function isAdmin() {
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+
+    // Fonction utilitaire pour vérifier si un utilisateur est un administrateur authentifié.
+    function isAdmin(request) {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Rules for user profiles
+    // Les administrateurs ont un accès complet en lecture/écriture à toutes les collections.
+    match /{document=**} {
+      allow read, write: if isAdmin(request);
+    }
+    
+    // Règles pour la collection 'users'.
     match /users/{userId} {
-      allow read, update: if request.auth.uid == userId || isAdmin();
-      allow create: if request.auth.uid == userId;
-    }
-    
-    // Rules for chat conversations
-    match /chats/{chatId} {
-      allow get, list, update, delete: if isAdmin() || request.auth.uid in resource.data.participants;
-      allow create: if isAdmin() || (request.auth.uid in request.resource.data.participants && request.resource.data.participants.size() == 2);
+      // Un utilisateur peut lire son propre profil.
+      allow read: if request.auth != null && request.auth.uid == userId;
       
-      // Rules for messages within a chat
-      match /messages/{messageId} {
-        allow read, create: if isAdmin() || request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        // Allow user to 'soft delete' their own messages, allow admin to update any message
-        allow update: if isAdmin() || (request.auth.uid == resource.data.senderId);
-        // Only admin can permanently delete messages
-        allow delete: if isAdmin();
-      }
+      // Un utilisateur peut créer son propre profil lors de l'inscription.
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Un utilisateur peut mettre à jour son propre profil.
+      // Nous vérifions qu'il n'essaie pas de modifier son statut KYC ou d'autres champs protégés.
+      allow update: if request.auth != null && request.auth.uid == userId &&
+                       !('kycStatus' in request.resource.data) &&
+                       !('cardStatus' in request.resource.data) &&
+                       !('iban' in request.resource.data) &&
+                       !('bic' in request.resource.data);
     }
-    
-    // Rules for the admins collection
-    match /admins/{adminId} {
-        // Only admins can read or write to the admins collection
-        allow read, write: if isAdmin();
+
+    // Règles pour la collection 'chats'.
+    match /chats/{chatId} {
+      // Un utilisateur peut lire/écrire dans une conversation s'il en est un participant.
+      allow read, write, create: if request.auth != null && request.auth.uid in resource.data.participants;
+      
+      // Un utilisateur peut supprimer sa propre session de chat. L'admin peut également le faire via sa règle globale.
+      allow delete: if request.auth != null && request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+        // Un utilisateur peut lire les messages s'il participe à la conversation parente.
+        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+
+        // Un utilisateur peut créer un message s'il est un participant.
+        allow create: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        
+        // Un utilisateur peut "supprimer logiquement" (mettre à jour) son propre message.
+        // Il ne peut pas modifier d'autres champs.
+        allow update: if request.auth != null &&
+                        request.auth.uid == resource.data.senderId &&
+                        'deletedForUser' in request.resource.data &&
+                        request.resource.data.keys().hasOnly(['deletedForUser', 'senderId', 'text', 'timestamp', 'fileUrl', 'fileName', 'fileType']);
+                        
+        // Personne ne peut supprimer définitivement les messages via l'application cliente, sauf les administrateurs (couvert par la règle globale).
+        allow delete: if false;
+      }
     }
   }
 }
