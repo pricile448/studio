@@ -53,10 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const refreshUserProfile = async () => {
     if (user) {
-        setLoading(true);
+        // Do not set global loading to true for a background refresh
+        // to avoid a full-screen loader flash.
         const profile = await getUserFromFirestore(user.uid);
         setUserProfile(profile);
-        setLoading(false);
     }
   };
 
