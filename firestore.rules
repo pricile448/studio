@@ -4,62 +4,83 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Fonctions d'aide ---
-    
+    // =====================================================================
+    // Fonctions d'Aide
+    // =====================================================================
+
     // Vérifie si l'utilisateur authentifié est un administrateur.
     function isAdmin() {
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      // L'utilisateur doit être connecté et son UID doit exister dans la collection 'admins'.
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
-    // Vérifie si l'utilisateur authentifié est bien le propriétaire du document demandé.
+
+    // Vérifie si l'utilisateur authentifié est le propriétaire du document.
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
 
-    // Vérifie si l'utilisateur est un participant de la conversation.
-    // Règle CLÉ : vérifie d'abord si la conversation existe avant d'accéder à ses données.
+    // Vérifie si l'utilisateur authentifié est un participant à la conversation.
+    // Important : Vérifie d'abord que la conversation existe avant de lire ses données.
+    // Cela empêche les erreurs de permission si le chat est supprimé.
     function isChatParticipant(chatId) {
-      let chatDoc = get(/databases/$(database)/documents/chats/$(chatId));
-      return exists(/databases/$(database)/documents/chats/$(chatId)) &&
-             request.auth.uid in chatDoc.data.participants;
+      let chatExists = exists(/databases/$(database)/documents/chats/$(chatId));
+      // Si la conversation existe, vérifier si l'UID de l'utilisateur est dans la liste des participants.
+      return request.auth != null && chatExists && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
     }
 
+    // =====================================================================
+    // Règles par Collection
+    // =====================================================================
 
-    // --- Règles de collections ---
-
-    // Profils utilisateurs
-    match /users/{userId} {
-      // Un administrateur peut lire/écrire n'importe quel profil.
-      // Un utilisateur peut lire/écrire son propre profil.
-      allow read, write: if isAdmin() || isOwner(userId);
-    }
-
-    // Conversations de messagerie
-    match /chats/{chatId} {
-      // L'administrateur peut tout faire.
-      allow read, write, delete: if isAdmin();
-      // Un utilisateur peut lire/écrire s'il participe à la conversation.
-      allow read, write: if isChatParticipant(chatId);
-    }
-
-    // Messages dans une conversation
-    match /chats/{chatId}/messages/{messageId} {
-       // L'administrateur peut tout faire.
-      allow read, write, delete: if isAdmin();
-      
-      // Un utilisateur peut lire ou créer des messages s'il participe à la conversation.
-      allow read, create: if isChatParticipant(chatId);
-                             
-      // Un utilisateur ne peut modifier/supprimer que ses propres messages.
-      allow update, delete: if isChatParticipant(chatId) && request.auth.uid == resource.data.senderId;
-    }
-    
-    // Collection des administrateurs
+    // Collection 'admins'
+    // Seuls les administrateurs peuvent gérer la liste des administrateurs.
     match /admins/{adminId} {
-      // Seuls les administrateurs peuvent lire la liste (pour la sécurité).
-      allow read: if isAdmin();
-      // Personne ne peut écrire depuis le client pour éviter toute manipulation.
-      allow write: if false;
+      allow read, write: if isAdmin();
+    }
+
+    // Collection 'users'
+    match /users/{userId} {
+      // LECTURE: L'utilisateur peut lire son propre profil, ou un admin peut lire n'importe quel profil.
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // CRÉATION: Un utilisateur peut créer son propre profil (à l'inscription).
+      allow create: if isOwner(userId);
+      
+      // MISE À JOUR:
+      // - Un admin peut tout mettre à jour.
+      // - Un utilisateur peut mettre à jour son propre profil, MAIS PAS les champs sensibles gérés par le système.
+      allow update: if isAdmin() || 
+                       (isOwner(userId) &&
+                         !('kycStatus' in request.resource.data) &&
+                         !('cardStatus' in request.resource.data) &&
+                         !('iban' in request.resource.data) &&
+                         !('bic' in request.resource.data) &&
+                         !('accounts' in request.resource.data) &&
+                         !('transactions' in request.resource.data)
+                       );
+    }
+
+    // Collection 'chats' et sous-collection 'messages'
+    match /chats/{chatId} {
+      // LECTURE, CRÉATION, SUPPRESSION (pour la conversation entière): Permis pour les participants et les admins.
+      allow read, create, delete: if isChatParticipant(chatId) || isAdmin();
+      
+      // MISE À JOUR (pour la conversation, ex: lastMessage): Permis pour les participants et les admins.
+      allow update: if isChatParticipant(chatId) || isAdmin();
+      
+      match /messages/{messageId} {
+        // LECTURE, CRÉATION: Permis si l'utilisateur participe à la conversation.
+        // La fonction `isChatParticipant` gère le cas où le chat n'existe plus, évitant l'erreur.
+        allow read, create: if isChatParticipant(chatId) || isAdmin();
+        
+        // MISE À JOUR:
+        // - Un admin peut tout mettre à jour.
+        // - Un utilisateur peut mettre à jour (suppression logique) uniquement ses propres messages.
+        allow update: if isAdmin() || (isOwner(resource.data.senderId) && request.resource.data.deletedForUser == true);
+                        
+        // SUPPRESSION (DÉFINITIVE): Interdite pour les clients, permise seulement pour les admins.
+        allow delete: if isAdmin();
+      }
     }
   }
 }
