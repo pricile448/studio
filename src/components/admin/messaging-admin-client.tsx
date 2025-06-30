@@ -235,19 +235,6 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             >
                                                 <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
                                             </button>
-                                        ) : msg.fileUrl && msg.fileType === 'application/pdf' ? (
-                                            <a 
-                                                href={msg.fileUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className={cn(
-                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                                    isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
-                                                )}
-                                            >
-                                                <FileText className="h-6 w-6 flex-shrink-0" />
-                                                <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
-                                            </a>
                                         ) : msg.fileUrl ? (
                                             <a
                                                 href={getCloudinaryDownloadUrl(msg.fileUrl, msg.fileName)}
@@ -257,7 +244,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                                     isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
                                                 )}
                                                 >
-                                                <FileIcon className="h-6 w-6 flex-shrink-0" />
+                                                {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
                                                 <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
                                         ) : null}
@@ -520,3 +507,5 @@ export function MessagingAdminClient() {
         </div>
     );
 }
+
+    

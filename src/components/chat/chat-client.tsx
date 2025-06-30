@@ -326,19 +326,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                     style={{ objectFit: 'cover' }}
                                                 />
                                                 </button>
-                                            ) : msg.fileUrl && msg.fileType === 'application/pdf' ? (
-                                                <a
-                                                    href={msg.fileUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className={cn(
-                                                        "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                                        isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
-                                                    )}
-                                                >
-                                                    <FileText className="h-6 w-6 flex-shrink-0" />
-                                                    <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
-                                                </a>
                                             ) : msg.fileUrl ? (
                                                 <a
                                                     href={getCloudinaryDownloadUrl(msg.fileUrl, msg.fileName)}
@@ -348,7 +335,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                         isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
                                                     )}
                                                 >
-                                                    <FileIcon className="h-6 w-6 flex-shrink-0" />
+                                                    {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
                                                     <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
                                                 </a>
                                             ) : null}
@@ -399,3 +386,5 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         </div>
     );
 }
+
+    
