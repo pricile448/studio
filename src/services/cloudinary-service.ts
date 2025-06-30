@@ -31,15 +31,10 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     secure: true,
   });
 
-  const mimeTypeMatch = dataUri.match(/data:(.*);base64/);
-  const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : 'application/octet-stream';
-  
-  const resource_type = mimeType.startsWith('image/') ? 'image' : 'raw';
-
   try {
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: folder,
-      resource_type: resource_type,
+      resource_type: 'auto', // Let Cloudinary detect the resource type
       use_filename: true,
       unique_filename: true, 
       overwrite: false

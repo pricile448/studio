@@ -17,6 +17,16 @@ interface MoreClientProps {
   lang: Locale;
 }
 
+const getCloudinaryDownloadUrl = (url: string): string => {
+    if (!url) return '';
+    const urlParts = url.split('/upload/');
+    if (urlParts.length !== 2) {
+        return url;
+    }
+    const [baseUrl, assetPath] = urlParts;
+    return `${baseUrl}/upload/fl_attachment/${assetPath}`;
+};
+
 export function MoreClient({ dict, lang }: MoreClientProps) {
   const { userProfile, loading } = useAuth();
   // We add a state to force a re-render when a new document is uploaded
@@ -34,8 +44,8 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
   const docDict = dict.documents;
   
   const defaultDocuments = [
-    { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const },
-    { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const },
+    { id: 'contract', name: docDict.serviceContract, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const, url: '' },
+    { id: 'privacy', name: docDict.privacyPolicy, date: userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString(lang) : 'N/A', type: 'default' as const, url: '' },
   ];
   
   const userUploadedDocuments = (userProfile.documents || []).map(doc => ({
@@ -105,7 +115,7 @@ export function MoreClient({ dict, lang }: MoreClientProps) {
                       </Button>
                     ) : (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                        <a href={getCloudinaryDownloadUrl(doc.url)} download={doc.name}>
                             <FileDown className="mr-2 h-4 w-4" />
                             {docDict.download}
                         </a>

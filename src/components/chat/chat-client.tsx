@@ -54,16 +54,14 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
-const getCloudinaryDownloadUrl = (url: string, filename?: string): string => {
+const getCloudinaryDownloadUrl = (url: string): string => {
+    if (!url) return '';
     const urlParts = url.split('/upload/');
     if (urlParts.length !== 2) {
-        return url; // Return original URL if it cannot be parsed
+        return url;
     }
-
     const [baseUrl, assetPath] = urlParts;
-    const attachmentFlag = filename ? `fl_attachment:${encodeURIComponent(filename.replace(/ /g, '_'))}` : 'fl_attachment';
-
-    return `${baseUrl}/upload/${attachmentFlag}/${assetPath}`;
+    return `${baseUrl}/upload/fl_attachment/${assetPath}`;
 };
 
 export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
@@ -266,7 +264,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                     <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                                         <Button variant="secondary" asChild>
-                                           <a href={getCloudinaryDownloadUrl(previewImage.url, previewImage.name)}>
+                                           <a href={getCloudinaryDownloadUrl(previewImage.url)} download={previewImage.name}>
                                               <Download className="mr-2 h-4 w-4" />
                                               {dict.documents.download}
                                            </a>
