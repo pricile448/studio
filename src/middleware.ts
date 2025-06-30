@@ -8,8 +8,8 @@ const defaultLocale = 'fr'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Exempter les routes admin de la logique de localisation
-  if (pathname.startsWith('/admin')) {
+  // Exempter les routes admin et la visionneuse PDF de la logique de localisation
+  if (pathname.startsWith('/admin') || pathname.startsWith('/view-pdf')) {
     return NextResponse.next()
   }
 
