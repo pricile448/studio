@@ -117,11 +117,20 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             setMessages(msgs);
         }, (err) => {
             console.error("Error listening to messages:", err);
-            setError("Failed to load messages.");
+            if (err.code === 'permission-denied') {
+                // This likely means the chat document was deleted by an admin.
+                // We reset the chat state to allow starting a new conversation.
+                console.log("Chat was likely deleted by admin. Resetting interface.");
+                setMessages([]);
+                setError(null);
+                // The getOrCreate function will handle creating a new chat doc if needed.
+            } else {
+                 setError(chatDict.connectionErrorText);
+            }
         });
 
         return () => unsubscribe();
-    }, [chatId]);
+    }, [chatId, chatDict.connectionErrorText]);
 
     useEffect(() => {
         scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' });
