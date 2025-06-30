@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import { cn, getCloudinaryDownloadUrl } from '@/lib/utils';
 import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle, FileText } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
@@ -174,7 +174,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                 <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                 <div className="flex gap-2 w-full sm:w-auto justify-end">
                                     <Button variant="secondary" asChild>
-                                       <a href={previewImage.url} download={previewImage.name}>
+                                       <a href={getCloudinaryDownloadUrl(previewImage.url, previewImage.name)} download>
                                           <Download className="mr-2 h-4 w-4" />
                                           Télécharger
                                        </a>
@@ -235,7 +235,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             >
                                                 <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
                                             </button>
-                                        ) : msg.fileUrl ? (
+                                        ) : msg.fileUrl && msg.fileType === 'application/pdf' ? (
                                             <a 
                                                 href={msg.fileUrl}
                                                 target="_blank"
@@ -245,7 +245,19 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                                     isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
                                                 )}
                                             >
-                                                {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
+                                                <FileText className="h-6 w-6 flex-shrink-0" />
+                                                <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
+                                            </a>
+                                        ) : msg.fileUrl ? (
+                                            <a
+                                                href={getCloudinaryDownloadUrl(msg.fileUrl, msg.fileName)}
+                                                download
+                                                className={cn(
+                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                    isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                )}
+                                                >
+                                                <FileIcon className="h-6 w-6 flex-shrink-0" />
                                                 <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
                                         ) : null}
