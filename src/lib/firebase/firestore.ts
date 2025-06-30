@@ -252,20 +252,42 @@ export async function hardDeleteMessage(chatId: string, messageId: string, db: F
 }
 
 export async function deleteChatSession(chatId: string, dbInstance: Firestore = defaultDb) {
+    const chatRef = doc(dbInstance, 'chats', chatId);
+
+    // Étape 1 : Récupérer les participants avant la suppression.
+    const chatSnap = await getDoc(chatRef);
+    const participants = chatSnap.exists() ? chatSnap.data().participants : null;
+
+    if (!participants) {
+        console.warn(`Conversation ${chatId} non trouvée. Impossible de réinitialiser.`);
+        // Si elle n'existe pas déjà, il n'y a rien à faire.
+        return;
+    }
+
+    // Étape 2 : Supprimer tous les messages dans la sous-collection.
     const messagesRef = collection(dbInstance, 'chats', chatId, 'messages');
     const messagesQuery = query(messagesRef);
     const messagesSnap = await getDocs(messagesQuery);
 
+    // Utilisation d'un batch pour assurer la suppression atomique des messages.
+    const deleteBatch = writeBatch(dbInstance);
     if (!messagesSnap.empty) {
-        const batch = writeBatch(dbInstance);
         messagesSnap.forEach(doc => {
-            batch.delete(doc.ref);
+            deleteBatch.delete(doc.ref);
         });
-        await batch.commit();
     }
+    // Valider la suppression des messages avant de continuer.
+    await deleteBatch.commit();
 
-    const chatRef = doc(dbInstance, 'chats', chatId);
+    // Étape 3 : Supprimer le document de conversation principal.
     await deleteDoc(chatRef);
+    
+    // Étape 4 : Le recréer immédiatement avec le même ID et les mêmes participants.
+    // Ceci réinitialise la conversation à un état propre.
+    await setDoc(chatRef, {
+        participants: participants,
+        createdAt: serverTimestamp(),
+    });
 }
 
 
