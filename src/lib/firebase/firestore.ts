@@ -83,8 +83,12 @@ export type UserProfile = {
     proofOfAddressUrl: string;
     selfieUrl: string;
   };
-  cardStatus: 'none' | 'requested' | 'active';
+  cardStatus: 'none' | 'requested' | 'active' | 'suspended';
   cardRequestedAt?: Date;
+  cardLimits?: {
+    monthly: number;
+    withdrawal: number;
+  };
   iban?: string;
   bic?: string;
   accounts: Account[];
@@ -125,6 +129,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
     ...userData,
     kycStatus: 'unverified',
     cardStatus: 'none',
+    cardLimits: { monthly: 2000, withdrawal: 500 },
     notificationPrefs: {
         email: true,
         promotions: false,

@@ -177,11 +177,14 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
 function CardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    const [newLimit, setNewLimit] = useState(user.cardLimits?.monthly || 2000);
+    const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
 
-    const handleAction = async (action: () => Promise<void>, successMsg: string) => {
+    const handleAction = async (updateData: Partial<UserProfile>, successMsg: string) => {
         setIsLoading(true);
         try {
-            await action();
+            await updateUserInFirestore(user.uid, updateData, adminDb);
+            onUpdate({ ...user, ...updateData });
             toast({ title: 'Succès', description: successMsg });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
@@ -190,47 +193,114 @@ function CardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
         }
     };
     
-    const requestCard = () => handleAction(async () => {
-        await updateUserInFirestore(user.uid, { cardStatus: 'requested', cardRequestedAt: new Date() }, adminDb);
-        onUpdate({ ...user, cardStatus: 'requested', cardRequestedAt: new Date() });
-    }, "Demande de carte enregistrée.");
+    const requestCard = () => handleAction({ cardStatus: 'requested', cardRequestedAt: new Date() }, "Demande de carte enregistrée.");
+    const activateCard = () => handleAction({ cardStatus: 'active' }, "Carte activée.");
+    const suspendCard = () => handleAction({ cardStatus: 'suspended' }, "Carte suspendue.");
+    const reactivateCard = () => handleAction({ cardStatus: 'active' }, "Carte réactivée.");
+    const cancelCard = () => handleAction({ cardStatus: 'none', cardLimits: { monthly: 2000, withdrawal: 500 } }, "Carte et demande annulées.");
 
-    const activateCard = () => handleAction(async () => {
-        await updateUserInFirestore(user.uid, { cardStatus: 'active' }, adminDb);
-        onUpdate({ ...user, cardStatus: 'active' });
-    }, "Carte activée.");
+    const handleLimitSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleAction({ cardLimits: { ...user.cardLimits!, monthly: newLimit }}, "Plafond de la carte mis à jour.");
+        setIsLimitDialogOpen(false);
+    };
+
+    const getStatusBadge = (status: UserProfile['cardStatus']) => {
+        switch(status) {
+            case 'active': return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+            case 'suspended': return <Badge variant="destructive">Suspendue</Badge>;
+            case 'requested': return <Badge className="bg-blue-100 text-blue-800">Demandée</Badge>;
+            case 'none':
+            default: return <Badge variant="secondary">Aucune</Badge>;
+        }
+    }
     
-    // Pour l'instant, suspendre/réactiver ne fait que changer le statut.
-    const suspendCard = () => handleAction(async () => {
-        // Envisagez d'ajouter un champ `cardStatusReason` ou similaire.
-    }, "Action non implémentée.");
-
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Gestion des cartes</CardTitle>
-                <CardDescription>Statut actuel : <Badge>{user.cardStatus}</Badge></CardDescription>
+                <CardTitle>Gestion de la carte</CardTitle>
+                <CardDescription>
+                    Gérer la carte de paiement de l'utilisateur. Statut actuel : {getStatusBadge(user.cardStatus)}
+                </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
                 {user.kycStatus !== 'verified' && (
                     <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
                 )}
-                {user.cardStatus === 'none' && (
-                    <Button onClick={requestCard} disabled={isLoading || user.kycStatus !== 'verified'}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Demander une carte pour l'utilisateur
-                    </Button>
-                )}
-                {user.cardStatus === 'requested' && (
-                    <Button onClick={activateCard} disabled={isLoading || user.kycStatus !== 'verified'}>
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Activer la carte manuellement
-                    </Button>
-                )}
-                {user.cardStatus === 'active' && (
-                    <div className="flex gap-2">
-                        <Button variant="destructive" onClick={suspendCard} disabled={isLoading}>Suspendre</Button>
-                        {/* Ajouter la logique de réactivation si nécessaire */}
+                
+                <div className="p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h4 className="font-semibold">Plafond mensuel</h4>
+                        <p className="text-2xl font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(user.cardLimits?.monthly || 0)}</p>
                     </div>
-                )}
+                     <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}>
+                        <DialogTrigger asChild>
+                           <Button variant="outline" disabled={isLoading || user.cardStatus !== 'active'}>Modifier le plafond</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Modifier le plafond mensuel</DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleLimitSubmit} className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="limit">Nouveau plafond</Label>
+                                    <Input id="limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild><Button type="button" variant="ghost">Annuler</Button></DialogClose>
+                                    <Button type="submit" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}Enregistrer</Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+                
+                <div>
+                    <h4 className="font-semibold mb-2">Actions Administrateur</h4>
+                    <div className="flex flex-wrap gap-2">
+                       {user.cardStatus === 'none' && (
+                            <Button onClick={requestCard} disabled={isLoading || user.kycStatus !== 'verified'}>
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Créer une demande de carte
+                            </Button>
+                        )}
+                        {user.cardStatus === 'requested' && (
+                            <Button onClick={activateCard} disabled={isLoading || user.kycStatus !== 'verified'}>
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Forcer l'activation de la carte
+                            </Button>
+                        )}
+                        {user.cardStatus === 'active' && (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" disabled={isLoading}>Suspendre la carte</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader><AlertDialogTitle>Suspendre la carte ?</AlertDialogTitle><AlertDialogDescription>La carte sera temporairement inutilisable.</AlertDialogDescription></AlertDialogHeader>
+                                    <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={suspendCard}>Confirmer</AlertDialogAction></AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
+                         {user.cardStatus === 'suspended' && (
+                            <Button onClick={reactivateCard} disabled={isLoading} className="bg-green-600 hover:bg-green-700">
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Réactiver la carte
+                            </Button>
+                        )}
+                        {(user.cardStatus === 'active' || user.cardStatus === 'suspended' || user.cardStatus === 'requested') && (
+                             <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                     <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isLoading}>Annuler et Réinitialiser</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader><AlertDialogTitle>Annuler la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible et remettra le statut de la carte à "Aucune".</AlertDialogDescription></AlertDialogHeader>
+                                    <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={cancelCard} className="bg-destructive hover:bg-destructive/90">Confirmer</AlertDialogAction></AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
+                    </div>
+                </div>
+
             </CardContent>
         </Card>
     );
@@ -354,7 +424,7 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader><AlertDialogTitle>Confirmer la remise à zéro</AlertDialogTitle></AlertDialogHeader>
-                                            <AlertDialogDescription>Cette action est irréversible et mettra le solde du compte à 0. Un ajustement sera enregistré dans les transactions.</AlertDialogDescription>
+                                            <AlertDialogDescription>Cette action est irréversible et mettra le solde du compte à 0.</AlertDialogDescription>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Annuler</AlertDialogCancel>
                                                 <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleResetBalance(account.id)}>Confirmer la remise à zéro</AlertDialogAction>
