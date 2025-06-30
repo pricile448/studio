@@ -8,8 +8,8 @@ const defaultLocale = 'fr'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Exempter les routes admin et la visionneuse PDF de la logique de localisation
-  if (pathname.startsWith('/admin') || pathname.startsWith('/view-pdf')) {
+  // Exempter les routes admin de la logique de localisation
+  if (pathname.startsWith('/admin')) {
     return NextResponse.next()
   }
 
@@ -31,6 +31,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Exclure tous les chemins internes (_next) et les ressources statiques
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|view-pdf).*)',
   ],
 }
