@@ -4,81 +4,75 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // --- Helper Functions ---
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-
     function isAdmin() {
       return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
     function isChatParticipant(chatId) {
       return request.auth != null && request.auth.uid in chatId.split('_');
     }
 
-    function isUpdatingAllowedProfileFields() {
-      // The user can update these general profile fields.
-      let allowedFields = ['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout', 'documents'];
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
-    }
-
-    function isRequestingCard() {
-      // This happens when a user requests a card for the first time.
-      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
-      return changedKeys.hasAll(['cardStatus', 'cardRequestedAt']) &&
-             changedKeys.size() == 2 &&
-             request.resource.data.cardStatus == 'requested' &&
-             resource.data.cardStatus == 'none';
-    }
-
-    function isPerformingInternalTransfer() {
-      // This is a simplified check. It ensures only accounts and transactions are touched.
-      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
-      return changedKeys.hasAll(['accounts', 'transactions']) && changedKeys.size() == 2;
-    }
-    
-    function isSubmittingKyc() {
-        // Allows user to update their status to 'pending' and add submission timestamp.
-        let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
-        return changedKeys.hasAll(['kycStatus', 'kycSubmittedAt']) &&
-               changedKeys.size() == 2 &&
-               request.resource.data.kycStatus == 'pending' &&
-               resource.data.kycStatus == 'unverified';
-    }
-
-
-    // --- Admin Rules ---
-    // Admins have full read/write access to all collections for management purposes.
-    match /{path=**} {
+    // --- Global Admin Rule ---
+    // Admins have full read/write access to all collections for management.
+    match /{document=**} {
       allow read, write: if isAdmin();
     }
 
-    // --- User Rules ---
+    // --- User Profile Rules ---
     match /users/{userId} {
-      allow read, create: if isOwner(userId);
       
-      // Update is allowed if it's one of the approved user-driven scenarios.
+      // READ: A user can read their own profile.
+      allow read: if isOwner(userId);
+      
+      // CREATE: A user can create their own profile document.
+      allow create: if isOwner(userId);
+
+      // UPDATE: A user can update their own profile under specific conditions.
       allow update: if isOwner(userId) && (
-        isUpdatingAllowedProfileFields() ||
-        isRequestingCard() ||
-        isPerformingInternalTransfer() ||
-        isSubmittingKyc()
+        // Condition 1: General profile update (safe fields that a user can change)
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasAll(['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'notificationPrefs', 'inactivityTimeout'])
+        ) ||
+        // Condition 2: Requesting a card
+        (
+          request.resource.data.cardStatus == 'requested' &&
+          resource.data.cardStatus == 'none' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt'])
+        ) ||
+        // Condition 3: Making an internal transfer
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['accounts', 'transactions'])
+        ) ||
+        // Condition 4: Creating/updating budgets or beneficiaries
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['budgets', 'beneficiaries', 'documents'])
+        ) ||
+        // Condition 5: KYC Submission (client only updates status to pending)
+        (
+            request.resource.data.kycStatus == 'pending' &&
+            resource.data.kycStatus == 'unverified' &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycSubmittedAt'])
+        )
       );
     }
 
-    // --- Chat Rules ---
+    // --- Messaging Rules ---
     match /chats/{chatId} {
       allow read, create, update: if isChatParticipant(chatId);
       
       match /messages/{messageId} {
         allow read, create: if isChatParticipant(chatId);
         
-        // A user can "soft delete" their own message.
+        // A user can "soft delete" (update) their own message.
         allow update: if isOwner(resource.data.senderId) &&
                          'deletedForUser' in request.resource.data &&
                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
 
-        // Only admins can hard delete.
+        // Only admins can permanently delete messages (via global rule).
         allow delete: if false; 
       }
     }
