@@ -36,8 +36,8 @@ function PdfViewer() {
         );
     }
 
-    // Utilise le visualiseur Google Docs pour intégrer le PDF de manière robuste.
-    const embedUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+    // Use the PDF URL directly in the iframe. This is more reliable than a third-party viewer.
+    const embedUrl = pdfUrl;
 
     return (
         <div className="flex flex-col h-screen bg-muted">
