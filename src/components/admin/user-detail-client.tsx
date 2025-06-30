@@ -2,11 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import { type UserProfile, type Account, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -19,6 +19,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '../ui/dialog';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -41,8 +44,7 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
         setIsLoading(true);
         try {
             await action();
-            const updatedProfile = { ...user };
-            onUpdate(updatedProfile); // Trigger parent state update
+            // The onUpdate will be called in the specific handlers to pass the correct updated state
             toast({ title: 'Succès', description: successMsg });
         } catch (error) {
             console.error(errorMsg, error);
@@ -265,6 +267,152 @@ function FundsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upd
     );
 }
 
+function TransactionsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+    const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
+
+    const handleDelete = async () => {
+        if (!transactionToDelete) return;
+        setIsLoading(true);
+        try {
+            await deleteTransaction(user.uid, transactionToDelete.id, adminDb);
+            const updatedTransactions = user.transactions.filter(t => t.id !== transactionToDelete.id);
+            
+            let updatedAccounts = user.accounts;
+            const accountToUpdate = user.accounts.find(a => a.id === transactionToDelete.accountId);
+            if (accountToUpdate) {
+                const newBalance = accountToUpdate.balance - transactionToDelete.amount;
+                updatedAccounts = user.accounts.map(a => a.id === transactionToDelete.accountId ? { ...a, balance: newBalance } : a);
+            }
+            onUpdate({ ...user, transactions: updatedTransactions, accounts: updatedAccounts });
+            toast({ title: 'Succès', description: 'Transaction supprimée.' });
+        } catch (error) {
+            console.error('Erreur lors de la suppression de la transaction.', error);
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression de la transaction.' });
+        } finally {
+            setIsLoading(false);
+            setTransactionToDelete(null);
+        }
+    };
+    
+    const transactions = [...user.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Historique des transactions</CardTitle>
+                <CardDescription>Gérer toutes les transactions de l'utilisateur.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>Montant</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {transactions.map(tx => (
+                            <TableRow key={tx.id}>
+                                <TableCell>{format(new Date(tx.date), 'dd/MM/yyyy', { locale: fr })}</TableCell>
+                                <TableCell>{tx.description}</TableCell>
+                                <TableCell className={cn('font-medium', tx.amount > 0 ? 'text-green-600' : 'text-red-600')}>
+                                    {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(tx.amount)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" size="sm" onClick={() => setTransactionToDelete(tx)}>Supprimer</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Cette action est irréversible. Elle supprimera la transaction et ajustera le solde du compte associé.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel onClick={() => setTransactionToDelete(null)}>Annuler</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
+                                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Confirmer"}
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                 {transactions.length === 0 && <p className="text-center text-muted-foreground p-4">Aucune transaction.</p>}
+            </CardContent>
+        </Card>
+    );
+}
+
+function BudgetsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+    const [budgetToDelete, setBudgetToDelete] = useState<Budget | null>(null);
+
+    const handleDelete = async () => {
+        if (!budgetToDelete) return;
+        setIsLoading(true);
+        try {
+            await deleteBudget(user.uid, budgetToDelete.id, adminDb);
+            const updatedBudgets = user.budgets.filter(b => b.id !== budgetToDelete.id);
+            onUpdate({ ...user, budgets: updatedBudgets });
+            toast({ title: 'Succès', description: 'Budget supprimé.' });
+        } catch (error) {
+            console.error('Erreur lors de la suppression du budget.', error);
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression du budget.' });
+        } finally {
+            setIsLoading(false);
+            setBudgetToDelete(null);
+        }
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Budgets de l'utilisateur</CardTitle>
+                <CardDescription>Gérer les budgets créés par l'utilisateur.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {user.budgets.map(budget => (
+                    <div key={budget.id} className="p-4 border rounded-lg flex justify-between items-center">
+                        <div>
+                            <p className="font-semibold">{budget.name}</p>
+                            <p className="text-sm text-muted-foreground">Catégorie: {budget.category}</p>
+                            <p className="text-lg font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(budget.total)}</p>
+                        </div>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" onClick={() => setBudgetToDelete(budget)}>Supprimer</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                                    <AlertDialogDescription>Êtes-vous sûr de vouloir supprimer ce budget ? Cette action est irréversible.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel onClick={() => setBudgetToDelete(null)}>Annuler</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
+                                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Confirmer"}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                ))}
+                {user.budgets.length === 0 && <p className="text-center text-muted-foreground p-4">Aucun budget défini.</p>}
+            </CardContent>
+        </Card>
+    );
+}
 
 function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -338,9 +486,11 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
 
             <div className="flex-1 min-h-0 overflow-y-auto pt-6 space-y-6">
                 <Tabs defaultValue="accounts">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-6">
                         <TabsTrigger value="overview">Aperçu</TabsTrigger>
-                        <TabsTrigger value="accounts">Comptes & Solde</TabsTrigger>
+                        <TabsTrigger value="accounts">Comptes</TabsTrigger>
+                        <TabsTrigger value="transactions">Transactions</TabsTrigger>
+                        <TabsTrigger value="budgets">Budgets</TabsTrigger>
                         <TabsTrigger value="iban">RIB</TabsTrigger>
                         <TabsTrigger value="cards">Cartes</TabsTrigger>
                     </TabsList>
@@ -360,6 +510,12 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                     <TabsContent value="accounts" className="space-y-6">
                         <AccountManagement user={user} onUpdate={handleUpdate} />
                         <FundsManagement user={user} onUpdate={handleUpdate} />
+                    </TabsContent>
+                     <TabsContent value="transactions">
+                        <TransactionsManagement user={user} onUpdate={handleUpdate} />
+                    </TabsContent>
+                    <TabsContent value="budgets">
+                        <BudgetsManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="iban">
                         <IbanManagement user={user} onUpdate={handleUpdate} />

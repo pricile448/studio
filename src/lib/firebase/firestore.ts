@@ -503,3 +503,56 @@ export async function generateUserIban(userId: string, db: Firestore = defaultDb
 
   return { iban, bic };
 }
+
+export async function deleteTransaction(userId: string, transactionId: string, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const userData = userSnap.data();
+  const accounts: Account[] = userData.accounts || [];
+  // Use a type assertion to work with the data, assuming it's structured like Transaction
+  const transactions = userData.transactions || [];
+
+  const transactionIndex = transactions.findIndex((tx: { id: string; }) => tx.id === transactionId);
+  if (transactionIndex === -1) {
+    throw new Error("Transaction non trouvée.");
+  }
+
+  const transactionToDelete = transactions[transactionIndex];
+  const accountId = transactionToDelete.accountId;
+  const amount = transactionToDelete.amount;
+
+  // Revert the transaction amount from the balance
+  const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+  if (accountIndex !== -1) {
+    accounts[accountIndex].balance -= amount;
+  }
+
+  const updatedTransactions = transactions.filter((tx: { id: string; }) => tx.id !== transactionId);
+
+  await updateDoc(userRef, {
+    accounts: accounts,
+    transactions: updatedTransactions
+  });
+}
+
+export async function deleteBudget(userId: string, budgetId: string, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const userData = userSnap.data();
+  const budgets: Budget[] = userData.budgets || [];
+  const updatedBudgets = budgets.filter(b => b.id !== budgetId);
+
+  await updateDoc(userRef, {
+    budgets: updatedBudgets
+  });
+}
