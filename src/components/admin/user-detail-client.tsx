@@ -171,8 +171,8 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
     }
     
     return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-4">
+        <div className="h-full flex flex-col">
+            <div className="flex items-center gap-4 shrink-0">
                 <Button variant="outline" size="icon" onClick={() => router.back()}>
                     <ArrowLeft />
                 </Button>
@@ -182,41 +182,43 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                 </div>
             </div>
 
-            <Tabs defaultValue="accounts">
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="overview">Aperçu</TabsTrigger>
-                    <TabsTrigger value="accounts">Comptes & Solde</TabsTrigger>
-                    <TabsTrigger value="iban">RIB</TabsTrigger>
-                    <TabsTrigger value="cards">Cartes</TabsTrigger>
-                </TabsList>
-                <TabsContent value="overview">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Informations personnelles</CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid md:grid-cols-2 gap-4">
-                            <p><strong>Téléphone:</strong> {user.phone}</p>
-                            <p><strong>Date de naissance:</strong> {new Date(user.dob).toLocaleDateString('fr-FR')}</p>
-                            <p><strong>Pays de résidence:</strong> {user.residenceCountry}</p>
-                            <p><strong>Adresse:</strong> {user.address}, {user.postalCode} {user.city}</p>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                <TabsContent value="accounts">
-                    <AccountManagement user={user} onUpdate={handleUpdate} />
-                </TabsContent>
-                 <TabsContent value="iban">
-                    <IbanManagement user={user} onUpdate={handleUpdate} />
-                </TabsContent>
-                <TabsContent value="cards">
-                    <Card>
-                        <CardHeader><CardTitle>Gestion des cartes</CardTitle></CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">La gestion des cartes sera bientôt disponible ici.</p>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+            <div className="flex-1 min-h-0 overflow-y-auto pt-6">
+                <Tabs defaultValue="accounts">
+                    <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="overview">Aperçu</TabsTrigger>
+                        <TabsTrigger value="accounts">Comptes & Solde</TabsTrigger>
+                        <TabsTrigger value="iban">RIB</TabsTrigger>
+                        <TabsTrigger value="cards">Cartes</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Informations personnelles</CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid md:grid-cols-2 gap-4">
+                                <p><strong>Téléphone:</strong> {user.phone}</p>
+                                <p><strong>Date de naissance:</strong> {new Date(user.dob).toLocaleDateString('fr-FR')}</p>
+                                <p><strong>Pays de résidence:</strong> {user.residenceCountry}</p>
+                                <p><strong>Adresse:</strong> {user.address}, {user.postalCode} {user.city}</p>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="accounts">
+                        <AccountManagement user={user} onUpdate={handleUpdate} />
+                    </TabsContent>
+                    <TabsContent value="iban">
+                        <IbanManagement user={user} onUpdate={handleUpdate} />
+                    </TabsContent>
+                    <TabsContent value="cards">
+                        <Card>
+                            <CardHeader><CardTitle>Gestion des cartes</CardTitle></CardHeader>
+                            <CardContent>
+                                <p className="text-muted-foreground">La gestion des cartes sera bientôt disponible ici.</p>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+            </div>
         </div>
     );
 }

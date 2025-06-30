@@ -52,38 +52,42 @@ export default function AdminDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-headline">Tableau de bord Administrateur</h1>
+    <div className="h-full flex flex-col">
+      <h1 className="text-3xl font-bold font-headline shrink-0 mb-6">Tableau de bord Administrateur</h1>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                {stat.loading ? (
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                ) : (
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto pr-2 -mr-2">
+        <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                <Card key={index}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                    {stat.loading ? (
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                        <div className="text-2xl font-bold">{stat.value}</div>
+                    )}
+                    </CardContent>
+                </Card>
+                );
+            })}
+            </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Activité Récente</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Les graphiques et les journaux d'activité seront affichés ici.</p>
-        </CardContent>
-      </Card>
+            <Card>
+            <CardHeader>
+                <CardTitle>Activité Récente</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">Les graphiques et les journaux d'activité seront affichés ici.</p>
+            </CardContent>
+            </Card>
+        </div>
+      </div>
     </div>
   );
 }
