@@ -3,83 +3,64 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if the user is the owner of the document.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
     function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Helper function to check if a user is a verified admin.
-    function isAdmin() {
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return request.auth.uid == userId;
     }
 
-    // Helper functions for user profile updates
-    function isUpdatingProfile(request, resource) {
-      let modifiableFields = ['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout'];
-      // Ensures no other fields besides the modifiable ones are being changed.
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(modifiableFields);
-    }
-    
-    function isRequestingCard(request, resource) {
-      let isChangingStatus = request.resource.data.cardStatus == 'requested' && resource.data.cardStatus == 'none';
-      // Ensures the card request happens in one go with its timestamp
-      return isChangingStatus && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt']);
+    function isAppendingToList(listName) {
+      // Handle the case where the list doesn't exist yet
+      let beforeSize = resource.data.keys().has(listName) ? resource.data[listName].size() : 0;
+      return request.resource.data[listName].size() == beforeSize + 1;
     }
 
-    function isManagingVirtualCards(request, resource) {
-      // Allows adding a card. For simplicity, we don't check for removal or modification here,
-      // as client logic handles creation only. A more robust rule could check array item properties.
-      let isAdding = request.resource.data.virtualCards.size() > resource.data.virtualCards.size();
-      // Ensures only the virtualCards field is being modified.
-      let isOnlyThisField = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards']);
-      return isAdding && isOnlyThisField;
-    }
-    
-    // Rules for the 'users' collection
-    match /users/{userId} {
-      // Users can read their own data. Admins can read any user data.
-      allow read: if isOwner(userId) || isAdmin();
-      
-      // Users can only create their own document.
-      allow create: if isOwner(userId);
-      
-      // Update logic:
-      // 1. Users can update their own profile with specific rules.
-      // 2. Admins can update any user profile.
-      allow update: if (isOwner(userId) && (
-                      isUpdatingProfile(request, resource) || 
-                      isRequestingCard(request, resource) ||
-                      isManagingVirtualCards(request, resource)
-                    )) || isAdmin();
-      
-      // No one can delete a user document through client-side requests.
-      allow delete: if false;
-    }
-    
-    // Rules for the 'admins' collection
     match /admins/{adminId} {
-        // Only other authenticated admins can read admin data
-        allow read: if isAdmin();
-        // Disallow client-side creation, update, or deletion of admins
-        allow write: if false;
+      allow read, write: if isAuthenticated() && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isAdmin == true;
     }
     
-    // Rules for the 'chats' collection
+    match /users/{userId} {
+      allow read, create: if isOwner(userId);
+
+      allow update: if isAuthenticated() && isOwner(userId) && (
+        // Profile Update: Allow updating a specific set of non-sensitive fields.
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'firstName', 'lastName', 'phone', 'dob', 'address', 'city', 
+            'postalCode', 'residenceCountry', 'profession', 'salary', 
+            'notificationPrefs', 'inactivityTimeout'
+        ])
+        ||
+        // Physical Card Request: Allow user to change status from 'none' to 'requested' and add a timestamp.
+        (
+          request.resource.data.cardStatus == 'requested' &&
+          resource.data.cardStatus == 'none' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt'])
+        )
+        ||
+        // Virtual Card Generation: Allow user to add one card to the virtualCards list.
+        (
+          isAppendingToList('virtualCards') &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards'])
+        )
+      );
+    }
+
     match /chats/{chatId} {
-      // Participants of the chat or admins can read/write the main chat document.
-      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+      allow read, write: if isAuthenticated() && request.auth.uid in resource.data.participants;
 
-      // Rules for the 'messages' subcollection within a chat
       match /messages/{messageId} {
-        // Allow read for chat participants or admins.
-        allow read: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]) || isAdmin();
+        allow read: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        
+        allow create: if isAuthenticated() 
+                      && request.auth.uid == request.resource.data.senderId 
+                      && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
 
-        // Allow creating messages if the user is a participant.
-        // Allow updating only the 'deletedForUser' field if they are the sender.
-        // Admins can hard delete any message.
-        allow create: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
-        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']) && resource.data.senderId == request.auth.uid;
-        allow delete: if isAdmin();
+        allow update: if isAuthenticated()
+                      && resource.data.senderId == request.auth.uid
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser'])
+                      && request.resource.data.deletedForUser == true;
       }
     }
   }
