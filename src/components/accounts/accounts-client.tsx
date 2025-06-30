@@ -15,7 +15,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { format } from 'date-fns';
-import { performInternalTransfer, type Account } from '@/lib/firebase/firestore';
+import { performSecureTransfer } from '@/ai/flows/internal-transfer-flow';
+import type { Account } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 const accountIcons: { [key: string]: React.ElementType } = {
@@ -53,12 +54,22 @@ function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { account
 
     setIsTransferring(true);
     try {
-      await performInternalTransfer(user.uid, fromAccountId, toAccountId, transferAmount);
-      toast({ title: 'Succès', description: 'Le virement interne a été effectué.' });
-      setFromAccountId('');
-      setToAccountId('');
-      setAmount('');
-      onTransferSuccess();
+      const result = await performSecureTransfer({
+        userId: user.uid,
+        fromAccountId,
+        toAccountId,
+        amount: transferAmount,
+      });
+      
+      if (result.success) {
+        toast({ title: 'Succès', description: 'Le virement interne a été effectué.' });
+        setFromAccountId('');
+        setToAccountId('');
+        setAmount('');
+        onTransferSuccess();
+      } else {
+        throw new Error(result.error || 'Une erreur est survenue lors du virement.');
+      }
     } catch (error) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Erreur de virement', description: (error as Error).message });
