@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useTransition } from 'react';
-import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, Timestamp, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { UserProfile, ChatMessage } from '@/lib/firebase/firestore';
 import { getOrCreateChatId, addMessageToChat } from '@/lib/firebase/firestore';
@@ -81,8 +81,9 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         return url;
     };
 
+    // Effect to get or create the chat session
     useEffect(() => {
-        if (user.uid && advisorId) {
+        if (!chatId && user.uid && advisorId) {
             setIsLoading(true);
             setError(null);
             getOrCreateChatId(user.uid, advisorId)
@@ -92,11 +93,37 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     setError(chatDict.connectionErrorText);
                 })
                 .finally(() => setIsLoading(false));
+        } else if (chatId) {
+            setIsLoading(false);
         }
-    }, [user.uid, advisorId, chatDict.connectionErrorText]);
+    }, [chatId, user.uid, advisorId, chatDict.connectionErrorText]);
 
+    // Effect to listen for chat document deletion by the admin
     useEffect(() => {
         if (!chatId) return;
+
+        const unsubscribeDoc = onSnapshot(doc(db, 'chats', chatId), 
+            (docSnap) => {
+                if (!docSnap.exists()) {
+                    console.warn("Chat document was deleted. Resetting chat state.");
+                    setChatId(null); // This will trigger a clean re-initialization of the chat
+                }
+            },
+            (err) => {
+                 console.warn("Error listening to chat document, likely deleted:", err);
+                 setChatId(null); // Also reset on error
+            }
+        );
+
+        return () => unsubscribeDoc();
+    }, [chatId]);
+
+    // Effect to listen for new messages
+    useEffect(() => {
+        if (!chatId) {
+            setMessages([]); // Clear messages if chat is reset
+            return;
+        };
 
         const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -115,22 +142,15 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 });
             });
             setMessages(msgs);
+            setError(null); // Clear any previous errors on successful fetch
         }, (err) => {
-            if (err.code === 'permission-denied') {
-                // This is an expected error when an admin deletes a conversation.
-                // We'll log it as a warning and reset the UI gracefully.
-                console.warn("Chat session listener failed (likely deleted by admin):", err.message);
-                setMessages([]);
-                setError(null); // Clear any previous errors
-            } else {
-                 // For other, unexpected errors, we should still show them.
-                 console.error("Unexpected chat error:", err);
-                 setError(chatDict.connectionErrorText);
-            }
+            // This error is expected if the admin deletes the chat.
+            // We just log it and let the document listener above handle the state reset.
+            console.warn("Message listener encountered an error:", err.message);
         });
 
         return () => unsubscribe();
-    }, [chatId, chatDict.connectionErrorText]);
+    }, [chatId]);
 
     useEffect(() => {
         scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -229,9 +249,9 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             <>
                 <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
                     <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
-                        <DialogHeader className="sr-only">
+                         <DialogHeader className="sr-only">
                            <DialogTitle>Aperçu de l'image</DialogTitle>
-                        </DialogHeader>
+                         </DialogHeader>
                         {previewImage && (
                             <div className="relative w-full h-full flex flex-col">
                                 <div className="relative flex-1">
