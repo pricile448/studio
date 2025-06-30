@@ -32,12 +32,11 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
   });
 
   try {
-    const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
-    const resource_type = mimeType.startsWith('image/') ? 'image' : 'raw';
-    
+    // Set resource_type to 'auto' to let Cloudinary automatically detect
+    // the file type (image, video, raw for PDFs/docs). This is the most robust method.
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: folder,
-      resource_type: resource_type,
+      resource_type: 'auto',
     });
     return result.secure_url;
   } catch (error: any) {

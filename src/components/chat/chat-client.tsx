@@ -54,27 +54,6 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
-const getDownloadUrl = (url: string, filename?: string) => {
-    if (!url || !url.includes('/upload/')) return url || '';
-
-    // Sanitize filename to remove problematic characters like slashes.
-    const sanitizedFilename = filename ? filename.replace(/[\s\\/]/g, '_') : '';
-
-    // If there's no filename or it becomes empty after sanitization,
-    // use a generic download flag.
-    if (!sanitizedFilename) {
-        return url.replace('/upload/', '/upload/fl_attachment/');
-    }
-
-    // URL-encode the sanitized filename for safety in the URL path.
-    const encodedFilename = encodeURIComponent(sanitizedFilename);
-    const attachmentFlag = `fl_attachment:${encodedFilename}`;
-
-    // Replace the first occurrence of /upload/ to insert the transformation.
-    return url.replace('/upload/', `/upload/${attachmentFlag}/`);
-};
-
-
 export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [chatId, setChatId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -275,7 +254,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                     <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                                         <Button variant="secondary" asChild>
-                                           <a href={getDownloadUrl(previewImage.url, previewImage.name)} download={previewImage.name}>
+                                           <a href={previewImage.url} download={previewImage.name}>
                                               <Download className="mr-2 h-4 w-4" />
                                               {dict.documents.download}
                                            </a>
@@ -349,8 +328,9 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                 </button>
                                             ) : msg.fileUrl ? (
                                                 <a
-                                                    href={getDownloadUrl(msg.fileUrl, msg.fileName)}
-                                                    download={msg.fileName || true}
+                                                    href={msg.fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                     className={cn(
                                                         "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                         isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"

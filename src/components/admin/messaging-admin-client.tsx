@@ -67,27 +67,6 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
-const getDownloadUrl = (url: string, filename?: string) => {
-    if (!url || !url.includes('/upload/')) return url || '';
-
-    // Sanitize filename to remove problematic characters like slashes.
-    const sanitizedFilename = filename ? filename.replace(/[\s\\/]/g, '_') : '';
-
-    // If there's no filename or it becomes empty after sanitization,
-    // use a generic download flag.
-    if (!sanitizedFilename) {
-        return url.replace('/upload/', '/upload/fl_attachment/');
-    }
-
-    // URL-encode the sanitized filename for safety in the URL path.
-    const encodedFilename = encodeURIComponent(sanitizedFilename);
-    const attachmentFlag = `fl_attachment:${encodedFilename}`;
-
-    // Replace the first occurrence of /upload/ to insert the transformation.
-    return url.replace('/upload/', `/upload/${attachmentFlag}/`);
-};
-
-
 function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -195,7 +174,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                 <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                 <div className="flex gap-2 w-full sm:w-auto justify-end">
                                     <Button variant="secondary" asChild>
-                                       <a href={getDownloadUrl(previewImage.url, previewImage.name)} download={previewImage.name}>
+                                       <a href={previewImage.url} download={previewImage.name}>
                                           <Download className="mr-2 h-4 w-4" />
                                           Télécharger
                                        </a>
@@ -258,8 +237,9 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             </button>
                                         ) : msg.fileUrl ? (
                                             <a 
-                                                href={getDownloadUrl(msg.fileUrl, msg.fileName)} 
-                                                download={msg.fileName || true} 
+                                                href={msg.fileUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 className={cn(
                                                     "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                     isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
