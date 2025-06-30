@@ -74,38 +74,67 @@ export function UsersClient() {
                 <CardTitle>Liste des utilisateurs</CardTitle>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Statut KYC</TableHead>
-                            <TableHead>Date d'inscription</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {users.map(user => (
-                            <TableRow key={user.uid}>
-                                <TableCell>{user.firstName} {user.lastName}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className={cn("border", getKycStatusVariant(user.kycStatus))}>
-                                        {translateKycStatus(user.kycStatus)}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>
-                                    {format(new Date(user.createdAt), 'dd MMMM yyyy', { locale: fr })}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={`/admin/users/${user.uid}`}>Gérer</Link>
-                                    </Button>
-                                </TableCell>
+                {/* Desktop view */}
+                <div className="hidden md:block">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nom</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Statut KYC</TableHead>
+                                <TableHead>Date d'inscription</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map(user => (
+                                <TableRow key={user.uid}>
+                                    <TableCell>{user.firstName} {user.lastName}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className={cn("border", getKycStatusVariant(user.kycStatus))}>
+                                            {translateKycStatus(user.kycStatus)}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        {format(new Date(user.createdAt), 'dd MMMM yyyy', { locale: fr })}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href={`/admin/users/${user.uid}`}>Gérer</Link>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                {/* Mobile view */}
+                <div className="md:hidden">
+                    <div className="space-y-4">
+                    {users.map(user => (
+                        <div key={user.uid} className="border rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between items-start gap-2">
+                                <div>
+                                    <p className="font-semibold">{user.firstName} {user.lastName}</p>
+                                    <p className="text-sm text-muted-foreground break-all">{user.email}</p>
+                                </div>
+                                <Badge variant="outline" className={cn("border shrink-0", getKycStatusVariant(user.kycStatus))}>
+                                    {translateKycStatus(user.kycStatus)}
+                                </Badge>
+                            </div>
+                            <div className="flex justify-between items-center text-sm pt-2 border-t">
+                                <p className="text-muted-foreground">
+                                    Inscrit le {format(new Date(user.createdAt), 'dd/MM/yy', { locale: fr })}
+                                </p>
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={`/admin/users/${user.uid}`}>Gérer</Link>
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                    </div>
+                </div>
             </CardContent>
         </Card>
     );

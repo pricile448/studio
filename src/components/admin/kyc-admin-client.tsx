@@ -11,6 +11,7 @@ import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { getFirebaseServices } from '@/lib/firebase/config';
+import Link from 'next/link';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -18,6 +19,7 @@ export function KycAdminClient() {
     const [requests, setRequests] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const { toast } = useToast();
 
     const fetchRequests = async () => {
         setLoading(true);
@@ -26,7 +28,7 @@ export function KycAdminClient() {
             setRequests(requestList);
         } catch (error) {
             console.error("Erreur lors de la récupération des demandes KYC:", error);
-            useToast().toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les demandes KYC.' });
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les demandes KYC.' });
         } finally {
             setLoading(false);
         }
@@ -40,12 +42,12 @@ export function KycAdminClient() {
         setUpdatingId(userId);
         try {
             await updateUserInFirestore(userId, { kycStatus: status }, adminDb);
-            useToast().toast({ title: 'Statut KYC mis à jour', description: `L'utilisateur a été ${status === 'verified' ? 'approuvé' : 'rejeté'}.` });
+            toast({ title: 'Statut KYC mis à jour', description: `L'utilisateur a été ${status === 'verified' ? 'approuvé' : 'rejeté'}.` });
             // Refresh list
             fetchRequests();
         } catch (error) {
             console.error("Erreur lors de la mise à jour du statut KYC:", error);
-            useToast().toast({ variant: 'destructive', title: 'Erreur', description: 'La mise à jour du statut a échoué.' });
+            toast({ variant: 'destructive', title: 'Erreur', description: 'La mise à jour du statut a échoué.' });
         } finally {
             setUpdatingId(null);
         }
@@ -76,6 +78,29 @@ export function KycAdminClient() {
         )
     }
 
+    const kycActionButtons = (userId: string) => {
+        if (updatingId === userId) {
+            return (
+                <Button variant="outline" size="sm" disabled>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                </Button>
+            );
+        }
+        return (
+            <>
+                <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => handleKycAction(userId, 'verified')}>
+                    <CheckCircle className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700 hover:bg-red-100" onClick={() => handleKycAction(userId, 'unverified')}>
+                    <XCircle className="h-5 w-5" />
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                    <Link href={`/admin/users/${userId}`}>Voir</Link>
+                </Button>
+            </>
+        );
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -85,43 +110,52 @@ export function KycAdminClient() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Date de soumission</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {requests.map(user => (
-                            <TableRow key={user.uid}>
-                                <TableCell>{user.firstName} {user.lastName}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>
-                                    {user.kycSubmittedAt ? format(new Date(user.kycSubmittedAt), 'dd MMMM yyyy', { locale: fr }) : 'N/A'}
-                                </TableCell>
-                                <TableCell className="text-right space-x-2">
-                                     {updatingId === user.uid ? (
-                                        <Button variant="outline" size="sm" disabled>
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                        </Button>
-                                     ) : (
-                                        <>
-                                            <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => handleKycAction(user.uid, 'verified')}>
-                                                <CheckCircle className="h-5 w-5" />
-                                            </Button>
-                                            <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700 hover:bg-red-100" onClick={() => handleKycAction(user.uid, 'unverified')}>
-                                                <XCircle className="h-5 w-5" />
-                                            </Button>
-                                        </>
-                                     )}
-                                </TableCell>
+                {/* Desktop view */}
+                <div className="hidden md:block">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Nom</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Date de soumission</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {requests.map(user => (
+                                <TableRow key={user.uid}>
+                                    <TableCell>{user.firstName} {user.lastName}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell>
+                                        {user.kycSubmittedAt ? format(new Date(user.kycSubmittedAt), 'dd MMMM yyyy', { locale: fr }) : 'N/A'}
+                                    </TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        {kycActionButtons(user.uid)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                 {/* Mobile view */}
+                 <div className="md:hidden">
+                    <div className="space-y-4">
+                        {requests.map(user => (
+                            <div key={user.uid} className="border rounded-lg p-4 space-y-3">
+                                <div>
+                                    <p className="font-semibold">{user.firstName} {user.lastName}</p>
+                                    <p className="text-sm text-muted-foreground break-all">{user.email}</p>
+                                </div>
+                                <div className="text-sm text-muted-foreground pt-2 border-t">
+                                    Soumis le: {user.kycSubmittedAt ? format(new Date(user.kycSubmittedAt), 'dd/MM/yy', { locale: fr }) : 'N/A'}
+                                </div>
+                                <div className="flex justify-end items-center gap-2">
+                                    {kycActionButtons(user.uid)}
+                                </div>
+                            </div>
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                </div>
             </CardContent>
         </Card>
     );
