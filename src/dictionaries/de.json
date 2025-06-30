@@ -359,7 +359,16 @@
       "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um neue Karten zu bestellen und Ihre Karteneinstellungen zu verwalten.",
       "request_pending_title": "Kartenantrag in Bearbeitung",
       "request_pending_description": "Wir haben Ihren Kartenantrag erhalten. Er wird bearbeitet und Sie werden benachrichtigt, wenn er versendet wird.",
-      "cardActive": "Karte Aktiv"
+      "cardActive": "Karte Aktiv",
+      "chooseCardType": "Wählen Sie Ihren Kartentyp",
+      "physicalCard": "Physische Karte",
+      "physicalCardDescription": "Erhalten Sie eine physische Bankkarte nach Hause. Ideal für Zahlungen im Geschäft und Bargeldabhebungen.",
+      "orderPhysical": "Bestellen",
+      "virtualCard": "Virtuelle Karte",
+      "virtualCardDescription": "Erzeugen Sie sofort eine Karte für Ihre Online-Zahlungen. Sicher und praktisch.",
+      "generateVirtual": "Erzeugen",
+      "virtualCardComingSoonTitle": "Bald verfügbar",
+      "virtualCardComingSoonDescription": "Die Erstellung von virtuellen Karten wird bald verfügbar sein."
     },
     "history": {
       "title": "Transaktionsverlauf",

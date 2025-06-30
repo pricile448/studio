@@ -17,7 +17,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CheckCircle } from 'lucide-react';
+import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CheckCircle, CreditCard, Smartphone } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -84,6 +84,13 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
        })
      }
   }
+
+  const handleOrderVirtualCard = () => {
+    toast({
+      title: cardsDict.virtualCardComingSoonTitle,
+      description: cardsDict.virtualCardComingSoonDescription,
+    });
+  };
 
   const renderContent = () => {
     if (userProfile.kycStatus === 'pending') {
@@ -251,28 +258,43 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           {/* Intentionally left blank. The button is in the footer. */}
         </CardContent>
         <CardFooter>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusCircle className="mr-2" />
-                {cardsDict.orderCard}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{cardsDict.request_card_confirm_title}</DialogTitle>
-                <DialogDescription>{cardsDict.request_card_confirm_description}</DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">{cardsDict.cancelButton}</Button>
-                </DialogClose>
-                <DialogClose asChild>
-                  <Button onClick={handleOrderCard}>{cardsDict.confirmOrder}</Button>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button>
+                    <PlusCircle className="mr-2" />
+                    {cardsDict.orderCard}
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-3xl">
+                    <DialogHeader>
+                        <DialogTitle>{cardsDict.chooseCardType}</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                        <Card className="flex flex-col">
+                            <CardHeader>
+                                <CreditCard className="h-8 w-8 mb-2 text-primary" />
+                                <CardTitle>{cardsDict.physicalCard}</CardTitle>
+                                <CardDescription>{cardsDict.physicalCardDescription}</CardDescription>
+                            </CardHeader>
+                             <CardFooter className="mt-auto">
+                                <DialogClose asChild>
+                                    <Button onClick={handleOrderCard} className="w-full">{cardsDict.orderPhysical}</Button>
+                                </DialogClose>
+                            </CardFooter>
+                        </Card>
+                        <Card className="flex flex-col">
+                            <CardHeader>
+                                <Smartphone className="h-8 w-8 mb-2 text-primary" />
+                                <CardTitle>{cardsDict.virtualCard}</CardTitle>
+                                <CardDescription>{cardsDict.virtualCardDescription}</CardDescription>
+                            </CardHeader>
+                            <CardFooter className="mt-auto">
+                                <Button onClick={handleOrderVirtualCard} className="w-full">{cardsDict.generateVirtual}</Button>
+                            </CardFooter>
+                        </Card>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </CardFooter>
       </Card>
     )

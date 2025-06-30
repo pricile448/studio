@@ -359,7 +359,16 @@
       "unverified_description": "Complete a sua verificação de identidade para encomendar novos cartões e gerir as configurações do seu cartão.",
       "request_pending_title": "Pedido de cartão em processamento",
       "request_pending_description": "Recebemos o seu pedido de cartão. Está a ser processado e será notificado quando for enviado.",
-      "cardActive": "Cartão Ativo"
+      "cardActive": "Cartão Ativo",
+      "chooseCardType": "Escolha o seu tipo de cartão",
+      "physicalCard": "Cartão Físico",
+      "physicalCardDescription": "Receba um cartão bancário físico em sua casa. Ideal para pagamentos em loja e levantamentos de dinheiro.",
+      "orderPhysical": "Pedir",
+      "virtualCard": "Cartão Virtual",
+      "virtualCardDescription": "Gere instantaneamente um cartão para os seus pagamentos online. Seguro e prático.",
+      "generateVirtual": "Gerar",
+      "virtualCardComingSoonTitle": "Em breve",
+      "virtualCardComingSoonDescription": "A geração de cartões virtuais estará disponível em breve."
     },
     "history": {
       "title": "Histórico de Transações",

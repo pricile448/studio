@@ -359,7 +359,16 @@
       "unverified_description": "Complete su verificación de identidad para pedir nuevas tarjetas y administrar la configuración de su tarjeta.",
       "request_pending_title": "Solicitud de tarjeta en curso",
       "request_pending_description": "Hemos recibido su solicitud de tarjeta. Se está procesando y se le notificará cuando se envíe.",
-      "cardActive": "Tarjeta Activa"
+      "cardActive": "Tarjeta Activa",
+      "chooseCardType": "Elija su tipo de tarjeta",
+      "physicalCard": "Tarjeta Física",
+      "physicalCardDescription": "Reciba una tarjeta bancaria física en su domicilio. Ideal para pagos en tienda y retiros de efectivo.",
+      "orderPhysical": "Pedir",
+      "virtualCard": "Tarjeta Virtual",
+      "virtualCardDescription": "Genere instantáneamente una tarjeta para sus pagos en línea. Segura y práctica.",
+      "generateVirtual": "Generar",
+      "virtualCardComingSoonTitle": "Próximamente",
+      "virtualCardComingSoonDescription": "La generación de tarjetas virtuales estará disponible próximamente."
     },
     "history": {
       "title": "Historial de Transacciones",

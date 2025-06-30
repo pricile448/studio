@@ -359,7 +359,16 @@
       "unverified_description": "Complete your identity verification to order new cards and manage your card settings.",
       "request_pending_title": "Card request in progress",
       "request_pending_description": "We have received your card request. It is being processed and you will be notified when it is shipped.",
-      "cardActive": "Card Active"
+      "cardActive": "Card Active",
+      "chooseCardType": "Choose Your Card Type",
+      "physicalCard": "Physical Card",
+      "physicalCardDescription": "Receive a physical bank card at your home. Ideal for in-store payments and cash withdrawals.",
+      "orderPhysical": "Order",
+      "virtualCard": "Virtual Card",
+      "virtualCardDescription": "Instantly generate a card for your online payments. Secure and practical.",
+      "generateVirtual": "Generate",
+      "virtualCardComingSoonTitle": "Coming Soon",
+      "virtualCardComingSoonDescription": "Virtual card generation will be available soon."
     },
     "history": {
       "title": "Transaction History",
