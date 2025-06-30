@@ -31,19 +31,18 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     secure: true,
   });
 
-  // Determine resource type based on MIME type for better handling of PDFs and other files.
-  // We upload PDFs as 'image' type so they are web-accessible by default for the viewer.
-  let resourceType: 'image' | 'video' | 'raw' = 'raw'; 
+  // Use 'auto' resource type to let Cloudinary handle detection, which is more robust.
+  // Explicitly set for image/video for clarity, but 'auto' would handle them too.
+  let resourceType: 'image' | 'video' | 'auto' = 'auto'; 
   try {
     const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
-    if (mimeType.startsWith('image/') || mimeType === 'application/pdf') {
+    if (mimeType.startsWith('image/')) {
         resourceType = 'image';
     } else if (mimeType.startsWith('video/')) {
         resourceType = 'video';
     }
   } catch (e) {
-      console.warn("Could not determine MIME type from data URI, defaulting to 'raw'.", e);
-      resourceType = 'raw';
+      console.warn("Could not determine MIME type from data URI, defaulting to 'auto'.", e);
   }
 
   try {
