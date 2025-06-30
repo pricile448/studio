@@ -15,6 +15,7 @@ type AuthContextType = {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  refreshUserProfile: () => Promise<void>;
   login: (email: string, password: string) => Promise<UserCredential>;
   signup: (userData: RegistrationData, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -49,6 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => unsubscribe();
   }, []);
+  
+  const refreshUserProfile = async () => {
+    if (user) {
+        setLoading(true);
+        const profile = await getUserFromFirestore(user.uid);
+        setUserProfile(profile);
+        setLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -109,9 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     // Refresh local state
-    const profile = await getUserFromFirestore(user.uid);
-    setUserProfile(profile);
-    setUser(auth.currentUser);
+    await refreshUserProfile();
   }
 
   const updateUserPassword = async (password: string) => {
@@ -123,16 +131,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) throw new Error("No user is signed in.");
     await updateUserInFirestore(user.uid, { kycStatus: status, kycSubmittedAt: serverTimestamp() });
     // Refresh local state
-    const profile = await getUserFromFirestore(user.uid);
-    setUserProfile(profile);
+    await refreshUserProfile();
   };
   
   const requestCard = async () => {
     if (!user) throw new Error("No user is signed in.");
     await updateUserInFirestore(user.uid, { cardStatus: 'requested', cardRequestedAt: serverTimestamp() });
     // Refresh local state
-    const profile = await getUserFromFirestore(user.uid);
-    setUserProfile(profile);
+    await refreshUserProfile();
   };
 
   const uploadDocument = async (file: File, documentName: string) => {
@@ -160,8 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await updateUserInFirestore(user.uid, { documents: updatedDocuments });
       
       // Refresh local state
-      const profile = await getUserFromFirestore(user.uid);
-      setUserProfile(profile);
+      await refreshUserProfile();
   };
 
   const deleteConversation = async (chatId: string) => {
@@ -172,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await softDeleteUserMessage(chatId, messageId);
   };
 
-  const value = { user, userProfile, loading, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, uploadDocument, deleteConversation, deleteMessage };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, uploadDocument, deleteConversation, deleteMessage };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

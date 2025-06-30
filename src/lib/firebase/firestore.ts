@@ -7,6 +7,7 @@ export type Account = {
   balance: number;
   currency: string;
   accountNumber: string;
+  status: 'active' | 'suspended';
 };
 
 export type Transaction = {
@@ -110,9 +111,9 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
   const userRef = doc(defaultDb, "users", userData.uid);
   
   const defaultAccounts: Account[] = [
-    { id: 'checking-1', name: 'checking', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 1234' },
-    { id: 'savings-1', name: 'savings', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 5678' },
-    { id: 'credit-1', name: 'credit', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 9010' },
+    { id: 'checking-1', name: 'checking', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 1234', status: 'active' },
+    { id: 'savings-1', name: 'savings', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 5678', status: 'active' },
+    { id: 'credit-1', name: 'credit', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 9010', status: 'active' },
   ];
 
   const fullProfile: Omit<UserProfile, 'createdAt'> = {
@@ -378,6 +379,183 @@ export async function addFundsToAccount(userId: string, accountId: string, amoun
     transactions: transactions
   });
 }
+
+export async function debitFundsFromAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const userData = userSnap.data();
+  
+  const accounts: Account[] = userData.accounts || [];
+  const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+
+  if (accountIndex === -1) {
+    throw new Error("Compte non trouvé.");
+  }
+  
+  const debitAmount = Math.abs(amount) * -1; // ensure it's a negative value
+  accounts[accountIndex].balance += debitAmount;
+  
+  const newTransaction = {
+    id: `txn_${Date.now()}`,
+    accountId: accountId,
+    date: Timestamp.now(),
+    description: description,
+    amount: debitAmount,
+    currency: 'EUR',
+    category: 'Prélèvement Administratif',
+    status: 'completed'
+  };
+  
+  const transactions = userData.transactions ? [...userData.transactions, newTransaction] : [newTransaction];
+
+  await updateDoc(userRef, {
+    accounts: accounts,
+    transactions: transactions
+  });
+}
+
+export async function updateUserAccountDetails(userId: string, accountId: string, details: Partial<Account>, db: Firestore = defaultDb): Promise<void> {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+        throw new Error("Utilisateur non trouvé.");
+    }
+
+    const userData = userSnap.data();
+    const accounts: Account[] = userData.accounts || [];
+    const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+
+    if (accountIndex === -1) {
+        throw new Error("Compte non trouvé.");
+    }
+
+    accounts[accountIndex] = { ...accounts[accountIndex], ...details };
+
+    await updateDoc(userRef, {
+        accounts: accounts
+    });
+}
+
+export async function resetAccountBalance(userId: string, accountId: string, db: Firestore = defaultDb): Promise<void> {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+        throw new Error("Utilisateur non trouvé.");
+    }
+
+    const userData = userSnap.data();
+    const accounts: Account[] = userData.accounts || [];
+    const accountIndex = accounts.findIndex(acc => acc.id === accountId);
+
+    if (accountIndex === -1) {
+        throw new Error("Compte non trouvé.");
+    }
+    
+    const currentBalance = accounts[accountIndex].balance;
+    const adjustmentAmount = -currentBalance;
+    accounts[accountIndex].balance = 0;
+
+    if (adjustmentAmount !== 0) {
+        const newTransaction = {
+            id: `txn_${Date.now()}`,
+            accountId: accountId,
+            date: Timestamp.now(),
+            description: "Remise à zéro du compte par un administrateur",
+            amount: adjustmentAmount,
+            currency: 'EUR',
+            category: 'Ajustement Administratif',
+            status: 'completed'
+        };
+        const transactions = userData.transactions ? [...userData.transactions, newTransaction] : [newTransaction];
+        await updateDoc(userRef, {
+            accounts: accounts,
+            transactions: transactions
+        });
+    } else {
+        await updateDoc(userRef, {
+            accounts: accounts
+        });
+    }
+}
+
+
+export async function performInternalTransfer(userId: string, fromAccountId: string, toAccountId: string, amount: number, db: Firestore = defaultDb): Promise<void> {
+    const userRef = doc(db, "users", userId);
+    
+    if (fromAccountId === toAccountId) {
+        throw new Error("Les comptes de départ et d'arrivée ne peuvent pas être identiques.");
+    }
+
+    const transferAmount = Math.abs(amount);
+    if (transferAmount <= 0) {
+        throw new Error("Le montant du virement doit être positif.");
+    }
+
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+        throw new Error("Utilisateur non trouvé.");
+    }
+
+    const userData = userSnap.data();
+    const accounts: Account[] = userData.accounts || [];
+
+    const fromAccountIndex = accounts.findIndex(acc => acc.id === fromAccountId);
+    const toAccountIndex = accounts.findIndex(acc => acc.id === toAccountId);
+
+    if (fromAccountIndex === -1 || toAccountIndex === -1) {
+        throw new Error("Un ou plusieurs comptes sont introuvables.");
+    }
+    
+    if (accounts[fromAccountIndex].balance < transferAmount) {
+        throw new Error("Solde insuffisant sur le compte de départ.");
+    }
+
+    // Update balances
+    accounts[fromAccountIndex].balance -= transferAmount;
+    accounts[toAccountIndex].balance += transferAmount;
+    
+    // Create transactions
+    const now = Timestamp.now();
+    const fromAccountName = accounts[fromAccountIndex].name === 'checking' ? 'Compte Courant' : (accounts[fromAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
+    const toAccountName = accounts[toAccountIndex].name === 'checking' ? 'Compte Courant' : (accounts[toAccountIndex].name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
+
+    const debitTransaction = {
+        id: `txn_d_${Date.now()}`,
+        accountId: fromAccountId,
+        date: now,
+        description: `Virement vers ${toAccountName}`,
+        amount: -transferAmount,
+        currency: 'EUR',
+        category: 'Virement interne',
+        status: 'completed'
+    };
+    
+    const creditTransaction = {
+        id: `txn_c_${Date.now()}`,
+        accountId: toAccountId,
+        date: now,
+        description: `Virement depuis ${fromAccountName}`,
+        amount: transferAmount,
+        currency: 'EUR',
+        category: 'Virement interne',
+        status: 'completed'
+    };
+
+    const transactions = userData.transactions ? [...userData.transactions, debitTransaction, creditTransaction] : [debitTransaction, creditTransaction];
+    
+    await updateDoc(userRef, {
+        accounts: accounts,
+        transactions: transactions
+    });
+}
+
 
 export async function generateUserIban(userId: string, db: Firestore = defaultDb): Promise<{iban: string, bic: string}> {
   const userRef = doc(db, "users", userId);

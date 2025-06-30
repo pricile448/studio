@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, PiggyBank, CreditCard, ArrowLeftRight, Scale } from 'lucide-react';
+import { DollarSign, PiggyBank, CreditCard, ArrowLeftRight, Scale, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -15,18 +15,52 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 import { format } from 'date-fns';
+import { performInternalTransfer, type Account } from '@/lib/firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
-const accountIcons: { [key: string]: React.ElementType } = {
-  checking: DollarSign,
-  savings: PiggyBank,
-  credit: CreditCard,
-};
+function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { accounts: Account[], dict: Dictionary['accounts'], lang: Locale, onTransferSuccess: () => void }) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [fromAccountId, setFromAccountId] = useState<string>('');
+  const [toAccountId, setToAccountId] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [isTransferring, setIsTransferring] = useState(false);
 
-function InternalTransfer({ accounts, dict, lang }: { accounts: { id: string; name: string; balance: number }[], dict: Dictionary['accounts'], lang: Locale }) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
   };
   
+  const handleTransfer = async () => {
+    if (!user || !fromAccountId || !toAccountId || !amount) {
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Veuillez remplir tous les champs.' });
+      return;
+    }
+    const transferAmount = parseFloat(amount);
+    if (transferAmount <= 0) {
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Le montant doit être positif.' });
+      return;
+    }
+    if (fromAccountId === toAccountId) {
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Les comptes ne peuvent pas être identiques.' });
+      return;
+    }
+
+    setIsTransferring(true);
+    try {
+      await performInternalTransfer(user.uid, fromAccountId, toAccountId, transferAmount);
+      toast({ title: 'Succès', description: 'Le virement interne a été effectué.' });
+      setFromAccountId('');
+      setToAccountId('');
+      setAmount('');
+      onTransferSuccess();
+    } catch (error) {
+      console.error(error);
+      toast({ variant: 'destructive', title: 'Erreur de virement', description: (error as Error).message });
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -37,14 +71,14 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: { id: string; na
          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="from">{dict.fromAccount}</Label>
-              <Select disabled={accounts.length === 0}>
+              <Select value={fromAccountId} onValueChange={setFromAccountId} disabled={accounts.length === 0}>
                 <SelectTrigger id="from">
                   <SelectValue placeholder={dict.fromAccount} />
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map(account => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {dict[account.name as keyof typeof dict]} - {formatCurrency(account.balance)}
+                    <SelectItem key={account.id} value={account.id} disabled={account.status !== 'active'}>
+                      {dict[account.name as keyof typeof dict]} - {formatCurrency(account.balance)} {account.status !== 'active' && "(Suspendu)"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -52,14 +86,14 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: { id: string; na
             </div>
              <div className="space-y-2">
               <Label htmlFor="to">{dict.toAccount}</Label>
-              <Select disabled={accounts.length === 0}>
+              <Select value={toAccountId} onValueChange={setToAccountId} disabled={accounts.length === 0}>
                 <SelectTrigger id="to">
                   <SelectValue placeholder={dict.toAccount} />
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map(account => (
-                    <SelectItem key={account.id} value={account.id}>
-                       {dict[account.name as keyof typeof dict]} - {formatCurrency(account.balance)}
+                    <SelectItem key={account.id} value={account.id} disabled={account.status !== 'active'}>
+                       {dict[account.name as keyof typeof dict]} - {formatCurrency(account.balance)} {account.status !== 'active' && "(Suspendu)"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -68,12 +102,12 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: { id: string; na
           </div>
           <div className="space-y-2">
             <Label htmlFor="amount">{dict.transferAmount}</Label>
-            <Input id="amount" type="number" placeholder="0.00" disabled={accounts.length === 0} />
+            <Input id="amount" type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} disabled={accounts.length === 0} />
           </div>
       </CardContent>
       <CardFooter>
-        <Button disabled={accounts.length === 0}>
-          <ArrowLeftRight className="mr-2 h-4 w-4" />
+        <Button onClick={handleTransfer} disabled={accounts.length === 0 || isTransferring || !fromAccountId || !toAccountId || !amount}>
+          {isTransferring ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowLeftRight className="mr-2 h-4 w-4" />}
           {dict.submitTransfer}
         </Button>
       </CardFooter>
@@ -82,7 +116,7 @@ function InternalTransfer({ accounts, dict, lang }: { accounts: { id: string; na
 }
 
 export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading, refreshUserProfile } = useAuth();
 
   if (loading || !userProfile || !dict) {
     return (
@@ -170,7 +204,7 @@ export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale 
         })}
       </div>
       
-      <InternalTransfer accounts={accounts} dict={accountsDict} lang={lang} />
+      <InternalTransfer accounts={accounts} dict={accountsDict} lang={lang} onTransferSuccess={refreshUserProfile} />
       
       <Card>
         <CardHeader>
