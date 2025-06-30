@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { cn, getCloudinaryDownloadUrl } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle, FileText } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
@@ -174,7 +174,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                 <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                 <div className="flex gap-2 w-full sm:w-auto justify-end">
                                     <Button variant="secondary" asChild>
-                                       <a href={getCloudinaryDownloadUrl(previewImage.url, previewImage.name)} download>
+                                       <a href={previewImage.url} download={previewImage.name}>
                                           <Download className="mr-2 h-4 w-4" />
                                           Télécharger
                                        </a>
@@ -237,7 +237,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             </button>
                                         ) : msg.fileUrl ? (
                                             <a
-                                                href={getCloudinaryDownloadUrl(msg.fileUrl, msg.fileName)}
+                                                href={msg.fileUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className={cn(

@@ -31,26 +31,10 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     secure: true,
   });
 
-  // Explicitly set resource type based on MIME type to avoid incorrect detection.
-  // PDFs and other documents should be uploaded as 'raw' to ensure public accessibility.
-  let resourceType: 'image' | 'video' | 'raw' = 'image';
-  try {
-    const mimeType = dataUri.substring(dataUri.indexOf(':') + 1, dataUri.indexOf(';'));
-    if (mimeType.startsWith('image/')) {
-        resourceType = 'image';
-    } else if (mimeType.startsWith('video/')) {
-        resourceType = 'video';
-    } else {
-        resourceType = 'raw';
-    }
-  } catch (e) {
-      console.warn("Could not determine MIME type from data URI, defaulting to 'image'.", e);
-  }
-
   try {
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: folder,
-      resource_type: resourceType,
+      resource_type: "auto",
       // Use the original filename but ensure it's unique by default.
       // This makes URLs more readable and helps with debugging.
       use_filename: true,
@@ -65,4 +49,3 @@ export async function uploadToCloudinary(dataUri: string, folder: string): Promi
     throw new Error(`Cloudinary Error: ${errorMessage}`);
   }
 }
-

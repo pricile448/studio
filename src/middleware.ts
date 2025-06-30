@@ -31,6 +31,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Exclure tous les chemins internes (_next) et les ressources statiques
-    '/((?!api|_next/static|_next/image|favicon.ico|view-pdf).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
