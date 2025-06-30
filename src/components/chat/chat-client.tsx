@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn, getCloudinaryDownloadUrl } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Download, FileText } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
@@ -254,7 +254,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                     <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                                         <Button variant="secondary" asChild>
-                                           <a href={getCloudinaryDownloadUrl(previewImage.url)} download>
+                                           <a href={previewImage.url} download={previewImage.name}>
                                               <Download className="mr-2 h-4 w-4" />
                                               {dict.documents.download}
                                            </a>
@@ -328,9 +328,10 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                 </button>
                                             ) : msg.fileUrl ? (
                                                 <a
-                                                    href={getCloudinaryDownloadUrl(msg.fileUrl)}
+                                                    href={msg.fileUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
+                                                    download={msg.fileName}
                                                     className={cn(
                                                         "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                         isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
