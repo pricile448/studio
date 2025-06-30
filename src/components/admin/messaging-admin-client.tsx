@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef, useTransition } from 'react';
 import { collection, query, onSnapshot, Timestamp, orderBy } from 'firebase/firestore';
 import type { ChatMessage, UserProfile } from '@/lib/firebase/firestore';
-import { addMessageToChat, getUserFromFirestore } from '@/lib/firebase/firestore';
+import { addMessageToChat, getUserFromFirestore, getAllUsers, getOrCreateChatId } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare, Trash2, Paperclip, File as FileIcon, ArrowLeft, Download } from 'lucide-react';
+import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
 import {
@@ -33,6 +33,7 @@ import {
   DialogClose,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { getFirebaseServices } from '@/lib/firebase/config';
@@ -72,7 +73,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
-    const { deleteAdminMessage } = useAdminAuth();
+    const { deleteConversation: resetConversation } = useAdminAuth();
     const [isDeleting, startDeleteTransition] = useTransition();
     const isMobile = useIsMobile();
     const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
@@ -150,14 +151,16 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
         }
     };
 
-    const handleDeleteAdminMessage = (messageId?: string) => {
+    const handleResetMessage = (messageId?: string) => {
         if (!messageId) return;
         startDeleteTransition(async () => {
             try {
-                await deleteAdminMessage(chatSession.id, messageId);
-                toast({ title: "Message supprimé définitivement." });
+                // This function is now for resetting individual messages if needed,
+                // for now we only reset the whole conversation.
+                // await deleteAdminMessage(chatSession.id, messageId);
+                toast({ title: "Action non implémentée." });
             } catch (error) {
-                toast({ variant: 'destructive', title: 'Erreur', description: "Impossible de supprimer le message." });
+                toast({ variant: 'destructive', title: 'Erreur', description: "Impossible de réinitialiser le message." });
             }
         });
     };
@@ -223,29 +226,6 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
 
                         return (
                              <div key={msg.id} className={cn('group flex items-end gap-2', isAdmin ? 'justify-end' : 'justify-start')}>
-                                {isAdmin && (
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                            <AlertDialogTitle>Supprimer ce message définitivement ?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                Cette action est irréversible. Le message sera définitivement supprimé pour vous et pour l'utilisateur.
-                                            </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeleteAdminMessage(msg.id)} disabled={isDeleting}>
-                                                {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
-                                            </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                )}
                                 {!isAdmin && (
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src={chatSession.otherParticipant.avatar} />
@@ -324,10 +304,15 @@ export function MessagingAdminClient() {
     const [chats, setChats] = useState<ChatSession[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isDeleting, startDeleteTransition] = useTransition();
+    const [isResetting, startResetTransition] = useTransition();
     const { toast } = useToast();
     const isMobile = useIsMobile();
     const ADVISOR_ID = 'advisor_123';
+    
+    const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
+    const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+    const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+
 
     useEffect(() => {
         if (!user) return;
@@ -382,19 +367,47 @@ export function MessagingAdminClient() {
         return () => unsubscribe();
     }, [user]);
 
-    const handleDelete = (chatId: string) => {
-        startDeleteTransition(async () => {
+    const handleResetConversation = (chatId: string) => {
+        startResetTransition(async () => {
             try {
                 await deleteConversation(chatId);
-                toast({ title: 'Conversation supprimée', description: 'La conversation a été supprimée avec succès.' });
+                toast({ title: 'Conversation réinitialisée', description: 'La conversation a été vidée de ses messages.' });
                 if(selectedChatId === chatId) {
                     setSelectedChatId(null);
                 }
             } catch (error) {
-                toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer la conversation.' });
+                toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de réinitialiser la conversation.' });
             }
         });
     }
+
+    const handleOpenNewChatDialog = async () => {
+        setIsNewChatDialogOpen(true);
+        if (allUsers.length > 0) return;
+
+        setIsLoadingUsers(true);
+        try {
+            const users = await getAllUsers(adminDb);
+            const usersWithoutAdmin = users.filter(u => u.uid !== user?.uid);
+            setAllUsers(usersWithoutAdmin);
+        } catch (e) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les utilisateurs.' });
+        } finally {
+            setIsLoadingUsers(false);
+        }
+    };
+    
+    const handleSelectUserForNewChat = async (selectedUser: UserProfile) => {
+        if (!user) return;
+        try {
+            const newChatId = await getOrCreateChatId(selectedUser.uid, user.uid, adminDb);
+            setSelectedChatId(newChatId);
+            setIsNewChatDialogOpen(false);
+        } catch (e) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de créer ou de trouver la session de chat.' });
+        }
+    }
+
 
     if (isLoading || !user || !userProfile) {
         return <Skeleton className="h-full w-full" />;
@@ -405,8 +418,37 @@ export function MessagingAdminClient() {
     
     const conversationList = (
         <>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Conversations</CardTitle>
+                <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={handleOpenNewChatDialog}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Nouvelle
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                      <DialogHeader>
+                          <DialogTitle>Démarrer une nouvelle conversation</DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-4">
+                          <ScrollArea className="h-72">
+                            {isLoadingUsers ? <div className="flex justify-center items-center h-full"><Loader2 className="h-6 w-6 animate-spin"/></div> : (
+                              <ul className="space-y-1">
+                                {allUsers.length > 0 ? allUsers.map(u => (
+                                  <li key={u.uid}>
+                                    <button onClick={() => handleSelectUserForNewChat(u)} className="w-full text-left p-2 hover:bg-muted rounded-md transition-colors">
+                                      <p className="font-medium">{u.firstName} {u.lastName}</p>
+                                      <p className="text-sm text-muted-foreground">{u.email}</p>
+                                    </button>
+                                  </li>
+                                )) : <p className="text-muted-foreground text-center p-4">Aucun utilisateur à qui envoyer un message.</p>}
+                              </ul>
+                            )}
+                          </ScrollArea>
+                      </div>
+                  </DialogContent>
+                </Dialog>
             </CardHeader>
             <Separator />
             <ScrollArea className="flex-1 min-h-0">
@@ -422,20 +464,20 @@ export function MessagingAdminClient() {
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-50 hover:opacity-100 transition-opacity">
-                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                        <RefreshCw className="h-4 w-4 text-destructive" />
                                     </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                    <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette conversation ?</AlertDialogTitle>
+                                    <AlertDialogTitle>Réinitialiser cette conversation ?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Cette action est irréversible. La conversation sera définitivement supprimée.
+                                        Cette action est irréversible. Tous les messages de cette conversation seront définitivement supprimés. La conversation restera dans votre liste, vide.
                                     </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                     <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDelete(chat.id)} disabled={isDeleting}>
-                                        {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
+                                    <AlertDialogAction onClick={() => handleResetConversation(chat.id)} disabled={isResetting}>
+                                        {isResetting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Réinitialiser"}
                                     </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -453,7 +495,7 @@ export function MessagingAdminClient() {
         <div className="hidden md:flex flex-col items-center justify-center h-full text-center p-8">
             <MessageSquare className="h-16 w-16 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">Sélectionnez une conversation</h3>
-            <p className="text-muted-foreground">Choisissez une conversation dans la liste de gauche pour afficher les messages.</p>
+            <p className="text-muted-foreground">Choisissez une conversation dans la liste de gauche pour afficher les messages ou créez-en une nouvelle.</p>
         </div>
     );
 
