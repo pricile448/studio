@@ -174,7 +174,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                 <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                 <div className="flex gap-2 w-full sm:w-auto justify-end">
                                     <Button variant="secondary" asChild>
-                                       <a href={getCloudinaryDownloadUrl(previewImage.url)} download={previewImage.name}>
+                                       <a href={getCloudinaryDownloadUrl(previewImage.url)} download>
                                           <Download className="mr-2 h-4 w-4" />
                                           Télécharger
                                        </a>
@@ -235,9 +235,9 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             >
                                                 <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
                                             </button>
-                                        ) : msg.fileUrl ? (
+                                        ) : msg.fileUrl && msg.fileType === 'application/pdf' ? (
                                             <a
-                                                href={msg.fileUrl!}
+                                                href={`/view-pdf?url=${encodeURIComponent(msg.fileUrl!)}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className={cn(
@@ -245,7 +245,18 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                                     isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
                                                 )}
                                                 >
-                                                {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
+                                                <FileText className="h-6 w-6 flex-shrink-0" />
+                                                <span className="font-medium truncate">{msg.fileName || 'Fichier PDF'}</span>
+                                            </a>
+                                        ) : msg.fileUrl ? (
+                                            <a
+                                                href={getCloudinaryDownloadUrl(msg.fileUrl)}
+                                                className={cn(
+                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                    isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                )}
+                                                >
+                                                <FileIcon className="h-6 w-6 flex-shrink-0" />
                                                 <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
                                         ) : null}
@@ -508,5 +519,3 @@ export function MessagingAdminClient() {
         </div>
     );
 }
-
-    
