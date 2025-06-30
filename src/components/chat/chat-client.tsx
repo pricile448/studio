@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Download } from 'lucide-react';
+import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Download, FileText } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
@@ -54,6 +54,16 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
+const getDownloadUrl = (url: string, filename?: string) => {
+    if (!url.includes('/upload/')) return url;
+    const parts = url.split('/upload/');
+    // Encode filename and replace spaces with underscores for compatibility
+    const safeFilename = filename ? encodeURIComponent(filename.replace(/\s/g, '_')) : '';
+    const attachmentFlag = safeFilename ? `fl_attachment:${safeFilename}` : 'fl_attachment';
+    return `${parts[0]}/upload/${attachmentFlag}/${parts[1]}`;
+};
+
+
 export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [chatId, setChatId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -70,15 +80,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     
     const advisorId = userProfile?.advisorId || 'advisor_123';
     const chatDict = dict.chat;
-
-    const getDownloadUrl = (url: string) => {
-        if (!url.includes('/upload/')) return url;
-        const parts = url.split('/upload/');
-        if (!parts[1].startsWith('image/')) {
-            return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
-        }
-        return url;
-    };
 
     // Effect to get or create the chat session
     useEffect(() => {
@@ -263,7 +264,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                     <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                                         <Button variant="secondary" asChild>
-                                           <a href={getDownloadUrl(previewImage.url)} download={previewImage.name}>
+                                           <a href={getDownloadUrl(previewImage.url, previewImage.name)} download={previewImage.name}>
                                               <Download className="mr-2 h-4 w-4" />
                                               {dict.documents.download}
                                            </a>
@@ -322,29 +323,46 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                         'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                         isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                     )}>
-                                       <div className={cn(msg.text ? "mb-1" : "")}>
+                                        <div className={cn(msg.text ? 'mb-1' : '')}>
                                             {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
                                                 <button
-                                                    onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
-                                                    className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
+                                                onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
+                                                className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
                                                 >
-                                                    <Image
-                                                        src={msg.fileUrl}
-                                                        alt={msg.fileName || 'Image en pièce jointe'}
-                                                        fill
-                                                        style={{objectFit: 'cover'}}
-                                                    />
+                                                <Image
+                                                    src={msg.fileUrl}
+                                                    alt={msg.fileName || 'Image en pièce jointe'}
+                                                    fill
+                                                    style={{ objectFit: 'cover' }}
+                                                />
                                                 </button>
-                                            ) : msg.fileUrl && (
-                                                <a href={getDownloadUrl(msg.fileUrl)} download={msg.fileName || true} target="_blank" rel="noopener noreferrer" className={cn(
-                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                                    isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
-                                                )}>
+                                            ) : msg.fileUrl && msg.fileType === 'application/pdf' ? (
+                                                <a
+                                                    href={msg.fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={cn(
+                                                        "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                        isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                    )}
+                                                >
+                                                    <FileText className="h-6 w-6 flex-shrink-0" />
+                                                    <span className="font-medium truncate">{msg.fileName || 'Document PDF'}</span>
+                                                </a>
+                                            ) : msg.fileUrl ? (
+                                                <a
+                                                    href={getDownloadUrl(msg.fileUrl, msg.fileName)}
+                                                    download={msg.fileName || true}
+                                                    className={cn(
+                                                        "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                        isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                    )}
+                                                >
                                                     <FileIcon className="h-6 w-6 flex-shrink-0" />
                                                     <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
                                                 </a>
-                                            )}
-                                            </div>
+                                            ) : null}
+                                        </div>
                                         {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
                                         <p className={cn("text-xs mt-1 text-right", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
                                             {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

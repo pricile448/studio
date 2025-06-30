@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle } from 'lucide-react';
+import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle, FileText } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '../ui/skeleton';
 import {
@@ -67,6 +67,15 @@ const convertFileToDataUri = (file: File): Promise<string> => {
     });
 };
 
+const getDownloadUrl = (url: string, filename?: string) => {
+    if (!url.includes('/upload/')) return url;
+    const parts = url.split('/upload/');
+    // Encode filename and replace spaces with underscores for compatibility
+    const safeFilename = filename ? encodeURIComponent(filename.replace(/\s/g, '_')) : '';
+    const attachmentFlag = safeFilename ? `fl_attachment:${safeFilename}` : 'fl_attachment';
+    return `${parts[0]}/upload/${attachmentFlag}/${parts[1]}`;
+};
+
 function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -78,16 +87,6 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
     const [isDeleting, startDeleteTransition] = useTransition();
     const isMobile = useIsMobile();
     const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
-
-    const getDownloadUrl = (url: string) => {
-        if (!url.includes('/upload/')) return url;
-        const parts = url.split('/upload/');
-        // Add the download flag for non-image files
-        if (!parts[1].startsWith('image/')) {
-            return `${parts[0]}/upload/fl_attachment/${parts[1]}`;
-        }
-        return url;
-    };
 
     useEffect(() => {
         const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
@@ -184,7 +183,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                 <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
                                 <div className="flex gap-2 w-full sm:w-auto justify-end">
                                     <Button variant="secondary" asChild>
-                                       <a href={getDownloadUrl(previewImage.url)} download={previewImage.name}>
+                                       <a href={getDownloadUrl(previewImage.url, previewImage.name)} download={previewImage.name}>
                                           <Download className="mr-2 h-4 w-4" />
                                           Télécharger
                                        </a>
@@ -237,20 +236,31 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                     'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
-                                    <div className={cn(msg.text ? "mb-1" : "")}>
-                                        {msg.fileUrl && msg.fileType?.startsWith("image/") ? (
+                                    <div className={cn(msg.text ? 'mb-1' : '')}>
+                                        {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
                                             <button
                                                 onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
                                                 className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
                                             >
                                                 <Image src={msg.fileUrl!} alt={msg.fileName || 'Pièce jointe'} fill style={{objectFit: 'cover'}}/>
                                             </button>
-                                        ) : msg.fileUrl && (
-                                            <a 
-                                                href={getDownloadUrl(msg.fileUrl)} 
-                                                download={msg.fileName || true} 
+                                        ) : msg.fileUrl && msg.fileType === 'application/pdf' ? (
+                                            <a
+                                                href={msg.fileUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
+                                                className={cn(
+                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                    isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                )}
+                                            >
+                                                <FileText className="h-6 w-6 flex-shrink-0" />
+                                                <span className="font-medium truncate">{msg.fileName || 'Document PDF'}</span>
+                                            </a>
+                                        ) : msg.fileUrl ? (
+                                            <a 
+                                                href={getDownloadUrl(msg.fileUrl, msg.fileName)} 
+                                                download={msg.fileName || true} 
                                                 className={cn(
                                                     "flex items-center gap-2 p-2 rounded-md transition-colors",
                                                     isAdmin ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
@@ -259,7 +269,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                                 <FileIcon className="h-6 w-6 flex-shrink-0" />
                                                 <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
-                                        )}
+                                        ) : null}
                                     </div>
                                     {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
                                     <p className={cn("text-xs mt-1 text-right", isAdmin ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
