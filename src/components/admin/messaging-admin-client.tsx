@@ -68,13 +68,25 @@ const convertFileToDataUri = (file: File): Promise<string> => {
 };
 
 const getDownloadUrl = (url: string, filename?: string) => {
-    if (!url.includes('/upload/')) return url;
-    const parts = url.split('/upload/');
-    // Encode filename and replace spaces with underscores for compatibility
-    const safeFilename = filename ? encodeURIComponent(filename.replace(/\s/g, '_')) : '';
-    const attachmentFlag = safeFilename ? `fl_attachment:${safeFilename}` : 'fl_attachment';
-    return `${parts[0]}/upload/${attachmentFlag}/${parts[1]}`;
+    if (!url || !url.includes('/upload/')) return url || '';
+
+    // Sanitize filename to remove problematic characters like slashes.
+    const sanitizedFilename = filename ? filename.replace(/[\s\\/]/g, '_') : '';
+
+    // If there's no filename or it becomes empty after sanitization,
+    // use a generic download flag.
+    if (!sanitizedFilename) {
+        return url.replace('/upload/', '/upload/fl_attachment/');
+    }
+
+    // URL-encode the sanitized filename for safety in the URL path.
+    const encodedFilename = encodeURIComponent(sanitizedFilename);
+    const attachmentFlag = `fl_attachment:${encodedFilename}`;
+
+    // Replace the first occurrence of /upload/ to insert the transformation.
+    return url.replace('/upload/', `/upload/${attachmentFlag}/`);
 };
+
 
 function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
