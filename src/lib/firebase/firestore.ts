@@ -709,7 +709,7 @@ export async function updateTransferStatus(userId: string, transactionId: string
     if (transactionIndex === -1) throw new Error("Transaction non trouvée.");
     
     transactions[transactionIndex].status = newStatus;
-    transactions[transactionIndex].updatedAt = serverTimestamp();
+    transactions[transactionIndex].updatedAt = Timestamp.now();
 
     await updateDoc(userRef, { transactions });
 }
@@ -740,7 +740,7 @@ export async function executeTransfer(userId: string, transactionId: string, db:
 
     // Mettre à jour le statut de la transaction à 'completed'
     transactions[transactionIndex].status = 'completed';
-    transactions[transactionIndex].updatedAt = serverTimestamp();
+    transactions[transactionIndex].updatedAt = Timestamp.now();
 
     await updateDoc(userRef, { accounts, transactions });
 }
