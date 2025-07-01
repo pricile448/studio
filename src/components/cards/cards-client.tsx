@@ -89,7 +89,6 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
   const { userProfile, loading, requestCard, requestVirtualCard, updateUserProfileData } = useAuth();
-  const [isFrozen, setIsFrozen] = useState(false);
   const [limit, setLimit] = useState(userProfile?.cardLimits?.monthly || 2000);
   const [newLimit, setNewLimit] = useState(limit);
   const [showPin, setShowPin] = useState(false);
@@ -99,6 +98,10 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   const [showPhysicalInfo, setShowPhysicalInfo] = useState(false);
   const [showVirtualInfo, setShowVirtualInfo] = useState(false);
   const [isRequestingVirtual, setIsRequestingVirtual] = useState(false);
+
+  // New states for interactive card
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [isTogglingFreeze, setIsTogglingFreeze] = useState(false);
 
   const cardsDict = dict.cards;
   const kycDict = dict.kyc;
@@ -121,13 +124,22 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
 
   const handleToggleFreeze = async () => {
     if (!userProfile.physicalCard) return;
-    const newFrozenState = !isFrozen;
-    setIsFrozen(newFrozenState);
-    // In a real app, this would be a backend call
-    // await updateUserProfileData({ physicalCard: { ...userProfile.physicalCard, isFrozen: newFrozenState } });
-    toast({
-      title: newFrozenState ? cardsDict.cardFrozen : cardsDict.cardUnfrozen,
-    });
+    setIsTogglingFreeze(true);
+    const newStatus = userProfile.cardStatus === 'active' ? 'suspended' : 'active';
+    try {
+        await updateUserProfileData({ cardStatus: newStatus });
+        toast({
+            title: newStatus === 'suspended' ? cardsDict.cardFrozen : cardsDict.cardUnfrozen,
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: "Error",
+            description: (error as Error).message
+        });
+    } finally {
+        setIsTogglingFreeze(false);
+    }
   };
 
   const handleSetLimit = async () => {
@@ -206,35 +218,49 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.physicalCard}</h2>
           {userProfile.cardStatus === 'active' && physicalCard && (
              <div className="grid gap-8 lg:grid-cols-3">
-              <div className="lg:col-span-1">
-                <div className={cn(
-                  "aspect-[85.6/53.98] bg-gradient-to-br p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
-                  cardStyleClasses[physicalCard.type],
-                  userProfile.cardStatus === 'suspended' && "grayscale opacity-50"
-                )}>
-                  <div className="flex justify-between items-start">
-                    <span className="font-semibold">{cardsDict.cardBankName}</span>
-                    <Wifi className="h-6 w-6" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-4 font-mono text-xl tracking-widest">
-                      <span>{physicalCard.number.substring(0,4)}</span>
-                      <span>{physicalCard.number.substring(4,8)}</span>
-                      <span>{physicalCard.number.substring(8,12)}</span>
-                      <span>{physicalCard.number.substring(12,16)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm uppercase">
-                      <div>
-                        <p className="text-xs opacity-80">{cardsDict.cardHolder}</p>
-                        <p className="font-medium">{userProfile.firstName} {userProfile.lastName}</p>
+              <div className="card-flip-container lg:col-span-1 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+                  <div className={cn("card-flipper relative w-full aspect-[85.6/53.98]", isFlipped && "is-flipped")}>
+                      {/* Card Front */}
+                      <div className={cn(
+                          "card-front bg-gradient-to-br p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
+                          cardStyleClasses[physicalCard.type],
+                          userProfile.cardStatus === 'suspended' && "grayscale opacity-50"
+                      )}>
+                          <div className="flex justify-between items-start">
+                              <span className="font-semibold">{cardsDict.cardBankName}</span>
+                              <Wifi className="h-6 w-6" />
+                          </div>
+                          <div className="space-y-2">
+                              <div className="flex items-center gap-4 font-mono text-xl tracking-widest">
+                                  <span>{physicalCard.number.substring(0, 4)}</span>
+                                  <span>{physicalCard.number.substring(4, 8)}</span>
+                                  <span>{physicalCard.number.substring(8, 12)}</span>
+                                  <span>{physicalCard.number.substring(12, 16)}</span>
+                              </div>
+                              <div className="flex justify-between text-sm uppercase">
+                                  <div>
+                                      <p className="text-xs opacity-80">{cardsDict.cardHolder}</p>
+                                      <p className="font-medium">{userProfile.firstName} {userProfile.lastName}</p>
+                                  </div>
+                                  <div>
+                                      <p className="text-xs opacity-80">{cardsDict.validThru}</p>
+                                      <p className="font-medium">{physicalCard.expiry}</p>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
-                      <div>
-                        <p className="text-xs opacity-80">{cardsDict.validThru}</p>
-                        <p className="font-medium">{physicalCard.expiry}</p>
+                      {/* Card Back */}
+                       <div className={cn(
+                          "card-back bg-gradient-to-br rounded-xl shadow-lg flex flex-col",
+                          cardStyleClasses[physicalCard.type]
+                      )}>
+                          <div className="h-12 bg-black mt-8" aria-label={cardsDict.magneticStripe}></div>
+                          <div className="bg-white text-black p-2 mx-6 mt-4 rounded-md text-right">
+                              <span className="text-sm">CVV</span>
+                              <span className="font-mono font-bold ml-2">{physicalCard.cvv}</span>
+                          </div>
                       </div>
-                    </div>
                   </div>
-                </div>
               </div>
               <div className="lg:col-span-2">
                 <Card>
@@ -257,6 +283,11 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+
+                     <Button variant="outline" className="w-full" onClick={handleToggleFreeze} disabled={isTogglingFreeze}>
+                      {isTogglingFreeze ? <Loader2 className="mr-2 animate-spin" /> : <Snowflake className="mr-2" />}
+                      {userProfile.cardStatus === 'suspended' ? cardsDict.unfreeze : cardsDict.freeze}
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -370,22 +401,20 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
                             {(['essentielle', 'precieuse', 'luminax'] as const).map(type => (
                                 <DialogClose asChild key={type}>
-                                <Card
+                                <div
                                     onClick={() => handleOrderPhysicalCard(type)}
-                                    className="cursor-pointer hover:shadow-xl hover:border-primary transition-all group"
+                                    className="cursor-pointer hover:shadow-xl hover:border-primary transition-all group border rounded-lg"
                                 >
-                                    <CardContent className="p-0">
-                                        <div className={cn("aspect-[85.6/53.98] bg-gradient-to-br p-4 flex flex-col justify-between rounded-t-lg", cardStyleClasses[type])}>
-                                          <span className="font-semibold text-lg">{cardsDict[type].title}</span>
-                                          <p className="text-xs opacity-90">{cardsDict[type].description}</p>
-                                        </div>
-                                        <div className="p-4">
-                                            <Button variant="link" className="p-0 w-full justify-start group-hover:underline">
-                                                {cardsDict.selectCard} {cardsDict[type].title}
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                    <div className={cn("aspect-[85.6/53.98] bg-gradient-to-br p-4 flex flex-col justify-between rounded-t-lg", cardStyleClasses[type])}>
+                                      <span className="font-semibold text-lg">{cardsDict[type].title}</span>
+                                      <p className="text-xs opacity-90">{cardsDict[type].description}</p>
+                                    </div>
+                                    <div className="p-4">
+                                        <Button variant="link" className="p-0 w-full justify-start group-hover:underline">
+                                            {cardsDict.selectCard} {cardsDict[type].title}
+                                        </Button>
+                                    </div>
+                                </div>
                                 </DialogClose>
                             ))}
                         </div>
