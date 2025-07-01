@@ -40,21 +40,7 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-const VisaLogo = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 75 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M24.654 16.531H21.574L19.006 4.31H22.1L23.402 11.833C23.518 12.502 23.611 13.061 23.682 13.621H23.753C23.824 13.061 23.987 12.392 24.08 11.833L25.666 4.31H28.5L24.654 16.531Z" fill="white"/>
-    <path d="M18.665 4.31L14.735 16.531H11.5L15.43 4.31H18.665Z" fill="white"/>
-    <path d="M11.233 4.31H8.053L5.044 13.914C4.951 14.249 4.88 14.474 4.88 14.809C4.88 15.253 5.239 15.456 5.869 15.456C6.275 15.456 6.546 15.391 6.881 15.188L7.334 16.3C6.775 16.613 6.099 16.741 5.38 16.741C3.608 16.741 2.5 15.894 2.5 14.39C2.5 12.863 3.324 11.961 3.999 10.613L5.915 5.923C6.204 5.232 6.429 4.935 7.148 4.638L7.518 4.31H11.233ZM8.337 11.299L7.263 8.356L6.592 10.024L8.337 11.299Z" fill="white"/>
-    <path d="M0 4.31L4.16 16.531H7.43L3.27 4.31H0Z" fill="white"/>
-    <path d="M37.135 7.152C37.135 4.957 38.684 4.31 40.456 4.31C42.061 4.31 43.681 4.821 44.869 5.512L45.893 4.419C44.479 3.486 42.753 3 40.666 3C36.989 3 34.205 4.549 34.205 7.628C34.205 9.78 35.803 10.99 37.495 11.63L38.259 11.915C39.191 12.274 39.528 12.529 39.528 12.93C39.528 13.485 38.831 13.82 37.899 13.82C36.463 13.82 35.39 13.332 34.544 12.821L33.566 13.864C34.799 14.731 36.326 15.188 37.877 15.188C41.69 15.188 44.258 13.621 44.258 10.968C44.258 8.484 41.734 7.65 39.528 6.915L38.853 6.676C38.018 6.385 37.135 6.094 37.135 5.512V7.152Z" fill="#1A1F71"/>
-    <path d="M50.158 15H53V3.232H50.158V15Z" fill="#1A1F71"/>
-    <path d="M60.156 3.232C59.224 3.232 58.527 3.743 58.117 4.381L53.259 15H56.339L57.036 12.887H61.802L62.212 15H65L61.765 3.232H60.156ZM59.527 10.749L60.759 7.02L61.594 10.749H59.527Z" fill="#1A1F71"/>
-    <path d="M74.998 11.343V15H72.156V3.232H74.694L74.787 3.342C74.95 3.523 75 10.454 75 11.343H74.998Z" fill="#1A1F71"/>
-    <path d="M66.435 15H69.465L66.528 3.232H63.498L66.435 15Z" fill="#1A1F71"/>
-  </svg>
-);
-
+import Image from 'next/image';
 
 function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, isFlipped }: { card: VirtualCard, dict: Dictionary['cards'], userProfile: UserProfile | null, onToggleFreeze: (cardId: string) => void, onFlip: () => void, isFlipped: boolean }) {
     const [showDetails, setShowDetails] = useState(false);
@@ -98,7 +84,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                                 </div>
                             </div>
                         </div>
-                        <VisaLogo className="absolute bottom-4 right-6 h-6 w-auto" />
+                        <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 right-6" />
                     </div>
                      {/* Card Back */}
                     <div className={cn(
@@ -110,7 +96,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                             <span className="text-sm">CVV</span>
                             <span className="font-mono font-bold ml-2">{card.cvv}</span>
                         </div>
-                         <VisaLogo className="absolute bottom-4 left-6 h-6 w-auto" />
+                         <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 left-6" />
                     </div>
                 </div>
             </div>
@@ -352,7 +338,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                                   </div>
                               </div>
                           </div>
-                          <VisaLogo className="absolute bottom-4 right-6 h-6 w-auto" />
+                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 right-6" />
                       </div>
                       {/* Card Back */}
                        <div className={cn(
@@ -365,7 +351,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                               <span className="text-sm">CVV</span>
                               <span className="font-mono font-bold ml-2">{physicalCard.cvv}</span>
                           </div>
-                          <VisaLogo className="absolute bottom-4 left-6 h-6 w-auto" />
+                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 left-6" />
                       </div>
                   </div>
               </div>
@@ -542,7 +528,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                                     <div className={cn("aspect-[85.6/53.98] bg-gradient-to-br p-4 flex flex-col justify-between rounded-t-lg relative", cardStyleClasses[type])}>
                                       <span className="font-semibold text-lg">{cardsDict[type].title}</span>
                                       <p className="text-xs opacity-90">{cardsDict[type].description}</p>
-                                      <VisaLogo className="absolute bottom-2 right-4 h-6 w-auto" />
+                                      <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={50} height={16} className="absolute bottom-2 right-4" />
                                     </div>
                                     <div className="p-4">
                                         <Button variant="link" className="p-0 w-full justify-start group-hover:underline">
