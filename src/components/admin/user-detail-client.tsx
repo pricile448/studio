@@ -2,11 +2,11 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions, updateUserInFirestore } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions, updateUserInFirestore, VirtualCard } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -28,8 +28,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar } from '../ui/calendar';
 import Link from 'next/link';
+import { Timestamp } from 'firebase/firestore';
+
 
 const { db: adminDb } = getFirebaseServices('admin');
 
@@ -174,131 +175,126 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
     );
 }
 
-function CardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
-    const [newLimit, setNewLimit] = useState(user.cardLimits?.monthly || 2000);
-    const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
 
-    const handleAction = async (updateData: Partial<UserProfile>, successMsg: string) => {
+    const handleGenerateVirtualCard = async () => {
         setIsLoading(true);
         try {
-            await updateUserInFirestore(user.uid, updateData, adminDb);
-            onUpdate({ ...user, ...updateData });
-            toast({ title: 'Succès', description: successMsg });
+            const newCard: VirtualCard = {
+                id: `vc_${Date.now()}`,
+                type: 'virtual',
+                status: 'active',
+                name: 'Carte virtuelle',
+                number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
+                expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
+                cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
+                limit: 1000,
+                isFrozen: false,
+                createdAt: Timestamp.now(),
+            };
+            
+            const updatedVirtualCards = [...(user.virtualCards || []), newCard];
+            await updateUserInFirestore(user.uid, { virtualCards: updatedVirtualCards }, adminDb);
+
+            onUpdate({ ...user, virtualCards: updatedVirtualCards });
+            toast({ title: 'Succès', description: "Nouvelle carte virtuelle générée pour l'utilisateur." });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
         } finally {
             setIsLoading(false);
         }
     };
-    
-    const requestCard = () => handleAction({ cardStatus: 'requested', cardRequestedAt: new Date() }, "Demande de carte enregistrée.");
-    const activateCard = () => handleAction({ cardStatus: 'active' }, "Carte activée.");
-    const suspendCard = () => handleAction({ cardStatus: 'suspended' }, "Carte suspendue.");
-    const reactivateCard = () => handleAction({ cardStatus: 'active' }, "Carte réactivée.");
-    const cancelCard = () => handleAction({ cardStatus: 'none', cardLimits: { monthly: 2000, withdrawal: 500 } }, "Carte et demande annulées.");
 
-    const handleLimitSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleAction({ cardLimits: { ...user.cardLimits!, monthly: newLimit }}, "Plafond de la carte mis à jour.");
-        setIsLimitDialogOpen(false);
+    const handleAction = async (action: () => Promise<any>, successMsg: string, errorMsg: string) => {
+        setIsLoading(true);
+        try {
+            await action();
+            toast({ title: 'Succès', description: successMsg });
+        } catch (error) {
+            console.error(errorMsg, error);
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || errorMsg });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleToggleFreeze = async (cardId: string) => {
+        const cardIndex = user.virtualCards.findIndex(c => c.id === cardId);
+        if (cardIndex === -1) return;
+
+        const updatedCards = [...user.virtualCards];
+        const newStatus = !updatedCards[cardIndex].isFrozen;
+        updatedCards[cardIndex].isFrozen = newStatus;
+
+        await handleAction(
+            () => updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb),
+            `Carte ${newStatus ? 'suspendue' : 'réactivée'}.`,
+            'Erreur lors du changement de statut de la carte.'
+        );
+        onUpdate({ ...user, virtualCards: updatedCards });
     };
 
-    const getStatusBadge = (status: UserProfile['cardStatus']) => {
-        switch(status) {
-            case 'active': return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-            case 'suspended': return <Badge variant="destructive">Suspendue</Badge>;
-            case 'requested': return <Badge className="bg-blue-100 text-blue-800">Demandée</Badge>;
-            case 'none':
-            default: return <Badge variant="secondary">Aucune</Badge>;
-        }
-    }
-    
+    const handleDeleteCard = async (cardId: string) => {
+        const updatedCards = user.virtualCards.filter(c => c.id !== cardId);
+
+        await handleAction(
+            () => updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb),
+            `Carte virtuelle supprimée.`,
+            'Erreur lors de la suppression de la carte.'
+        );
+        onUpdate({ ...user, virtualCards: updatedCards });
+    };
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Gestion de la carte</CardTitle>
-                <CardDescription>
-                    Gérer la carte de paiement de l'utilisateur. Statut actuel : {getStatusBadge(user.cardStatus)}
-                </CardDescription>
+                <CardTitle>Gestion des cartes virtuelles</CardTitle>
+                <CardDescription>Gérer les cartes virtuelles de paiement de l'utilisateur.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+                <Button onClick={handleGenerateVirtualCard} disabled={isLoading || user.kycStatus !== 'verified'}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                    Générer une carte virtuelle
+                </Button>
                 {user.kycStatus !== 'verified' && (
                     <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
                 )}
                 
-                <div className="p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h4 className="font-semibold">Plafond mensuel</h4>
-                        <p className="text-2xl font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(user.cardLimits?.monthly || 0)}</p>
-                    </div>
-                     <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}>
-                        <DialogTrigger asChild>
-                           <Button variant="outline" disabled={isLoading || user.cardStatus !== 'active'}>Modifier le plafond</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Modifier le plafond mensuel</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={handleLimitSubmit} className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="limit">Nouveau plafond</Label>
-                                    <Input id="limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} />
+                <Separator />
+
+                <div className="space-y-4">
+                    {(user.virtualCards || []).map(card => (
+                         <div key={card.id} className="p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <p className="font-semibold">{card.name} (.... {card.number.slice(-4)})</p>
+                                    <Badge variant={card.isFrozen ? "destructive" : "outline"} className={!card.isFrozen ? "border-green-300 text-green-700 bg-green-50" : ""}>
+                                      {card.isFrozen ? 'Suspendue' : 'Active'}
+                                    </Badge>
                                 </div>
-                                <DialogFooter>
-                                    <DialogClose asChild><Button type="button" variant="ghost">Annuler</Button></DialogClose>
-                                    <Button type="submit" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}Enregistrer</Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                
-                <div>
-                    <h4 className="font-semibold mb-2">Actions Administrateur</h4>
-                    <div className="flex flex-wrap gap-2">
-                       {user.cardStatus === 'none' && (
-                            <Button onClick={requestCard} disabled={isLoading || user.kycStatus !== 'verified'}>
-                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Forcer une demande de carte
-                            </Button>
-                        )}
-                        {user.cardStatus === 'requested' && (
-                            <Button onClick={activateCard} disabled={isLoading || user.kycStatus !== 'verified'}>
-                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Forcer l'activation de la carte
-                            </Button>
-                        )}
-                        {user.cardStatus === 'active' && (
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" disabled={isLoading}>Suspendre la carte</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader><AlertDialogTitle>Suspendre la carte ?</AlertDialogTitle><AlertDialogDescription>La carte sera temporairement inutilisable.</AlertDialogDescription></AlertDialogHeader>
-                                    <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={suspendCard}>Confirmer</AlertDialogAction></AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        )}
-                         {user.cardStatus === 'suspended' && (
-                            <Button onClick={reactivateCard} disabled={isLoading} className="bg-green-600 hover:bg-green-700">
-                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Réactiver la carte
-                            </Button>
-                        )}
-                        {(user.cardStatus === 'active' || user.cardStatus === 'suspended' || user.cardStatus === 'requested') && (
-                             <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                     <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isLoading}>Annuler et Réinitialiser</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader><AlertDialogTitle>Annuler la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible et remettra le statut de la carte à "Aucune".</AlertDialogDescription></AlertDialogHeader>
-                                    <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={cancelCard} className="bg-destructive hover:bg-destructive/90">Confirmer</AlertDialogAction></AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        )}
-                    </div>
+                                <p className="text-sm text-muted-foreground">Plafond: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(card.limit)}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => handleToggleFreeze(card.id)} disabled={isLoading}>
+                                    {card.isFrozen ? 'Réactiver' : 'Suspendre'}
+                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" size="sm" disabled={isLoading}>Supprimer</Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader><AlertDialogTitle>Supprimer la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
+                                        <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteCard(card.id)}>Confirmer</AlertDialogAction></AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                         </div>
+                    ))}
+                    {(!user.virtualCards || user.virtualCards.length === 0) && (
+                        <p className="text-muted-foreground text-center py-4">Cet utilisateur n'a aucune carte virtuelle.</p>
+                    )}
                 </div>
 
             </CardContent>
@@ -794,7 +790,7 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                         <IbanManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="cards">
-                        <CardManagement user={user} onUpdate={handleUpdate} />
+                        <VirtualCardManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                 </Tabs>
             </div>

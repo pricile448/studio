@@ -14,9 +14,17 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CheckCircle, CreditCard, Smartphone, Loader2 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import type { VirtualCard } from '@/lib/firebase/firestore';
@@ -66,7 +74,7 @@ function VirtualCardDisplay({ card, dict }: { card: VirtualCard, dict: Dictionar
 
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, requestCard, generateVirtualCard } = useAuth();
+  const { userProfile, loading, requestCard } = useAuth();
   const [isFrozen, setIsFrozen] = useState(false);
   const [limit, setLimit] = useState(2000);
   const [newLimit, setNewLimit] = useState(limit);
@@ -74,6 +82,9 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   const [isOrdering, setIsOrdering] = useState(false);
   const { toast } = useToast();
   
+  const [showPhysicalInfo, setShowPhysicalInfo] = useState(false);
+  const [showVirtualInfo, setShowVirtualInfo] = useState(false);
+
   const cardsDict = dict.cards;
   const kycDict = dict.kyc;
 
@@ -112,9 +123,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
      setIsOrdering(true);
      try {
        await requestCard();
-       toast({
-        title: cardsDict.card_request_success,
-       });
+       setShowPhysicalInfo(true);
      } catch (error) {
        console.error(error);
        toast({
@@ -127,24 +136,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
      }
   }
 
-  const handleGenerateVirtualCard = async () => {
-    setIsOrdering(true);
-    try {
-      await generateVirtualCard();
-      toast({
-        title: "Carte virtuelle générée !",
-        description: "Votre nouvelle carte virtuelle est prête à être utilisée."
-      });
-    } catch (error) {
-       console.error(error);
-       toast({
-        variant: 'destructive',
-        title: "Erreur",
-        description: (error as Error).message
-       })
-    } finally {
-      setIsOrdering(false);
-    }
+  const handleGenerateVirtualCard = () => {
+    setShowVirtualInfo(true);
   };
 
   const renderContent = () => {
@@ -361,8 +354,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                             </CardHeader>
                             <CardFooter className="mt-auto">
                                 <DialogClose asChild>
-                                    <Button onClick={handleGenerateVirtualCard} className="w-full" disabled={isOrdering}>
-                                        {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
+                                    <Button onClick={handleGenerateVirtualCard} className="w-full">
                                         {cardsDict.generateVirtual}
                                     </Button>
                                 </DialogClose>
@@ -379,6 +371,33 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
 
   return (
     <div className="space-y-6">
+      <AlertDialog open={showPhysicalInfo} onOpenChange={setShowPhysicalInfo}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Demande de carte physique enregistrée</AlertDialogTitle>
+            <AlertDialogDescription>
+              Votre demande a bien été prise en compte. Votre carte physique vous sera envoyée à votre adresse enregistrée et prendra plus de temps à arriver. Vous serez notifié de son expédition.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowPhysicalInfo(false)}>Compris</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showVirtualInfo} onOpenChange={setShowVirtualInfo}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Demande de carte virtuelle enregistrée</AlertDialogTitle>
+            <AlertDialogDescription>
+              Votre demande a bien été prise en compte. Votre nouvelle carte virtuelle sera disponible sur votre compte dans un délai de 24 heures.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowVirtualInfo(false)}>Compris</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{cardsDict.title}</h1>
          {userProfile.cardStatus === 'active' && (
@@ -400,8 +419,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                       <DialogFooter>
                           <DialogClose asChild><Button variant="ghost">Annuler</Button></DialogClose>
                           <DialogClose asChild>
-                             <Button onClick={handleGenerateVirtualCard} disabled={isOrdering}>
-                                {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
+                             <Button onClick={handleGenerateVirtualCard}>
                                 {cardsDict.generateVirtual}
                               </Button>
                           </DialogClose>
