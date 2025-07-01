@@ -29,7 +29,7 @@ import { z } from 'zod';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import Link from 'next/link';
-import { Timestamp, serverTimestamp } from 'firebase/firestore';
+import { Timestamp, serverTimestamp, deleteField } from 'firebase/firestore';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '../ui/separator';
 
