@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -221,7 +220,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         {/* Physical Card Section */}
         <div>
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.physicalCard}</h2>
-          {userProfile.cardStatus === 'active' && physicalCard && (
+          {(userProfile.cardStatus === 'active' || userProfile.cardStatus === 'suspended') && physicalCard && (
              <div className="grid gap-8 lg:grid-cols-3">
               <div className="card-flip-container lg:col-span-1 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
                   <div className={cn("card-flipper relative w-full aspect-[85.6/53.98]", isFlipped && "is-flipped")}>
