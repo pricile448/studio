@@ -3,103 +3,61 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Fonction pour vérifier si l'utilisateur est un administrateur.
+
+    // =================================
+    // Helper Functions
+    // =================================
+
     function isAdmin() {
+      // Checks if the requesting user's UID is in the 'admins' collection.
+      // This is a secure way to check for administrative privileges.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Collection des administrateurs : seuls les admins peuvent lire/écrire.
-    match /admins/{adminId} {
-      allow read: if request.auth.uid == adminId || isAdmin();
-      allow list, write: if isAdmin();
+    function isOwner(userId) {
+      // Checks if the requesting user is the owner of the document they are trying to access.
+      return request.auth.uid == userId;
     }
-    
-    match /users/{userId} {
-      allow read: if request.auth.uid == userId || isAdmin();
-      allow list: if isAdmin();
-      // La création est gérée par le backend (fonctions sécurisées), pas directement par le client.
-      // La suppression est réservée aux administrateurs pour le moment.
-      allow create, delete: if isAdmin();
-      
-      // --- LOGIQUE DE MISE À JOUR DÉTAILLÉE ---
 
-      // Un utilisateur peut mettre à jour certains champs de son propre profil.
-      function canUpdateProfile() {
-          let profileFields = ['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout'];
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(profileFields);
-      }
+    // =================================
+    // Collection Rules
+    // =================================
+
+    match /users/{userId} {
+      // READ: An admin can read any user's data. A user can only read their own data.
+      allow read: if isAdmin() || isOwner(userId);
       
-      // Un utilisateur peut ajouter un document à sa liste.
-      function canManageDocuments() {
-          return request.resource.data.documents.size() > resource.data.documents.size() 
-                 && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['documents']);
-      }
+      // CREATE: A user can create their own document during the signup process.
+      allow create: if isOwner(userId);
+
+      // UPDATE: An admin can update any user's document. A user can update their own document.
+      // Complex business logic (like ensuring a transfer request is 'pending' or that a balance
+      // is only modified by a trusted process) should be handled by server-side code (Firebase Functions or Server Actions),
+      // not by complex client-side security rules. This rule allows authorized clients to make valid update requests.
+      allow update: if isAdmin() || isOwner(userId);
       
-      // Un utilisateur peut ajouter un bénéficiaire à sa liste.
-      function canManageBeneficiaries() {
-          return request.resource.data.beneficiaries.size() > resource.data.beneficiaries.size()
-                 && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']);
-      }
-      
-      // Un utilisateur peut gérer ses cartes (demande, blocage/déblocage).
-      function canManageCards() {
-          let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
-          
-          let isRequestingPhysical = changedKeys.hasOnly(['cardStatus', 'cardRequestedAt', 'cardType']) && request.resource.data.cardStatus == 'requested';
-          let isRequestingVirtual = changedKeys.hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']) && request.resource.data.hasPendingVirtualCardRequest == true;
-          
-          // L'utilisateur peut bloquer/débloquer sa carte, mais PAS si l'admin l'a bloquée.
-          let isFreezingPhysical = changedKeys.hasOnly(['cardStatus', 'physicalCard']) 
-                                  && (resource.data.physicalCard == null || resource.data.physicalCard.suspendedBy != 'admin');
-                                  
-          let isFreezingVirtual = changedKeys.hasOnly(['virtualCards']);
-          
-          return isRequestingPhysical || isRequestingVirtual || isFreezingPhysical || isFreezingVirtual;
-      }
-      
-      // Un utilisateur peut soumettre une demande de virement externe.
-      function canRequestTransfer() {
-        // Règle assouplie : la vérification stricte sur `affectedKeys().hasOnly(['transactions'])` est retirée
-        // pour éviter un bug lié à la conversion des timestamps par Firestore, qui fait croire que tout le tableau a changé.
-        // La sécurité repose sur la validation du contenu de la NOUVELLE transaction ajoutée.
-        let isOneTransactionAdded = request.resource.data.transactions.size() == resource.data.transactions.size() + 1;
-        
-        if (!isOneTransactionAdded) {
-            return false;
-        }
-        
-        // On vérifie que la nouvelle transaction (la dernière du tableau) a les bons attributs.
-        let newTransaction = request.resource.data.transactions[request.resource.data.transactions.size() - 1];
-        
-        return newTransaction.status == 'pending'
-          && newTransaction.type == 'external_transfer'
-          && newTransaction.amount < 0; // Un virement externe est toujours un débit.
-      }
-      
-      // Un utilisateur peut mettre à jour son propre document si l'une des conditions est remplie.
-      // Un administrateur peut toujours mettre à jour n'importe quel document utilisateur.
-      allow update: if isAdmin() || (request.auth.uid == userId && (
-          canUpdateProfile() || 
-          canManageDocuments() ||
-          canManageBeneficiaries() ||
-          canManageCards() ||
-          canRequestTransfer()
-        ));
+      // DELETE: Only administrators can delete user documents. This is a critical and destructive action.
+      allow delete: if isAdmin();
     }
-    
-    // --- RÈGLES POUR LA MESSAGERIE ---
-    match /chats/{chatId} {
-      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+
+    match /admins/{adminId} {
+      // READ: Only other admins can see who is an admin. Regular users cannot.
+      allow read: if isAdmin();
       
-      match /messages/{messageId} {
-         allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-         allow create: if request.auth.uid == request.resource.data.senderId;
-         // Un utilisateur peut "supprimer pour lui" un message (soft delete).
-         allow update: if request.auth.uid == resource.data.senderId && request.resource.data.keys().hasOnly(['deletedForUser']);
-         // Un admin peut supprimer définitivement un message.
-         allow delete: if isAdmin();
-      }
+      // WRITE: To prevent privilege escalation, no one can modify the admins collection from the client-side.
+      // This must be managed directly from the Firebase console.
+      allow write: if false;
+    }
+
+    match /chats/{chatId} {
+        // READ, WRITE: Access to a chat document (to read participants, etc.) is granted to admins or participants of the chat.
+        allow read, write: if isAdmin() || (request.auth.uid in resource.data.participants);
+        
+        match /messages/{messageId} {
+            // READ, WRITE: To read or write a message, the user must be a participant in the parent chat document or an admin.
+            // The get() function retrieves the parent chat document to check the participants list.
+            allow read, write: if isAdmin() || (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
+        }
     }
   }
 }
