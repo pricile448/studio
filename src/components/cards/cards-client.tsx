@@ -86,7 +86,7 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
 
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, requestCard, generateVirtualCard } = useAuth();
+  const { userProfile, loading, requestCard } = useAuth();
   const [isFrozen, setIsFrozen] = useState(false);
   const [limit, setLimit] = useState(2000);
   const [newLimit, setNewLimit] = useState(limit);
@@ -149,21 +149,9 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
      }
   }
 
-  const handleGenerateVirtualCard = async () => {
-    setIsOrdering(true);
-    try {
-        await generateVirtualCard();
-        // Do not show a dialog, the card will appear directly
-    } catch (error) {
-        console.error(error);
-        toast({
-            variant: 'destructive',
-            title: "Error",
-            description: (error as Error).message
-        });
-    } finally {
-        setIsOrdering(false);
-    }
+  const handleGenerateVirtualCard = () => {
+    // This only shows the dialog now. Generation is an admin task.
+    setShowVirtualInfo(true);
   };
 
   const cardStyleClasses = {
@@ -284,6 +272,16 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={showVirtualInfo} onOpenChange={setShowVirtualInfo}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{cardsDict.requestSubmittedTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{cardsDict.requestSubmittedDescriptionVirtual}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogAction onClick={() => setShowVirtualInfo(false)}>Compris</AlertDialogAction></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{cardsDict.title}</h1>
         {userProfile.kycStatus === 'verified' && (
@@ -324,8 +322,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                         </div>
                     </DialogContent>
                 </Dialog>
-                <Button onClick={handleGenerateVirtualCard} disabled={isOrdering}>
-                    {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : <Smartphone className="mr-2" />}
+                <Button onClick={handleGenerateVirtualCard}>
+                    <Smartphone className="mr-2" />
                     {cardsDict.generateVirtual}
                 </Button>
             </div>

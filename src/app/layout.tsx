@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/context/auth-context';
+import type { Locale } from '@/lib/dictionaries';
 
 export const metadata: Metadata = {
   title: 'AmCbunq - Modern Banking',
@@ -12,13 +13,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { lang: Locale };
 }) {
   return (
-    // The lang attribute is static here, which is a compromise to fix the build.
-    // The app's i18n functionality is primarily driven by the URL path.
-    <html lang="fr" suppressHydrationWarning>
+    <html lang={params.lang} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
