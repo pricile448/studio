@@ -142,7 +142,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const requestData: Partial<UserProfile> = {
       cardStatus: 'requested',
       cardRequestedAt: serverTimestamp(),
-      physicalCard: { type: cardType } as any, // Only set the type on request
+      cardType, // This line is new, we now save the card type.
+      physicalCard: {
+        // We no longer generate card details on client request
+      } as any,
     };
     
     await updateUserInFirestore(user.uid, requestData);
