@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -210,12 +211,9 @@ export function TransfersAdminClient() {
     return (
        <Card>
             <CardHeader>
-                <div className="flex items-center justify-between">
-                    <div>
-                        <CardTitle>Validation des Virements</CardTitle>
-                        <CardDescription>Gérez les virements externes initiés par les utilisateurs.</CardDescription>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <CardDescription>Gérez les virements externes initiés par les utilisateurs.</CardDescription>
+                    <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} className="w-full sm:w-auto">
                         <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
                         Actualiser
                     </Button>
@@ -223,7 +221,7 @@ export function TransfersAdminClient() {
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="pending">
-                    <TabsList>
+                    <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="pending">
                             <Hourglass className="mr-2 h-4 w-4" />
                             En attente
