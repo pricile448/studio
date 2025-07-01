@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions, updateUserInFirestore, VirtualCard } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions, updateUserInFirestore, VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -180,7 +180,9 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
 function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
+    const [isForceRequestOpen, setIsForceRequestOpen] = useState(false);
     const [newLimit, setNewLimit] = useState(user.cardLimits?.monthly || 2000);
+    const [forceCardType, setForceCardType] = useState<PhysicalCardType>('essentielle');
     const { toast } = useToast();
 
     const handleAction = async (updateData: Partial<UserProfile>, successMessage: string) => {
@@ -202,12 +204,27 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
         setIsLimitDialogOpen(false);
     };
 
+    const handleForceRequest = () => {
+        handleAction({ 
+            cardStatus: 'requested', 
+            cardType: forceCardType,
+            cardRequestedAt: serverTimestamp() 
+        }, "Demande de carte forcée.");
+        setIsForceRequestOpen(false);
+    }
+
     const cardStatusText = {
         none: 'Aucune carte',
         requested: 'Demandée',
         active: 'Active',
         suspended: 'Suspendue'
     };
+    
+    const cardTypeText = {
+      essentielle: 'Essentielle',
+      precieuse: 'Précieuse',
+      luminax: 'Luminax'
+    }
 
     const getStatusVariant = (status: UserProfile['cardStatus']) => {
         switch (status) {
@@ -225,13 +242,19 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                 <CardDescription>Gérer la carte bancaire physique de l'utilisateur.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between p-4 border rounded-lg flex-wrap gap-4">
                     <div>
                         <p className="text-sm text-muted-foreground">Statut de la carte</p>
                         <Badge variant="outline" className={cn("text-base", getStatusVariant(user.cardStatus))}>
                             {cardStatusText[user.cardStatus]}
                         </Badge>
                     </div>
+                    {user.cardType && (
+                        <div>
+                            <p className="text-sm text-muted-foreground">Type de carte</p>
+                            <p className="font-semibold">{cardTypeText[user.cardType]}</p>
+                        </div>
+                    )}
                     <div>
                         <p className="text-sm text-muted-foreground">Plafond mensuel</p>
                         <p className="font-semibold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(user.cardLimits?.monthly || 0)}</p>
@@ -244,12 +267,36 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                     )}
 
                     {user.kycStatus === 'verified' && user.cardStatus === 'none' && (
-                        <Button onClick={() => handleAction({ cardStatus: 'requested', cardRequestedAt: serverTimestamp() }, "Demande de carte forcée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Forcer la demande</Button>
+                        <Dialog open={isForceRequestOpen} onOpenChange={setIsForceRequestOpen}>
+                          <DialogTrigger asChild>
+                             <Button disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Forcer la demande</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader><DialogTitle>Forcer une demande de carte</DialogTitle></DialogHeader>
+                            <div className="py-4 space-y-2">
+                                <Label htmlFor="card-type-select">Type de carte</Label>
+                                <Select value={forceCardType} onValueChange={(v) => setForceCardType(v as PhysicalCardType)}>
+                                    <SelectTrigger id="card-type-select">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="essentielle">Essentielle</SelectItem>
+                                        <SelectItem value="precieuse">Précieuse</SelectItem>
+                                        <SelectItem value="luminax">Luminax</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild><Button variant="ghost">Annuler</Button></DialogClose>
+                                <Button onClick={handleForceRequest}>Confirmer</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                     )}
                     {user.cardStatus === 'requested' && (
                         <>
                             <Button onClick={() => handleAction({ cardStatus: 'active' }, "Carte activée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
-                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField() }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
+                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField(), cardType: deleteField() }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
                         </>
                     )}
                     {user.cardStatus === 'active' && (

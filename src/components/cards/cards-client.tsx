@@ -27,7 +27,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CreditCard, Smartphone, Loader2, Info } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import type { VirtualCard } from '@/lib/firebase/firestore';
+import type { VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -121,11 +121,11 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     });
   };
 
-  const handleOrderPhysicalCard = async () => {
+  const handleOrderPhysicalCard = async (cardType: PhysicalCardType) => {
      if (userProfile.cardStatus !== 'none') return;
      setIsOrdering(true);
      try {
-       await requestCard();
+       await requestCard(cardType);
        setShowPhysicalInfo(true);
      } catch (error) {
        console.error(error);
@@ -156,6 +156,12 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     }
   };
 
+  const cardStyleClasses = {
+    essentielle: "from-blue-600 to-blue-800 text-white",
+    precieuse: "from-amber-400 to-amber-600 text-black",
+    luminax: "from-gray-800 to-black text-white"
+  };
+
   const renderContent = () => {
     if (userProfile.kycStatus === 'pending') {
       return <KycPendingPrompt 
@@ -184,7 +190,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
              <div className="grid gap-8 lg:grid-cols-3">
               <div className="lg:col-span-1">
                 <Card className={cn(
-                  "aspect-[85.6/53.98] bg-gradient-to-r from-primary to-primary-gradient-end text-primary-foreground p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
+                  "aspect-[85.6/53.98] bg-gradient-to-br p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
+                  cardStyleClasses[userProfile.cardType || 'essentielle'],
                   isFrozen && "grayscale opacity-50"
                 )}>
                   <div className="flex justify-between items-start">
@@ -197,11 +204,11 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                     </div>
                     <div className="flex justify-between text-sm uppercase">
                       <div>
-                        <p className="text-xs text-primary-foreground/80">{cardsDict.cardHolder}</p>
+                        <p className="text-xs opacity-80">{cardsDict.cardHolder}</p>
                         <p className="font-medium">{userProfile.firstName} {userProfile.lastName}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-primary-foreground/80">{cardsDict.validThru}</p>
+                        <p className="text-xs opacity-80">{cardsDict.validThru}</p>
                         <p className="font-medium">12/28</p>
                       </div>
                     </div>
@@ -260,8 +267,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
       <AlertDialog open={showPhysicalInfo} onOpenChange={setShowPhysicalInfo}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Demande de carte physique enregistrée</AlertDialogTitle>
-            <AlertDialogDescription>Votre demande a bien été prise en compte. Votre carte physique vous sera envoyée à votre adresse enregistrée et prendra plus de temps à arriver. Vous serez notifié de son expédition.</AlertDialogDescription>
+            <AlertDialogTitle>{cardsDict.requestSubmittedTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{cardsDict.requestSubmittedDescriptionPhysical}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter><AlertDialogAction onClick={() => setShowPhysicalInfo(false)}>Compris</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
@@ -270,8 +277,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
       <AlertDialog open={showVirtualInfo} onOpenChange={setShowVirtualInfo}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Carte virtuelle générée !</AlertDialogTitle>
-            <AlertDialogDescription>Votre nouvelle carte virtuelle est maintenant disponible et prête à être utilisée pour vos achats en ligne.</AlertDialogDescription>
+            <AlertDialogTitle>{cardsDict.requestSubmittedTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{cardsDict.requestSubmittedDescriptionVirtual}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter><AlertDialogAction onClick={() => setShowVirtualInfo(false)}>Compris</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
@@ -280,52 +287,47 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{cardsDict.title}</h1>
         {userProfile.kycStatus === 'verified' && (
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button><PlusCircle className="mr-2" />{cardsDict.orderCard}</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-3xl">
-                    <DialogHeader><DialogTitle>{cardsDict.chooseCardType}</DialogTitle></DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                        <Card className="flex flex-col">
-                            <CardHeader>
-                                <CreditCard className="h-8 w-8 mb-2 text-primary" />
-                                <CardTitle>{cardsDict.physicalCard}</CardTitle>
-                                <CardDescription>{cardsDict.physicalCardDescription}</CardDescription>
-                                {userProfile.cardStatus !== 'none' && (
-                                   <Alert variant="info" className="text-xs mt-2">
-                                     <Info className="h-4 w-4" />
-                                     <AlertDescription>Une demande est déjà en cours ou une carte est déjà active.</AlertDescription>
-                                   </Alert>
-                                )}
-                            </CardHeader>
-                             <CardFooter className="mt-auto">
-                                <DialogClose asChild>
-                                    <Button onClick={handleOrderPhysicalCard} className="w-full" disabled={isOrdering || userProfile.cardStatus !== 'none'}>
-                                        {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
-                                        {cardsDict.orderPhysical}
-                                    </Button>
+            <div className="flex gap-2">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" disabled={userProfile.cardStatus !== 'none'}>
+                            <CreditCard className="mr-2" />{cardsDict.orderPhysical}
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-4xl">
+                        <DialogHeader>
+                            <DialogTitle>{cardsDict.physicalCardTitle}</DialogTitle>
+                            <DialogDescription>{cardsDict.physicalCardDescription}</DialogDescription>
+                        </DialogHeader>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+                            {(['essentielle', 'precieuse', 'luminax'] as const).map(type => (
+                                <DialogClose asChild key={type}>
+                                <Card
+                                    onClick={() => handleOrderPhysicalCard(type)}
+                                    className="cursor-pointer hover:shadow-xl hover:border-primary transition-all group"
+                                >
+                                    <CardContent className="p-0">
+                                        <div className={cn("aspect-[85.6/53.98] bg-gradient-to-br p-4 flex flex-col justify-between rounded-t-lg", cardStyleClasses[type])}>
+                                          <span className="font-semibold text-lg">{cardsDict[type].title}</span>
+                                          <p className="text-xs opacity-90">{cardsDict[type].description}</p>
+                                        </div>
+                                        <div className="p-4">
+                                            <Button variant="link" className="p-0 w-full justify-start group-hover:underline">
+                                                Choisir la carte {cardsDict[type].title}
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                                 </DialogClose>
-                            </CardFooter>
-                        </Card>
-                        <Card className="flex flex-col">
-                            <CardHeader>
-                                <Smartphone className="h-8 w-8 mb-2 text-primary" />
-                                <CardTitle>{cardsDict.virtualCard}</CardTitle>
-                                <CardDescription>{cardsDict.virtualCardDescription}</CardDescription>
-                            </CardHeader>
-                            <CardFooter className="mt-auto">
-                                <DialogClose asChild>
-                                    <Button onClick={handleGenerateVirtualCard} className="w-full" disabled={isOrdering}>
-                                        {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : null}
-                                        {cardsDict.generateVirtual}
-                                    </Button>
-                                </DialogClose>
-                            </CardFooter>
-                        </Card>
-                    </div>
-                </DialogContent>
-            </Dialog>
+                            ))}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+                <Button onClick={handleGenerateVirtualCard} disabled={isOrdering}>
+                    {isOrdering ? <Loader2 className="mr-2 animate-spin"/> : <Smartphone className="mr-2" />}
+                    {cardsDict.generateVirtual}
+                </Button>
+            </div>
         )}
       </div>
       <Separator />

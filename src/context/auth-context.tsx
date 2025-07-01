@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, VirtualCard } from '@/lib/firebase/firestore';
+import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 
@@ -24,7 +24,7 @@ type AuthContextType = {
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   updateUserPassword: (password: string) => Promise<void>;
   updateKycStatus: (status: 'pending') => Promise<void>;
-  requestCard: () => Promise<void>;
+  requestCard: (cardType: PhysicalCardType) => Promise<void>;
   generateVirtualCard: () => Promise<void>;
   uploadDocument: (file: File, documentName: string) => Promise<void>;
   deleteConversation: (chatId: string) => Promise<void>;
@@ -135,9 +135,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await refreshUserProfile();
   };
   
-  const requestCard = async () => {
+  const requestCard = async (cardType: PhysicalCardType) => {
     if (!user) throw new Error("No user is signed in.");
-    await updateUserInFirestore(user.uid, { cardStatus: 'requested', cardRequestedAt: serverTimestamp() });
+    await updateUserInFirestore(user.uid, { 
+        cardStatus: 'requested', 
+        cardRequestedAt: serverTimestamp(),
+        cardType: cardType
+    });
     // Refresh local state
     await refreshUserProfile();
   };

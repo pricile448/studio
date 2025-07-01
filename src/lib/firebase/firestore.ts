@@ -66,6 +66,7 @@ export type VirtualCard = {
   status: 'active' | 'suspended';
 };
 
+export type PhysicalCardType = 'essentielle' | 'precieuse' | 'luminax';
 
 export type UserProfile = {
   uid: string;
@@ -98,6 +99,7 @@ export type UserProfile = {
     selfieUrl: string;
   };
   cardStatus: 'none' | 'requested' | 'active' | 'suspended';
+  cardType?: PhysicalCardType;
   cardRequestedAt?: Date;
   cardLimits?: {
     monthly: number;
