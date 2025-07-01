@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard } from '@/lib/firebase/firestore';
+import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard, Beneficiary, addBeneficiary as addBeneficiaryToDb, Transaction, requestTransfer as requestTransferInDb } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 
@@ -28,6 +28,8 @@ type AuthContextType = {
   uploadDocument: (file: File, documentName: string) => Promise<void>;
   deleteConversation: (chatId: string) => Promise<void>;
   deleteMessage: (chatId: string, messageId: string) => Promise<void>;
+  addBeneficiary: (beneficiaryData: Omit<Beneficiary, 'id'>) => Promise<void>;
+  requestTransfer: (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => Promise<void>;
 };
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -191,8 +193,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const deleteMessage = async (chatId: string, messageId: string) => {
     await softDeleteUserMessage(chatId, messageId);
   };
+  
+  const addBeneficiary = async (beneficiaryData: Omit<Beneficiary, 'id'>) => {
+    if (!user) throw new Error("User not authenticated");
+    await addBeneficiaryToDb(user.uid, beneficiaryData, db);
+    await refreshUserProfile();
+  };
+  
+  const requestTransfer = async (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => {
+    if (!user) throw new Error("User not authenticated");
+    await requestTransferInDb(user.uid, transferData, db);
+    await refreshUserProfile();
+  };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, requestTransfer };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

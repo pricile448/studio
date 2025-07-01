@@ -3,7 +3,7 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/context/admin-auth-context';
-import { Loader2, LayoutDashboard, Users, ShieldCheck, LogOut, MessageSquare } from 'lucide-react';
+import { Loader2, LayoutDashboard, Users, ShieldCheck, LogOut, MessageSquare, ArrowRightLeft } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -26,6 +26,7 @@ const adminNavItems = [
     { href: '/admin/users', icon: Users, label: 'Utilisateurs' },
     { href: '/admin/kyc', icon: ShieldCheck, label: 'Vérifications KYC' },
     { href: '/admin/messaging', icon: MessageSquare, label: 'Messagerie' },
+    { href: '/admin/transfers', icon: ArrowRightLeft, label: 'Virements' },
 ];
 
 export function AdminLayoutClient({ children }: { children: ReactNode }) {

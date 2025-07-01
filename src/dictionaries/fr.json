@@ -383,7 +383,6 @@
         "virtual_request_pending_title": "Demande de carte virtuelle en cours",
         "virtual_request_pending_description": "Votre demande est en cours de traitement par un conseiller. La carte sera disponible sous 24h.",
         "suspended": "Suspendue",
-        "adminSuspended": "Suspendue (Admin)",
         "adminFrozenMessage": "Cette carte a été suspendue par un administrateur et ne peut être débloquée.",
         "adminHiddenDetails": "La visibilité des détails est contrôlée par un administrateur."
     },
@@ -647,5 +646,3 @@
       "button": "Retour à l'accueil"
     }
 }
-
-    

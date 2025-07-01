@@ -18,7 +18,11 @@ export type Transaction = {
   amount: number;
   currency: string;
   category: string;
-  status: 'completed' | 'pending' | 'failed';
+  status: 'completed' | 'pending' | 'failed' | 'in_progress';
+  type: 'debit' | 'credit' | 'internal_transfer' | 'external_transfer';
+  beneficiaryId?: string;
+  beneficiaryName?: string;
+  updatedAt?: Timestamp;
 };
 
 export type Beneficiary = {
@@ -26,6 +30,7 @@ export type Beneficiary = {
   name: string;
   iban: string;
   bic?: string;
+  nickname?: string;
 };
 
 export type Budget = {
@@ -621,4 +626,120 @@ export async function deleteBudget(userId: string, budgetId: string, db: Firesto
   await updateDoc(userRef, {
     budgets: updatedBudgets
   });
+}
+
+// Beneficiary and Transfer specific functions
+export async function addBeneficiary(userId: string, beneficiaryData: Omit<Beneficiary, 'id'>, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const newBeneficiary: Beneficiary = {
+    id: `beneficiary_${Date.now()}`,
+    ...beneficiaryData
+  };
+
+  const currentBeneficiaries = userSnap.data().beneficiaries || [];
+  const updatedBeneficiaries = [...currentBeneficiaries, newBeneficiary];
+
+  await updateDoc(userRef, {
+    beneficiaries: updatedBeneficiaries
+  });
+}
+
+export async function requestTransfer(userId: string, transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+
+  const newTransaction: Omit<Transaction, 'id' | 'date'> & { date: Timestamp } = {
+    ...transferData,
+    date: Timestamp.now(),
+    status: 'pending',
+    type: 'external_transfer'
+  };
+
+  const currentTransactions = userSnap.data().transactions || [];
+  const updatedTransactions = [...currentTransactions, { ...newTransaction, id: `txn_ext_${Date.now()}` }];
+  
+  await updateDoc(userRef, {
+    transactions: updatedTransactions
+  });
+}
+
+// Admin Transfer Functions
+export async function getAllTransfers(db: Firestore = defaultDb): Promise<Array<Transaction & { userId: string, userName: string }>> {
+    const usersSnapshot = await getDocs(collection(db, 'users'));
+    const allTransfers: Array<Transaction & { userId: string, userName: string }> = [];
+
+    usersSnapshot.forEach(userDoc => {
+        const userData = userDoc.data();
+        if (userData.transactions && userData.transactions.length > 0) {
+            const userTransfers = userData.transactions
+                .filter((tx: any) => tx.type === 'external_transfer')
+                .map((tx: any) => ({
+                    ...tx,
+                    date: tx.date.toDate(),
+                    userId: userDoc.id,
+                    userName: `${userData.firstName} ${userData.lastName}`
+                }));
+            allTransfers.push(...userTransfers);
+        }
+    });
+
+    return allTransfers;
+}
+
+export async function updateTransferStatus(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed', db: Firestore = defaultDb): Promise<void> {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) throw new Error("Utilisateur non trouvé.");
+
+    const userData = userSnap.data();
+    const transactions: any[] = userData.transactions || [];
+    const transactionIndex = transactions.findIndex(tx => tx.id === transactionId);
+
+    if (transactionIndex === -1) throw new Error("Transaction non trouvée.");
+    
+    transactions[transactionIndex].status = newStatus;
+    transactions[transactionIndex].updatedAt = serverTimestamp();
+
+    await updateDoc(userRef, { transactions });
+}
+
+export async function executeTransfer(userId: string, transactionId: string, db: Firestore = defaultDb): Promise<void> {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) throw new Error("Utilisateur non trouvé.");
+
+    const userData = userSnap.data();
+    const transactions: any[] = userData.transactions || [];
+    const accounts: Account[] = userData.accounts || [];
+
+    const transactionIndex = transactions.findIndex(tx => tx.id === transactionId);
+    if (transactionIndex === -1) throw new Error("Transaction non trouvée.");
+
+    const transfer = transactions[transactionIndex];
+    if (transfer.status !== 'in_progress') throw new Error("Le virement n'est pas en cours de traitement.");
+
+    const accountIndex = accounts.findIndex(acc => acc.id === transfer.accountId);
+    if (accountIndex === -1) throw new Error("Compte de l'utilisateur non trouvé.");
+
+    // The amount is positive for a debit in this context, so we subtract it.
+    if (accounts[accountIndex].balance < transfer.amount) throw new Error("Solde insuffisant.");
+
+    // Debit the account
+    accounts[accountIndex].balance -= transfer.amount;
+
+    // Update transaction status to 'completed'
+    transactions[transactionIndex].status = 'completed';
+    transactions[transactionIndex].updatedAt = serverTimestamp();
+
+    await updateDoc(userRef, { accounts, transactions });
 }

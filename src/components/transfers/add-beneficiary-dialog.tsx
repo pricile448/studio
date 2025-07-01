@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -18,26 +17,30 @@ import {
 } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Dictionary } from '@/lib/dictionaries';
+import { useAuth } from '@/context/auth-context';
 
 interface AddBeneficiaryDialogProps {
   dict: Dictionary['transfers'];
+  onBeneficiaryAdded: () => void;
 }
 
 const beneficiarySchema = z.object({
-    name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-    iban: z.string().min(14, { message: 'Please enter a valid IBAN.' }),
+    name: z.string().min(2, { message: 'Le nom doit comporter au moins 2 caractères.' }),
+    iban: z.string().min(14, { message: 'Veuillez saisir un IBAN valide.' }),
     bic: z.string().optional(),
     nickname: z.string().optional(),
 });
 
 type BeneficiaryFormValues = z.infer<typeof beneficiarySchema>;
 
-export function AddBeneficiaryDialog({ dict }: AddBeneficiaryDialogProps) {
+export function AddBeneficiaryDialog({ dict, onBeneficiaryAdded }: AddBeneficiaryDialogProps) {
   const { toast } = useToast();
+  const { addBeneficiary } = useAuth();
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BeneficiaryFormValues>({
     resolver: zodResolver(beneficiarySchema),
@@ -49,15 +52,26 @@ export function AddBeneficiaryDialog({ dict }: AddBeneficiaryDialogProps) {
     },
   });
 
-  const onSubmit = (data: BeneficiaryFormValues) => {
-    // In a real app, you would save the beneficiary data to your backend here.
-    console.log(data);
-    toast({
-      title: dict.beneficiaryAdded,
-      description: `${data.name} ${dict.beneficiaryAddedDescription}`,
-    });
-    form.reset();
-    setOpen(false);
+  const onSubmit = async (data: BeneficiaryFormValues) => {
+    setIsSubmitting(true);
+    try {
+      await addBeneficiary(data);
+      toast({
+        title: dict.beneficiaryAdded,
+        description: `${data.name} ${dict.beneficiaryAddedDescription}`,
+      });
+      onBeneficiaryAdded(); // Callback to refresh parent component's state
+      form.reset();
+      setOpen(false);
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: "Erreur",
+        description: (error as Error).message || "Échec de l'ajout du bénéficiaire.",
+      });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -137,7 +151,10 @@ export function AddBeneficiaryDialog({ dict }: AddBeneficiaryDialogProps) {
                 <DialogClose asChild>
                     <Button type="button" variant="secondary">{dict.cancelButton}</Button>
                 </DialogClose>
-                <Button type="submit">{dict.saveBeneficiaryButton}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                   {dict.saveBeneficiaryButton}
+                </Button>
             </DialogFooter>
           </form>
         </Form>
