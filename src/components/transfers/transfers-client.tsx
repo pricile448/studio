@@ -23,7 +23,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
+import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+
 
 type TransfersClientProps = {
   dict: Dictionary;
@@ -165,7 +167,12 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Nouveau Virement</CardTitle>
+               <CardTitle>{transfersDict.newTransfer}</CardTitle>
+               <Alert variant="info" className="mt-2">
+                <AlertDescription>
+                  Pour votre sécurité, tous les virements externes sont soumis à une validation manuelle avant d'être exécutés.
+                </AlertDescription>
+               </Alert>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -206,7 +213,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                    <FormField control={form.control} name="amount" render={({ field }) => (
                     <FormItem>
                       <FormLabel>{transfersDict.amount}</FormLabel>
-                      <FormControl><Input type="number" placeholder="0.00" {...field} onChange={event => field.onChange(+event.target.value)} /></FormControl>
+                      <FormControl><Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}/>
@@ -263,7 +270,6 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
-                    <p className="mt-1 text-muted-foreground">{transfersDict.newTransferDescription}</p>
                 </div>
                 {userProfile.kycStatus === 'verified' && <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />}
             </div>
