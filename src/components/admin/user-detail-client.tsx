@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -63,11 +64,37 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
 
     const form = useForm<PersonalInfoFormValues>({
         resolver: zodResolver(personalInfoSchema),
-        defaultValues: { ...user, dob: new Date(user.dob) }
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            phone: '',
+            dob: new Date(),
+            pob: '',
+            nationality: '',
+            residenceCountry: '',
+            address: '',
+            city: '',
+            postalCode: '',
+            profession: '',
+            salary: 0,
+        }
     });
 
     useEffect(() => {
-        form.reset({ ...user, dob: new Date(user.dob) });
+        form.reset({
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            phone: user.phone || '',
+            dob: user.dob ? new Date(user.dob) : new Date(),
+            pob: user.pob || '',
+            nationality: user.nationality || '',
+            residenceCountry: user.residenceCountry || '',
+            address: user.address || '',
+            city: user.city || '',
+            postalCode: user.postalCode || '',
+            profession: user.profession || '',
+            salary: user.salary || 0,
+        });
     }, [user, form]);
 
     const handleSubmit = async (data: PersonalInfoFormValues) => {
@@ -106,7 +133,7 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
                                 <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>Ville</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="postalCode" render={({ field }) => (<FormItem><FormLabel>Code postal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="profession" render={({ field }) => (<FormItem><FormLabel>Profession</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire</FormLabel><FormControl><Input type="number" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
                             </div>
                             <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer les modifications</Button>
                         </form>
