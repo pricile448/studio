@@ -2,11 +2,11 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteBudget, deleteSelectedTransactions, deleteAllTransactions, updateUserInFirestore, VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteSelectedTransactions, deleteAllTransactions, deleteBudget, updateUserInFirestore, VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -336,9 +336,13 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             };
             
             const updatedVirtualCards = [...(user.virtualCards || []), newCard];
-            await updateUserInFirestore(user.uid, { virtualCards: updatedVirtualCards }, adminDb);
+            await updateUserInFirestore(user.uid, { 
+                virtualCards: updatedVirtualCards,
+                hasPendingVirtualCardRequest: deleteField(),
+                virtualCardRequestedAt: deleteField()
+             }, adminDb);
 
-            onUpdate({ ...user, virtualCards: updatedVirtualCards });
+            onUpdate({ ...user, virtualCards: updatedVirtualCards, hasPendingVirtualCardRequest: false, virtualCardRequestedAt: undefined });
             toast({ title: 'Succès', description: "Nouvelle carte virtuelle générée pour l'utilisateur." });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
@@ -394,6 +398,15 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                 <CardDescription>Gérer les cartes virtuelles de paiement de l'utilisateur.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+                {user.hasPendingVirtualCardRequest && (
+                    <Alert variant="info">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>Demande en attente</AlertTitle>
+                        <AlertDescription>
+                            L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt, 'dd/MM/yyyy') : ''}. Cliquez sur "Générer" pour la créer.
+                        </AlertDescription>
+                    </Alert>
+                )}
                 <Button onClick={handleGenerateVirtualCard} disabled={isLoading || user.kycStatus !== 'verified'}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
                     Générer une carte virtuelle

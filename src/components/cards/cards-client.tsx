@@ -17,11 +17,13 @@ import {
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 
 import { Separator } from '@/components/ui/separator';
@@ -86,7 +88,7 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
 
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, requestCard } = useAuth();
+  const { userProfile, loading, requestCard, requestVirtualCard } = useAuth();
   const [isFrozen, setIsFrozen] = useState(false);
   const [limit, setLimit] = useState(2000);
   const [newLimit, setNewLimit] = useState(limit);
@@ -96,6 +98,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   
   const [showPhysicalInfo, setShowPhysicalInfo] = useState(false);
   const [showVirtualInfo, setShowVirtualInfo] = useState(false);
+  const [isRequestingVirtual, setIsRequestingVirtual] = useState(false);
 
   const cardsDict = dict.cards;
   const kycDict = dict.kyc;
@@ -149,9 +152,20 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
      }
   }
 
-  const handleGenerateVirtualCard = () => {
-    // This only shows the dialog now. Generation is an admin task.
-    setShowVirtualInfo(true);
+  const handleRequestVirtualCard = async () => {
+    setIsRequestingVirtual(true);
+    try {
+      await requestVirtualCard();
+      setShowVirtualInfo(true); // This now shows the success dialog
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: "Error",
+        description: (error as Error).message
+       })
+    } finally {
+       setIsRequestingVirtual(false);
+    }
   };
 
   const cardStyleClasses = {
@@ -238,8 +252,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           {userProfile.cardStatus === 'none' && (
              <Alert variant="info">
                 <Info className="h-4 w-4" />
-                <AlertTitle>Aucune carte physique</AlertTitle>
-                <AlertDescription>Vous n'avez pas encore de carte physique. Vous pouvez en commander une via le bouton "Commander une carte".</AlertDescription>
+                <AlertTitle>{cardsDict.noPhysicalCard}</AlertTitle>
+                <AlertDescription>{cardsDict.noPhysicalCardDescription}</AlertDescription>
               </Alert>
           )}
         </div>
@@ -249,9 +263,16 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         {/* Virtual Cards Section */}
         <div>
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.virtualCard}s</h2>
+           {userProfile.hasPendingVirtualCardRequest && (
+             <Alert variant="info" className="mb-4">
+                <Hourglass className="h-4 w-4" />
+                <AlertTitle>{cardsDict.virtual_request_pending_title}</AlertTitle>
+                <AlertDescription>{cardsDict.virtual_request_pending_description}</AlertDescription>
+              </Alert>
+            )}
           <div className="grid gap-6 md:grid-cols-2">
             {(userProfile.virtualCards || []).map(card => <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} userProfile={userProfile} />)}
-            {(!userProfile.virtualCards || userProfile.virtualCards.length === 0) && (
+            {(!userProfile.virtualCards || userProfile.virtualCards.length === 0) && !userProfile.hasPendingVirtualCardRequest && (
               <p className="text-muted-foreground col-span-full">{cardsDict.noVirtualCards}</p>
             )}
           </div>
@@ -268,17 +289,17 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
             <AlertDialogTitle>{cardsDict.requestSubmittedTitle}</AlertDialogTitle>
             <AlertDialogDescription>{cardsDict.requestSubmittedDescriptionPhysical}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogAction onClick={() => setShowPhysicalInfo(false)}>Compris</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogFooter><AlertDialogAction onClick={() => setShowPhysicalInfo(false)}>{dict.kyc.step6_button}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
+      
       <AlertDialog open={showVirtualInfo} onOpenChange={setShowVirtualInfo}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{cardsDict.requestSubmittedTitle}</AlertDialogTitle>
             <AlertDialogDescription>{cardsDict.requestSubmittedDescriptionVirtual}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogAction onClick={() => setShowVirtualInfo(false)}>Compris</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogFooter><AlertDialogAction onClick={() => setShowVirtualInfo(false)}>{dict.kyc.step6_button}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
@@ -289,7 +310,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button variant="outline" disabled={userProfile.cardStatus !== 'none' || isOrdering}>
-                            <CreditCard className="mr-2" />
+                             {isOrdering ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2" />}
                             {cardsDict.orderPhysical}
                         </Button>
                     </DialogTrigger>
@@ -312,7 +333,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                                         </div>
                                         <div className="p-4">
                                             <Button variant="link" className="p-0 w-full justify-start group-hover:underline">
-                                                Choisir la carte {cardsDict[type].title}
+                                                {cardsDict.selectCard} {cardsDict[type].title}
                                             </Button>
                                         </div>
                                     </CardContent>
@@ -322,10 +343,25 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                         </div>
                     </DialogContent>
                 </Dialog>
-                <Button onClick={handleGenerateVirtualCard}>
-                    <Smartphone className="mr-2" />
-                    {cardsDict.generateVirtual}
-                </Button>
+                
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                         <Button disabled={userProfile.hasPendingVirtualCardRequest || isRequestingVirtual}>
+                           {isRequestingVirtual ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Smartphone className="mr-2" />}
+                            {userProfile.hasPendingVirtualCardRequest ? cardsDict.virtual_request_pending_title : cardsDict.generateVirtual}
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{cardsDict.virtual_request_dialog_title}</AlertDialogTitle>
+                            <AlertDialogDescription>{cardsDict.virtual_request_dialog_description}</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleRequestVirtualCard}>Confirmer la demande</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         )}
       </div>

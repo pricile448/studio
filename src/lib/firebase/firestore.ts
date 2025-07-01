@@ -105,6 +105,8 @@ export type UserProfile = {
     monthly: number;
     withdrawal: number;
   };
+  hasPendingVirtualCardRequest?: boolean;
+  virtualCardRequestedAt?: Date;
   iban?: string;
   bic?: string;
   accounts: Account[];
@@ -153,6 +155,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
         security: true,
     },
     inactivityTimeout: 5, // Default timeout of 5 minutes
+    hasPendingVirtualCardRequest: false,
     accounts: defaultAccounts,
     transactions: [],
     beneficiaries: [],
@@ -207,6 +210,8 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
         const createdAt = parseDate(data.createdAt);
         const cardRequestedAt = parseOptionalDate(data.cardRequestedAt);
         const kycSubmittedAt = parseOptionalDate(data.kycSubmittedAt);
+        const virtualCardRequestedAt = parseOptionalDate(data.virtualCardRequestedAt);
+
 
         return {
             ...data,
@@ -214,6 +219,7 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
             createdAt,
             cardRequestedAt,
             kycSubmittedAt,
+            virtualCardRequestedAt,
             transactions,
         } as UserProfile;
 
@@ -233,6 +239,9 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
   }
   if (data.cardRequestedAt instanceof Date) {
     dataToUpdate.cardRequestedAt = Timestamp.fromDate(data.cardRequestedAt);
+  }
+  if (data.virtualCardRequestedAt instanceof Date) {
+    dataToUpdate.virtualCardRequestedAt = Timestamp.fromDate(data.virtualCardRequestedAt);
   }
   
   await updateDoc(userRef, dataToUpdate);
