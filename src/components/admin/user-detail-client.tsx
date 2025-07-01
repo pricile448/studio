@@ -2,11 +2,11 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteSelectedTransactions, deleteAllTransactions, deleteBudget, updateUserInFirestore, VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteSelectedTransactions, deleteAllTransactions, deleteBudget, updateUserInFirestore, VirtualCard, PhysicalCardType, type PhysicalCard } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -32,6 +32,7 @@ import Link from 'next/link';
 import { Timestamp, serverTimestamp, deleteField } from 'firebase/firestore';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '../ui/separator';
+import { Switch } from '../ui/switch';
 
 
 const { db: adminDb } = getFirebaseServices('admin');
@@ -177,19 +178,46 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
     );
 }
 
+const physicalCardEditSchema = z.object({
+    number: z.string().min(16, "Doit comporter 16 chiffres").max(16, "Doit comporter 16 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
+    expiry: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/, "Format MM/YY ou MM/YYYY"),
+    cvv: z.string().min(3, "Doit comporter 3 chiffres").max(3, "Doit comporter 3 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
+    pin: z.string().min(4, "Doit comporter 4 chiffres").max(4, "Doit comporter 4 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
+});
+
 function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const [isLoading, setIsLoading] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [isForceRequestOpen, setIsForceRequestOpen] = useState(false);
     const [newLimit, setNewLimit] = useState(user.cardLimits?.monthly || 2000);
     const [forceCardType, setForceCardType] = useState<PhysicalCardType>('essentielle');
+    const [showAdminDetails, setShowAdminDetails] = useState(false);
     const { toast } = useToast();
+
+    const form = useForm<z.infer<typeof physicalCardEditSchema>>({
+        resolver: zodResolver(physicalCardEditSchema),
+        defaultValues: user.physicalCard ? {
+            ...user.physicalCard,
+            expiry: user.physicalCard.expiry.replace('/', '')
+        } : undefined
+    });
+
+     useEffect(() => {
+        if (user.physicalCard) {
+            form.reset(user.physicalCard);
+        }
+    }, [user.physicalCard, form, isEditOpen]);
+
 
     const handleAction = async (updateData: Partial<UserProfile>, successMessage: string) => {
         setIsLoading(true);
         try {
             await updateUserInFirestore(user.uid, updateData, adminDb);
             const updatedUser = { ...user, ...updateData };
+            if (updateData.physicalCard) {
+                updatedUser.physicalCard = { ...user.physicalCard, ...updateData.physicalCard as any };
+            }
             onUpdate(updatedUser);
             toast({ title: "Succès", description: successMessage });
         } catch (error) {
@@ -197,6 +225,30 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleEditSubmit = async (data: z.infer<typeof physicalCardEditSchema>) => {
+        await handleAction({ physicalCard: { ...user.physicalCard!, ...data } }, "Détails de la carte mis à jour.");
+        setIsEditOpen(false);
+    };
+
+    const handleResetCard = () => {
+        const newCard: PhysicalCard = {
+            ...user.physicalCard!,
+            number: Array.from({ length: 4 }, () => Math.floor(1000 + Math.random() * 9000).toString()).join(''),
+            expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
+            cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
+            pin: String(Math.floor(1000 + Math.random() * 9000)).padStart(4, '0'),
+        };
+        handleAction({ physicalCard: newCard }, "Carte physique réinitialisée.");
+    };
+
+    const handleCancelCard = () => {
+        handleAction({ cardStatus: 'cancelled', physicalCard: deleteField() as any }, "Carte annulée.");
+    }
+    
+    const handleTogglePinVisibility = (checked: boolean) => {
+        handleAction({ physicalCard: { ...user.physicalCard!, isPinVisibleToUser: checked } }, "Visibilité du PIN pour l'utilisateur mise à jour.");
     };
 
     const handleLimitUpdate = () => {
@@ -217,7 +269,8 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
         none: 'Aucune carte',
         requested: 'Demandée',
         active: 'Active',
-        suspended: 'Suspendue'
+        suspended: 'Suspendue',
+        cancelled: 'Annulée',
     };
     
     const cardTypeText = {
@@ -231,6 +284,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
             case 'active': return 'bg-green-100 text-green-800';
             case 'requested': return 'bg-blue-100 text-blue-800';
             case 'suspended': return 'bg-orange-100 text-orange-800';
+            case 'cancelled': return 'bg-red-100 text-red-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -241,9 +295,9 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                 <CardTitle>Gestion de la Carte Physique</CardTitle>
                 <CardDescription>Gérer la carte bancaire physique de l'utilisateur.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
                 <div className="flex items-center justify-between p-4 border rounded-lg flex-wrap gap-4">
-                    <div>
+                     <div>
                         <p className="text-sm text-muted-foreground">Statut de la carte</p>
                         <Badge variant="outline" className={cn("text-base", getStatusVariant(user.cardStatus))}>
                             {cardStatusText[user.cardStatus]}
@@ -261,54 +315,84 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                    {user.kycStatus !== 'verified' && (
-                        <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
-                    )}
+                {user.cardStatus === 'active' && user.physicalCard && (
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-medium">Détails de la carte</h3>
+                            <Button variant="ghost" size="sm" onClick={() => setShowAdminDetails(!showAdminDetails)}>
+                                {showAdminDetails ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                                {showAdminDetails ? 'Masquer' : 'Afficher'}
+                            </Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                            <div><p className="text-sm text-muted-foreground">Numéro</p><p className="font-mono">{showAdminDetails ? user.physicalCard.number.replace(/(\d{4})/g, '$1 ').trim() : '**** **** **** ****'}</p></div>
+                            <div><p className="text-sm text-muted-foreground">Expiration</p><p className="font-mono">{showAdminDetails ? user.physicalCard.expiry : 'MM/YY'}</p></div>
+                            <div><p className="text-sm text-muted-foreground">CVV</p><p className="font-mono">{showAdminDetails ? user.physicalCard.cvv : '***'}</p></div>
+                            <div><p className="text-sm text-muted-foreground">PIN</p><p className="font-mono">{showAdminDetails ? user.physicalCard.pin : '****'}</p></div>
+                        </div>
 
-                    {user.kycStatus === 'verified' && user.cardStatus === 'none' && (
-                        <Dialog open={isForceRequestOpen} onOpenChange={setIsForceRequestOpen}>
-                          <DialogTrigger asChild>
-                             <Button disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Forcer la demande</Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader><DialogTitle>Forcer une demande de carte</DialogTitle></DialogHeader>
-                            <div className="py-4 space-y-2">
-                                <Label htmlFor="card-type-select">Type de carte</Label>
-                                <Select value={forceCardType} onValueChange={(v) => setForceCardType(v as PhysicalCardType)}>
-                                    <SelectTrigger id="card-type-select">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="essentielle">Essentielle</SelectItem>
-                                        <SelectItem value="precieuse">Précieuse</SelectItem>
-                                        <SelectItem value="luminax">Luminax</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                        <div className="flex items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="pin-visibility">Autoriser l'utilisateur à voir le code PIN</Label>
+                                <p className="text-xs text-muted-foreground">Permet à l'utilisateur de voir son PIN dans son application.</p>
                             </div>
-                            <DialogFooter>
-                                <DialogClose asChild><Button variant="ghost">Annuler</Button></DialogClose>
-                                <Button onClick={handleForceRequest}>Confirmer</Button>
-                            </DialogFooter>
-                          </DialogContent>
+                            <Switch id="pin-visibility" checked={user.physicalCard.isPinVisibleToUser} onCheckedChange={handleTogglePinVisibility} disabled={isLoading} />
+                        </div>
+                    </div>
+                )}
+                
+                <div className="flex flex-wrap gap-2">
+                    {user.kycStatus !== 'verified' ? (
+                        <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
+                    ) : user.cardStatus === 'none' ? (
+                        <Dialog open={isForceRequestOpen} onOpenChange={setIsForceRequestOpen}>
+                          <DialogTrigger asChild><Button disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Forcer la demande</Button></DialogTrigger>
+                          <DialogContent><DialogHeader><DialogTitle>Forcer une demande de carte</DialogTitle></DialogHeader><div className="py-4 space-y-2"><Label htmlFor="card-type-select">Type de carte</Label><Select value={forceCardType} onValueChange={(v) => setForceCardType(v as PhysicalCardType)}><SelectTrigger id="card-type-select"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="essentielle">Essentielle</SelectItem><SelectItem value="precieuse">Précieuse</SelectItem><SelectItem value="luminax">Luminax</SelectItem></SelectContent></Select></div><DialogFooter><DialogClose asChild><Button variant="ghost">Annuler</Button></DialogClose><Button onClick={handleForceRequest}>Confirmer</Button></DialogFooter></DialogContent>
                         </Dialog>
-                    )}
-                    {user.cardStatus === 'requested' && (
+                    ) : user.cardStatus === 'requested' ? (
                         <>
                             <Button onClick={() => handleAction({ cardStatus: 'active' }, "Carte activée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
                             <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField(), cardType: deleteField() }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
                         </>
-                    )}
-                    {user.cardStatus === 'active' && (
+                    ) : user.cardStatus === 'active' || user.cardStatus === 'suspended' ? (
                         <>
-                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'suspended' }, "Carte suspendue.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Suspendre la carte</Button>
+                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: user.cardStatus === 'active' ? 'suspended' : 'active' }, user.cardStatus === 'active' ? "Carte suspendue." : "Carte réactivée.")} disabled={isLoading}>
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {user.cardStatus === 'active' ? 'Suspendre la carte' : 'Réactiver la carte'}
+                            </Button>
                             <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}><DialogTrigger asChild><Button variant="outline">Modifier le plafond</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Modifier le plafond</DialogTitle></DialogHeader><div className="py-4"><Label htmlFor="new-limit">Nouveau plafond mensuel</Label><Input id="new-limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} /></div><DialogFooter><Button variant="ghost" onClick={() => setIsLimitDialogOpen(false)}>Annuler</Button><Button onClick={handleLimitUpdate}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical /></Button></DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => setIsEditOpen(true)}><Edit className="mr-2 h-4 w-4" /> Modifier les détails</DropdownMenuItem>
+                                    <AlertDialog><AlertDialogTrigger asChild><DropdownMenuItem><RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser la carte</DropdownMenuItem></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Réinitialiser la carte ?</AlertDialogTitle><AlertDialogDescription>Une nouvelle série d'informations (numéro, CVV, PIN) sera générée. Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={handleResetCard}>Confirmer</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+                                    <DropdownMenuSeparator />
+                                    <AlertDialog><AlertDialogTrigger asChild><DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Annuler la carte</DropdownMenuItem></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Annuler la carte définitivement ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible et supprimera la carte du profil de l'utilisateur.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction className="bg-destructive" onClick={handleCancelCard}>Confirmer l'annulation</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </>
-                    )}
-                    {user.cardStatus === 'suspended' && (
-                        <Button onClick={() => handleAction({ cardStatus: 'active' }, "Carte réactivée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Réactiver la carte</Button>
-                    )}
+                    ) : null}
                 </div>
+                
+                 <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                    <DialogContent>
+                         <DialogHeader><DialogTitle>Modifier la carte physique</DialogTitle></DialogHeader>
+                         <Form {...form}>
+                             <form onSubmit={form.handleSubmit(handleEditSubmit)} className="space-y-4 pt-4">
+                                <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Numéro de carte</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                     <FormField control={form.control} name="expiry" render={({ field }) => (<FormItem><FormLabel>Expiration (MM/YY)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                     <FormField control={form.control} name="cvv" render={({ field }) => (<FormItem><FormLabel>CVV</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                 <FormField control={form.control} name="pin" render={({ field }) => (<FormItem><FormLabel>PIN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                 <DialogFooter>
+                                     <DialogClose asChild><Button variant="ghost" type="button">Annuler</Button></DialogClose>
+                                     <Button type="submit" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} Enregistrer</Button>
+                                 </DialogFooter>
+                             </form>
+                         </Form>
+                    </DialogContent>
+                </Dialog>
             </CardContent>
         </Card>
     )
@@ -403,7 +487,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                         <Info className="h-4 w-4" />
                         <AlertTitle>Demande en attente</AlertTitle>
                         <AlertDescription>
-                            L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt, 'dd/MM/yyyy') : ''}. Cliquez sur "Générer" pour la créer.
+                            L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt.toDate(), 'dd/MM/yyyy') : ''}. Cliquez sur "Générer" pour la créer.
                         </AlertDescription>
                     </Alert>
                 )}
