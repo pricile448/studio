@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -138,14 +137,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const requestCard = async (cardType: PhysicalCardType) => {
     if (!user) throw new Error("No user is signed in.");
 
-    // This data structure is now partial as the full card is created by the admin.
     const requestData: Partial<UserProfile> = {
       cardStatus: 'requested',
       cardRequestedAt: serverTimestamp(),
-      cardType, // This line is new, we now save the card type.
-      physicalCard: {
-        // We no longer generate card details on client request
-      } as any,
+      cardType,
     };
     
     await updateUserInFirestore(user.uid, requestData);

@@ -198,14 +198,26 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
     const form = useForm<z.infer<typeof physicalCardEditSchema>>({
         resolver: zodResolver(physicalCardEditSchema),
         defaultValues: user.physicalCard ? {
-            ...user.physicalCard,
-            expiry: user.physicalCard.expiry.replace('/', '')
-        } : undefined
+            number: user.physicalCard.number || '',
+            expiry: user.physicalCard.expiry || '',
+            cvv: user.physicalCard.cvv || '',
+            pin: user.physicalCard.pin || '',
+        } : { number: '', expiry: '', cvv: '', pin: '' }
     });
 
      useEffect(() => {
-        if (user.physicalCard) {
-            form.reset(user.physicalCard);
+        if (isEditOpen) {
+            form.reset(user.physicalCard ? {
+                number: user.physicalCard.number || '',
+                expiry: user.physicalCard.expiry || '',
+                cvv: user.physicalCard.cvv || '',
+                pin: user.physicalCard.pin || '',
+            } : {
+                number: '',
+                expiry: '',
+                cvv: '',
+                pin: ''
+            });
         }
     }, [user.physicalCard, form, isEditOpen]);
 
@@ -226,6 +238,22 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
             setIsLoading(false);
         }
     };
+    
+    const handleActivateCard = () => {
+        if (!user.cardType) {
+            toast({ variant: 'destructive', title: 'Erreur', description: "Type de carte non défini. Impossible d'activer." });
+            return;
+        }
+        const newCard: PhysicalCard = {
+            type: user.cardType,
+            number: Array.from({ length: 4 }, () => String(Math.floor(1000 + Math.random() * 9000))).join(''),
+            expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
+            cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
+            pin: String(Math.floor(1000 + Math.random() * 9000)).padStart(4, '0'),
+            isPinVisibleToUser: false
+        };
+        handleAction({ cardStatus: 'active', physicalCard: newCard }, "Carte activée et générée.");
+    };
 
     const handleEditSubmit = async (data: z.infer<typeof physicalCardEditSchema>) => {
         await handleAction({ physicalCard: { ...user.physicalCard!, ...data } }, "Détails de la carte mis à jour.");
@@ -234,7 +262,8 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
 
     const handleResetCard = () => {
         const newCard: PhysicalCard = {
-            ...user.physicalCard!,
+            type: user.physicalCard!.type,
+            isPinVisibleToUser: user.physicalCard!.isPinVisibleToUser,
             number: Array.from({ length: 4 }, () => Math.floor(1000 + Math.random() * 9000).toString()).join(''),
             expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
             cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
@@ -351,7 +380,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                         </Dialog>
                     ) : user.cardStatus === 'requested' ? (
                         <>
-                            <Button onClick={() => handleAction({ cardStatus: 'active' }, "Carte activée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
+                            <Button onClick={handleActivateCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
                             <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField(), cardType: deleteField() }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
                         </>
                     ) : user.cardStatus === 'active' || user.cardStatus === 'suspended' ? (
