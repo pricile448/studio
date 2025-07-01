@@ -61,6 +61,8 @@ export type VirtualCard = {
   cvv: string;
   limit: number;
   isFrozen: boolean;
+  frozenBy?: 'user' | 'admin' | null;
+  isDetailsVisibleToUser?: boolean;
   createdAt: Timestamp;
   type: 'virtual';
 };
@@ -74,6 +76,7 @@ export type PhysicalCard = {
   cvv: string;
   pin: string;
   isPinVisibleToUser: boolean;
+  suspendedBy?: 'user' | 'admin' | null;
 };
 
 export type UserProfile = {

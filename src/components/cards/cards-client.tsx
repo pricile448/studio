@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -22,7 +23,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 
 import { Separator } from '@/components/ui/separator';
@@ -39,9 +39,13 @@ import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, dict: Dictionary['cards'], userProfile: UserProfile | null }) {
+
+function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze }: { card: VirtualCard, dict: Dictionary['cards'], userProfile: UserProfile | null, onToggleFreeze: (cardId: string) => void }) {
     const [showDetails, setShowDetails] = useState(false);
+    const isAdminFrozen = card.isFrozen && card.frozenBy === 'admin';
+    const canViewDetails = card.isDetailsVisibleToUser ?? true;
 
     return (
         <div className="space-y-4">
@@ -51,16 +55,16 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
             )}>
                 <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-lg">{dict.virtualCard}</span>
-                       {card.isFrozen && <Badge variant="destructive">Suspendue</Badge>}
+                      <span className="font-semibold text-lg">{card.name}</span>
+                       {card.isFrozen && <Badge variant="destructive">{isAdminFrozen ? dict.adminSuspended : dict.suspended}</Badge>}
                     </div>
                     <Wifi className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="space-y-2">
                     <div className="flex items-center justify-center font-mono text-lg sm:text-xl tracking-widest text-center space-x-2 sm:space-x-4">
-                        <span>{showDetails ? card.number.substring(0, 4) : '****'}</span>
-                        <span>{showDetails ? card.number.substring(5, 9) : '****'}</span>
-                        <span>{showDetails ? card.number.substring(10, 14) : '****'}</span>
+                        <span>{showDetails && canViewDetails ? card.number.substring(0, 4) : '****'}</span>
+                        <span>{showDetails && canViewDetails ? card.number.substring(5, 9) : '****'}</span>
+                        <span>{showDetails && canViewDetails ? card.number.substring(10, 14) : '****'}</span>
                         <span>{card.number.slice(-4)}</span>
                     </div>
                     <div className="flex justify-between items-end text-xs sm:text-sm uppercase">
@@ -70,21 +74,40 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
                         </div>
                         <div className="text-right w-1/3">
                             <p className="text-xs opacity-80">{dict.validThru}</p>
-                            <p className="font-medium">{showDetails ? card.expiry : "**/**"}</p>
+                            <p className="font-medium">{showDetails && canViewDetails ? card.expiry : "**/**"}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="flex justify-between items-center">
-                 <div className="font-mono text-sm">
-                    <span className="text-muted-foreground">CVV: </span>
-                    <span className="font-semibold tracking-widest">{showDetails ? card.cvv : '***'}</span>
-                 </div>
-                 <Button variant="secondary" size="sm" onClick={() => setShowDetails(!showDetails)} disabled={card.isFrozen}>
-                    {showDetails ? <EyeOff className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
-                    {showDetails ? dict.hidePin : dict.showPin}
-                 </Button>
+            <div className="grid grid-cols-2 gap-4">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                             <div className="w-full">
+                                <Button variant="secondary" onClick={() => setShowDetails(!showDetails)} disabled={card.isFrozen || !canViewDetails} className="w-full">
+                                    {showDetails ? <EyeOff className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
+                                    {showDetails ? dict.hidePin : dict.showPin}
+                                </Button>
+                             </div>
+                        </TooltipTrigger>
+                        {!canViewDetails && <TooltipContent><p>{dict.adminHiddenDetails}</p></TooltipContent>}
+                    </Tooltip>
+                </TooltipProvider>
+
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="w-full">
+                                <Button variant="outline" onClick={() => onToggleFreeze(card.id)} disabled={isAdminFrozen} className="w-full">
+                                    <Snowflake className="mr-2 h-4 w-4"/>
+                                    {card.isFrozen ? dict.unfreeze : dict.freeze}
+                                </Button>
+                            </div>
+                        </TooltipTrigger>
+                        {isAdminFrozen && <TooltipContent><p>{dict.adminFrozenMessage}</p></TooltipContent>}
+                    </Tooltip>
+                 </TooltipProvider>
             </div>
         </div>
     );
@@ -103,7 +126,6 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   const [showVirtualInfo, setShowVirtualInfo] = useState(false);
   const [isRequestingVirtual, setIsRequestingVirtual] = useState(false);
 
-  // New states for interactive card
   const [isFlipped, setIsFlipped] = useState(false);
   const [isTogglingFreeze, setIsTogglingFreeze] = useState(false);
 
@@ -129,9 +151,15 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   const handleToggleFreeze = async () => {
     if (!userProfile.physicalCard) return;
     setIsTogglingFreeze(true);
-    const newStatus = userProfile.cardStatus === 'active' ? 'suspended' : 'active';
+    const isCurrentlyActive = userProfile.cardStatus === 'active';
+    const newStatus = isCurrentlyActive ? 'suspended' : 'active';
+    const newSuspendedBy = isCurrentlyActive ? 'user' : null;
+
     try {
-        await updateUserProfileData({ cardStatus: newStatus });
+        await updateUserProfileData({
+            cardStatus: newStatus,
+            physicalCard: { ...userProfile.physicalCard, suspendedBy: newSuspendedBy } as PhysicalCard
+        });
         toast({
             title: newStatus === 'suspended' ? cardsDict.cardFrozen : cardsDict.cardUnfrozen,
         });
@@ -143,6 +171,32 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         });
     } finally {
         setIsTogglingFreeze(false);
+    }
+  };
+  
+  const handleToggleVirtualFreeze = async (cardId: string) => {
+    const cardIndex = userProfile.virtualCards.findIndex(c => c.id === cardId);
+    if (cardIndex === -1) return;
+
+    const updatedCards = [...userProfile.virtualCards];
+    const cardToUpdate = { ...updatedCards[cardIndex] };
+
+    const isCurrentlyFrozen = cardToUpdate.isFrozen;
+    cardToUpdate.isFrozen = !isCurrentlyFrozen;
+    cardToUpdate.frozenBy = !isCurrentlyFrozen ? 'user' : null;
+    updatedCards[cardIndex] = cardToUpdate;
+
+    try {
+        await updateUserProfileData({ virtualCards: updatedCards });
+        toast({
+            title: !isCurrentlyFrozen ? cardsDict.cardFrozen : cardsDict.cardUnfrozen,
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: "Error",
+            description: (error as Error).message
+        });
     }
   };
 
@@ -214,6 +268,8 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     }
 
     const physicalCard = userProfile.physicalCard;
+    const isPhysicalCardAdminFrozen = userProfile.cardStatus === 'suspended' && physicalCard?.suspendedBy === 'admin';
+
 
     return (
       <div className="space-y-8">
@@ -222,7 +278,10 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.physicalCard}</h2>
           {(userProfile.cardStatus === 'active' || userProfile.cardStatus === 'suspended') && physicalCard && (
              <div className="grid gap-8 lg:grid-cols-3">
-              <div className="card-flip-container lg:col-span-1 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+              <div
+                  className={cn("card-flip-container lg:col-span-1", userProfile.cardStatus === 'active' && 'cursor-pointer')}
+                  onClick={userProfile.cardStatus === 'active' ? () => setIsFlipped(!isFlipped) : undefined}
+                >
                   <div className={cn("card-flipper relative w-full aspect-[85.6/53.98]", isFlipped && "is-flipped")}>
                       {/* Card Front */}
                       <div className={cn(
@@ -271,11 +330,21 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                   <CardHeader><CardTitle className="font-headline">{dict.settings.tabs.security}</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                      <Dialog onOpenChange={setShowPin.bind(null, false)}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" className="w-full" disabled={!physicalCard.isPinVisibleToUser || userProfile.cardStatus === 'suspended'}>
-                                 <Pin className="mr-2" /> {cardsDict.viewPin}
-                            </Button>
-                        </DialogTrigger>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="w-full">
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" className="w-full" disabled={!physicalCard.isPinVisibleToUser || userProfile.cardStatus === 'suspended'}>
+                                                 <Pin className="mr-2" /> {cardsDict.viewPin}
+                                            </Button>
+                                        </DialogTrigger>
+                                    </div>
+                                </TooltipTrigger>
+                                {!physicalCard.isPinVisibleToUser && <TooltipContent><p>{cardsDict.adminHiddenDetails}</p></TooltipContent>}
+                            </Tooltip>
+                        </TooltipProvider>
+
                         <DialogContent>
                             <DialogHeader><DialogTitle>{cardsDict.viewPinTitle}</DialogTitle><DialogDescription>{cardsDict.viewPinDescription}</DialogDescription></DialogHeader>
                             <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
@@ -287,11 +356,20 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="w-full">
+                                    <Button variant="outline" className="w-full" onClick={handleToggleFreeze} disabled={isTogglingFreeze || isPhysicalCardAdminFrozen}>
+                                      {isTogglingFreeze ? <Loader2 className="mr-2 animate-spin" /> : <Snowflake className="mr-2" />}
+                                      {userProfile.cardStatus === 'suspended' ? cardsDict.unfreeze : cardsDict.freeze}
+                                    </Button>
+                                </div>
+                            </TooltipTrigger>
+                            {isPhysicalCardAdminFrozen && <TooltipContent><p>{cardsDict.adminFrozenMessage}</p></TooltipContent>}
+                        </Tooltip>
+                    </TooltipProvider>
 
-                     <Button variant="outline" className="w-full" onClick={handleToggleFreeze} disabled={isTogglingFreeze}>
-                      {isTogglingFreeze ? <Loader2 className="mr-2 animate-spin" /> : <Snowflake className="mr-2" />}
-                      {userProfile.cardStatus === 'suspended' ? cardsDict.unfreeze : cardsDict.freeze}
-                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -320,7 +398,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.virtualCard}s</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {(userProfile.virtualCards || []).map(card => (
-              <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} userProfile={userProfile} />
+              <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} userProfile={userProfile} onToggleFreeze={handleToggleVirtualFreeze} />
             ))}
             
             {userProfile.hasPendingVirtualCardRequest && (

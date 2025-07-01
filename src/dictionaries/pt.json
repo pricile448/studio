@@ -377,7 +377,11 @@
         "virtual_request_dialog_title": "Solicitar um cartão virtual",
         "virtual_request_dialog_description": "Confirma que deseja solicitar um novo cartão virtual? A sua solicitação será processada por um consultor.",
         "virtual_request_pending_title": "Pedido de cartão virtual em andamento",
-        "virtual_request_pending_description": "O seu pedido está a ser processado por um consultor. O cartão estará disponível dentro de 24 horas."
+        "virtual_request_pending_description": "O seu pedido está a ser processado por um consultor. O cartão estará disponível dentro de 24 horas.",
+        "suspended": "Suspenso",
+        "adminSuspended": "Suspenso (Admin)",
+        "adminFrozenMessage": "Este cartão foi suspenso por um administrador e não pode ser desbloqueado.",
+        "adminHiddenDetails": "A visibilidade dos detalhes é controlada por um administrador."
     },
     "history": {
       "title": "Histórico de Transações",
@@ -639,5 +643,3 @@
       "button": "Ir para a Página Inicial"
     }
 }
-
-    

@@ -377,7 +377,11 @@
         "virtual_request_dialog_title": "Request a virtual card",
         "virtual_request_dialog_description": "Do you confirm you want to request a new virtual card? Your request will be processed by an advisor.",
         "virtual_request_pending_title": "Virtual card request in progress",
-        "virtual_request_pending_description": "Your request is being processed by an advisor. The card will be available within 24 hours."
+        "virtual_request_pending_description": "Your request is being processed by an advisor. The card will be available within 24 hours.",
+        "suspended": "Suspended",
+        "adminSuspended": "Suspended (Admin)",
+        "adminFrozenMessage": "This card has been suspended by an administrator and cannot be unblocked.",
+        "adminHiddenDetails": "Details visibility is controlled by an administrator."
     },
     "history": {
       "title": "Transaction History",

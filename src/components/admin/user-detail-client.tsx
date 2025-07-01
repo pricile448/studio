@@ -288,7 +288,8 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
             expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
             cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
             pin: String(Math.floor(1000 + Math.random() * 9000)).padStart(4, '0'),
-            isPinVisibleToUser: false
+            isPinVisibleToUser: true,
+            suspendedBy: null,
         };
         handleAction({ cardStatus: 'active', physicalCard: newCard }, "Carte activée et générée.");
     };
@@ -302,6 +303,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
         const newCard: PhysicalCard = {
             type: user.physicalCard!.type,
             isPinVisibleToUser: user.physicalCard!.isPinVisibleToUser,
+            suspendedBy: null,
             number: Array.from({ length: 4 }, () => Math.floor(1000 + Math.random() * 9000).toString()).join(''),
             expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
             cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
@@ -321,6 +323,14 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
     
     const handleTogglePinVisibility = (checked: boolean) => {
         handleAction({ physicalCard: { ...user.physicalCard!, isPinVisibleToUser: checked } }, "Visibilité du PIN pour l'utilisateur mise à jour.");
+    };
+    
+    const handleSuspendCard = () => {
+        handleAction({ cardStatus: 'suspended', physicalCard: { ...user.physicalCard!, suspendedBy: 'admin' } }, "Carte suspendue.");
+    };
+
+    const handleReactivateCard = () => {
+        handleAction({ cardStatus: 'active', physicalCard: { ...user.physicalCard!, suspendedBy: null } }, "Carte réactivée.");
     };
 
     const handleLimitUpdate = () => {
@@ -387,7 +397,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                     </div>
                 </div>
 
-                {user.cardStatus === 'active' && user.physicalCard && (
+                {user.cardStatus === 'active' || user.cardStatus === 'suspended' ? (
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="font-medium">Détails de la carte</h3>
@@ -396,22 +406,26 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                                 {showAdminDetails ? 'Masquer' : 'Afficher'}
                             </Button>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                            <div><p className="text-sm text-muted-foreground">Numéro</p><p className="font-mono">{showAdminDetails ? user.physicalCard.number.replace(/(\d{4})/g, '$1 ').trim() : '**** **** **** ****'}</p></div>
-                            <div><p className="text-sm text-muted-foreground">Expiration</p><p className="font-mono">{showAdminDetails ? user.physicalCard.expiry : 'MM/YY'}</p></div>
-                            <div><p className="text-sm text-muted-foreground">CVV</p><p className="font-mono">{showAdminDetails ? user.physicalCard.cvv : '***'}</p></div>
-                            <div><p className="text-sm text-muted-foreground">PIN</p><p className="font-mono">{showAdminDetails ? user.physicalCard.pin : '****'}</p></div>
-                        </div>
+                        {user.physicalCard && (
+                          <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+                              <div><p className="text-sm text-muted-foreground">Numéro</p><p className="font-mono">{showAdminDetails ? user.physicalCard.number.replace(/(\d{4})/g, '$1 ').trim() : '**** **** **** ****'}</p></div>
+                              <div><p className="text-sm text-muted-foreground">Expiration</p><p className="font-mono">{showAdminDetails ? user.physicalCard.expiry : 'MM/YY'}</p></div>
+                              <div><p className="text-sm text-muted-foreground">CVV</p><p className="font-mono">{showAdminDetails ? user.physicalCard.cvv : '***'}</p></div>
+                              <div><p className="text-sm text-muted-foreground">PIN</p><p className="font-mono">{showAdminDetails ? user.physicalCard.pin : '****'}</p></div>
+                          </div>
+                        )}
 
-                        <div className="flex items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                                <Label htmlFor="pin-visibility">Autoriser l'utilisateur à voir le code PIN</Label>
-                                <p className="text-xs text-muted-foreground">Permet à l'utilisateur de voir son PIN dans son application.</p>
+                        {user.physicalCard && (
+                            <div className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <Label htmlFor="pin-visibility">Autoriser l'utilisateur à voir le code PIN</Label>
+                                    <p className="text-xs text-muted-foreground">Permet à l'utilisateur de voir son PIN dans son application.</p>
+                                </div>
+                                <Switch id="pin-visibility" checked={user.physicalCard.isPinVisibleToUser} onCheckedChange={handleTogglePinVisibility} disabled={isLoading} />
                             </div>
-                            <Switch id="pin-visibility" checked={user.physicalCard.isPinVisibleToUser} onCheckedChange={handleTogglePinVisibility} disabled={isLoading} />
-                        </div>
+                        )}
                     </div>
-                )}
+                ): null}
                 
                 <div className="flex flex-wrap gap-2">
                     {user.kycStatus !== 'verified' ? (
@@ -426,17 +440,19 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                             <Button onClick={handleActivateCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
                             <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField() as any, cardType: deleteField() as any }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
                         </>
-                    ) : user.cardStatus === 'active' || user.cardStatus === 'suspended' ? (
-                        <>
-                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: user.cardStatus === 'active' ? 'suspended' : 'active' }, user.cardStatus === 'active' ? "Carte suspendue." : "Carte réactivée.")} disabled={isLoading}>
-                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                {user.cardStatus === 'active' ? 'Suspendre la carte' : 'Réactiver la carte'}
-                            </Button>
-                            <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}><DialogTrigger asChild><Button variant="outline">Modifier le plafond</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Modifier le plafond</DialogTitle></DialogHeader><div className="py-4"><Label htmlFor="new-limit">Nouveau plafond mensuel</Label><Input id="new-limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} /></div><DialogFooter><Button variant="ghost" onClick={() => setIsLimitDialogOpen(false)}>Annuler</Button><Button onClick={handleLimitUpdate}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
+                    ) : user.cardStatus === 'active' ? (
+                        <Button variant="destructive" onClick={handleSuspendCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Suspendre la carte</Button>
+                    ) : user.cardStatus === 'suspended' ? (
+                         <Button onClick={handleReactivateCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Réactiver la carte</Button>
+                    ) : null}
+
+                    {(user.cardStatus === 'active' || user.cardStatus === 'suspended') && (
+                       <>
+                         <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}><DialogTrigger asChild><Button variant="outline">Modifier le plafond</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Modifier le plafond</DialogTitle></DialogHeader><div className="py-4"><Label htmlFor="new-limit">Nouveau plafond mensuel</Label><Input id="new-limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} /></div><DialogFooter><Button variant="ghost" onClick={() => setIsLimitDialogOpen(false)}>Annuler</Button><Button onClick={handleLimitUpdate}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical /></Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onSelect={() => setIsEditOpen(true)}><Edit className="mr-2 h-4 w-4" /> Modifier les détails</DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setIsEditOpen(true); }}><Edit className="mr-2 h-4 w-4" /> Modifier les détails</DropdownMenuItem>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild><DropdownMenuItem onSelect={(e) => e.preventDefault()}><RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser la carte</DropdownMenuItem></AlertDialogTrigger>
                                         <AlertDialogContent>
@@ -454,8 +470,8 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                                     </AlertDialog>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                        </>
-                    ) : null}
+                       </>
+                    )}
                 </div>
                 
                  <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -537,6 +553,8 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                     cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
                     limit: 1000,
                     isFrozen: false,
+                    frozenBy: null,
+                    isDetailsVisibleToUser: true,
                     createdAt: Timestamp.now(),
                 };
                 
@@ -581,6 +599,23 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         );
         setEditingCard(null);
     };
+    
+    const handleToggleDetailsVisibility = async (cardId: string, checked: boolean) => {
+        const cardIndex = user.virtualCards.findIndex(c => c.id === cardId);
+        if (cardIndex === -1) return;
+
+        const updatedCards = [...user.virtualCards];
+        updatedCards[cardIndex].isDetailsVisibleToUser = checked;
+        
+        await handleAction(
+            async () => {
+                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
+                onUpdate({ ...user, virtualCards: updatedCards });
+            },
+            `Visibilité des détails de la carte mise à jour.`,
+            'Erreur lors du changement de visibilité.'
+        );
+    };
 
     const handleToggleFreeze = async (cardId: string) => {
         const cardIndex = user.virtualCards.findIndex(c => c.id === cardId);
@@ -589,6 +624,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         const updatedCards = [...user.virtualCards];
         const newStatus = !updatedCards[cardIndex].isFrozen;
         updatedCards[cardIndex].isFrozen = newStatus;
+        updatedCards[cardIndex].frozenBy = newStatus ? 'admin' : null;
 
         await handleAction(
             async () => {
@@ -657,7 +693,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical /></Button></DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onSelect={() => setEditingCard(card)}><Edit className="mr-2 h-4 w-4" /> Modifier</DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setEditingCard(card);}}><Edit className="mr-2 h-4 w-4" /> Modifier</DropdownMenuItem>
                                         <DropdownMenuItem onSelect={() => handleToggleFreeze(card.id)}>
                                             {card.isFrozen ? <RefreshCw className="mr-2 h-4 w-4" /> : <Ban className="mr-2 h-4 w-4" />}
                                             {card.isFrozen ? 'Réactiver' : 'Suspendre'}
@@ -689,6 +725,13 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                                         <div><p className="text-xs text-muted-foreground">Plafond</p><p className="font-mono">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(card.limit)}</p></div>
                                     </div>
                                 )}
+                            </div>
+                            <div className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <Label htmlFor={`details-visibility-${card.id}`}>Autoriser l'utilisateur à voir les détails</Label>
+                                    <p className="text-xs text-muted-foreground">Permet à l'utilisateur de voir le numéro complet et le CVV.</p>
+                                </div>
+                                <Switch id={`details-visibility-${card.id}`} checked={card.isDetailsVisibleToUser} onCheckedChange={(checked) => handleToggleDetailsVisibility(card.id, checked)} disabled={isLoading} />
                             </div>
                          </div>
                     ))}
@@ -811,12 +854,10 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DialogTrigger asChild>
-                                        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSelectedAccount(account); setNewAccountNumber(account.accountNumber); setIsEditOpen(true);}}>
+                                    <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSelectedAccount(account); setNewAccountNumber(account.accountNumber); setIsEditOpen(true);}}>
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Modifier</span>
-                                        </DropdownMenuItem>
-                                    </DialogTrigger>
+                                    </DropdownMenuItem>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>

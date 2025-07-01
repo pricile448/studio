@@ -147,7 +147,7 @@
       "termsPrompt": "Al crear una cuenta, usted acepta nuestros",
       "termsLink": "Términos y Condiciones",
       "createAccountButton": "Abrir mi cuenta",
-      "loginPrompt": "¿Ya tiene una cuenta?",
+      "loginPrompt": "Separador.",
       "loginLink": "Iniciar sesión",
       "dobLabel": "Fecha de nacimiento",
       "pobLabel": "Lugar de nacimiento",
@@ -377,7 +377,11 @@
         "virtual_request_dialog_title": "Solicitar una tarjeta virtual",
         "virtual_request_dialog_description": "¿Confirma que desea solicitar una nueva tarjeta virtual? Su solicitud será procesada por un asesor.",
         "virtual_request_pending_title": "Solicitud de tarjeta virtual en curso",
-        "virtual_request_pending_description": "Su solicitud está siendo procesada por un asesor. La tarjeta estará disponible en 24 horas."
+        "virtual_request_pending_description": "Su solicitud está siendo procesada por un asesor. La tarjeta estará disponible en 24 horas.",
+        "suspended": "Suspendida",
+        "adminSuspended": "Suspendida (Admin)",
+        "adminFrozenMessage": "Esta tarjeta ha sido suspendida por un administrador y no se puede desbloquear.",
+        "adminHiddenDetails": "La visibilidad de los detalles está controlada por un administrador."
     },
     "history": {
       "title": "Historial de Transacciones",
@@ -639,5 +643,3 @@
       "button": "Ir a la Página de Inicio"
     }
 }
-
-    

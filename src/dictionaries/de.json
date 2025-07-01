@@ -377,7 +377,11 @@
         "virtual_request_dialog_title": "Virtuelle Karte anfordern",
         "virtual_request_dialog_description": "Bestätigen Sie, dass Sie eine neue virtuelle Karte anfordern möchten? Ihre Anfrage wird von einem Berater bearbeitet.",
         "virtual_request_pending_title": "Antrag auf virtuelle Karte in Bearbeitung",
-        "virtual_request_pending_description": "Ihr Antrag wird von einem Berater bearbeitet. Die Karte wird innerhalb von 24 Stunden verfügbar sein."
+        "virtual_request_pending_description": "Ihr Antrag wird von einem Berater bearbeitet. Die Karte wird innerhalb von 24 Stunden verfügbar sein.",
+        "suspended": "Gesperrt",
+        "adminSuspended": "Gesperrt (Admin)",
+        "adminFrozenMessage": "Diese Karte wurde von einem Administrator gesperrt und kann nicht entsperrt werden.",
+        "adminHiddenDetails": "Die Sichtbarkeit der Details wird von einem Administrator kontrolliert."
     },
     "history": {
       "title": "Transaktionsverlauf",
@@ -620,7 +624,7 @@
       "unverified_budgets_title": "Verwalten Sie Ihre Budgets",
       "unverified_cards_title": "Verwalten Sie Ihre Karten",
       "pending_title": "Verifizierung läuft",
-      "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel 24-48 Stunden. Sie können weiterhin Ihr Dashboard durchsuchen.",
+      "pending_description": "Ihre Dokumente werden überprüft. Dies dauert in der Regel zwischen 24 und 48 Stunden. Sie können weiterhin Ihr Dashboard durchsuchen.",
       "selected": "ausgewählt",
       "clickNext": "Bitte klicken Sie auf 'Weiter', um fortzufahren.",
       "readyToProceed": "Bereit zum Fortfahren?",
@@ -639,5 +643,3 @@
       "button": "Zur Startseite"
     }
 }
-
-    
