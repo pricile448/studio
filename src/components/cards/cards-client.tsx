@@ -64,7 +64,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                                 <span className="font-semibold text-lg">{card.name}</span>
                                 {card.isFrozen && <Badge variant="destructive">{isAdminFrozen ? dict.adminSuspended : dict.suspended}</Badge>}
                             </div>
-                            <Wifi className="h-5 w-5 sm:h-6 sm:w-6" />
+                            <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} />
                         </div>
                         <div className="space-y-2">
                             <div className="flex items-center justify-center font-mono text-lg sm:text-xl tracking-widest text-center space-x-2 sm:space-x-4">
@@ -84,7 +84,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                                 </div>
                             </div>
                         </div>
-                        <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 right-6" />
+                        
                     </div>
                      {/* Card Back */}
                     <div className={cn(
@@ -96,7 +96,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                             <span className="text-sm">CVV</span>
                             <span className="font-mono font-bold ml-2">{card.cvv}</span>
                         </div>
-                         <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 left-6" />
+                         <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute top-4 left-6" />
                     </div>
                 </div>
             </div>
@@ -318,7 +318,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                       )}>
                           <div className="flex justify-between items-start">
                               <span className="font-semibold">{cardsDict.cardBankName}</span>
-                              <Wifi className="h-6 w-6" />
+                              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} />
                           </div>
                           <div className="space-y-2">
                               <div className="flex items-center gap-4 font-mono text-xl tracking-widest">
@@ -338,7 +338,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                                   </div>
                               </div>
                           </div>
-                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 right-6" />
+                          
                       </div>
                       {/* Card Back */}
                        <div className={cn(
@@ -351,7 +351,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                               <span className="text-sm">CVV</span>
                               <span className="font-mono font-bold ml-2">{physicalCard.cvv}</span>
                           </div>
-                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-4 left-6" />
+                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute top-4 left-6" />
                       </div>
                   </div>
               </div>
@@ -528,7 +528,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                                     <div className={cn("aspect-[85.6/53.98] bg-gradient-to-br p-4 flex flex-col justify-between rounded-t-lg relative", cardStyleClasses[type])}>
                                       <span className="font-semibold text-lg">{cardsDict[type].title}</span>
                                       <p className="text-xs opacity-90">{cardsDict[type].description}</p>
-                                      <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751392773/avry2ipd9_kj00mw.png" alt="Visa" width={50} height={16} className="absolute bottom-2 right-4" />
+                                      <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={50} height={16} className="absolute top-4 right-4" />
                                     </div>
                                     <div className="p-4">
                                         <Button variant="link" className="p-0 w-full justify-start group-hover:underline">
