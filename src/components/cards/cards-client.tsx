@@ -23,6 +23,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 import { Separator } from '@/components/ui/separator';
@@ -64,7 +65,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                                 <span className="font-semibold text-lg">{card.name}</span>
                                 {card.isFrozen && <Badge variant="destructive">{dict.suspended}</Badge>}
                             </div>
-                            <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} />
+                            <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute top-4 right-4" />
                         </div>
                         <div className="space-y-2">
                             <div className="flex items-center justify-center font-mono text-lg sm:text-xl tracking-widest text-center space-x-2 sm:space-x-4">
@@ -200,7 +201,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
   };
   
   const handleToggleVirtualFreeze = async (cardId: string) => {
-    const cardIndex = userProfile.virtualCards.findIndex(c => c.id === cardId);
+    const cardIndex = (userProfile.virtualCards || []).findIndex(c => c.id === cardId);
     if (cardIndex === -1) return;
 
     const updatedCards = [...userProfile.virtualCards];
@@ -318,7 +319,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                       )}>
                           <div className="flex justify-between items-start">
                               <span className="font-semibold">{cardsDict.cardBankName}</span>
-                              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} />
+                               <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute top-4 right-4" />
                           </div>
                           <div className="space-y-2">
                               <div className="flex items-center gap-4 font-mono text-xl tracking-widest">
