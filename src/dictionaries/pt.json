@@ -356,28 +356,26 @@
         "request_pending_title": "Pedido de cartão em processamento",
         "request_pending_description": "Recebemos o seu pedido de cartão. Está a ser processado e será notificado quando for enviado.",
         "cardActive": "Cartão Ativo",
+        "physicalCardTitle": "Escolha o seu cartão físico",
+        "physicalCardDescription": "Selecione o design do cartão que melhor se adapta a você. Cada cartão oferece os mesmos benefícios.",
+        "essentielle": { "title": "Essencial", "description": "Um design azul clássico e elegante." },
+        "precieuse": { "title": "Preciosa", "description": "Um acabamento dourado para um estilo premium." },
+        "luminax": { "title": "Luminax", "description": "Um preto sofisticado para um visual moderno." },
+        "requestSubmittedTitle": "Solicitação enviada",
+        "requestSubmittedDescriptionPhysical": "A sua solicitação de cartão físico foi enviada. Será notificado quando for enviado (maior atraso).",
+        "requestSubmittedDescriptionVirtual": "A sua solicitação de cartão virtual foi enviada. Estará disponível na sua conta em 24 horas.",
         "physicalCard": "Cartão Físico",
         "orderPhysical": "Pedir um cartão físico",
         "virtualCard": "Cartão Virtual",
         "generateVirtual": "Gerar um cartão virtual",
         "noVirtualCards": "Não tem cartões virtuais de momento.",
-        "physicalCardTitle": "Escolha o seu cartão físico",
-        "physicalCardDescription": "Selecione o design do cartão que melhor se adapta a você. Cada cartão oferece os mesmos benefícios.",
-        "essentielle": {
-            "title": "Essencial",
-            "description": "Um design azul clássico e elegante."
-        },
-        "precieuse": {
-            "title": "Preciosa",
-            "description": "Um acabamento dourado para um estilo premium."
-        },
-        "luminax": {
-            "title": "Luminax",
-            "description": "Um preto sofisticado para um visual moderno."
-        },
-        "requestSubmittedTitle": "Solicitação enviada",
-        "requestSubmittedDescriptionPhysical": "A sua solicitação de cartão físico foi enviada. Será notificado quando for enviado (maior atraso).",
-        "requestSubmittedDescriptionVirtual": "A sua solicitação de cartão virtual foi enviada. Estará disponível na sua conta em 24 horas."
+        "noPhysicalCard": "Nenhum cartão físico encomendado",
+        "noPhysicalCardDescription": "Ainda não encomendou um cartão físico. Pode encomendar um a qualquer momento.",
+        "selectCard": "Selecionar",
+        "virtual_request_dialog_title": "Solicitar um cartão virtual",
+        "virtual_request_dialog_description": "Confirma que deseja solicitar um novo cartão virtual? A sua solicitação será processada por um consultor.",
+        "virtual_request_pending_title": "Pedido de cartão virtual em andamento",
+        "virtual_request_pending_description": "O seu pedido está a ser processado por um consultor. O cartão estará disponível dentro de 24 horas."
     },
     "history": {
       "title": "Histórico de Transações",

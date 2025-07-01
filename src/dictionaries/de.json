@@ -356,28 +356,26 @@
         "request_pending_title": "Kartenantrag in Bearbeitung",
         "request_pending_description": "Wir haben Ihren Kartenantrag erhalten. Er wird bearbeitet und Sie werden benachrichtigt, wenn er versendet wird.",
         "cardActive": "Karte Aktiv",
+        "physicalCardTitle": "Wählen Sie Ihre physische Karte",
+        "physicalCardDescription": "Wählen Sie das Kartendesign, das am besten zu Ihnen passt. Jede Karte bietet die gleichen Vorteile.",
+        "essentielle": { "title": "Essentiel", "description": "Ein klassisches und elegantes blaues Design." },
+        "precieuse": { "title": "Précieuse", "description": "Eine goldene Oberfläche für einen Premium-Stil." },
+        "luminax": { "title": "Luminax", "description": "Ein raffiniertes Schwarz für einen modernen Look." },
+        "requestSubmittedTitle": "Anfrage gesendet",
+        "requestSubmittedDescriptionPhysical": "Ihre Anfrage für eine physische Karte wurde gesendet. Sie werden benachrichtigt, wenn sie versendet wird (längere Verzögerung).",
+        "requestSubmittedDescriptionVirtual": "Ihre Anfrage für eine virtuelle Karte wurde gesendet. Sie wird innerhalb von 24 Stunden in Ihrem Konto verfügbar sein.",
         "physicalCard": "Physische Karte",
         "orderPhysical": "Physische Karte bestellen",
         "virtualCard": "Virtuelle Karte",
         "generateVirtual": "Virtuelle Karte generieren",
         "noVirtualCards": "Sie haben im Moment keine virtuellen Karten.",
-        "physicalCardTitle": "Wählen Sie Ihre physische Karte",
-        "physicalCardDescription": "Wählen Sie das Kartendesign, das am besten zu Ihnen passt. Jede Karte bietet die gleichen Vorteile.",
-        "essentielle": {
-            "title": "Essentiel",
-            "description": "Ein klassisches und elegantes blaues Design."
-        },
-        "precieuse": {
-            "title": "Précieuse",
-            "description": "Eine goldene Oberfläche für einen Premium-Stil."
-        },
-        "luminax": {
-            "title": "Luminax",
-            "description": "Ein raffiniertes Schwarz für einen modernen Look."
-        },
-        "requestSubmittedTitle": "Anfrage gesendet",
-        "requestSubmittedDescriptionPhysical": "Ihre Anfrage für eine physische Karte wurde gesendet. Sie werden benachrichtigt, wenn sie versendet wird (längere Verzögerung).",
-        "requestSubmittedDescriptionVirtual": "Ihre Anfrage für eine virtuelle Karte wurde gesendet. Sie wird innerhalb von 24 Stunden in Ihrem Konto verfügbar sein."
+        "noPhysicalCard": "Keine physische Karte bestellt",
+        "noPhysicalCardDescription": "Sie haben noch keine physische Karte bestellt. Sie können jederzeit eine bestellen.",
+        "selectCard": "Wählen",
+        "virtual_request_dialog_title": "Virtuelle Karte anfordern",
+        "virtual_request_dialog_description": "Bestätigen Sie, dass Sie eine neue virtuelle Karte anfordern möchten? Ihre Anfrage wird von einem Berater bearbeitet.",
+        "virtual_request_pending_title": "Antrag auf virtuelle Karte in Bearbeitung",
+        "virtual_request_pending_description": "Ihr Antrag wird von einem Berater bearbeitet. Die Karte wird innerhalb von 24 Stunden verfügbar sein."
     },
     "history": {
       "title": "Transaktionsverlauf",

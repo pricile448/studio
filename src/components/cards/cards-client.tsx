@@ -263,17 +263,25 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         {/* Virtual Cards Section */}
         <div>
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.virtualCard}s</h2>
-           {userProfile.hasPendingVirtualCardRequest && (
-             <Alert variant="info" className="mb-4">
-                <Hourglass className="h-4 w-4" />
-                <AlertTitle>{cardsDict.virtual_request_pending_title}</AlertTitle>
-                <AlertDescription>{cardsDict.virtual_request_pending_description}</AlertDescription>
-              </Alert>
-            )}
           <div className="grid gap-6 md:grid-cols-2">
-            {(userProfile.virtualCards || []).map(card => <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} userProfile={userProfile} />)}
+            {(userProfile.virtualCards || []).map(card => (
+              <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} userProfile={userProfile} />
+            ))}
+            
+            {userProfile.hasPendingVirtualCardRequest && (
+              <Card className="col-span-full bg-muted/50 border-dashed">
+                <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full min-h-48">
+                  <Hourglass className="h-10 w-10 text-muted-foreground mb-4" />
+                  <h3 className="font-semibold text-lg">{cardsDict.virtual_request_pending_title}</h3>
+                  <p className="text-muted-foreground text-sm mt-1">{cardsDict.virtual_request_pending_description}</p>
+                </CardContent>
+              </Card>
+            )}
+
             {(!userProfile.virtualCards || userProfile.virtualCards.length === 0) && !userProfile.hasPendingVirtualCardRequest && (
-              <p className="text-muted-foreground col-span-full">{cardsDict.noVirtualCards}</p>
+              <div className="col-span-full text-center text-muted-foreground p-8 border rounded-lg border-dashed">
+                <p>{cardsDict.noVirtualCards}</p>
+              </div>
             )}
           </div>
         </div>
@@ -370,3 +378,5 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     </div>
   );
 }
+
+    
