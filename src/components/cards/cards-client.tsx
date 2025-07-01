@@ -207,7 +207,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
           {userProfile.cardStatus === 'active' && physicalCard && (
              <div className="grid gap-8 lg:grid-cols-3">
               <div className="lg:col-span-1">
-                <Card className={cn(
+                <div className={cn(
                   "aspect-[85.6/53.98] bg-gradient-to-br p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
                   cardStyleClasses[physicalCard.type],
                   userProfile.cardStatus === 'suspended' && "grayscale opacity-50"
@@ -234,7 +234,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                       </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               </div>
               <div className="lg:col-span-2">
                 <Card>
