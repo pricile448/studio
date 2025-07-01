@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -573,7 +571,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                         <Info className="h-4 w-4" />
                         <AlertTitle>Demande en attente</AlertTitle>
                         <AlertDescription>
-                            L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt.toDate(), 'dd/MM/yyyy') : ''}. Cliquez sur "Générer" pour la créer.
+                            L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt, 'dd/MM/yyyy') : ''}. Cliquez sur "Générer" pour la créer.
                         </AlertDescription>
                     </Alert>
                 )}
