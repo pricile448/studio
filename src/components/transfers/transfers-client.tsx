@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -147,18 +148,16 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card>
-            <form onSubmit={handleTransfer}>
-              <CardHeader>
-                <CardTitle className="font-headline">{transfersDict.newTransfer}</CardTitle>
-                <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4">
-                 <Alert variant="info">
-                  <AlertTitle>Information</AlertTitle>
-                  <AlertDescription>
-                    Pour des raisons de sécurité, tous les virements externes sont soumis à une validation par nos équipes. Votre demande sera traitée dans les plus brefs délais.
-                  </AlertDescription>
-                </Alert>
+            <CardHeader>
+               <Alert variant="info">
+                <AlertTitle>Information</AlertTitle>
+                <AlertDescription>
+                  Pour des raisons de sécurité, tous les virements externes sont soumis à une validation par nos équipes. Votre demande sera traitée dans les plus brefs délais.
+                </AlertDescription>
+              </Alert>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleTransfer} className="grid gap-4">
                 <div className="grid md:grid-cols-2 gap-4">
                    <div className="space-y-2">
                     <Label htmlFor="from">{transfersDict.from}</Label>
@@ -202,12 +201,12 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                   <Label htmlFor="description">{transfersDict.description}</Label>
                   <Textarea id="description" placeholder={transfersDict.descriptionPlaceholder} value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
-                <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                <Button type="submit" className="w-full md:w-auto justify-self-start" disabled={isSubmitting}>
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2" />}
                   {transfersDict.submit}
                 </Button>
-              </CardContent>
-            </form>
+              </form>
+            </CardContent>
           </Card>
         </div>
         <div className="lg:col-span-1">
@@ -244,7 +243,10 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
+        <div>
+            <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
+            <p className="mt-1 text-muted-foreground">{transfersDict.newTransferDescription}</p>
+        </div>
         {userProfile.kycStatus === 'verified' && <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />}
       </div>
       <Separator />
