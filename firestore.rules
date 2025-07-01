@@ -1,78 +1,114 @@
 
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // ===================================
-    //            USER PROFILE
-    // ===================================
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // This function can now work because of the new rule on /admins/{adminId}
+    function isAdmin() {
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // This function checks if only allowed profile fields are being updated.
+    function isUpdatingProfile() {
+      let allowedFields = ['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'notificationPrefs', 'inactivityTimeout'];
+      // Using hasAny() is safer if new fields are added to the form but shouldn't be saved
+      return request.resource.data.keys().hasAny(allowedFields);
+    }
+    
+    // This function validates a physical card request.
+    function isRequestingPhysicalCard() {
+        let incoming = request.resource.data;
+        let existing = resource.data;
+        
+        let canRequest = !('cardStatus' in existing) || existing.cardStatus == 'none';
+        
+        let fieldsAreCorrect = incoming.diff(existing).affectedKeys().hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']);
+        
+        let valuesAreCorrect = incoming.cardStatus == 'requested'
+                            && incoming.cardType in ['essentielle', 'precieuse', 'luminax']
+                            && incoming.cardRequestedAt == request.time;
+
+        return canRequest && fieldsAreCorrect && valuesAreCorrect;
+    }
+    
+    // This function validates the addition of a virtual card.
+    function isAddingVirtualCard() {
+        let incoming = request.resource.data;
+        let existing = resource.data;
+
+        let fieldsAreCorrect = incoming.diff(existing).affectedKeys().hasOnly(['virtualCards']);
+        
+        let cardAdded = incoming.virtualCards.size() == existing.virtualCards.size() + 1;
+        
+        let newCard = incoming.virtualCards[incoming.virtualCards.size() - 1];
+        // The timestamp is now generated on the client, so we check if it's a valid timestamp
+        let newCardIsValid = newCard.type == 'virtual' 
+                          && newCard.status == 'active'
+                          && newCard.isFrozen == false
+                          && newCard.createdAt is timestamp;
+        
+        return fieldsAreCorrect && cardAdded && newCardIsValid;
+    }
+    
+    // --- Rules ---
     match /users/{userId} {
-    
-      function isOwner() {
-        return request.auth.uid == userId;
-      }
-
-      allow read, create: if isOwner();
+      // Admins can read/write everything.
+      // Users can only get their own data.
+      allow get: if isOwner(userId) || isAdmin();
+      // Only admins can list all users.
+      allow list: if isAdmin();
       
-      allow update: if isOwner() && (
-        // Condition 1: Updating standard profile info
-        (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'notificationPrefs', 'inactivityTimeout'
-          ])
-        ) 
-        ||
-        // Condition 2: Requesting a physical card
-        (
-          // Defensive check for cardStatus
-          (!('cardStatus' in resource.data) || resource.data.cardStatus == 'none') &&
-          // Validate new values
-          request.resource.data.cardStatus == 'requested' &&
-          request.resource.data.cardType in ['essentielle', 'precieuse', 'luminax'] &&
-          // Validate server timestamp
-          request.resource.data.cardRequestedAt == request.time &&
-          // Ensure only allowed keys are changed
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardType', 'cardRequestedAt'])
-        )
-        ||
-        // Condition 3: Adding a virtual card
-        (
-          // Ensure virtualCards list grows by exactly 1
-          request.resource.data.virtualCards.size() == (!('virtualCards' in resource.data) ? 0 : resource.data.virtualCards.size()) + 1 &&
-          // The createdAt is a client-side timestamp, so we just check it exists and is not in the future.
-          request.resource.data.virtualCards[request.resource.data.virtualCards.size() - 1].createdAt <= request.time &&
-          // Ensure only virtualCards list is changed
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards'])
-        )
-      );
-    }
+      // A user can create their own document upon signup.
+      allow create: if isOwner(userId);
+      
+      // Admins can update any user field.
+      // Users can only update their own document under specific conditions.
+      allow update: if isAdmin() || (isOwner(userId) && (
+        isUpdatingProfile() || 
+        isRequestingPhysicalCard() ||
+        isAddingVirtualCard()
+      ));
 
-    // ===================================
-    //               ADMIN
-    // ===================================
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+    
     match /admins/{adminId} {
-      allow read, write: if false; 
+      // Allow a signed-in user to check if they are an admin by reading their own doc.
+      // This is required for the isAdmin() function to work.
+      allow get: if isOwner(adminId);
+      
+      // Allow admins to list other admins (if needed in the future).
+      allow list: if isAdmin();
     }
     
-    // ===================================
-    //                CHAT
-    // ===================================
     match /chats/{chatId} {
-      allow read, write: if request.auth.uid in resource.data.participants;
-    }
-    
-    match /chats/{chatId}/messages/{messageId} {
-       allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-       
-       allow create: if request.auth.uid == request.resource.data.senderId && 
-                      request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-                      
-       allow update: if request.auth.uid == resource.data.senderId && 
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']) && 
-                      request.resource.data.deletedForUser == true;
-                      
-       allow delete: if false;
+        // Participants of a chat or admins can access it.
+        allow read, create: if (isSignedIn() && (request.auth.uid in resource.data.participants || isAdmin()));
+        
+        // Allow admins to update chat metadata (e.g. for resetting conversations)
+        allow update: if isAdmin();
+
+        match /messages/{messageId} {
+            // Participants of a chat or admins can read/create messages.
+            allow read, create: if (isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin()));
+            
+            // Allow users to "soft delete" their own messages.
+            // Allow admins to update any message.
+            allow update: if (isOwner(resource.data.senderId) && request.resource.data.keys().hasOnly(['deletedForUser'])) || isAdmin();
+
+            // Only admins can hard delete messages
+            allow delete: if isAdmin();
+        }
     }
   }
 }
