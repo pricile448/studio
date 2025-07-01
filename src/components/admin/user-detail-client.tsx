@@ -5,7 +5,7 @@ import { type UserProfile, type Account, type Transaction, type Budget, addFunds
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff, Smartphone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -486,37 +486,6 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleGenerateVirtualCard = async () => {
-        setIsLoading(true);
-        try {
-            const newCard: VirtualCard = {
-                id: `vc_${Date.now()}`,
-                type: 'virtual',
-                name: 'Carte virtuelle',
-                number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
-                expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
-                cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
-                limit: 1000,
-                isFrozen: false,
-                createdAt: Timestamp.now(),
-            };
-            
-            const updatedVirtualCards = [...(user.virtualCards || []), newCard];
-            await updateUserInFirestore(user.uid, { 
-                virtualCards: updatedVirtualCards,
-                hasPendingVirtualCardRequest: deleteField(),
-                virtualCardRequestedAt: deleteField()
-             }, adminDb);
-
-            onUpdate({ ...user, virtualCards: updatedVirtualCards, hasPendingVirtualCardRequest: false, virtualCardRequestedAt: undefined });
-            toast({ title: 'Succès', description: "Nouvelle carte virtuelle générée pour l'utilisateur." });
-        } catch (error) {
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     const handleAction = async (action: () => Promise<any>, successMsg: string, errorMsg: string) => {
         setIsLoading(true);
         try {
@@ -529,6 +498,35 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             setIsLoading(false);
         }
     };
+
+    const handleGenerateVirtualCard = async () => {
+        await handleAction(
+            async () => {
+                const newCard: VirtualCard = {
+                    id: `vc_${Date.now()}`,
+                    type: 'virtual',
+                    name: 'Carte virtuelle',
+                    number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
+                    expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
+                    cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
+                    limit: 1000,
+                    isFrozen: false,
+                    createdAt: Timestamp.now(),
+                };
+                
+                const updatedVirtualCards = [...(user.virtualCards || []), newCard];
+                await updateUserInFirestore(user.uid, { 
+                    virtualCards: updatedVirtualCards,
+                    hasPendingVirtualCardRequest: deleteField(),
+                    virtualCardRequestedAt: deleteField()
+                 }, adminDb);
+
+                onUpdate({ ...user, virtualCards: updatedVirtualCards, hasPendingVirtualCardRequest: false, virtualCardRequestedAt: undefined });
+            },
+            "Nouvelle carte virtuelle générée pour l'utilisateur.",
+            "Erreur lors de la génération de la carte."
+        );
+    };
     
     const handleToggleFreeze = async (cardId: string) => {
         const cardIndex = user.virtualCards.findIndex(c => c.id === cardId);
@@ -539,22 +537,26 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         updatedCards[cardIndex].isFrozen = newStatus;
 
         await handleAction(
-            () => updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb),
+            async () => {
+                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
+                onUpdate({ ...user, virtualCards: updatedCards });
+            },
             `Carte ${newStatus ? 'suspendue' : 'réactivée'}.`,
             'Erreur lors du changement de statut de la carte.'
         );
-        onUpdate({ ...user, virtualCards: updatedCards });
     };
 
     const handleDeleteCard = async (cardId: string) => {
         const updatedCards = user.virtualCards.filter(c => c.id !== cardId);
 
         await handleAction(
-            () => updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb),
+            async () => {
+                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
+                onUpdate({ ...user, virtualCards: updatedCards });
+            },
             `Carte virtuelle supprimée.`,
             'Erreur lors de la suppression de la carte.'
         );
-        onUpdate({ ...user, virtualCards: updatedCards });
     };
 
     return (
@@ -568,15 +570,16 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                     <Alert variant="info">
                         <Info className="h-4 w-4" />
                         <AlertTitle>Demande en attente</AlertTitle>
-                        <AlertDescription>
-                            L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt, 'dd/MM/yyyy') : ''}. Cliquez sur "Générer" pour la créer.
+                        <AlertDescription className="flex items-center justify-between">
+                            <span>L'utilisateur a demandé une nouvelle carte virtuelle le {user.virtualCardRequestedAt ? format(user.virtualCardRequestedAt, 'dd/MM/yyyy') : ''}.</span>
+                            <Button onClick={handleGenerateVirtualCard} disabled={isLoading || user.kycStatus !== 'verified'}>
+                                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Smartphone className="mr-2 h-4 w-4" />}
+                                Générer
+                            </Button>
                         </AlertDescription>
                     </Alert>
                 )}
-                <Button onClick={handleGenerateVirtualCard} disabled={isLoading || user.kycStatus !== 'verified'}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-                    Générer une carte virtuelle
-                </Button>
+                
                 {user.kycStatus !== 'verified' && (
                     <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
                 )}
@@ -601,7 +604,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                                 </Button>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="sm" disabled={isLoading} onSelect={(e) => e.preventDefault()}>Supprimer</Button>
+                                        <Button variant="destructive" size="sm" disabled={isLoading}>Supprimer</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader><AlertDialogTitle>Supprimer la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
@@ -611,7 +614,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                             </div>
                          </div>
                     ))}
-                    {(!user.virtualCards || user.virtualCards.length === 0) && (
+                    {(!user.virtualCards || user.virtualCards.length === 0) && !user.hasPendingVirtualCardRequest && (
                         <p className="text-muted-foreground text-center py-4">Cet utilisateur n'a aucune carte virtuelle.</p>
                     )}
                 </div>
