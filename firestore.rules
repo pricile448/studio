@@ -1,144 +1,126 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Fonction d'aide pour vérifier si l'utilisateur est un administrateur
+    // =================================
+    // Fonctions d'aide
+    // =================================
+    
+    // Vérifie si l'utilisateur est un administrateur.
     function isAdmin() {
-      // Les administrateurs peuvent lire leur propre document dans la collection 'admins'.
+      // Les administrateurs ont un document dans la collection 'admins' avec leur UID.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
+    
+    // Vérifie si l'utilisateur est le propriétaire du document.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
 
-    // Collection des administrateurs : seuls les administrateurs peuvent la lire.
+    // =================================
+    // Règles pour les administrateurs
+    // =================================
     match /admins/{adminId} {
-      allow read: if request.auth.uid == adminId || isAdmin();
+      allow read: if isOwner(adminId) || isAdmin();
       allow list, write: if isAdmin();
     }
 
-    // Règles pour la collection des utilisateurs
+    // =================================
+    // Règles pour les utilisateurs
+    // =================================
     match /users/{userId} {
-      // Un utilisateur normal peut :
-      // - Lire son propre document.
-      // - Mettre à jour son propre document, avec des validations de champs spécifiques.
-      allow read: if request.auth.uid == userId || isAdmin();
-
-      // --- FONCTIONS DE MISE À JOUR ---
-
-      // Autoriser l'utilisateur à mettre à jour son propre profil avec certains champs
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // --- Fonctions de validation des mises à jour ---
+      
       function canUpdateOwnProfile() {
-        let allowedFields = [
-          'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality',
-          'residenceCountry', 'address', 'city', 'postalCode', 'profession',
-          'salary', 'notificationPrefs', 'inactivityTimeout'
-        ];
-        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
-      }
-
-      // Autoriser l'utilisateur à demander une carte physique
-      function canRequestPhysicalCard() {
-        let isRequestingCard = request.resource.data.cardStatus == 'requested'
-            && request.resource.data.cardRequestedAt == request.time
-            && request.resource.data.cardType in ['essentielle', 'precieuse', 'luminax'];
-        let onlyCardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt', 'cardType']);
-        let cardStatusIsNone = !('cardStatus' in resource.data) || resource.data.cardStatus == 'none';
-
-        return cardStatusIsNone && isRequestingCard && onlyCardFieldsChanged;
+        let allowedFields = ['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout'];
+        return request.resource.data.keys().hasOnly(allowedFields);
       }
       
-      // Autoriser l'utilisateur à demander une carte virtuelle
-      function canRequestVirtualCard() {
-        let isRequesting = request.resource.data.hasPendingVirtualCardRequest == true
-            && request.resource.data.virtualCardRequestedAt == request.time;
-        let onlyVirtualCardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
-        let noPendingRequest = !('hasPendingVirtualCardRequest' in resource.data) || resource.data.hasPendingVirtualCardRequest == false;
-
-        return noPendingRequest && isRequesting && onlyVirtualCardFieldsChanged;
-      }
-
-      // Autoriser l'utilisateur à soumettre ses documents KYC
       function canSubmitKyc() {
-        let isSubmittingKyc = request.resource.data.kycStatus == 'pending'
-          && request.resource.data.kycSubmittedAt == request.time;
-        let onlyKycFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycSubmittedAt']);
         let isUnverified = resource.data.kycStatus == 'unverified';
-
-        return isUnverified && isSubmittingKyc && onlyKycFieldsChanged;
+        let onlyKycFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycSubmittedAt']);
+        let isSubmittingKyc = request.resource.data.kycStatus == 'pending' && request.resource.data.kycSubmittedAt == request.time;
+        return isUnverified && onlyKycFieldsChanged && isSubmittingKyc;
       }
       
-      // Autoriser l'utilisateur à télécharger un document
+      function canRequestPhysicalCard() {
+        let cardStatusIsNone = !('cardStatus' in resource.data) || resource.data.cardStatus == 'none';
+        let onlyCardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt', 'cardType']);
+        let isRequestingCard = request.resource.data.cardStatus == 'requested' && request.resource.data.cardRequestedAt == request.time && request.resource.data.cardType in ['essentielle', 'precieuse', 'luminax'];
+        return cardStatusIsNone && onlyCardFieldsChanged && isRequestingCard;
+      }
+      
+      function canRequestVirtualCard() {
+        let noPendingRequest = !('hasPendingVirtualCardRequest' in resource.data) || resource.data.hasPendingVirtualCardRequest == false;
+        let onlyVirtualCardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
+        let isRequesting = request.resource.data.hasPendingVirtualCardRequest == true && request.resource.data.virtualCardRequestedAt == request.time;
+        return noPendingRequest && onlyVirtualCardFieldsChanged && isRequesting;
+      }
+      
       function canUploadDocument() {
         let isUploadingDoc = request.resource.data.documents.size() == resource.data.documents.size() + 1;
         let onlyDocsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['documents']);
         return isUploadingDoc && onlyDocsChanged;
       }
 
-      // Autoriser l'utilisateur à ajouter un bénéficiaire
       function canAddBeneficiary() {
-        let isAddingBeneficiary = request.resource.data.beneficiaries.size() == resource.data.beneficiaries.size() + 1;
+        let isAddingOne = request.resource.data.beneficiaries.size() == resource.data.beneficiaries.size() + 1;
         let onlyBeneficiariesChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']);
-        return isAddingBeneficiary && onlyBeneficiariesChanged;
+        return isAddingOne && onlyBeneficiariesChanged;
       }
 
-      // Autoriser l'utilisateur à demander un virement externe
       function canRequestTransfer() {
-        let newTransactions = request.resource.data.transactions;
-        let oldTransactions = resource.data.transactions;
-        let isRequestingTransfer = newTransactions.size() == oldTransactions.size() + 1;
+        let isAddingOne = request.resource.data.transactions.size() == resource.data.transactions.size() + 1;
         let onlyTransactionsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions']);
-
-        if (isRequestingTransfer) {
-          let addedTx = newTransactions[newTransactions.size() - 1];
-          return addedTx.type == 'external_transfer' && addedTx.status == 'pending';
-        }
-        return false;
-      }
-
-      // Autoriser l'utilisateur à bloquer/débloquer ses propres cartes
-      function canManageOwnCards() {
-        let cardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasAny(['cardStatus', 'physicalCard', 'virtualCards']);
-        
-        // L'utilisateur ne peut pas débloquer une carte suspendue par un admin
-        let physicalCardAdminLock = 'physicalCard' in resource.data
-                                  && resource.data.physicalCard.suspendedBy == 'admin' 
-                                  && request.resource.data.physicalCard.suspendedBy != 'admin';
-
-        // La logique pour les cartes virtuelles est complexe à vérifier dans les règles,
-        // nous faisons confiance à la logique client/backend pour la sécurité.
-        // Une implémentation plus sécurisée utiliserait une Cloud Function.
-        return cardFieldsChanged && !physicalCardAdminLock;
+        let lastTransaction = request.resource.data.transactions[request.resource.data.transactions.size() - 1];
+        let isValidRequest = lastTransaction.type == 'external_transfer' && lastTransaction.status == 'pending';
+        return isAddingOne && onlyTransactionsChanged && isValidRequest;
       }
       
-      // --- RÈGLE DE MISE À JOUR PRINCIPALE ---
-      // L'utilisateur authentifié peut mettre à jour son propre document si l'une des conditions est remplie.
-      // Un administrateur peut mettre à jour n'importe quel document utilisateur.
-      allow update: if (request.auth.uid == userId && (
+      function canTogglePhysicalCardFreeze() {
+        let onlyCardStatusFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'physicalCard']);
+        // Empêche l'utilisateur de débloquer une carte suspendue par un admin.
+        let adminLockIsPreserved = !(resource.data.physicalCard.suspendedBy == 'admin' && request.resource.data.physicalCard.suspendedBy != 'admin');
+        return onlyCardStatusFieldsChanged && adminLockIsPreserved;
+      }
+
+      function canToggleVirtualCardFreeze() {
+        let onlyVirtualCardsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards']);
+        let sameNumberOfCards = request.resource.data.virtualCards.size() == resource.data.virtualCards.size();
+        // REMARQUE: Il n'est pas possible de vérifier le 'frozenBy' pour chaque carte dans une liste.
+        // La sécurité ici suppose que le client ne permet pas de débloquer une carte gelée par un admin.
+        return onlyVirtualCardsChanged && sameNumberOfCards;
+      }
+      
+      // L'utilisateur peut mettre à jour son document si une des conditions est remplie.
+      allow update: if isOwner(userId) && (
                       canUpdateOwnProfile() ||
+                      canSubmitKyc() ||
                       canRequestPhysicalCard() ||
                       canRequestVirtualCard() ||
-                      canSubmitKyc() ||
                       canUploadDocument() ||
                       canAddBeneficiary() ||
                       canRequestTransfer() ||
-                      canManageOwnCards()
-                    ))
-                    || isAdmin();
+                      canTogglePhysicalCardFreeze() ||
+                      canToggleVirtualCardFreeze()
+                    ) || isAdmin();
 
-      // Les administrateurs peuvent lister tous les utilisateurs, mais les utilisateurs normaux ne le peuvent pas.
-      allow list: if isAdmin();
-      // Seuls les administrateurs peuvent créer ou supprimer des documents utilisateur directement.
-      allow create, delete: if isAdmin();
+      allow list, create, delete: if isAdmin();
     }
     
-    // Règles pour la collection de messagerie (chat)
+    // =================================
+    // Règles pour la messagerie
+    // =================================
     match /chats/{chatId} {
       allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
       
       match /messages/{messageId} {
          allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-         allow create: if request.auth.uid == request.resource.data.senderId;
-         // Suppression douce pour les utilisateurs, suppression dure pour les administrateurs
-         allow update: if request.auth.uid == resource.data.senderId && request.resource.data.keys().hasOnly(['deletedForUser']);
+         allow create: if isOwner(request.resource.data.senderId);
+         allow update: if isOwner(resource.data.senderId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
          allow delete: if isAdmin();
       }
     }
