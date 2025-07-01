@@ -27,7 +27,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CreditCard, Smartphone, Loader2, Info } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import type { VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
+import type { VirtualCard, PhysicalCardType, UserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -38,39 +38,49 @@ import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 
-function VirtualCardDisplay({ card, dict }: { card: VirtualCard, dict: Dictionary['cards'] }) {
+function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, dict: Dictionary['cards'], userProfile: UserProfile | null }) {
     const [showDetails, setShowDetails] = useState(false);
+
     return (
-        <Card className="bg-muted/30">
-            <CardHeader>
-                <CardTitle className="text-lg">{card.name}</CardTitle>
-                <CardDescription>
-                    {dict.limit}: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(card.limit)}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="font-mono space-y-2">
-                <div>
-                    <Label className="text-xs">{dict.cardHolder}</Label>
-                    <p className="tracking-widest">{showDetails ? card.number : "**** **** **** " + card.number.slice(-4)}</p>
+        <div className="space-y-4">
+            <div className={cn(
+                "aspect-[85.6/53.98] bg-gradient-to-br from-gray-700 via-gray-900 to-black text-white p-4 sm:p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all"
+            )}>
+                <div className="flex justify-between items-start">
+                    <span className="font-semibold text-lg">{dict.virtualCard}</span>
+                    <Wifi className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
-                <div className="flex gap-4">
-                    <div>
-                        <Label className="text-xs">{dict.validThru}</Label>
-                        <p>{showDetails ? card.expiry : "**/**"}</p>
+                <div className="space-y-2">
+                    <div className="flex items-center justify-center font-mono text-lg sm:text-xl tracking-widest text-center space-x-2 sm:space-x-4">
+                        <span>{showDetails ? card.number.substring(0, 4) : '****'}</span>
+                        <span>{showDetails ? card.number.substring(5, 9) : '****'}</span>
+                        <span>{showDetails ? card.number.substring(10, 14) : '****'}</span>
+                        <span>{card.number.slice(-4)}</span>
                     </div>
-                     <div>
-                        <Label className="text-xs">CVV</Label>
-                        <p>{showDetails ? card.cvv : "***"}</p>
+                    <div className="flex justify-between items-end text-xs sm:text-sm uppercase">
+                        <div className="w-2/3">
+                            <p className="text-xs opacity-80">{dict.cardHolder}</p>
+                            <p className="font-medium truncate">{userProfile?.firstName} {userProfile?.lastName}</p>
+                        </div>
+                        <div className="text-right w-1/3">
+                            <p className="text-xs opacity-80">{dict.validThru}</p>
+                            <p className="font-medium">{showDetails ? card.expiry : "**/**"}</p>
+                        </div>
                     </div>
                 </div>
-            </CardContent>
-            <CardFooter>
-                 <Button variant="secondary" onClick={() => setShowDetails(!showDetails)}>
-                    {showDetails ? <EyeOff className="mr-2"/> : <Eye className="mr-2"/>}
+            </div>
+
+            <div className="flex justify-between items-center">
+                 <div className="font-mono text-sm">
+                    <span className="text-muted-foreground">CVV: </span>
+                    <span className="font-semibold tracking-widest">{showDetails ? card.cvv : '***'}</span>
+                 </div>
+                 <Button variant="secondary" size="sm" onClick={() => setShowDetails(!showDetails)}>
+                    {showDetails ? <EyeOff className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
                     {showDetails ? dict.hidePin : dict.showPin}
                  </Button>
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     );
 }
 
@@ -143,7 +153,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     setIsOrdering(true);
     try {
         await generateVirtualCard();
-        setShowVirtualInfo(true);
+        // Do not show a dialog, the card will appear directly
     } catch (error) {
         console.error(error);
         toast({
@@ -252,7 +262,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         <div>
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.virtualCard}s</h2>
           <div className="grid gap-6 md:grid-cols-2">
-            {(userProfile.virtualCards || []).map(card => <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} />)}
+            {(userProfile.virtualCards || []).map(card => <VirtualCardDisplay key={card.id} card={card} dict={cardsDict} userProfile={userProfile} />)}
             {(!userProfile.virtualCards || userProfile.virtualCards.length === 0) && (
               <p className="text-muted-foreground col-span-full">{cardsDict.noVirtualCards}</p>
             )}
@@ -274,24 +284,15 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showVirtualInfo} onOpenChange={setShowVirtualInfo}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{cardsDict.requestSubmittedTitle}</AlertDialogTitle>
-            <AlertDialogDescription>{cardsDict.requestSubmittedDescriptionVirtual}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogAction onClick={() => setShowVirtualInfo(false)}>Compris</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-headline">{cardsDict.title}</h1>
         {userProfile.kycStatus === 'verified' && (
             <div className="flex gap-2">
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline" disabled={userProfile.cardStatus !== 'none'}>
-                            <CreditCard className="mr-2" />{cardsDict.orderPhysical}
+                        <Button variant="outline" disabled={userProfile.cardStatus !== 'none' || isOrdering}>
+                            <CreditCard className="mr-2" />
+                            {cardsDict.orderPhysical}
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-4xl">

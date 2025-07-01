@@ -1,78 +1,51 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
-    // --- Helper Functions ---
-    function isSignedIn() {
-      return request.auth != null;
-    }
 
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
     
-    function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    function isUpdating(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
     }
     
-    // --- User Update Logic Functions ---
-    // Checks if the update is only for general profile information.
-    function isUpdatingProfile() {
-      return request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout']);
-    }
-
-    // Checks if the user is making a valid request for a physical card.
-    function isRequestingPhysicalCard() {
-      return request.resource.data.cardStatus == 'requested'
-        && resource.data.cardStatus == 'none'
-        && request.resource.data.cardRequestedAt is timestamp
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt']);
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if request.auth.uid == userId;
+      
+      allow update: if isOwner(userId) && (
+        // Case 1: Updating general profile information (excluding sensitive fields)
+        isUpdating(['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout']) ||
+        
+        // Case 2: User is requesting a physical card for the first time
+        (
+          resource.data.cardStatus == 'none' &&
+          request.resource.data.cardStatus == 'requested' &&
+          request.resource.data.cardType in ['essentielle', 'precieuse', 'luminax'] &&
+          isUpdating(['cardStatus', 'cardType', 'cardRequestedAt'])
+        ) ||
+        
+        // Case 3: User is adding a virtual card
+        (
+          request.resource.data.virtualCards.size() == resource.data.virtualCards.size() + 1 &&
+          isUpdating(['virtualCards'])
+        )
+      );
     }
     
-    // Checks if the user is adding exactly one new virtual card and not changing anything else.
-    function isAddingVirtualCard() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards'])
-        && request.resource.data.virtualCards.size() == (
-            'virtualCards' in resource.data ? resource.data.virtualCards.size() : 0
-        ) + 1;
-    }
-
-    // --- Main Rules ---
     match /admins/{adminId} {
       allow read, write: if isOwner(adminId);
     }
 
-    match /users/{userId} {
-      // Any authenticated user can create their own document.
-      allow create: if isOwner(userId);
-      
-      // Users can read their own data. Admins can read any user's data.
-      allow read: if isOwner(userId) || isAdmin();
-      
-      // Users can update their own document only under specific, safe conditions. Admins can update any user document.
-      allow update: if (isOwner(userId) && (isUpdatingProfile() || isRequestingPhysicalCard() || isAddingVirtualCard())) || isAdmin();
-      
-      // Only admins can delete user documents.
-      allow delete: if isAdmin();
-    }
-
     match /chats/{chatId} {
-      // Participants of a chat or admins can read/write to the chat document.
-      allow read, write: if isSignedIn() && (request.auth.uid in resource.data.participants || isAdmin());
-      
+      allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
+
       match /messages/{messageId} {
-        // Participants or admins can read and create messages.
-        allow read, create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin());
-        
-        // Allow users to soft-delete their own messages (update the deletedForUser flag). Admins can update any field.
-        allow update: if (isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser'])) 
-                     || isAdmin();
-        
-        // Only admins can permanently delete messages.
-        allow delete: if isAdmin();
+        allow read, create: if request.auth != null && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+        allow update: if request.auth != null && request.resource.data.keys().hasOnly(['deletedForUser']);
+        allow delete: if false; 
       }
     }
   }
