@@ -5,7 +5,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, VirtualCard } from '@/lib/firebase/firestore';
-import { serverTimestamp, Timestamp } from 'firebase/firestore';
+import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 
 // Initialize default (client-side) Firebase services
@@ -25,6 +25,7 @@ type AuthContextType = {
   updateUserPassword: (password: string) => Promise<void>;
   updateKycStatus: (status: 'pending') => Promise<void>;
   requestCard: () => Promise<void>;
+  generateVirtualCard: () => Promise<void>;
   uploadDocument: (file: File, documentName: string) => Promise<void>;
   deleteConversation: (chatId: string) => Promise<void>;
   deleteMessage: (chatId: string, messageId: string) => Promise<void>;
@@ -140,6 +141,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Refresh local state
     await refreshUserProfile();
   };
+  
+  const generateVirtualCard = async () => {
+    if (!user || !userProfile) throw new Error("User not authenticated.");
+
+    const newCard: VirtualCard = {
+        id: `vc_${Date.now()}`,
+        type: 'virtual',
+        status: 'active',
+        name: 'Carte virtuelle',
+        number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
+        expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
+        cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
+        limit: 1000,
+        isFrozen: false,
+        createdAt: Timestamp.now(),
+    };
+
+    const updatedVirtualCards = [...(userProfile.virtualCards || []), newCard];
+    
+    // Optimistic update
+    setUserProfile({ ...userProfile, virtualCards: updatedVirtualCards });
+
+    await updateUserInFirestore(user.uid, { virtualCards: updatedVirtualCards });
+    
+    // Refresh from server to ensure consistency, but UI is already updated
+    await refreshUserProfile();
+  };
 
   const uploadDocument = async (file: File, documentName: string) => {
       if (!user || !userProfile) throw new Error("User not authenticated");
@@ -177,7 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await softDeleteUserMessage(chatId, messageId);
   };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, uploadDocument, deleteConversation, deleteMessage };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, generateVirtualCard, uploadDocument, deleteConversation, deleteMessage };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

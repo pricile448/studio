@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -5,7 +6,7 @@ import { type UserProfile, type Account, type Transaction, type Budget, addFunds
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, CalendarIcon, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
@@ -28,7 +29,7 @@ import { z } from 'zod';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import Link from 'next/link';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, serverTimestamp } from 'firebase/firestore';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '../ui/separator';
 
@@ -175,6 +176,97 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
         </Card>
     );
 }
+
+function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
+    const [newLimit, setNewLimit] = useState(user.cardLimits?.monthly || 2000);
+    const { toast } = useToast();
+
+    const handleAction = async (updateData: Partial<UserProfile>, successMessage: string) => {
+        setIsLoading(true);
+        try {
+            await updateUserInFirestore(user.uid, updateData, adminDb);
+            const updatedUser = { ...user, ...updateData };
+            onUpdate(updatedUser);
+            toast({ title: "Succès", description: successMessage });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleLimitUpdate = () => {
+        handleAction({ cardLimits: { ...user.cardLimits, monthly: newLimit } }, "Plafond de la carte mis à jour.");
+        setIsLimitDialogOpen(false);
+    };
+
+    const cardStatusText = {
+        none: 'Aucune carte',
+        requested: 'Demandée',
+        active: 'Active',
+        suspended: 'Suspendue'
+    };
+
+    const getStatusVariant = (status: UserProfile['cardStatus']) => {
+        switch (status) {
+            case 'active': return 'bg-green-100 text-green-800';
+            case 'requested': return 'bg-blue-100 text-blue-800';
+            case 'suspended': return 'bg-orange-100 text-orange-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Gestion de la Carte Physique</CardTitle>
+                <CardDescription>Gérer la carte bancaire physique de l'utilisateur.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Statut de la carte</p>
+                        <Badge variant="outline" className={cn("text-base", getStatusVariant(user.cardStatus))}>
+                            {cardStatusText[user.cardStatus]}
+                        </Badge>
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Plafond mensuel</p>
+                        <p className="font-semibold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(user.cardLimits?.monthly || 0)}</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {user.kycStatus !== 'verified' && (
+                        <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
+                    )}
+
+                    {user.kycStatus === 'verified' && user.cardStatus === 'none' && (
+                        <Button onClick={() => handleAction({ cardStatus: 'requested', cardRequestedAt: serverTimestamp() }, "Demande de carte forcée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Forcer la demande</Button>
+                    )}
+                    {user.cardStatus === 'requested' && (
+                        <>
+                            <Button onClick={() => handleAction({ cardStatus: 'active' }, "Carte activée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
+                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField() }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
+                        </>
+                    )}
+                    {user.cardStatus === 'active' && (
+                        <>
+                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'suspended' }, "Carte suspendue.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Suspendre la carte</Button>
+                            <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}><DialogTrigger asChild><Button variant="outline">Modifier le plafond</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Modifier le plafond</DialogTitle></DialogHeader><div className="py-4"><Label htmlFor="new-limit">Nouveau plafond mensuel</Label><Input id="new-limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} /></div><DialogFooter><Button variant="ghost" onClick={() => setIsLimitDialogOpen(false)}>Annuler</Button><Button onClick={handleLimitUpdate}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
+                        </>
+                    )}
+                    {user.cardStatus === 'suspended' && (
+                        <Button onClick={() => handleAction({ cardStatus: 'active' }, "Carte réactivée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Réactiver la carte</Button>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
+
 
 function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
@@ -790,7 +882,8 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                     <TabsContent value="iban">
                         <IbanManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
-                    <TabsContent value="cards">
+                    <TabsContent value="cards" className="space-y-6">
+                        <PhysicalCardManagement user={user} onUpdate={handleUpdate} />
                         <VirtualCardManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                 </Tabs>
