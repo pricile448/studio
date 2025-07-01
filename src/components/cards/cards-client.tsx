@@ -96,7 +96,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                             <span className="text-sm">CVV</span>
                             <span className="font-mono font-bold ml-2">{card.cvv}</span>
                         </div>
-                         <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute top-4 left-6" />
+                         <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-6 right-6" />
                     </div>
                 </div>
             </div>
@@ -351,7 +351,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                               <span className="text-sm">CVV</span>
                               <span className="font-mono font-bold ml-2">{physicalCard.cvv}</span>
                           </div>
-                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute top-4 left-6" />
+                          <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} className="absolute bottom-6 right-6" />
                       </div>
                   </div>
               </div>
