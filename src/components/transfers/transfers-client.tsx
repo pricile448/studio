@@ -245,7 +245,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                     <div key={tx.id}>
                         <div className="flex items-center justify-between">
                         <div>
-                            <p className="font-medium">{tx.description}</p>
+                            <p className="font-medium">{tx.beneficiaryName}</p>
                             <p className="text-sm text-muted-foreground">{tx.date}</p>
                         </div>
                         <p className="font-semibold">{formatCurrency(tx.amount)}</p>

@@ -660,6 +660,7 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
 
   const newTransaction: Omit<Transaction, 'id' | 'date'> & { date: Timestamp } = {
     ...transferData,
+    amount: -Math.abs(transferData.amount), // Virements externes = débits
     date: Timestamp.now(),
     status: 'pending',
     type: 'external_transfer'
@@ -731,13 +732,13 @@ export async function executeTransfer(userId: string, transactionId: string, db:
     const accountIndex = accounts.findIndex(acc => acc.id === transfer.accountId);
     if (accountIndex === -1) throw new Error("Compte de l'utilisateur non trouvé.");
 
-    // The amount is positive for a debit in this context, so we subtract it.
-    if (accounts[accountIndex].balance < transfer.amount) throw new Error("Solde insuffisant.");
+    // Le montant du virement est négatif. Vérifier que le solde est suffisant.
+    if (accounts[accountIndex].balance < Math.abs(transfer.amount)) throw new Error("Solde insuffisant.");
 
-    // Debit the account
-    accounts[accountIndex].balance -= transfer.amount;
+    // Débiter le compte en ajoutant le montant négatif de la transaction.
+    accounts[accountIndex].balance += transfer.amount;
 
-    // Update transaction status to 'completed'
+    // Mettre à jour le statut de la transaction à 'completed'
     transactions[transactionIndex].status = 'completed';
     transactions[transactionIndex].updatedAt = serverTimestamp();
 

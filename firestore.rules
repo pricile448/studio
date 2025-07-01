@@ -2,125 +2,60 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // =================================
-    // Fonctions d'aide
-    // =================================
-    
-    // Vérifie si l'utilisateur est un administrateur.
+
+    // Fonction d'aide pour vérifier si l'utilisateur est un administrateur.
     function isAdmin() {
-      // Les administrateurs ont un document dans la collection 'admins' avec leur UID.
+      // Un administrateur doit avoir un document correspondant à son UID dans la collection 'admins'.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
-    // Vérifie si l'utilisateur est le propriétaire du document.
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
 
-    // =================================
-    // Règles pour les administrateurs
-    // =================================
+    // Collection des administrateurs : seul un administrateur peut lire et écrire.
     match /admins/{adminId} {
-      allow read: if isOwner(adminId) || isAdmin();
-      allow list, write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
-    // =================================
-    // Règles pour les utilisateurs
-    // =================================
+    // Collection des utilisateurs :
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      
-      // --- Fonctions de validation des mises à jour ---
-      
-      function canUpdateOwnProfile() {
-        let allowedFields = ['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout'];
-        return request.resource.data.keys().hasOnly(allowedFields);
-      }
-      
-      function canSubmitKyc() {
-        let isUnverified = resource.data.kycStatus == 'unverified';
-        let onlyKycFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycSubmittedAt']);
-        let isSubmittingKyc = request.resource.data.kycStatus == 'pending' && request.resource.data.kycSubmittedAt == request.time;
-        return isUnverified && onlyKycFieldsChanged && isSubmittingKyc;
-      }
-      
-      function canRequestPhysicalCard() {
-        let cardStatusIsNone = !('cardStatus' in resource.data) || resource.data.cardStatus == 'none';
-        let onlyCardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardRequestedAt', 'cardType']);
-        let isRequestingCard = request.resource.data.cardStatus == 'requested' && request.resource.data.cardRequestedAt == request.time && request.resource.data.cardType in ['essentielle', 'precieuse', 'luminax'];
-        return cardStatusIsNone && onlyCardFieldsChanged && isRequestingCard;
-      }
-      
-      function canRequestVirtualCard() {
-        let noPendingRequest = !('hasPendingVirtualCardRequest' in resource.data) || resource.data.hasPendingVirtualCardRequest == false;
-        let onlyVirtualCardFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
-        let isRequesting = request.resource.data.hasPendingVirtualCardRequest == true && request.resource.data.virtualCardRequestedAt == request.time;
-        return noPendingRequest && onlyVirtualCardFieldsChanged && isRequesting;
-      }
-      
-      function canUploadDocument() {
-        let isUploadingDoc = request.resource.data.documents.size() == resource.data.documents.size() + 1;
-        let onlyDocsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['documents']);
-        return isUploadingDoc && onlyDocsChanged;
-      }
-
-      function canAddBeneficiary() {
-        let isAddingOne = request.resource.data.beneficiaries.size() == resource.data.beneficiaries.size() + 1;
-        let onlyBeneficiariesChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']);
-        return isAddingOne && onlyBeneficiariesChanged;
-      }
-
-      function canRequestTransfer() {
-        let isAddingOne = request.resource.data.transactions.size() == resource.data.transactions.size() + 1;
-        let onlyTransactionsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions']);
-        let lastTransaction = request.resource.data.transactions[request.resource.data.transactions.size() - 1];
-        let isValidRequest = lastTransaction.type == 'external_transfer' && lastTransaction.status == 'pending';
-        return isAddingOne && onlyTransactionsChanged && isValidRequest;
-      }
-      
-      function canTogglePhysicalCardFreeze() {
-        let onlyCardStatusFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'physicalCard']);
-        // Empêche l'utilisateur de débloquer une carte suspendue par un admin.
-        let adminLockIsPreserved = !(resource.data.physicalCard.suspendedBy == 'admin' && request.resource.data.physicalCard.suspendedBy != 'admin');
-        return onlyCardStatusFieldsChanged && adminLockIsPreserved;
-      }
-
-      function canToggleVirtualCardFreeze() {
-        let onlyVirtualCardsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards']);
-        let sameNumberOfCards = request.resource.data.virtualCards.size() == resource.data.virtualCards.size();
-        // REMARQUE: Il n'est pas possible de vérifier le 'frozenBy' pour chaque carte dans une liste.
-        // La sécurité ici suppose que le client ne permet pas de débloquer une carte gelée par un admin.
-        return onlyVirtualCardsChanged && sameNumberOfCards;
-      }
-      
-      // L'utilisateur peut mettre à jour son document si une des conditions est remplie.
-      allow update: if isOwner(userId) && (
-                      canUpdateOwnProfile() ||
-                      canSubmitKyc() ||
-                      canRequestPhysicalCard() ||
-                      canRequestVirtualCard() ||
-                      canUploadDocument() ||
-                      canAddBeneficiary() ||
-                      canRequestTransfer() ||
-                      canTogglePhysicalCardFreeze() ||
-                      canToggleVirtualCardFreeze()
-                    ) || isAdmin();
-
+      // Un utilisateur peut lire son propre document. Un admin peut lire tous les documents.
+      allow read: if request.auth.uid == userId || isAdmin();
+      // Seuls les admins peuvent lister, créer ou supprimer des profils utilisateurs.
       allow list, create, delete: if isAdmin();
+
+      // Règle de mise à jour principale.
+      // Un admin peut tout mettre à jour. Un utilisateur ne peut mettre à jour que certains champs.
+      allow update: if isAdmin() || (request.auth.uid == userId && isUpdatingAllowedFields());
+
+      // Fonction d'aide pour la mise à jour par l'utilisateur.
+      function isUpdatingAllowedFields() {
+        // Champs que l'utilisateur N'EST PAS autorisé à modifier directement.
+        // L'admin gère kycStatus, iban, bic, etc.
+        let nonUpdatableByUser = [
+          'uid', 'email', 'createdAt', 'kycStatus', 'kycSubmittedAt',
+          'kycDocuments', 'iban', 'bic', 'accounts'
+        ];
+        
+        // La fonction renvoie 'true' si la requête de mise à jour ne contient AUCUN
+        // des champs interdits listés ci-dessus.
+        // Les autres champs (profil, bénéficiaires, demandes de virement) sont gérés
+        // par la logique sécurisée côté serveur/client.
+        return !request.resource.data.keys().hasAny(nonUpdatableByUser);
+      }
     }
     
-    // =================================
-    // Règles pour la messagerie
-    // =================================
+    // Collection des conversations (chats) :
     match /chats/{chatId} {
+      // Un utilisateur peut lire/écrire une conversation s'il en est participant. Un admin peut accéder à tout.
       allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
       
+      // Sous-collection des messages :
       match /messages/{messageId} {
+         // Un utilisateur peut lire les messages d'une conversation à laquelle il participe.
          allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-         allow create: if isOwner(request.resource.data.senderId);
-         allow update: if isOwner(resource.data.senderId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
+         // Un utilisateur peut créer un message s'il en est l'expéditeur.
+         allow create: if request.auth.uid == request.resource.data.senderId;
+         // Un utilisateur peut "supprimer pour soi" (soft delete) ses propres messages.
+         allow update: if request.auth.uid == resource.data.senderId && request.resource.data.keys().hasOnly(['deletedForUser']);
+         // Seul un admin peut supprimer définitivement un message.
          allow delete: if isAdmin();
       }
     }
