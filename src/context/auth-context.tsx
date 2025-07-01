@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, VirtualCard, PhysicalCardType } from '@/lib/firebase/firestore';
+import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 
@@ -137,11 +137,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const requestCard = async (cardType: PhysicalCardType) => {
     if (!user) throw new Error("No user is signed in.");
-    await updateUserInFirestore(user.uid, { 
-        cardStatus: 'requested', 
-        cardRequestedAt: serverTimestamp(),
-        cardType: cardType
-    });
+
+    // This data structure is now partial as the full card is created by the admin.
+    const requestData: Partial<UserProfile> = {
+      cardStatus: 'requested',
+      cardRequestedAt: serverTimestamp(),
+      physicalCard: { type: cardType } as any, // Only set the type on request
+    };
+    
+    await updateUserInFirestore(user.uid, requestData);
     await refreshUserProfile();
   };
 

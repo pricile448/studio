@@ -68,6 +68,15 @@ export type VirtualCard = {
 
 export type PhysicalCardType = 'essentielle' | 'precieuse' | 'luminax';
 
+export type PhysicalCard = {
+  type: PhysicalCardType;
+  number: string;
+  expiry: string;
+  cvv: string;
+  pin: string;
+  isPinVisibleToUser: boolean;
+};
+
 export type UserProfile = {
   uid: string;
   email: string;
@@ -98,7 +107,8 @@ export type UserProfile = {
     proofOfAddressUrl: string;
     selfieUrl: string;
   };
-  cardStatus: 'none' | 'requested' | 'active' | 'suspended';
+  cardStatus: 'none' | 'requested' | 'active' | 'suspended' | 'cancelled';
+  physicalCard?: PhysicalCard;
   cardType?: PhysicalCardType;
   cardRequestedAt?: Date;
   cardLimits?: {
@@ -144,7 +154,7 @@ export async function addUserToFirestore(userData: RegistrationData & { uid: str
     { id: 'credit-1', name: 'credit', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 9010', status: 'active' },
   ];
 
-  const fullProfile: Omit<UserProfile, 'createdAt'> = {
+  const fullProfile: Omit<UserProfile, 'createdAt' | 'physicalCard' | 'cardType'> = {
     ...userData,
     kycStatus: 'unverified',
     cardStatus: 'none',

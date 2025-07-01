@@ -29,7 +29,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Wifi, Snowflake, Pin, SlidersHorizontal, Eye, EyeOff, Hourglass, CreditCard, Smartphone, Loader2, Info } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import type { VirtualCard, PhysicalCardType, UserProfile } from '@/lib/firebase/firestore';
+import type { VirtualCard, PhysicalCard, PhysicalCardType, UserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -88,9 +88,9 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
 
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, requestCard, requestVirtualCard } = useAuth();
+  const { userProfile, loading, requestCard, requestVirtualCard, updateUserProfileData } = useAuth();
   const [isFrozen, setIsFrozen] = useState(false);
-  const [limit, setLimit] = useState(2000);
+  const [limit, setLimit] = useState(userProfile?.cardLimits?.monthly || 2000);
   const [newLimit, setNewLimit] = useState(limit);
   const [showPin, setShowPin] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
@@ -119,16 +119,20 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     )
   }
 
-  const handleToggleFreeze = () => {
+  const handleToggleFreeze = async () => {
+    if (!userProfile.physicalCard) return;
     const newFrozenState = !isFrozen;
     setIsFrozen(newFrozenState);
+    // In a real app, this would be a backend call
+    // await updateUserProfileData({ physicalCard: { ...userProfile.physicalCard, isFrozen: newFrozenState } });
     toast({
       title: newFrozenState ? cardsDict.cardFrozen : cardsDict.cardUnfrozen,
     });
   };
 
-  const handleSetLimit = () => {
+  const handleSetLimit = async () => {
     setLimit(newLimit);
+     await updateUserProfileData({ cardLimits: { ...userProfile.cardLimits, monthly: newLimit } as any });
     toast({
       title: cardsDict.limitUpdated,
     });
@@ -156,7 +160,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     setIsRequestingVirtual(true);
     try {
       await requestVirtualCard();
-      setShowVirtualInfo(true); // This now shows the success dialog
+      setShowVirtualInfo(true);
     } catch (error) {
        toast({
         variant: 'destructive',
@@ -193,18 +197,20 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
       />;
     }
 
+    const physicalCard = userProfile.physicalCard;
+
     return (
       <div className="space-y-8">
         {/* Physical Card Section */}
         <div>
           <h2 className="text-xl font-bold font-headline mb-4">{cardsDict.physicalCard}</h2>
-          {userProfile.cardStatus === 'active' && (
+          {userProfile.cardStatus === 'active' && physicalCard && (
              <div className="grid gap-8 lg:grid-cols-3">
               <div className="lg:col-span-1">
                 <Card className={cn(
                   "aspect-[85.6/53.98] bg-gradient-to-br p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
-                  cardStyleClasses[userProfile.cardType || 'essentielle'],
-                  isFrozen && "grayscale opacity-50"
+                  cardStyleClasses[physicalCard.type],
+                  userProfile.cardStatus === 'suspended' && "grayscale opacity-50"
                 )}>
                   <div className="flex justify-between items-start">
                     <span className="font-semibold">{cardsDict.cardBankName}</span>
@@ -212,7 +218,10 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-4 font-mono text-xl tracking-widest">
-                      <span>4000</span><span>1234</span><span>5678</span><span>9010</span>
+                      <span>{physicalCard.number.substring(0,4)}</span>
+                      <span>{physicalCard.number.substring(4,8)}</span>
+                      <span>{physicalCard.number.substring(8,12)}</span>
+                      <span>{physicalCard.number.substring(12,16)}</span>
                     </div>
                     <div className="flex justify-between text-sm uppercase">
                       <div>
@@ -221,7 +230,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                       </div>
                       <div>
                         <p className="text-xs opacity-80">{cardsDict.validThru}</p>
-                        <p className="font-medium">12/28</p>
+                        <p className="font-medium">{physicalCard.expiry}</p>
                       </div>
                     </div>
                   </div>
@@ -231,12 +240,23 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                 <Card>
                   <CardHeader><CardTitle className="font-headline">{dict.settings.tabs.security}</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div><h3 className="font-semibold">{cardsDict.freeze}</h3><p className="text-sm text-muted-foreground">{cardsDict.freezeDescription}</p></div>
-                      <Button variant="outline" size="icon" onClick={handleToggleFreeze}><Snowflake className={cn(isFrozen && "text-blue-500")}/></Button>
-                    </div>
-                     <Dialog><DialogTrigger asChild><div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50"><div><h3 className="font-semibold">{cardsDict.setLimit}</h3><p className="text-sm text-muted-foreground">{cardsDict.setLimitDescription}</p></div><Button variant="outline" size="icon" className="pointer-events-none"><SlidersHorizontal /></Button></div></DialogTrigger><DialogContent><DialogHeader><DialogTitle>{cardsDict.setLimitTitle}</DialogTitle><DialogDescription>{cardsDict.setLimitDescription}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="current-limit">{cardsDict.currentLimit}</Label><Input id="current-limit" value={limit} readOnly disabled /></div><div className="space-y-2"><Label htmlFor="new-limit">{cardsDict.newLimitLabel}</Label><Input id="new-limit" type="number" value={newLimit} onChange={(e) => setNewLimit(Number(e.target.value))} /></div><DialogFooter><DialogClose asChild><Button variant="outline">{cardsDict.cancelButton}</Button></DialogClose><DialogClose asChild><Button onClick={handleSetLimit}>{cardsDict.saveButton}</Button></DialogClose></DialogFooter></DialogContent></Dialog>
-                    <Dialog onOpenChange={setShowPin.bind(null, false)}><DialogTrigger asChild><div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50"><div><h3 className="font-semibold">{cardsDict.viewPin}</h3><p className="text-sm text-muted-foreground">{cardsDict.viewPinDescription}</p></div><Button variant="outline" size="icon" className="pointer-events-none"><Pin /></Button></div></DialogTrigger><DialogContent><DialogHeader><DialogTitle>{cardsDict.viewPinTitle}</DialogTitle><DialogDescription>{cardsDict.viewPinDescription}</DialogDescription></DialogHeader><div className="flex items-center justify-center p-8 bg-muted rounded-lg">{showPin ? (<span className="text-4xl font-bold font-mono tracking-widest">1234</span>) : (<span className="text-4xl font-bold font-mono tracking-widest">****</span>)}</div><DialogFooter className="sm:justify-between gap-2"><Button variant="ghost" onClick={() => setShowPin(!showPin)} className="sm:mr-auto">{showPin ? <EyeOff className="mr-2"/> : <Eye className="mr-2"/>}{showPin ? cardsDict.hidePin : cardsDict.showPin}</Button><DialogClose asChild><Button>{cardsDict.closeButton}</Button></DialogClose></DialogFooter></DialogContent></Dialog>
+                     <Dialog onOpenChange={setShowPin.bind(null, false)}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="w-full" disabled={!physicalCard.isPinVisibleToUser}>
+                                 <Pin className="mr-2" /> {cardsDict.viewPin}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader><DialogTitle>{cardsDict.viewPinTitle}</DialogTitle><DialogDescription>{cardsDict.viewPinDescription}</DialogDescription></DialogHeader>
+                            <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
+                                {showPin ? (<span className="text-4xl font-bold font-mono tracking-widest">{physicalCard.pin}</span>) : (<span className="text-4xl font-bold font-mono tracking-widest">****</span>)}
+                            </div>
+                            <DialogFooter className="sm:justify-between gap-2">
+                                <Button variant="ghost" onClick={() => setShowPin(!showPin)} className="sm:mr-auto">{showPin ? <EyeOff className="mr-2"/> : <Eye className="mr-2"/>}{showPin ? cardsDict.hidePin : cardsDict.showPin}</Button>
+                                <DialogClose asChild><Button>{cardsDict.closeButton}</Button></DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                   </CardContent>
                 </Card>
               </div>
@@ -270,7 +290,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
             
             {userProfile.hasPendingVirtualCardRequest && (
               <Card className="col-span-full bg-muted/50 border-dashed">
-                <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full min-h-48">
+                 <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full min-h-[220px]">
                   <Hourglass className="h-10 w-10 text-muted-foreground mb-4" />
                   <h3 className="font-semibold text-lg">{cardsDict.virtual_request_pending_title}</h3>
                   <p className="text-muted-foreground text-sm mt-1">{cardsDict.virtual_request_pending_description}</p>
@@ -279,9 +299,29 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
             )}
 
             {(!userProfile.virtualCards || userProfile.virtualCards.length === 0) && !userProfile.hasPendingVirtualCardRequest && (
-              <div className="col-span-full text-center text-muted-foreground p-8 border rounded-lg border-dashed">
-                <p>{cardsDict.noVirtualCards}</p>
-              </div>
+              <Card className="border-dashed">
+                <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full min-h-[220px]">
+                  <p className="text-muted-foreground mb-4">{cardsDict.noVirtualCards}</p>
+                   <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                           <Button variant="outline" disabled={isRequestingVirtual}>
+                             {isRequestingVirtual ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Smartphone className="mr-2" />}
+                              {cardsDict.generateVirtual}
+                          </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>{cardsDict.virtual_request_dialog_title}</AlertDialogTitle>
+                              <AlertDialogDescription>{cardsDict.virtual_request_dialog_description}</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleRequestVirtualCard}>Confirmer la demande</AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
@@ -351,25 +391,6 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                         </div>
                     </DialogContent>
                 </Dialog>
-                
-                 <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                         <Button disabled={userProfile.hasPendingVirtualCardRequest || isRequestingVirtual}>
-                           {isRequestingVirtual ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Smartphone className="mr-2" />}
-                            {userProfile.hasPendingVirtualCardRequest ? cardsDict.virtual_request_pending_title : cardsDict.generateVirtual}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>{cardsDict.virtual_request_dialog_title}</AlertDialogTitle>
-                            <AlertDialogDescription>{cardsDict.virtual_request_dialog_description}</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Annuler</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleRequestVirtualCard}>Confirmer la demande</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
             </div>
         )}
       </div>
@@ -378,5 +399,3 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
     </div>
   );
 }
-
-    
