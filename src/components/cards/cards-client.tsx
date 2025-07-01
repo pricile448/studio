@@ -62,7 +62,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
                                 <span className="font-semibold text-lg">{card.name}</span>
-                                {card.isFrozen && <Badge variant="destructive">{isAdminFrozen ? dict.adminSuspended : dict.suspended}</Badge>}
+                                {card.isFrozen && <Badge variant="destructive">{dict.suspended}</Badge>}
                             </div>
                             <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751393477/avry2ipd9_kj00mw.png" alt="Visa" width={60} height={20} />
                         </div>
