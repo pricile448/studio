@@ -91,7 +91,6 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
             city: user.city || '',
             postalCode: user.postalCode || '',
             profession: user.profession || '',
-            // Ensure salary is a number or an empty string for the input, but default to 0 for logic
             salary: user.salary ?? 0,
         });
     }, [user, form]);
@@ -132,7 +131,7 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
                                 <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>Ville</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="postalCode" render={({ field }) => (<FormItem><FormLabel>Code postal</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="profession" render={({ field }) => (<FormItem><FormLabel>Profession</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire</FormLabel><FormControl><Input type="number" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire</FormLabel><FormControl><Input type="number" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
                             </div>
                             <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer les modifications</Button>
                         </form>
@@ -436,7 +435,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical /></Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => setIsEditOpen(true)}><Edit className="mr-2 h-4 w-4" /> Modifier les détails</DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={() => setIsEditOpen(true)}><Edit className="mr-2 h-4 w-4" /> Modifier les détails</DropdownMenuItem>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild><DropdownMenuItem onSelect={(e) => e.preventDefault()}><RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser la carte</DropdownMenuItem></AlertDialogTrigger>
                                         <AlertDialogContent>
@@ -493,7 +492,6 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             const newCard: VirtualCard = {
                 id: `vc_${Date.now()}`,
                 type: 'virtual',
-                status: 'active',
                 name: 'Carte virtuelle',
                 number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
                 expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
@@ -603,7 +601,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                                 </Button>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="sm" disabled={isLoading}>Supprimer</Button>
+                                        <Button variant="destructive" size="sm" disabled={isLoading} onSelect={(e) => e.preventDefault()}>Supprimer</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader><AlertDialogTitle>Supprimer la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
@@ -713,8 +711,8 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DialogTrigger asChild onSelect={(e) => e.preventDefault()}>
-                                        <DropdownMenuItem onClick={() => { setSelectedAccount(account); setNewAccountNumber(account.accountNumber); setIsEditOpen(true);}}>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSelectedAccount(account); setNewAccountNumber(account.accountNumber); setIsEditOpen(true);}}>
                                             <Edit className="mr-2 h-4 w-4" />
                                             <span>Modifier</span>
                                         </DropdownMenuItem>

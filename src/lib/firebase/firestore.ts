@@ -63,7 +63,6 @@ export type VirtualCard = {
   isFrozen: boolean;
   createdAt: Timestamp;
   type: 'virtual';
-  status: 'active' | 'suspended';
 };
 
 export type PhysicalCardType = 'essentielle' | 'precieuse' | 'luminax';

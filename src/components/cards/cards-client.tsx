@@ -39,6 +39,7 @@ import { Skeleton } from '../ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
+import { Badge } from '../ui/badge';
 
 function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, dict: Dictionary['cards'], userProfile: UserProfile | null }) {
     const [showDetails, setShowDetails] = useState(false);
@@ -46,10 +47,14 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
     return (
         <div className="space-y-4">
             <div className={cn(
-                "aspect-[85.6/53.98] bg-gradient-to-br from-gray-700 via-gray-900 to-black text-white p-4 sm:p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all"
+                "aspect-[85.6/53.98] bg-gradient-to-br from-gray-700 via-gray-900 to-black text-white p-4 sm:p-6 flex flex-col justify-between rounded-xl shadow-lg transition-all",
+                card.isFrozen && "grayscale opacity-50"
             )}>
                 <div className="flex justify-between items-start">
-                    <span className="font-semibold text-lg">{dict.virtualCard}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-lg">{dict.virtualCard}</span>
+                       {card.isFrozen && <Badge variant="destructive">Suspendue</Badge>}
+                    </div>
                     <Wifi className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="space-y-2">
@@ -77,7 +82,7 @@ function VirtualCardDisplay({ card, dict, userProfile }: { card: VirtualCard, di
                     <span className="text-muted-foreground">CVV: </span>
                     <span className="font-semibold tracking-widest">{showDetails ? card.cvv : '***'}</span>
                  </div>
-                 <Button variant="secondary" size="sm" onClick={() => setShowDetails(!showDetails)}>
+                 <Button variant="secondary" size="sm" onClick={() => setShowDetails(!showDetails)} disabled={card.isFrozen}>
                     {showDetails ? <EyeOff className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
                     {showDetails ? dict.hidePin : dict.showPin}
                  </Button>
@@ -268,7 +273,7 @@ export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) 
                   <CardContent className="space-y-4">
                      <Dialog onOpenChange={setShowPin.bind(null, false)}>
                         <DialogTrigger asChild>
-                            <Button variant="outline" className="w-full" disabled={!physicalCard.isPinVisibleToUser}>
+                            <Button variant="outline" className="w-full" disabled={!physicalCard.isPinVisibleToUser || userProfile.cardStatus === 'suspended'}>
                                  <Pin className="mr-2" /> {cardsDict.viewPin}
                             </Button>
                         </DialogTrigger>
