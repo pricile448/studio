@@ -24,7 +24,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
-import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
 
 
 type TransfersClientProps = {
@@ -67,9 +70,9 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
   }
 
   const handleTransfer = async () => {
-    if (!transferData) return;
+    if (!transferData || !userProfile) return;
     
-    const selectedBeneficiary = userProfile?.beneficiaries.find(b => b.id === transferData.toBeneficiaryId);
+    const selectedBeneficiary = userProfile.beneficiaries.find(b => b.id === transferData.toBeneficiaryId);
 
     setIsSubmitting(true);
     setIsConfirming(false);
@@ -88,8 +91,12 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         title: 'Virement en attente',
         description: 'Votre demande de virement a été envoyée et est en attente de validation.',
       });
-      // Reset form
-      form.reset();
+      form.reset({
+          fromAccountId: '',
+          toBeneficiaryId: '',
+          amount: undefined,
+          description: ''
+      });
       setTransferData(null);
     } catch (error) {
        toast({
@@ -124,11 +131,18 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
   const recentTransfers = (userProfile.transactions || [])
     .filter(tx => tx.type === 'external_transfer')
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5)
-    .map(tx => ({
-        ...tx,
-        date: format(new Date(tx.date), 'PPP', { locale: lang === 'fr' ? fr : enUS})
-    }));
+    .slice(0, 10);
+
+  const getStatusInfo = (status: string) => {
+    const key = status.toLowerCase() as keyof typeof dict.history.table.statuses;
+    switch(key) {
+        case 'completed': return { text: dict.history.table.statuses[key], className: 'bg-green-100 text-green-800 border-green-200'};
+        case 'pending': return { text: dict.history.table.statuses[key], className: 'bg-amber-100 text-amber-800 border-amber-200'};
+        case 'in_progress': return { text: dict.history.table.statuses[key], className: 'bg-blue-100 text-blue-800 border-blue-200'};
+        case 'failed': return { text: dict.history.table.statuses[key], className: 'bg-red-100 text-red-800 border-red-200'};
+        default: return { text: status, className: 'bg-gray-100 text-gray-800 border-gray-200'};
+    }
+  }
 
   const renderContent = () => {
     if (userProfile.kycStatus === 'pending') {
@@ -151,7 +165,6 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
     const displayAccounts = accounts;
     const displayBeneficiaries = beneficiaries;
-    const displayRecentTransfers = recentTransfers;
 
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat(lang, { style: 'currency', currency: 'EUR' }).format(amount);
@@ -163,104 +176,113 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     }
 
     return (
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-               <CardTitle>{transfersDict.newTransfer}</CardTitle>
-               <Alert variant="info" className="mt-2">
-                <AlertDescription>
-                  Pour votre sécurité, tous les virements externes sont soumis à une validation manuelle avant d'être exécutés.
-                </AlertDescription>
-               </Alert>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleFormSubmit)} className="grid gap-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <FormField control={form.control} name="fromAccountId" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{transfersDict.from}</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger><SelectValue placeholder={transfersDict.selectAccount} /></SelectTrigger></FormControl>
-                          <SelectContent>
-                            {displayAccounts.map(account => (<SelectItem key={account.id} value={account.id}>{getAccountName(account.name)} - {formatCurrency(account.balance)}</SelectItem>))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}/>
-                    <FormField control={form.control} name="toBeneficiaryId" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{transfersDict.to}</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger><SelectValue placeholder={transfersDict.selectBeneficiary} /></SelectTrigger></FormControl>
-                          <SelectContent>
-                            {displayBeneficiaries.map(beneficiary => (
-                              <SelectItem key={beneficiary.id} value={beneficiary.id}>
-                                <div className="flex flex-col">
-                                  <span>{beneficiary.name}</span>
-                                  <span className="text-xs text-muted-foreground">{beneficiary.iban}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}/>
-                  </div>
-                   <FormField control={form.control} name="amount" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{transfersDict.amount}</FormLabel>
-                      <FormControl><Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}/>
-                   <FormField control={form.control} name="description" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{transfersDict.description}</FormLabel>
-                      <FormControl><Textarea placeholder={transfersDict.descriptionPlaceholder} {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}/>
-                  <Button type="submit" className="w-full md:w-auto justify-self-start" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2" />}
-                    {transfersDict.submit}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">{transfersDict.recentTransfers}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {displayRecentTransfers.length > 0 ? (
-                 <div className="space-y-4">
-                    {displayRecentTransfers.map((tx, index) => (
-                    <div key={tx.id}>
-                        <div className="flex items-center justify-between">
-                        <div>
-                            <p className="font-medium">{tx.beneficiaryName}</p>
-                            <p className="text-sm text-muted-foreground">{tx.date}</p>
-                        </div>
-                        <p className="font-semibold">{formatCurrency(tx.amount)}</p>
-                        </div>
-                        {index < displayRecentTransfers.length - 1 && <Separator className="my-4" />}
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                <Alert variant="info">
+                    <AlertDescription>
+                    Pour votre sécurité, tous les virements externes sont soumis à une validation manuelle avant d'être exécutés.
+                    </AlertDescription>
+                </Alert>
+                </CardHeader>
+                <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleFormSubmit)} className="grid gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <FormField control={form.control} name="fromAccountId" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{transfersDict.from}</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder={transfersDict.selectAccount} /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {displayAccounts.map(account => (<SelectItem key={account.id} value={account.id}>{getAccountName(account.name)} - {formatCurrency(account.balance)}</SelectItem>))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}/>
+                        <FormField control={form.control} name="toBeneficiaryId" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{transfersDict.to}</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder={transfersDict.selectBeneficiary} /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {displayBeneficiaries.map(beneficiary => (
+                                <SelectItem key={beneficiary.id} value={beneficiary.id}>
+                                    <div className="flex flex-col">
+                                    <span>{beneficiary.name}</span>
+                                    <span className="text-xs text-muted-foreground">{beneficiary.iban}</span>
+                                    </div>
+                                </SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}/>
                     </div>
-                    ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">{transfersDict.noRecentTransfers}</p>
-              )}
-            </CardContent>
-          </Card>
+                    <FormField control={form.control} name="amount" render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{transfersDict.amount}</FormLabel>
+                        <FormControl><Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}/>
+                    <FormField control={form.control} name="description" render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{transfersDict.description}</FormLabel>
+                        <FormControl><Textarea placeholder={transfersDict.descriptionPlaceholder} {...field} /></FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}/>
+                    <Button type="submit" className="w-full md:w-auto justify-self-start" disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2" />}
+                        {transfersDict.submit}
+                    </Button>
+                    </form>
+                </Form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>{transfersDict.recentTransfers}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{dict.history.table.date}</TableHead>
+                                <TableHead>{transfersDict.to}</TableHead>
+                                <TableHead className="text-right">{dict.history.table.amount}</TableHead>
+                                <TableHead className="text-right">{dict.history.table.status}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {recentTransfers.length > 0 ? recentTransfers.map(tx => {
+                                const statusInfo = getStatusInfo(tx.status);
+                                return (
+                                <TableRow key={tx.id}>
+                                    <TableCell>{format(tx.date, 'dd/MM/yyyy')}</TableCell>
+                                    <TableCell>{tx.beneficiaryName}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(tx.amount)}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Badge variant="outline" className={cn(statusInfo.className)}>
+                                            {statusInfo.text}
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                                )
+                            }) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="text-center text-muted-foreground">{transfersDict.noRecentTransfers}</TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
-      </div>
     );
   }
 
@@ -269,7 +291,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
+                    <h1 className="text-3xl font-bold font-headline">{transfersDict.newTransfer}</h1>
                 </div>
                 {userProfile.kycStatus === 'verified' && <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />}
             </div>
@@ -293,3 +315,4 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     </AlertDialog>
   );
 }
+
