@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -205,7 +206,7 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
 
 const physicalCardEditSchema = z.object({
     number: z.string().min(16, "Doit comporter 16 chiffres").max(16, "Doit comporter 16 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
-    expiry: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/, "Format MM/YY ou MM/YYYY"),
+    expiry: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/, "Format MM/YY ou MM/AAAA"),
     cvv: z.string().min(3, "Doit comporter 3 chiffres").max(3, "Doit comporter 3 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
     pin: z.string().min(4, "Doit comporter 4 chiffres").max(4, "Doit comporter 4 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
 });
@@ -481,10 +482,35 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
     )
 }
 
+const virtualCardEditSchema = z.object({
+    name: z.string().min(3, "Le nom doit comporter au moins 3 caractères."),
+    number: z.string().min(16, "Doit comporter 16 chiffres").max(19, "Doit comporter au maximum 19 chiffres").regex(/^[\d\s]+$/, "Ne doit contenir que des chiffres et des espaces"),
+    expiry: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/, "Format MM/AA ou MM/AAAA"),
+    cvv: z.string().min(3, "Doit comporter 3 chiffres").max(4, "Doit comporter au maximum 4 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
+    limit: z.coerce.number().positive("Le plafond doit être un nombre positif."),
+});
 
 function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    const [shownDetails, setShownDetails] = useState<string[]>([]);
+    const [editingCard, setEditingCard] = useState<VirtualCard | null>(null);
+
+    const form = useForm<z.infer<typeof virtualCardEditSchema>>({
+        resolver: zodResolver(virtualCardEditSchema),
+    });
+    
+    useEffect(() => {
+        if (editingCard) {
+            form.reset({
+                name: editingCard.name,
+                number: editingCard.number,
+                expiry: editingCard.expiry,
+                cvv: editingCard.cvv,
+                limit: editingCard.limit,
+            });
+        }
+    }, [editingCard, form]);
 
     const handleAction = async (action: () => Promise<any>, successMsg: string, errorMsg: string) => {
         setIsLoading(true);
@@ -528,6 +554,34 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         );
     };
     
+    const handleEditSubmit = async (data: z.infer<typeof virtualCardEditSchema>) => {
+        if (!editingCard) return;
+
+        const cardIndex = user.virtualCards.findIndex(c => c.id === editingCard.id);
+        if (cardIndex === -1) return;
+
+        const updatedCards = [...user.virtualCards];
+        const cardToUpdate = { ...updatedCards[cardIndex] };
+        
+        cardToUpdate.name = data.name;
+        cardToUpdate.number = data.number;
+        cardToUpdate.expiry = data.expiry;
+        cardToUpdate.cvv = data.cvv;
+        cardToUpdate.limit = data.limit;
+        
+        updatedCards[cardIndex] = cardToUpdate;
+        
+        await handleAction(
+            async () => {
+                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
+                onUpdate({ ...user, virtualCards: updatedCards });
+            },
+            "Carte virtuelle mise à jour.",
+            "Erreur lors de la mise à jour."
+        );
+        setEditingCard(null);
+    };
+
     const handleToggleFreeze = async (cardId: string) => {
         const cardIndex = user.virtualCards.findIndex(c => c.id === cardId);
         if (cardIndex === -1) return;
@@ -558,6 +612,12 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             'Erreur lors de la suppression de la carte.'
         );
     };
+    
+    const toggleShowDetails = (cardId: string) => {
+        setShownDetails(prev => 
+            prev.includes(cardId) ? prev.filter(id => id !== cardId) : [...prev, cardId]
+        );
+    };
 
     return (
         <Card>
@@ -580,50 +640,87 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                     </Alert>
                 )}
                 
-                {user.kycStatus !== 'verified' && (
+                {user.kycStatus !== 'verified' && !user.hasPendingVirtualCardRequest && (
                     <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertTitle>Action requise</AlertTitle><AlertDescription>L'utilisateur doit avoir un statut KYC "Vérifié" pour gérer les cartes.</AlertDescription></Alert>
                 )}
                 
-                <Separator />
-
                 <div className="space-y-4">
                     {(user.virtualCards || []).map(card => (
-                         <div key={card.id} className="p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
+                         <div key={card.id} className="p-4 border rounded-lg space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div>
                                     <p className="font-semibold">{card.name} (.... {card.number.slice(-4)})</p>
                                     <Badge variant={card.isFrozen ? "destructive" : "outline"} className={!card.isFrozen ? "border-green-300 text-green-700 bg-green-50" : ""}>
                                       {card.isFrozen ? 'Suspendue' : 'Active'}
                                     </Badge>
                                 </div>
-                                <p className="text-sm text-muted-foreground">Plafond: {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(card.limit)}</p>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical /></Button></DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onSelect={() => setEditingCard(card)}><Edit className="mr-2 h-4 w-4" /> Modifier</DropdownMenuItem>
+                                        <DropdownMenuItem onSelect={() => handleToggleFreeze(card.id)}>
+                                            {card.isFrozen ? <RefreshCw className="mr-2 h-4 w-4" /> : <Ban className="mr-2 h-4 w-4" />}
+                                            {card.isFrozen ? 'Réactiver' : 'Suspendre'}
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild><DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}><Trash2 className="mr-2 h-4 w-4" /> Supprimer</DropdownMenuItem></AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader><AlertDialogTitle>Supprimer la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
+                                                <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleDeleteCard(card.id)}>Confirmer</AlertDialogAction></AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => handleToggleFreeze(card.id)} disabled={isLoading}>
-                                    {card.isFrozen ? 'Réactiver' : 'Suspendre'}
-                                </Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="sm" disabled={isLoading}>Supprimer</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>Supprimer la carte ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
-                                        <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteCard(card.id)}>Confirmer</AlertDialogAction></AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-medium text-sm">Détails de la carte</h3>
+                                    <Button variant="ghost" size="sm" onClick={() => toggleShowDetails(card.id)}>
+                                        {shownDetails.includes(card.id) ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
+                                        {shownDetails.includes(card.id) ? 'Masquer' : 'Afficher'}
+                                    </Button>
+                                </div>
+                                {shownDetails.includes(card.id) && (
+                                    <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg mt-2 text-sm">
+                                        <div><p className="text-xs text-muted-foreground">Numéro</p><p className="font-mono">{card.number}</p></div>
+                                        <div><p className="text-xs text-muted-foreground">Expiration</p><p className="font-mono">{card.expiry}</p></div>
+                                        <div><p className="text-xs text-muted-foreground">CVV</p><p className="font-mono">{card.cvv}</p></div>
+                                        <div><p className="text-xs text-muted-foreground">Plafond</p><p className="font-mono">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(card.limit)}</p></div>
+                                    </div>
+                                )}
                             </div>
                          </div>
                     ))}
-                    {(!user.virtualCards || user.virtualCards.length === 0) && !user.hasPendingVirtualCardRequest && (
+                    {(!user.virtualCards || user.virtualCards.length === 0) && !user.hasPendingVirtualCardRequest && user.kycStatus === 'verified' && (
                         <p className="text-muted-foreground text-center py-4">Cet utilisateur n'a aucune carte virtuelle.</p>
                     )}
                 </div>
 
+                <Dialog open={!!editingCard} onOpenChange={(open) => !open && setEditingCard(null)}>
+                    <DialogContent>
+                        <DialogHeader><DialogTitle>Modifier la carte virtuelle</DialogTitle></DialogHeader>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleEditSubmit)} className="space-y-4 pt-4">
+                                <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nom de la carte</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={form.control} name="number" render={({ field }) => (<FormItem><FormLabel>Numéro de carte</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="expiry" render={({ field }) => (<FormItem><FormLabel>Expiration (MM/AA)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField control={form.control} name="cvv" render={({ field }) => (<FormItem><FormLabel>CVV</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <FormField control={form.control} name="limit" render={({ field }) => (<FormItem><FormLabel>Plafond</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <DialogFooter>
+                                    <DialogClose asChild><Button variant="ghost" type="button">Annuler</Button></DialogClose>
+                                    <Button type="submit" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} Enregistrer</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
             </CardContent>
         </Card>
     );
 }
-
 
 function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
