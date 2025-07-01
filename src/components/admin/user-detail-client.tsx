@@ -80,7 +80,7 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
         }
     });
 
-    useEffect(() => {
+     useEffect(() => {
         form.reset({
             firstName: user.firstName || '',
             lastName: user.lastName || '',
@@ -93,7 +93,8 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
             city: user.city || '',
             postalCode: user.postalCode || '',
             profession: user.profession || '',
-            salary: user.salary || 0,
+            // Ensure salary is a number or an empty string for the input, but default to 0 for logic
+            salary: user.salary ?? 0,
         });
     }, [user, form]);
 
@@ -438,9 +439,21 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical /></Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => setIsEditOpen(true)}><Edit className="mr-2 h-4 w-4" /> Modifier les détails</DropdownMenuItem>
-                                    <AlertDialog><AlertDialogTrigger asChild><DropdownMenuItem><RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser la carte</DropdownMenuItem></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Réinitialiser la carte ?</AlertDialogTitle><AlertDialogDescription>Une nouvelle série d'informations (numéro, CVV, PIN) sera générée. Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={handleResetCard}>Confirmer</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><DropdownMenuItem onSelect={(e) => e.preventDefault()}><RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser la carte</DropdownMenuItem></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader><AlertDialogTitle>Réinitialiser la carte ?</AlertDialogTitle><AlertDialogDescription>Une nouvelle série d'informations (numéro, CVV, PIN) sera générée. Cette action est irréversible.</AlertDialogDescription></AlertDialogHeader>
+                                            <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction onClick={handleResetCard}>Confirmer</AlertDialogAction></AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                     <DropdownMenuSeparator />
-                                    <AlertDialog><AlertDialogTrigger asChild><DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Annuler la carte</DropdownMenuItem></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Annuler la carte définitivement ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible et réinitialisera le statut de la carte de l'utilisateur, lui permettant d'en commander une nouvelle.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction className="bg-destructive" onClick={handleCancelCard}>Confirmer l'annulation</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}><Trash2 className="mr-2 h-4 w-4" /> Annuler la carte</DropdownMenuItem></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader><AlertDialogTitle>Annuler la carte définitivement ?</AlertDialogTitle><AlertDialogDescription>Cette action est irréversible et réinitialisera le statut de la carte de l'utilisateur, lui permettant d'en commander une nouvelle.</AlertDialogDescription></AlertDialogHeader>
+                                            <AlertDialogFooter><AlertDialogCancel>Annuler</AlertDialogCancel><AlertDialogAction className="bg-destructive" onClick={handleCancelCard}>Confirmer l'annulation</AlertDialogAction></AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </>
