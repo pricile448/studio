@@ -1,52 +1,78 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-    
-    function isUpdating(fields) {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
-    }
-    
+  
+    // ===================================
+    //            USER PROFILE
+    // ===================================
     match /users/{userId} {
-      allow read: if isOwner(userId);
-      allow create: if request.auth.uid == userId;
+    
+      function isOwner() {
+        return request.auth.uid == userId;
+      }
+
+      allow read, create: if isOwner();
       
-      allow update: if isOwner(userId) && (
-        // Case 1: Updating general profile information (excluding sensitive fields)
-        isUpdating(['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout']) ||
-        
-        // Case 2: User is requesting a physical card for the first time
+      allow update: if isOwner() && (
+        // Condition 1: Updating standard profile info
         (
-          resource.data.cardStatus == 'none' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'notificationPrefs', 'inactivityTimeout'
+          ])
+        ) 
+        ||
+        // Condition 2: Requesting a physical card
+        (
+          // Defensive check for cardStatus
+          (!('cardStatus' in resource.data) || resource.data.cardStatus == 'none') &&
+          // Validate new values
           request.resource.data.cardStatus == 'requested' &&
           request.resource.data.cardType in ['essentielle', 'precieuse', 'luminax'] &&
-          isUpdating(['cardStatus', 'cardType', 'cardRequestedAt'])
-        ) ||
-        
-        // Case 3: User is adding a virtual card
+          // Validate server timestamp
+          request.resource.data.cardRequestedAt == request.time &&
+          // Ensure only allowed keys are changed
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardType', 'cardRequestedAt'])
+        )
+        ||
+        // Condition 3: Adding a virtual card
         (
-          request.resource.data.virtualCards.size() == resource.data.virtualCards.size() + 1 &&
-          isUpdating(['virtualCards'])
+          // Ensure virtualCards list grows by exactly 1
+          request.resource.data.virtualCards.size() == (!('virtualCards' in resource.data) ? 0 : resource.data.virtualCards.size()) + 1 &&
+          // The createdAt is a client-side timestamp, so we just check it exists and is not in the future.
+          request.resource.data.virtualCards[request.resource.data.virtualCards.size() - 1].createdAt <= request.time &&
+          // Ensure only virtualCards list is changed
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['virtualCards'])
         )
       );
     }
-    
+
+    // ===================================
+    //               ADMIN
+    // ===================================
     match /admins/{adminId} {
-      allow read, write: if isOwner(adminId);
+      allow read, write: if false; 
     }
-
+    
+    // ===================================
+    //                CHAT
+    // ===================================
     match /chats/{chatId} {
-      allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
-
-      match /messages/{messageId} {
-        allow read, create: if request.auth != null && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
-        allow update: if request.auth != null && request.resource.data.keys().hasOnly(['deletedForUser']);
-        allow delete: if false; 
-      }
+      allow read, write: if request.auth.uid in resource.data.participants;
+    }
+    
+    match /chats/{chatId}/messages/{messageId} {
+       allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+       
+       allow create: if request.auth.uid == request.resource.data.senderId && 
+                      request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+                      
+       allow update: if request.auth.uid == resource.data.senderId && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']) && 
+                      request.resource.data.deletedForUser == true;
+                      
+       allow delete: if false;
     }
   }
 }
