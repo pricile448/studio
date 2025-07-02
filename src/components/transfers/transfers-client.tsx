@@ -10,25 +10,22 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRightLeft, Loader2 } from 'lucide-react';
+import { ArrowRightLeft, Loader2, Info } from 'lucide-react';
 import { AddBeneficiaryDialog } from './add-beneficiary-dialog';
 import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '../ui/kyc-prompt';
 import { KycPendingPrompt } from '../ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
 import { format } from 'date-fns';
-import { fr, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
-import { Info } from 'lucide-react';
 
 
 type TransfersClientProps = {
@@ -181,7 +178,6 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
             <Card>
                 <CardHeader>
                     <CardTitle>{transfersDict.newTransfer}</CardTitle>
-                    <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>

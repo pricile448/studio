@@ -300,7 +300,7 @@
       "description": "Description (optional)",
       "descriptionPlaceholder": "e.g., Rent payment",
       "submit": "Send Transfer",
-      "recentTransfers": "Recent Transfers",
+      "recentTransfers": "Transfer Tracking",
       "addBeneficiary": "Add Beneficiary",
       "noRecentTransfers": "No recent transfers found.",
       "addBeneficiaryTitle": "Add a new beneficiary",
@@ -402,7 +402,8 @@
         "statuses": {
           "completed": "Completed",
           "pending": "Pending",
-          "failed": "Failed"
+          "failed": "Failed",
+          "in_progress": "In Progress"
         }
       }
     },

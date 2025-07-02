@@ -658,12 +658,12 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
     throw new Error("Utilisateur non trouvé.");
   }
 
-  const newTransaction: Omit<Transaction, 'id' | 'date'> & { date: Timestamp } = {
+  const newTransaction: Omit<Transaction, 'id'> & { date: Timestamp } = {
     ...transferData,
     amount: -Math.abs(transferData.amount), // Virements externes = débits
-    date: Timestamp.now(),
     status: 'pending',
-    type: 'external_transfer'
+    type: 'external_transfer',
+    date: Timestamp.now()
   };
 
   const currentTransactions = userSnap.data().transactions || [];

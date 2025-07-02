@@ -300,7 +300,7 @@
       "description": "Descrição (opcional)",
       "descriptionPlaceholder": "ex: pagamento de aluguel",
       "submit": "Enviar Transferência",
-      "recentTransfers": "Transferências Recentes",
+      "recentTransfers": "Acompanhamento de transferências",
       "addBeneficiary": "Adicionar Beneficiário",
       "noRecentTransfers": "Nenhuma transferência recente encontrada.",
       "addBeneficiaryTitle": "Adicionar um novo beneficiário",
@@ -402,7 +402,8 @@
         "statuses": {
           "completed": "Concluído",
           "pending": "Pendente",
-          "failed": "Falhou"
+          "failed": "Falhou",
+          "in_progress": "Em Andamento"
         }
       }
     },

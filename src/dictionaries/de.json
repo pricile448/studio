@@ -300,7 +300,7 @@
       "description": "Beschreibung (optional)",
       "descriptionPlaceholder": "z.B. Mietzahlung",
       "submit": "Überweisung senden",
-      "recentTransfers": "Letzte Überweisungen",
+      "recentTransfers": "Überweisungsverfolgung",
       "addBeneficiary": "Empfänger hinzufügen",
       "noRecentTransfers": "Keine letzten Überweisungen gefunden.",
       "addBeneficiaryTitle": "Neuen Empfänger hinzufügen",
@@ -402,7 +402,8 @@
         "statuses": {
           "completed": "Abgeschlossen",
           "pending": "Ausstehend",
-          "failed": "Fehlgeschlagen"
+          "failed": "Fehlgeschlagen",
+          "in_progress": "In Bearbeitung"
         }
       }
     },

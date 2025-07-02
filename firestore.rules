@@ -1,80 +1,95 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // =============================================
-    // Helper Functions
-    // =============================================
-    function isUserAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    // --- Helper Functions ---
+    function isAuthOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
     
     function isAdmin() {
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // --- User Profile Rules ---
+    match /users/{userId} {
+      allow read, create: if isAuthOwner(userId) || isAdmin();
+
+      // --- USER-ONLY UPDATES ---
+
+      // 1. User can update their basic profile information
+      allow update: if isAuthOwner(userId) 
+                    && request.resource.data.keys().hasOnly(['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout']);
+
+      // 2. User can add a new beneficiary
+      allow update: if isAuthOwner(userId) 
+                    && request.writeFields.hasOnly(['beneficiaries'])
+                    && request.resource.data.beneficiaries.size() == resource.data.beneficiaries.size() + 1;
+
+      // 3. User can request a transfer (add a new transaction)
+      allow update: if isAuthOwner(userId)
+                    && request.writeFields.hasOnly(['transactions'])
+                    && request.resource.data.transactions.size() == resource.data.transactions.size() + 1
+                    // Crucially, the user CANNOT change their own balance when adding a transaction.
+                    // This is the gatekeeper that forces admin approval for the debit.
+                    && request.resource.data.accounts == resource.data.accounts;
+
+      // 4. User can request a physical card
+      allow update: if isAuthOwner(userId)
+                    && request.writeFields.hasOnly(['cardStatus', 'cardRequestedAt', 'cardType'])
+                    && request.resource.data.cardStatus == 'requested'
+                    && resource.data.cardStatus == 'none';
+      
+      // 5. User can request a virtual card
+      allow update: if isAuthOwner(userId)
+                    && request.writeFields.hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt'])
+                    && request.resource.data.hasPendingVirtualCardRequest == true;
+
+      // 6. User can suspend/unsuspend their own card (if not admin-suspended)
+      allow update: if isAuthOwner(userId)
+                    && request.writeFields.hasAny(['cardStatus', 'physicalCard'])
+                    && resource.data.physicalCard.suspendedBy != 'admin';
+
+      // 7. User can add a new document
+      allow update: if isAuthOwner(userId)
+                    && request.writeFields.hasOnly(['documents'])
+                    && request.resource.data.documents.size() == resource.data.documents.size() + 1;
+
+
+      // --- ADMIN-ONLY UPDATES ---
+      
+      // Admins can update any field on the user document.
+      // This is a broad permission for admins, covering KYC status, executing transfers, etc.
+      allow update: if isAdmin();
     }
     
-    // =============================================
-    // Security Rules for Collections
-    // =============================================
-
-    // Admins Collection
-    // Seuls les administrateurs existants peuvent lire cette collection.
-    // Personne ne peut écrire directement pour éviter l'auto-promotion.
+    // --- Admins Collection ---
     match /admins/{adminId} {
       allow read: if isAdmin();
-      allow write: if false; 
-    }
-
-    // Users Collection
-    match /users/{userId} {
-      // Les utilisateurs peuvent créer leur propre profil lors de l'inscription.
-      allow create: if isUserAuthenticated() && isOwner(userId);
-      
-      // Les utilisateurs peuvent lire leurs propres données.
-      // Les administrateurs peuvent lire les données de n'importe quel utilisateur.
-      allow read: if isUserAuthenticated() && (isOwner(userId) || isAdmin());
-
-      // Les utilisateurs peuvent mettre à jour leurs propres données, avec des restrictions.
-      // Les administrateurs peuvent mettre à jour les données de n'importe quel utilisateur.
-      allow update: if isUserAuthenticated() && (isOwner(userId) || isAdmin());
     }
     
-    // Chats Collection
+    // --- Chat Rules ---
     match /chats/{chatId} {
-      // Les participants à la conversation (utilisateur et conseiller) et les administrateurs peuvent lire.
-      allow read: if isUserAuthenticated() && (request.auth.uid in resource.data.participants || isAdmin());
-      
-      // Les participants peuvent créer une conversation.
-      allow create: if isUserAuthenticated() && request.auth.uid in request.resource.data.participants;
-      
-      // Les participants peuvent mettre à jour la conversation (ex: dernier message).
-      // Les administrateurs peuvent réinitialiser une conversation.
-      allow update: if isUserAuthenticated() && (request.auth.uid in resource.data.participants || isAdmin());
-      
-      // Uniquement les administrateurs peuvent supprimer la session de chat.
-      allow delete: if isAdmin();
-      
-      // Messages Sub-collection
-      match /messages/{messageId} {
-        // Les participants et les administrateurs peuvent lire les messages.
-        allow read: if isUserAuthenticated() && (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin());
-        
-        // Seuls les participants peuvent créer un message.
-        allow create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        
-        // Les utilisateurs peuvent marquer leurs propres messages comme "supprimés".
-        // Les administrateurs peuvent modifier les messages (pour suppression dure par ex).
-        allow update: if isUserAuthenticated() && 
-                       ( (isOwner(request.resource.data.senderId) && request.resource.data.deletedForUser == true) || isAdmin() );
-                       
-        // Uniquement les administrateurs peuvent supprimer physiquement un message.
-        allow delete: if isAdmin();
-      }
+        // A user can read/write to a chat if they are a participant.
+        allow read, write: if request.auth != null && request.auth.uid in resource.data.participants;
+
+        match /messages/{messageId} {
+            allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+            
+            // User can create a message if they are the sender
+            allow create: if request.auth != null && request.auth.uid == request.resource.data.senderId;
+            
+            // Allow user to "soft delete" their own messages
+            allow update: if request.auth != null 
+                          && resource.data.senderId == request.auth.uid
+                          && request.resource.data.keys().hasOnly(['deletedForUser']) 
+                          && request.resource.data.deletedForUser == true;
+                          
+            // Allow admin to hard delete any message
+            allow delete: if isAdmin();
+        }
     }
   }
 }
