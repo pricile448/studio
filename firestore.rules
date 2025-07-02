@@ -1,63 +1,66 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
+  
     // =================================
-    // Helper Functions
+    // Fonctions d'aide
     // =================================
 
-    function isAdmin() {
-      // Checks if the requesting user's UID is in the 'admins' collection.
-      // This is a secure way to check for administrative privileges.
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    // L'utilisateur est-il connecté ?
+    function isSignedIn() {
+      return request.auth != null;
     }
 
+    // L'utilisateur est-il le propriétaire du document ?
     function isOwner(userId) {
-      // Checks if the requesting user is the owner of the document they are trying to access.
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // L'utilisateur est-il un administrateur ?
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Vérifie si un utilisateur met à jour uniquement les champs autorisés.
+    // Empêche la modification de champs critiques comme le solde des comptes.
+    function isUpdatingOwnAllowedFields(request, resource) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+        [
+          'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode',
+          'profession', 'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout', 'documents', 'budgets', 'virtualCards',
+          'beneficiaries', 'kycStatus', 'kycSubmittedAt', 'cardStatus', 'cardType', 'cardRequestedAt', 'physicalCard',
+          'hasPendingVirtualCardRequest', 'virtualCardRequestedAt', 'transactions'
+        ]
+      );
     }
 
     // =================================
-    // Collection Rules
+    // Règles des Collections
     // =================================
+    match /admins/{adminId} {
+      allow read: if isAdmin() && request.auth.uid == adminId;
+      allow write: if false; // Doit être géré depuis un backend de confiance
+    }
+    
+    match /chats/{chatId} {
+      allow read, update, create: if isSignedIn() && request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
+        allow update: if isSignedIn() && request.resource.data.deletedForUser == true && resource.data.senderId == request.auth.uid;
+      }
+    }
 
     match /users/{userId} {
-      // READ: An admin can read any user's data. A user can only read their own data.
-      allow read: if isAdmin() || isOwner(userId);
-      
-      // CREATE: A user can create their own document during the signup process.
+      allow read: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId);
-
-      // UPDATE: An admin can update any user's document. A user can update their own document.
-      // Complex business logic (like ensuring a transfer request is 'pending' or that a balance
-      // is only modified by a trusted process) should be handled by server-side code (Firebase Functions or Server Actions),
-      // not by complex client-side security rules. This rule allows authorized clients to make valid update requests.
-      allow update: if isAdmin() || isOwner(userId);
+      allow delete: if false;
       
-      // DELETE: Only administrators can delete user documents. This is a critical and destructive action.
-      allow delete: if isAdmin();
-    }
-
-    match /admins/{adminId} {
-      // READ: Only other admins can see who is an admin. Regular users cannot.
-      allow read: if isAdmin();
-      
-      // WRITE: To prevent privilege escalation, no one can modify the admins collection from the client-side.
-      // This must be managed directly from the Firebase console.
-      allow write: if false;
-    }
-
-    match /chats/{chatId} {
-        // READ, WRITE: Access to a chat document (to read participants, etc.) is granted to admins or participants of the chat.
-        allow read, write: if isAdmin() || (request.auth.uid in resource.data.participants);
-        
-        match /messages/{messageId} {
-            // READ, WRITE: To read or write a message, the user must be a participant in the parent chat document or an admin.
-            // The get() function retrieves the parent chat document to check the participants list.
-            allow read, write: if isAdmin() || (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
-        }
+      // Un admin peut tout mettre à jour.
+      // Un utilisateur peut mettre à jour son propre document, mais seulement certains champs.
+      allow update: if isAdmin() || (isOwner(userId) && isUpdatingOwnAllowedFields(request, resource));
     }
   }
 }

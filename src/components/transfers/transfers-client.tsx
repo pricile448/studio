@@ -60,7 +60,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     defaultValues: {
       fromAccountId: '',
       toBeneficiaryId: '',
-      amount: undefined,
+      amount: '' as any,
       description: ''
     }
   });
@@ -184,13 +184,6 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                     <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Alert variant="info" className="mb-6">
-                        <Info className="h-4 w-4" />
-                        <AlertTitle>Information</AlertTitle>
-                        <AlertDescription>
-                        Pour votre sécurité, tous les virements externes sont soumis à une validation manuelle avant d'être exécutés.
-                        </AlertDescription>
-                    </Alert>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="grid gap-4">
                         <div className="grid md:grid-cols-2 gap-4">
