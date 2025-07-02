@@ -85,6 +85,14 @@ export type PhysicalCard = {
   suspendedBy?: 'user' | 'admin' | null;
 };
 
+export type BillingConfig = {
+  isEnabled: boolean;
+  holder: string;
+  iban: string;
+  bic: string;
+  description: string;
+};
+
 export type UserProfile = {
   uid: string;
   email: string;
@@ -776,4 +784,20 @@ export async function executeTransfer(userId: string, transactionId: string, db:
     transactions[transactionIndex].updatedAt = Timestamp.now();
 
     await updateDoc(userRef, { accounts, transactions });
+}
+
+// Admin Billing Config Functions
+export async function getBillingConfig(db: Firestore = defaultDb): Promise<BillingConfig | null> {
+  const configRef = doc(db, "config", "billing");
+  const docSnap = await getDoc(configRef);
+  if (docSnap.exists()) {
+    return docSnap.data() as BillingConfig;
+  }
+  return null;
+}
+
+export async function updateBillingConfig(config: BillingConfig, db: Firestore = defaultDb): Promise<void> {
+  const configRef = doc(db, "config", "billing");
+  // Use setDoc with merge:true to create the document if it doesn't exist, or update it if it does.
+  await setDoc(configRef, config, { merge: true });
 }

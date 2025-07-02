@@ -3,56 +3,85 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check if the user is an administrator
+    
+    // --- Helper Functions ---
+    // Fonction pour vérifier si l'utilisateur est un administrateur.
     function isAdmin() {
-      // An admin user has a document with their UID in the 'admins' collection.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-
-    // Admins Collection
-    // This allows the app to check if a user is an admin.
-    // Only existing admins can add or remove other admins.
-    match /admins/{adminId} {
-      allow get: if request.auth != null;
-      allow list, write: if isAdmin();
+    
+    // Fonction pour vérifier si la requête provient d'un utilisateur authentifié.
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // Users Collection
+    // --- Users Collection Rules ---
     match /users/{userId} {
-      // READ: A user can read their own profile, or an admin can read any profile.
-      allow read: if request.auth.uid == userId || isAdmin();
-
-      // CREATE: Allow user creation only if the UID matches the document ID during signup.
+      
+      // Un utilisateur peut créer son propre document lors de l'inscription.
       allow create: if request.auth.uid == userId;
+      
+      // Un utilisateur peut lire ses propres données, un admin peut lire n'importe quel profil.
+      allow read: if request.auth.uid == userId || isAdmin();
+      
+      // Un admin peut tout mettre à jour.
+      // Un utilisateur ne peut mettre à jour que certains champs spécifiques de son propre profil.
+      allow update: if isAdmin() || (
+        request.auth.uid == userId &&
+        // Liste des champs que l'utilisateur a le droit de modifier.
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout', 'beneficiaries', 'budgets', 'documents', 'virtualCards', 'cardStatus', 'cardType', 'cardRequestedAt', 'cardLimits', 'hasPendingVirtualCardRequest', 'virtualCardRequestedAt', 'kycStatus', 'kycSubmittedAt'])
+          // Un utilisateur ne peut que passer son statut KYC à "pending"
+          && (
+             !request.resource.data.keys().hasAny(['kycStatus']) || 
+             (request.resource.data.kycStatus == 'pending' && resource.data.kycStatus == 'unverified')
+          )
+      );
 
-      // UPDATE: An admin can update any user document. A user can only update their own.
-      allow update: if request.auth.uid == userId || isAdmin();
+      // Seuls les admins peuvent supprimer un compte utilisateur.
+      allow delete: if isAdmin();
     }
     
-    // Chats Collection
+    // --- Chats Collection Rules ---
     match /chats/{chatId} {
-      function isParticipant() {
-        return request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-      }
-
-      // An admin or a participant can read/write the chat document itself.
-      allow read, write: if isParticipant() || isAdmin();
+      // Les participants et les admins peuvent lire et écrire les métadonnées du chat.
+      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
       
-      // Messages Subcollection
       match /messages/{messageId} {
-        // An admin or a participant can read messages.
-        allow read: if isParticipant() || isAdmin();
+        // Les participants peuvent créer des messages.
+        allow create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
         
-        // An admin or the message's sender can create a message.
-        allow create: if (request.resource.data.senderId == request.auth.uid) || isAdmin();
+        // Les participants peuvent lire les messages.
+        allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
         
-        // A user can "soft delete" their own message. Admins can update any message.
-        allow update: if (resource.data.senderId == request.auth.uid && request.resource.data.keys().hasOnly(['deletedForUser'])) || isAdmin();
+        // Un utilisateur peut "soft-delete" (masquer) ses propres messages. Un admin peut tout mettre à jour.
+        allow update: if isAdmin() || (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']) &&
+          request.resource.data.deletedForUser == true &&
+          resource.data.senderId == request.auth.uid
+        );
         
-        // Only admins can permanently delete messages.
+        // Seuls les admins peuvent supprimer définitivement des messages.
         allow delete: if isAdmin();
       }
+    }
+
+    // --- Configuration Collection ---
+    // Contient les documents pour les réglages globaux de l'application.
+    match /config/{docId} {
+      // Tout utilisateur authentifié peut lire la configuration (ex: pour voir les infos de facturation).
+      allow read: if isAuthenticated();
+      
+      // Seuls les admins peuvent écrire dans la configuration.
+      allow write: if isAdmin();
+    }
+    
+    // --- Admins Collection ---
+    // Cette collection doit être gérée manuellement dans la console Firebase.
+    // Elle sert de liste en lecture seule des UID des administrateurs.
+    match /admins/{adminId} {
+        allow read: if isAdmin(); // Les admins peuvent voir qui sont les autres admins.
+        allow write: if false; // Personne ne peut écrire côté client.
     }
   }
 }
