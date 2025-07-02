@@ -55,15 +55,17 @@ export function BillingClient({ dict }: BillingClientProps) {
   if (loading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-8 w-1/3" />
-        <Card className="w-full max-w-2xl shadow-lg">
-            <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-10" />
-                <Skeleton className="h-10" />
-                <Skeleton className="h-10" />
-            </CardContent>
-        </Card>
+        <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
+        <div className="flex justify-center">
+            <Card className="w-full max-w-2xl shadow-lg">
+                <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-10" />
+                    <Skeleton className="h-10" />
+                    <Skeleton className="h-10" />
+                </CardContent>
+            </Card>
+        </div>
       </div>
     )
   }
@@ -72,13 +74,15 @@ export function BillingClient({ dict }: BillingClientProps) {
     return (
          <div className="space-y-6">
             <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
-            <Alert variant="info" className="max-w-2xl">
-              <Info className="h-4 w-4" />
-              <AlertTitle>Aucune facturation en attente</AlertTitle>
-              <AlertDescription>
-                Vous n'avez actuellement aucun service à régler. Revenez plus tard.
-              </AlertDescription>
-            </Alert>
+            <div className="flex justify-center">
+                <Alert variant="info" className="w-full max-w-2xl">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Aucune facturation en attente</AlertTitle>
+                  <AlertDescription>
+                    Vous n'avez actuellement aucun service à régler. Revenez plus tard.
+                  </AlertDescription>
+                </Alert>
+            </div>
          </div>
     );
   }
@@ -86,48 +90,50 @@ export function BillingClient({ dict }: BillingClientProps) {
   return (
     <div className="space-y-6">
         <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
-        <Card className="max-w-2xl shadow-lg">
-            <CardHeader>
-                <CardTitle>{billingDict.cardTitle}</CardTitle>
-                <CardDescription>{config.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="holder">{ibanDict.accountHolder}</Label>
-                    <div className="relative">
-                        <Input id="holder" value={config.holder} readOnly />
+        <div className="flex justify-center">
+            <Card className="w-full max-w-2xl shadow-lg">
+                <CardHeader>
+                    <CardTitle>{billingDict.cardTitle}</CardTitle>
+                    <CardDescription>{config.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="holder">{ibanDict.accountHolder}</Label>
+                        <div className="relative">
+                            <Input id="holder" value={config.holder} readOnly />
+                        </div>
                     </div>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="iban">{ibanDict.iban}</Label>
-                    <div className="relative">
-                        <Input id="iban" value={config.iban} readOnly />
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                            onClick={() => handleCopy(config.iban, 'IBAN')}
-                        >
-                            {copiedField === 'IBAN' ? <Check className="text-green-500" /> : <Copy />}
-                        </Button>
+                    <div className="space-y-2">
+                        <Label htmlFor="iban">{ibanDict.iban}</Label>
+                        <div className="relative">
+                            <Input id="iban" value={config.iban} readOnly />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                onClick={() => handleCopy(config.iban, 'IBAN')}
+                            >
+                                {copiedField === 'IBAN' ? <Check className="text-green-500" /> : <Copy />}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="bic">{ibanDict.bic}</Label>
-                    <div className="relative">
-                        <Input id="bic" value={config.bic} readOnly />
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                            onClick={() => handleCopy(config.bic, 'BIC')}
-                        >
-                            {copiedField === 'BIC' ? <Check className="text-green-500" /> : <Copy />}
-                        </Button>
+                    <div className="space-y-2">
+                        <Label htmlFor="bic">{ibanDict.bic}</Label>
+                        <div className="relative">
+                            <Input id="bic" value={config.bic} readOnly />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                onClick={() => handleCopy(config.bic, 'BIC')}
+                            >
+                                {copiedField === 'BIC' ? <Check className="text-green-500" /> : <Copy />}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </div>
     </div>
   );
 }
