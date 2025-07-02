@@ -95,7 +95,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
       form.reset({
           fromAccountId: '',
           toBeneficiaryId: '',
-          amount: '' as any, // Reset as empty string for controlled component
+          amount: '' as any,
           description: ''
       });
       setTransferData(null);
