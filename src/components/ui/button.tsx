@@ -14,6 +14,8 @@ const buttonVariants = cva(
           "bg-gradient-to-r from-primary to-primary-gradient-end text-primary-foreground hover:brightness-95 transition-all",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        success:
+          "bg-green-600 text-primary-foreground hover:bg-green-600/90",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:

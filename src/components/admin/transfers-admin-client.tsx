@@ -66,7 +66,7 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
                 <div className="space-x-2">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                             <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700" disabled={isLoading}>{isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : null} Exécuter</Button>
+                             <Button variant="success" size="sm" disabled={isLoading}>{isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : null} Exécuter</Button>
                         </AlertDialogTrigger>
                          <AlertDialogContent>
                             <AlertDialogHeader>
@@ -77,7 +77,7 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => onAction('execute', transfer)} className="bg-green-600 hover:bg-green-700">Confirmer l'exécution</AlertDialogAction>
+                                <AlertDialogAction onClick={() => onAction('execute', transfer)} variant="success">Confirmer l'exécution</AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
