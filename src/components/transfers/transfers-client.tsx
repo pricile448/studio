@@ -143,7 +143,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
   const accounts = userProfile.accounts || [];
   const beneficiaries = userProfile.beneficiaries || [];
   const transfersToTrack = (userProfile.transactions || [])
-    .filter(tx => tx.type === 'outgoing_transfer' && (tx.status === 'pending' || tx.status === 'in_progress'))
+    .filter(tx => tx.type === 'outgoing_transfer' && (tx.status === 'pending' || tx.status === 'in_progress' || tx.status === 'in_review'))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 
@@ -153,6 +153,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         case 'completed': return { text: dict.history.table.statuses[key], className: 'bg-green-100 text-green-800 border-green-200'};
         case 'pending': return { text: dict.history.table.statuses[key], className: 'bg-amber-100 text-amber-800 border-amber-200'};
         case 'in_progress': return { text: dict.history.table.statuses[key], className: 'bg-blue-100 text-blue-800 border-blue-200'};
+        case 'in_review': return { text: dict.history.table.statuses[key], className: 'bg-orange-100 text-orange-800 border-orange-200'};
         case 'failed': return { text: dict.history.table.statuses[key], className: 'bg-red-100 text-red-800 border-red-200'};
         default: return { text: status, className: 'bg-gray-100 text-gray-800 border-gray-200'};
     }
@@ -296,7 +297,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
         <Card>
             <CardHeader>
-                <CardTitle>Suivi de virement</CardTitle>
+                <CardTitle>{transfersDict.transferTracking}</CardTitle>
             </CardHeader>
             <CardContent>
                 <Table>

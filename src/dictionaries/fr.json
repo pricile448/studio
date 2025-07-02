@@ -197,7 +197,6 @@
       "notifications": "Notifications",
       "verified": "Vérifié",
       "unverified": "Non vérifié",
-      "advisor": "Vue Conseiller",
       "userMenu": {
         "profile": "Profil",
         "billing": "Facturation",
@@ -406,7 +405,8 @@
           "completed": "Terminé",
           "pending": "En attente",
           "failed": "Échoué",
-          "in_progress": "En cours"
+          "in_progress": "En cours",
+          "in_review": "En examen"
         }
       }
     },

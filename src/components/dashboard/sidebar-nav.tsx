@@ -97,22 +97,6 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
         <SidebarGroup>
           <SidebarGroupLabel>{sidebarGroupsDict.settingsAndMore}</SidebarGroupLabel>
           <NavMenu items={otherNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
-           {userProfile?.kycStatus === 'verified' && (
-             <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        asChild
-                        isActive={pathname.startsWith(`/${lang}/advisor`)}
-                        tooltip={sidebarDict.advisor}
-                    >
-                        <Link href={`/${lang}/advisor`}>
-                            <Shield />
-                            <span>{sidebarDict.advisor}</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-             </SidebarMenu>
-           )}
         </SidebarGroup>
       </div>
     </div>
