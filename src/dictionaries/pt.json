@@ -582,6 +582,11 @@
         "successTitle": "Mensagem Enviada!",
         "successDescription": "Obrigado por nos contactar. Entraremos em contacto consigo o mais breve possível.",
         "errorDescription": "Falha ao enviar mensagem. Por favor, tente novamente mais tarde."
+      },
+      "contactCta": {
+        "title": "Precisa de mais ajuda?",
+        "description": "Não consegue encontrar a resposta para a sua pergunta? Inicie sessão na sua conta para contactar a nossa equipa de suporte através de mensagens seguras.",
+        "loginButton": "Entrar"
       }
     },
     "chat": {

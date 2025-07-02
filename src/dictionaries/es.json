@@ -259,7 +259,7 @@
        "notifications": {
         "title": "Notificaciones",
         "welcomeTitle": "¡Bienvenido a AmCbunq!",
-        "welcomeDescription": "Su cuenta ha sido creada con éxito. Ahora puede explorar todas las funciones que ofrecemos. Asegúrese de completar la verificación de su perfil lo antes posible para desbloquear todas las funcionalidades.",
+        "welcomeDescription": "Su cuenta ha sido creada con éxito. Ahora puede explorar todas las funciones que ofrecemos. Asegúrese de completar la verifiación de su perfil lo antes posible para desbloquear todas las funcionalidades.",
         "verificationTitle": "Verificación de perfil",
         "verificationDescription": "Por favor, complete su verificación de identidad. Para cumplir con las regulaciones financieras y garantizar la seguridad de su cuenta, este es un paso necesario para acceder a funciones como transferencias y servicios de tarjeta.",
         "viewAll": "Ver todas las notificaciones",
@@ -582,6 +582,11 @@
         "successTitle": "¡Mensaje enviado!",
         "successDescription": "Gracias por contactarnos. Nos pondremos en contacto con usted lo antes posible.",
         "errorDescription": "No se pudo enviar el mensaje. Por favor, inténtelo de nuevo más tarde."
+      },
+      "contactCta": {
+        "title": "¿Necesita más ayuda?",
+        "description": "¿No encuentra la respuesta a su pregunta? Inicie sesión en su cuenta para contactar a nuestro equipo de soporte a través de mensajería segura.",
+        "loginButton": "Iniciar sesión"
       }
     },
     "chat": {

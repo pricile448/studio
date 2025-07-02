@@ -582,6 +582,11 @@
         "successTitle": "Message Sent!",
         "successDescription": "Thanks for contacting us. We'll get back to you as soon as possible.",
         "errorDescription": "Failed to send message. Please try again later."
+      },
+       "contactCta": {
+        "title": "Need more help?",
+        "description": "Can't find the answer to your question? Log in to your account to contact our support team via secure messaging.",
+        "loginButton": "Login"
       }
     },
     "chat": {

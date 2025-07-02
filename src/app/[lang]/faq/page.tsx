@@ -142,7 +142,7 @@ export default function FaqPage({ params: paramsPromise }: { params: Promise<{ l
 
       {/* Main Content */}
       <main className="flex-1 py-20 sm:py-32">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 space-y-8">
             <Card>
                 <ShadCardHeader>
                     <ShadCardTitle className="text-3xl font-bold font-headline">{helpDict.faqTitle}</ShadCardTitle>
@@ -157,6 +157,18 @@ export default function FaqPage({ params: paramsPromise }: { params: Promise<{ l
                     </AccordionItem>
                     ))}
                 </Accordion>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <ShadCardHeader className="text-center">
+                    <ShadCardTitle className="text-2xl font-bold font-headline">{helpDict.contactCta.title}</ShadCardTitle>
+                    <ShadCardDescription>{helpDict.contactCta.description}</ShadCardDescription>
+                </ShadCardHeader>
+                <CardContent className="flex justify-center">
+                    <Button asChild>
+                        <Link href={`/${lang}/login`}>{helpDict.contactCta.loginButton}</Link>
+                    </Button>
                 </CardContent>
             </Card>
         </div>
