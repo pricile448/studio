@@ -443,7 +443,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                     ) : user.cardStatus === 'active' ? (
                         <Button variant="destructive" onClick={handleSuspendCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Suspendre la carte</Button>
                     ) : user.cardStatus === 'suspended' ? (
-                         <Button onClick={handleReactivateCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Réactiver la carte</Button>
+                         <Button variant="success" onClick={handleReactivateCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Réactiver la carte</Button>
                     ) : null}
 
                     {(user.cardStatus === 'active' || user.cardStatus === 'suspended') && (
@@ -860,7 +860,12 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
                                     </DropdownMenuItem>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className={cn(
+                                                "focus:cursor-pointer",
+                                                account.status === 'active' 
+                                                    ? "text-destructive focus:text-destructive" 
+                                                    : "text-green-600 focus:text-green-700"
+                                            )}>
                                                 {account.status === 'active' ? <Ban className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                                                 <span>{account.status === 'active' ? 'Suspendre' : 'Réactiver'}</span>
                                             </DropdownMenuItem>
@@ -870,13 +875,18 @@ function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (u
                                             <AlertDialogDescription>Êtes-vous sûr de vouloir {account.status === 'active' ? 'suspendre' : 'réactiver'} ce compte ?</AlertDialogDescription>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleToggleStatus(account)}>Confirmer</AlertDialogAction>
+                                                <AlertDialogAction 
+                                                    onClick={() => handleToggleStatus(account)}
+                                                    variant={account.status === 'active' ? 'destructive' : 'success'}
+                                                >
+                                                    Confirmer
+                                                </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                            <DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}><Trash2 className="mr-2 h-4 w-4" /><span>Remettre à zéro</span></DropdownMenuItem>
+                                            <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={(e) => e.preventDefault()}><Trash2 className="mr-2 h-4 w-4" /><span>Remettre à zéro</span></DropdownMenuItem>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader><AlertDialogTitle>Confirmer la remise à zéro</AlertDialogTitle></AlertDialogHeader>
