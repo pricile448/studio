@@ -4,96 +4,54 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // =================================
-    // Helper Functions
-    // =================================
-    function isAuthenticated() {
-      return request.auth != null;
+    // Helper function to check if the user is an administrator
+    function isAdmin() {
+      // An admin user has a document with their UID in the 'admins' collection.
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+    // Admins Collection
+    // This allows the app to check if a user is an admin.
+    // Only existing admins can add or remove other admins.
+    match /admins/{adminId} {
+      allow get: if request.auth != null;
+      allow list, write: if isAdmin();
     }
 
-    // =================================
     // Users Collection
-    // =================================
     match /users/{userId} {
-      
-      // --- Main Permissions ---
-      allow read: if isOwner(userId);
-      allow create: if request.resource.data.uid == request.auth.uid;
-      allow update: if isOwner(userId) && isAllowedUpdate(userId);
+      // READ: A user can read their own profile, or an admin can read any profile.
+      allow read: if request.auth.uid == userId || isAdmin();
 
-      // --- Update Logic Function ---
-      function isAllowedUpdate(userId) {
-        // List of fields a user can freely edit on their profile.
-        let allowedProfileFields = [
-          'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality',
-          'residenceCountry', 'address', 'city', 'postalCode', 'profession',
-          'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout'
-        ];
+      // CREATE: Allow user creation only if the UID matches the document ID during signup.
+      allow create: if request.auth.uid == userId;
 
-        // Condition 1: User is updating simple profile fields.
-        let isProfileUpdate = request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedProfileFields);
-
-        // Condition 2: User is managing their beneficiaries list (add/remove).
-        let isBeneficiaryUpdate = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']);
-
-        // Condition 3: User is requesting a new outgoing transfer.
-        let isTransferRequest =
-          // Ensure only the transactions list is being changed.
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions']) &&
-          // Ensure balances are NOT changed by the user.
-          request.resource.data.accounts == resource.data.accounts &&
-          // Ensure exactly one transaction is added.
-          request.resource.data.transactions.size() == resource.data.transactions.size() + 1 &&
-          // Ensure the new transaction is a 'pending' 'outgoing_transfer'.
-          request.resource.data.transactions[request.resource.data.transactions.size() - 1].status == 'pending' &&
-          request.resource.data.transactions[request.resource.data.transactions.size() - 1].type == 'outgoing_transfer';
-          
-        // Condition 4: User is requesting a physical card for the first time.
-        let isPhysicalCardRequest =
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']) &&
-          request.resource.data.cardStatus == 'requested' &&
-          resource.data.cardStatus == 'none';
-        
-        // Condition 5: User is requesting a virtual card.
-        let isVirtualCardRequest =
-            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
-
-        // A user is allowed to update if ANY of these conditions are true.
-        return isProfileUpdate || isBeneficiaryUpdate || isTransferRequest || isPhysicalCardRequest || isVirtualCardRequest;
-      }
+      // UPDATE: An admin can update any user document. A user can only update their own.
+      allow update: if request.auth.uid == userId || isAdmin();
     }
     
-    // =================================
-    // Admins Collection
-    // =================================
-    match /admins/{adminId} {
-      // Only backend (with admin credentials) can access this collection.
-      allow read, write: if false;
-    }
-
-    // =================================
     // Chats Collection
-    // =================================
     match /chats/{chatId} {
-      // Checks if the requesting user is a participant in the chat.
       function isParticipant() {
-        return isAuthenticated() && request.auth.uid in resource.data.participants;
+        return request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
 
-      allow read, update: if isParticipant();
-
+      // An admin or a participant can read/write the chat document itself.
+      allow read, write: if isParticipant() || isAdmin();
+      
+      // Messages Subcollection
       match /messages/{messageId} {
-        allow read: if isParticipant();
-        allow create: if isParticipant() && request.auth.uid == request.resource.data.senderId;
-        // Allows a user to "soft delete" their OWN messages by setting a flag.
-        allow update: if isParticipant() &&
-                        resource.data.senderId == request.auth.uid &&
-                        request.resource.data.keys().hasOnly(['deletedForUser']) &&
-                        request.resource.data.deletedForUser == true;
+        // An admin or a participant can read messages.
+        allow read: if isParticipant() || isAdmin();
+        
+        // An admin or the message's sender can create a message.
+        allow create: if (request.resource.data.senderId == request.auth.uid) || isAdmin();
+        
+        // A user can "soft delete" their own message. Admins can update any message.
+        allow update: if (resource.data.senderId == request.auth.uid && request.resource.data.keys().hasOnly(['deletedForUser'])) || isAdmin();
+        
+        // Only admins can permanently delete messages.
+        allow delete: if isAdmin();
       }
     }
   }
