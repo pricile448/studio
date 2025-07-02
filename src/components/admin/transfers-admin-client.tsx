@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw, History } from 'lucide-react';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '../ui/badge';
@@ -144,6 +144,60 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
     );
 }
 
+
+function HistoryTable({ transfers }: { transfers: TransferWithUser[] }) {
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    };
+
+    const getStatusBadge = (status: 'completed' | 'failed') => {
+        if (status === 'completed') {
+            return <Badge className="bg-green-100 text-green-800 border-green-200">Terminé</Badge>;
+        }
+        return <Badge variant="destructive">Échoué</Badge>;
+    };
+
+    if (transfers.length === 0) {
+        return (
+            <div className="text-center text-muted-foreground py-12">
+                <p>Aucun virement dans l'historique.</p>
+            </div>
+        )
+    }
+
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Utilisateur</TableHead>
+                    <TableHead>Bénéficiaire</TableHead>
+                    <TableHead>Montant</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Statut Final</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {transfers.map((transfer) => (
+                    <TableRow key={transfer.id}>
+                        <TableCell>
+                            <div className="font-medium">{transfer.userName}</div>
+                            <div className="text-sm text-muted-foreground">{transfer.userId}</div>
+                        </TableCell>
+                        <TableCell>
+                             <div className="font-medium">{transfer.beneficiaryName}</div>
+                             <div className="text-sm text-muted-foreground">{transfer.description}</div>
+                        </TableCell>
+                        <TableCell className="font-semibold">{formatCurrency(transfer.amount)}</TableCell>
+                        <TableCell>{format(new Date(transfer.date), 'dd MMMM yyyy, HH:mm', { locale: fr })}</TableCell>
+                        <TableCell className="text-right">{getStatusBadge(transfer.status as 'completed' | 'failed')}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    );
+}
+
+
 export function TransfersAdminClient() {
     const [allTransfers, setAllTransfers] = useState<TransferWithUser[]>([]);
     const [loading, setLoading] = useState(true);
@@ -207,6 +261,7 @@ export function TransfersAdminClient() {
     
     const pendingTransfers = allTransfers.filter(t => t.status === 'pending');
     const inProgressTransfers = allTransfers.filter(t => t.status === 'in_progress');
+    const historicalTransfers = allTransfers.filter(t => t.status === 'completed' || t.status === 'failed');
 
     return (
        <Card>
@@ -221,7 +276,7 @@ export function TransfersAdminClient() {
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="pending">
-                    <TabsList className="grid w-full grid-cols-2">
+                    <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="pending">
                             <Hourglass className="mr-2 h-4 w-4" />
                             En attente
@@ -232,6 +287,11 @@ export function TransfersAdminClient() {
                             En cours
                              <Badge className="ml-2">{inProgressTransfers.length}</Badge>
                         </TabsTrigger>
+                         <TabsTrigger value="history">
+                            <History className="mr-2 h-4 w-4" />
+                            Historique
+                             <Badge className="ml-2">{historicalTransfers.length}</Badge>
+                        </TabsTrigger>
                     </TabsList>
                     <TabsContent value="pending" className="pt-4">
                         <TransfersTable transfers={pendingTransfers} onAction={handleAction} actionInProgressId={actionInProgressId} />
@@ -239,8 +299,13 @@ export function TransfersAdminClient() {
                     <TabsContent value="in_progress" className="pt-4">
                         <TransfersTable transfers={inProgressTransfers} onAction={handleAction} actionInProgressId={actionInProgressId} />
                     </TabsContent>
+                    <TabsContent value="history" className="pt-4">
+                        <HistoryTable transfers={historicalTransfers} />
+                    </TabsContent>
                 </Tabs>
             </CardContent>
        </Card>
     );
 }
+
+    
