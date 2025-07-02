@@ -191,9 +191,9 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
     return (
       <div className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-            <Card className="lg:col-span-3">
+            <Card>
                 <CardHeader>
                   <CardTitle>{transfersDict.newTransfer}</CardTitle>
                 </CardHeader>
@@ -253,7 +253,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                 </CardContent>
             </Card>
 
-            <Card className="lg:col-span-2">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-lg">Liste des bénéficiaires</CardTitle>
                     <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />

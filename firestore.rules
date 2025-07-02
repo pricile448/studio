@@ -1,113 +1,100 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // =================================
     // Helper Functions
     // =================================
-    
-    // Vérifie si l'utilisateur authentifié est le propriétaire du document
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    // Vérifie si une requête est authentifiée
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Vérifie si l'utilisateur authentifié est un administrateur
-    function isAdmin() {
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
     // =================================
-    // User Document Validation Functions
+    // Users Collection
     // =================================
-
-    // Valide la mise à jour des champs de profil de base par l'utilisateur
-    function isUpdatingOwnProfile() {
-      let editableFields = ['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout'];
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(editableFields);
-    }
-
-    // Valide l'ajout d'un nouveau bénéficiaire
-    function isAddingBeneficiary() {
-      let before = resource.data.beneficiaries;
-      let after = request.resource.data.beneficiaries;
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']) &&
-             after.size() == before.size() + 1;
-    }
-
-    // Valide la suppression d'un bénéficiaire
-    function isRemovingBeneficiary() {
-      let before = resource.data.beneficiaries;
-      let after = request.resource.data.beneficiaries;
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']) &&
-             after.size() == before.size() - 1;
-    }
-    
-    // Valide une nouvelle demande de virement (statut "pending" obligatoire)
-    function isRequestingTransfer() {
-      // S'assurer que seul le tableau des transactions est modifié
-      if (!request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions'])) {
-        return false;
-      }
-      
-      let beforeTx = resource.data.transactions;
-      let afterTx = request.resource.data.transactions;
-      let newTx = afterTx[afterTx.size() - 1];
-      
-      return afterTx.size() == beforeTx.size() + 1 &&
-             newTx.status == 'pending' &&
-             newTx.type == 'outgoing_transfer';
-    }
-
-    // Valide les modifications de carte autorisées pour un utilisateur (bloquer/débloquer, etc.)
-    function isModifyingCardByUser() {
-      let allowedCardFields = ['cardStatus', 'physicalCard', 'cardRequestedAt', 'cardType', 'hasPendingVirtualCardRequest', 'virtualCardRequestedAt', 'virtualCards', 'documents'];
-      return request.resource.data.diff(resource.data).affectedKeys().hasAny(allowedCardFields);
-    }
-    
-    // =================================
-    // Collection Rules
-    // =================================
-
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow create: if isAuthenticated();
       
-      // La mise à jour est autorisée si l'utilisateur est le propriétaire ET que l'une des conditions de modification est remplie,
-      // OU si l'utilisateur est un administrateur (qui a des droits complets).
-      allow update: if (isOwner(userId) && (
-                      isUpdatingOwnProfile() ||
-                      isAddingBeneficiary() ||
-                      isRemovingBeneficiary() ||
-                      isRequestingTransfer() ||
-                      isModifyingCardByUser()
-                    )) || isAdmin();
-                    
-      allow delete: if isAdmin(); // Seuls les admins peuvent supprimer un utilisateur
-    }
+      // --- Main Permissions ---
+      allow read: if isOwner(userId);
+      allow create: if request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(userId) && isAllowedUpdate(userId);
 
-    match /chats/{chatId} {
-        allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+      // --- Update Logic Function ---
+      function isAllowedUpdate(userId) {
+        // List of fields a user can freely edit on their profile.
+        let allowedProfileFields = [
+          'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality',
+          'residenceCountry', 'address', 'city', 'postalCode', 'profession',
+          'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout'
+        ];
+
+        // Condition 1: User is updating simple profile fields.
+        let isProfileUpdate = request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedProfileFields);
+
+        // Condition 2: User is managing their beneficiaries list (add/remove).
+        let isBeneficiaryUpdate = request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']);
+
+        // Condition 3: User is requesting a new outgoing transfer.
+        let isTransferRequest =
+          // Ensure only the transactions list is being changed.
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions']) &&
+          // Ensure balances are NOT changed by the user.
+          request.resource.data.accounts == resource.data.accounts &&
+          // Ensure exactly one transaction is added.
+          request.resource.data.transactions.size() == resource.data.transactions.size() + 1 &&
+          // Ensure the new transaction is a 'pending' 'outgoing_transfer'.
+          request.resource.data.transactions[request.resource.data.transactions.size() - 1].status == 'pending' &&
+          request.resource.data.transactions[request.resource.data.transactions.size() - 1].type == 'outgoing_transfer';
+          
+        // Condition 4: User is requesting a physical card for the first time.
+        let isPhysicalCardRequest =
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']) &&
+          request.resource.data.cardStatus == 'requested' &&
+          resource.data.cardStatus == 'none';
         
-        match /messages/{messageId} {
-            allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-            allow create: if isOwner(request.resource.data.senderId);
-            
-            // Permet à l'utilisateur de "supprimer pour soi" (soft delete) ou à un admin de faire des modifications plus larges
-            allow update: if (isOwner(resource.data.senderId) && request.resource.data.keys().hasOnly(['deletedForUser'])) || isAdmin();
-            allow delete: if isAdmin();
-        }
+        // Condition 5: User is requesting a virtual card.
+        let isVirtualCardRequest =
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
+
+        // A user is allowed to update if ANY of these conditions are true.
+        return isProfileUpdate || isBeneficiaryUpdate || isTransferRequest || isPhysicalCardRequest || isVirtualCardRequest;
+      }
     }
     
+    // =================================
+    // Admins Collection
+    // =================================
     match /admins/{adminId} {
-      allow read: if isAdmin();
-      // Empêche toute modification de la liste des admins depuis le client
-      allow write: if false; 
+      // Only backend (with admin credentials) can access this collection.
+      allow read, write: if false;
+    }
+
+    // =================================
+    // Chats Collection
+    // =================================
+    match /chats/{chatId} {
+      // Checks if the requesting user is a participant in the chat.
+      function isParticipant() {
+        return isAuthenticated() && request.auth.uid in resource.data.participants;
+      }
+
+      allow read, update: if isParticipant();
+
+      match /messages/{messageId} {
+        allow read: if isParticipant();
+        allow create: if isParticipant() && request.auth.uid == request.resource.data.senderId;
+        // Allows a user to "soft delete" their OWN messages by setting a flag.
+        allow update: if isParticipant() &&
+                        resource.data.senderId == request.auth.uid &&
+                        request.resource.data.keys().hasOnly(['deletedForUser']) &&
+                        request.resource.data.deletedForUser == true;
+      }
     }
   }
 }
