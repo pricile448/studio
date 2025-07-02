@@ -240,7 +240,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>{transfersDict.recentTransfers}</CardTitle>
+                    <CardTitle>{transfersDict.transferTracking}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -261,9 +261,16 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                                     <TableCell>{tx.beneficiaryName}</TableCell>
                                     <TableCell className="text-right font-medium">{formatCurrency(tx.amount)}</TableCell>
                                     <TableCell className="text-right">
-                                        <Badge variant="outline" className={cn(statusInfo.className, "dark:bg-transparent")}>
-                                            {statusInfo.text}
-                                        </Badge>
+                                       {tx.status === 'in_progress' ? (
+                                            <div className="flex items-center justify-end gap-2 text-blue-800 dark:text-blue-300">
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <span className="font-medium">{statusInfo.text}</span>
+                                            </div>
+                                        ) : (
+                                            <Badge variant="outline" className={cn(statusInfo.className, "dark:bg-transparent")}>
+                                                {statusInfo.text}
+                                            </Badge>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                                 )

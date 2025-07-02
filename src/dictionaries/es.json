@@ -300,7 +300,7 @@
       "description": "Descripción (opcional)",
       "descriptionPlaceholder": "p. ej., pago de alquiler",
       "submit": "Enviar Transferencia",
-      "recentTransfers": "Seguimiento de transferencias",
+      "transferTracking": "Seguimiento de transferencias",
       "addBeneficiary": "Añadir Beneficiario",
       "noRecentTransfers": "No se encontraron transferencias recientes.",
       "addBeneficiaryTitle": "Añadir un nuevo beneficiario",
@@ -379,7 +379,6 @@
         "virtual_request_pending_title": "Solicitud de tarjeta virtual en curso",
         "virtual_request_pending_description": "Su solicitud está siendo procesada por un asesor. La tarjeta estará disponible en 24 horas.",
         "suspended": "Suspendida",
-        "adminSuspended": "Suspendida (Admin)",
         "adminFrozenMessage": "Esta tarjeta ha sido suspendida por un administrador y no se puede desbloquear.",
         "adminHiddenDetails": "La visibilidad de los detalles está controlada por un administrador."
     },
@@ -425,7 +424,7 @@
       "noBudgetsTitle": "Aún no tiene presupuestos",
       "noBudgetsDescription": "Cree un presupuesto para comenzar a controlar sus gastos y alcanzar sus metas financieras."
     },
-    "documents": {
+     "documents": {
       "title": "Mis Documentos",
       "description": "Administre sus documentos cargados.",
       "upload": "Subir Documento",

@@ -300,7 +300,7 @@
       "description": "Beschreibung (optional)",
       "descriptionPlaceholder": "z.B. Mietzahlung",
       "submit": "Überweisung senden",
-      "recentTransfers": "Überweisungsverfolgung",
+      "transferTracking": "Überweisungsverfolgung",
       "addBeneficiary": "Empfänger hinzufügen",
       "noRecentTransfers": "Keine letzten Überweisungen gefunden.",
       "addBeneficiaryTitle": "Neuen Empfänger hinzufügen",
@@ -379,7 +379,6 @@
         "virtual_request_pending_title": "Antrag auf virtuelle Karte in Bearbeitung",
         "virtual_request_pending_description": "Ihr Antrag wird von einem Berater bearbeitet. Die Karte wird innerhalb von 24 Stunden verfügbar sein.",
         "suspended": "Gesperrt",
-        "adminSuspended": "Gesperrt (Admin)",
         "adminFrozenMessage": "Diese Karte wurde von einem Administrator gesperrt und kann nicht entsperrt werden.",
         "adminHiddenDetails": "Die Sichtbarkeit der Details wird von einem Administrator kontrolliert."
     },

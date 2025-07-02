@@ -300,7 +300,7 @@
       "description": "Description (optionnel)",
       "descriptionPlaceholder": "ex: Loyer, facture...",
       "submit": "Envoyer le virement",
-      "recentTransfers": "Suivi de virement",
+      "transferTracking": "Suivi de virement",
       "addBeneficiary": "Ajouter un bénéficiaire",
       "noRecentTransfers": "Aucun virement récent.",
       "addBeneficiaryTitle": "Ajouter un nouveau bénéficiaire",

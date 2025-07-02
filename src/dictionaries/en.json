@@ -300,7 +300,7 @@
       "description": "Description (optional)",
       "descriptionPlaceholder": "e.g., Rent payment",
       "submit": "Send Transfer",
-      "recentTransfers": "Transfer Tracking",
+      "transferTracking": "Transfer Tracking",
       "addBeneficiary": "Add Beneficiary",
       "noRecentTransfers": "No recent transfers found.",
       "addBeneficiaryTitle": "Add a new beneficiary",
@@ -379,7 +379,6 @@
         "virtual_request_pending_title": "Virtual card request in progress",
         "virtual_request_pending_description": "Your request is being processed by an advisor. The card will be available within 24 hours.",
         "suspended": "Suspended",
-        "adminSuspended": "Suspended (Admin)",
         "adminFrozenMessage": "This card has been suspended by an administrator and cannot be unblocked.",
         "adminHiddenDetails": "Details visibility is controlled by an administrator."
     },
