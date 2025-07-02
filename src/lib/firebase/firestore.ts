@@ -1,3 +1,4 @@
+
 import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch, deleteField } from "firebase/firestore";
 import { db as defaultDb } from "./config";
 
@@ -19,7 +20,7 @@ export type Transaction = {
   currency: string;
   category: string;
   status: 'completed' | 'pending' | 'failed' | 'in_progress';
-  type: 'debit' | 'credit' | 'internal_transfer' | 'external_transfer';
+  type: 'debit' | 'credit' | 'internal_transfer' | 'outgoing_transfer';
   beneficiaryId?: string;
   beneficiaryName?: string;
   updatedAt?: Timestamp;
@@ -650,7 +651,7 @@ export async function addBeneficiary(userId: string, beneficiaryData: Omit<Benef
   });
 }
 
-export async function requestTransfer(userId: string, transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>, db: Firestore = defaultDb): Promise<void> {
+export async function deleteBeneficiary(userId: string, beneficiaryId: string, db: Firestore = defaultDb): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
@@ -658,16 +659,48 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
     throw new Error("Utilisateur non trouvé.");
   }
 
+  const currentBeneficiaries = userSnap.data().beneficiaries || [];
+  const updatedBeneficiaries = currentBeneficiaries.filter((b: Beneficiary) => b.id !== beneficiaryId);
+
+  if (currentBeneficiaries.length === updatedBeneficiaries.length) {
+      console.warn(`Beneficiary with id ${beneficiaryId} not found for user ${userId}. No changes made.`);
+      return;
+  }
+
+  await updateDoc(userRef, {
+    beneficiaries: updatedBeneficiaries
+  });
+}
+
+export async function requestTransfer(userId: string, transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>, db: Firestore = defaultDb): Promise<void> {
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("Utilisateur non trouvé.");
+  }
+  
+  const userData = userSnap.data();
+  const fromAccount = (userData.accounts as Account[]).find(acc => acc.id === transferData.accountId);
+  
+  if (!fromAccount) {
+    throw new Error("Le compte de départ est introuvable.");
+  }
+
+  if (fromAccount.balance < transferData.amount) {
+      throw new Error("Solde insuffisant pour effectuer cette opération.");
+  }
+
   const newTransaction: Omit<Transaction, 'id'> & { date: Timestamp } = {
     ...transferData,
-    amount: -Math.abs(transferData.amount), // Virements externes = débits
+    amount: -Math.abs(transferData.amount), // Outgoing transfers are debits
     status: 'pending',
-    type: 'external_transfer',
+    type: 'outgoing_transfer', // Terminology change
     date: Timestamp.now()
   };
 
-  const currentTransactions = userSnap.data().transactions || [];
-  const updatedTransactions = [...currentTransactions, { ...newTransaction, id: `txn_ext_${Date.now()}` }];
+  const currentTransactions = userData.transactions || [];
+  const updatedTransactions = [...currentTransactions, { ...newTransaction, id: `txn_out_${Date.now()}` }];
   
   await updateDoc(userRef, {
     transactions: updatedTransactions
@@ -683,7 +716,7 @@ export async function getAllTransfers(db: Firestore = defaultDb): Promise<Array<
         const userData = userDoc.data();
         if (userData.transactions && userData.transactions.length > 0) {
             const userTransfers = userData.transactions
-                .filter((tx: any) => tx.type === 'external_transfer')
+                .filter((tx: any) => tx.type === 'outgoing_transfer')
                 .map((tx: any) => ({
                     ...tx,
                     date: tx.date.toDate(),

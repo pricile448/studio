@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { ArrowRightLeft, Loader2, Info } from 'lucide-react';
+import { ArrowRightLeft, Loader2, Trash2 } from 'lucide-react';
 import { AddBeneficiaryDialog } from './add-beneficiary-dialog';
 import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '../ui/kyc-prompt';
@@ -22,10 +22,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import type { Beneficiary } from '@/lib/firebase/firestore';
 
 
 type TransfersClientProps = {
@@ -43,7 +44,7 @@ type TransferFormValues = z.infer<typeof transferSchema>;
 
 
 export function TransfersClient({ dict, lang }: TransfersClientProps) {
-  const { userProfile, loading, requestTransfer, refreshUserProfile } = useAuth();
+  const { userProfile, loading, requestTransfer, refreshUserProfile, deleteBeneficiary } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -81,12 +82,12 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         amount: transferData.amount,
         currency: 'EUR',
         description: transferData.description || '',
-        category: 'Virement externe',
+        category: 'Virement sortant',
         beneficiaryId: transferData.toBeneficiaryId,
         beneficiaryName: selectedBeneficiary?.name || 'N/A'
       });
       toast({
-        title: 'Virement en attente',
+        title: transfersDict.transferTracking,
         description: 'Votre demande de virement a été envoyée et est en attente de validation.',
       });
       form.reset({
@@ -107,6 +108,22 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     }
   };
 
+  const handleDeleteBeneficiary = async (beneficiaryId: string) => {
+    try {
+        await deleteBeneficiary(beneficiaryId);
+        toast({
+            title: "Bénéficiaire supprimé",
+            description: "Le bénéficiaire a été supprimé avec succès."
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Erreur',
+            description: (error as Error).message || 'Une erreur est survenue lors de la suppression.',
+        });
+    }
+  }
+
 
   if (loading || !userProfile) {
     return (
@@ -116,9 +133,9 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                 <Skeleton className="h-10 w-44" />
             </div>
             <Separator />
-            <div className="grid gap-8 lg:grid-cols-3">
-                <Skeleton className="lg:col-span-2 h-96" />
-                <Skeleton className="lg:col-span-1 h-80" />
+            <div className="grid gap-8 lg:grid-cols-2">
+                <Skeleton className="h-96" />
+                <Skeleton className="h-80" />
             </div>
         </div>
     )
@@ -126,10 +143,10 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
   const accounts = userProfile.accounts || [];
   const beneficiaries = userProfile.beneficiaries || [];
-  const recentTransfers = (userProfile.transactions || [])
-    .filter(tx => tx.type === 'external_transfer')
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 10);
+  const transfersToTrack = (userProfile.transactions || [])
+    .filter(tx => tx.type === 'outgoing_transfer' && (tx.status === 'pending' || tx.status === 'in_progress'))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
 
   const getStatusInfo = (status: string) => {
     const key = status.toLowerCase() as keyof typeof dict.history.table.statuses;
@@ -174,10 +191,10 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     }
 
     return (
-        <div className="space-y-8">
-            <Card>
+        <div className="grid lg:grid-cols-5 gap-8">
+            <Card className="lg:col-span-3">
                 <CardHeader>
-                    <CardTitle>{transfersDict.newTransfer}</CardTitle>
+                    <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -202,10 +219,29 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                                 <FormControl><SelectTrigger><SelectValue placeholder={transfersDict.selectBeneficiary} /></SelectTrigger></FormControl>
                                 <SelectContent>
                                     {displayBeneficiaries.map(beneficiary => (
-                                    <SelectItem key={beneficiary.id} value={beneficiary.id}>
-                                        <div className="flex flex-col">
-                                        <span>{beneficiary.name}</span>
-                                        <span className="text-xs text-muted-foreground">{beneficiary.iban}</span>
+                                    <SelectItem key={beneficiary.id} value={beneficiary.id} className="focus:bg-transparent pr-10">
+                                        <div className="flex w-full items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span>{beneficiary.name}</span>
+                                                <span className="text-xs text-muted-foreground">{beneficiary.iban}</span>
+                                            </div>
+                                             <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Supprimer ce bénéficiaire ?</AlertDialogTitle>
+                                                        <AlertDialogDescription>Cette action est irréversible. {beneficiary.name} sera définitivement supprimé de votre liste.</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteBeneficiary(beneficiary.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </SelectItem>
                                     ))}
@@ -238,7 +274,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle>{transfersDict.transferTracking}</CardTitle>
                 </CardHeader>
@@ -246,18 +282,16 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>{dict.history.table.date}</TableHead>
                                 <TableHead>{transfersDict.to}</TableHead>
                                 <TableHead className="text-right">{dict.history.table.amount}</TableHead>
                                 <TableHead className="text-right">{dict.history.table.status}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {recentTransfers.length > 0 ? recentTransfers.map(tx => {
+                            {transfersToTrack.length > 0 ? transfersToTrack.map(tx => {
                                 const statusInfo = getStatusInfo(tx.status);
                                 return (
                                 <TableRow key={tx.id}>
-                                    <TableCell>{format(new Date(tx.date), 'dd/MM/yyyy')}</TableCell>
                                     <TableCell>{tx.beneficiaryName}</TableCell>
                                     <TableCell className="text-right font-medium">{formatCurrency(tx.amount)}</TableCell>
                                     <TableCell className="text-right">
@@ -276,7 +310,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                                 )
                             }) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center text-muted-foreground">{transfersDict.noRecentTransfers}</TableCell>
+                                    <TableCell colSpan={3} className="text-center text-muted-foreground h-24">{transfersDict.noRecentTransfers}</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
