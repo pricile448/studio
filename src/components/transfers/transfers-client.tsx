@@ -3,10 +3,9 @@
 
 import { useState } from 'react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
@@ -197,7 +196,6 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
             <Card className="lg:col-span-3">
                 <CardHeader>
                   <CardTitle>{transfersDict.newTransfer}</CardTitle>
-                  <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>

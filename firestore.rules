@@ -3,102 +3,111 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // ==================
+    // =================================
     // Helper Functions
-    // ==================
+    // =================================
+    
+    // Vérifie si l'utilisateur authentifié est le propriétaire du document
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
+    // Vérifie si une requête est authentifiée
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Vérifie si l'utilisateur authentifié est un administrateur
     function isAdmin() {
-      // Vérifie si l'UID de l'utilisateur existe dans la collection des administrateurs.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
+
+    // =================================
+    // User Document Validation Functions
+    // =================================
+
+    // Valide la mise à jour des champs de profil de base par l'utilisateur
+    function isUpdatingOwnProfile() {
+      let editableFields = ['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout'];
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(editableFields);
+    }
+
+    // Valide l'ajout d'un nouveau bénéficiaire
+    function isAddingBeneficiary() {
+      let before = resource.data.beneficiaries;
+      let after = request.resource.data.beneficiaries;
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']) &&
+             after.size() == before.size() + 1;
+    }
+
+    // Valide la suppression d'un bénéficiaire
+    function isRemovingBeneficiary() {
+      let before = resource.data.beneficiaries;
+      let after = request.resource.data.beneficiaries;
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['beneficiaries']) &&
+             after.size() == before.size() - 1;
+    }
     
-    // ==================
-    // User Collection
-    // ==================
+    // Valide une nouvelle demande de virement (statut "pending" obligatoire)
+    function isRequestingTransfer() {
+      // S'assurer que seul le tableau des transactions est modifié
+      if (!request.resource.data.diff(resource.data).affectedKeys().hasOnly(['transactions'])) {
+        return false;
+      }
+      
+      let beforeTx = resource.data.transactions;
+      let afterTx = request.resource.data.transactions;
+      let newTx = afterTx[afterTx.size() - 1];
+      
+      return afterTx.size() == beforeTx.size() + 1 &&
+             newTx.status == 'pending' &&
+             newTx.type == 'outgoing_transfer';
+    }
+
+    // Valide les modifications de carte autorisées pour un utilisateur (bloquer/débloquer, etc.)
+    function isModifyingCardByUser() {
+      let allowedCardFields = ['cardStatus', 'physicalCard', 'cardRequestedAt', 'cardType', 'hasPendingVirtualCardRequest', 'virtualCardRequestedAt', 'virtualCards', 'documents'];
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(allowedCardFields);
+    }
+    
+    // =================================
+    // Collection Rules
+    // =================================
+
     match /users/{userId} {
-      allow read, create: if isOwner(userId);
-      allow write: if isAdmin(); // Les administrateurs ont un accès en écriture complet.
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated();
       
-      // Les utilisateurs peuvent mettre à jour leur propre document sous des conditions spécifiques.
-      allow update: if isOwner(userId) && canUpdateOwnProfile(request, resource);
+      // La mise à jour est autorisée si l'utilisateur est le propriétaire ET que l'une des conditions de modification est remplie,
+      // OU si l'utilisateur est un administrateur (qui a des droits complets).
+      allow update: if (isOwner(userId) && (
+                      isUpdatingOwnProfile() ||
+                      isAddingBeneficiary() ||
+                      isRemovingBeneficiary() ||
+                      isRequestingTransfer() ||
+                      isModifyingCardByUser()
+                    )) || isAdmin();
+                    
+      allow delete: if isAdmin(); // Seuls les admins peuvent supprimer un utilisateur
     }
-    
-    function canUpdateOwnProfile(req, res) {
-      // --- Règle 1: Un utilisateur ne peut pas modifier les champs protégés ---
-      // Ces champs ne peuvent être définis qu'à la création ou modifiés par un administrateur.
-      let isChangingProtectedFields = 
-          req.resource.data.uid != res.data.uid ||
-          req.resource.data.email != res.data.email ||
-          req.resource.data.createdAt != res.data.createdAt ||
-          req.resource.data.kycStatus != res.data.kycStatus ||
-          req.resource.data.iban != res.data.iban ||
-          req.resource.data.bic != res.data.bic;
-          
-      if (isChangingProtectedFields) {
-        return false;
-      }
-      
-      // --- Règle 2: Un utilisateur ne peut que "demander" une carte ou la suspendre/réactiver ---
-      let isChangingCardStatus = req.resource.data.cardStatus != res.data.cardStatus;
-      if (isChangingCardStatus) {
-        let isRequesting = req.resource.data.cardStatus == 'requested';
-        let isFreezing = req.resource.data.cardStatus == 'suspended' && req.resource.data.physicalCard.suspendedBy == 'user';
-        let isUnfreezing = req.resource.data.cardStatus == 'active' && res.data.cardStatus == 'suspended' && res.data.physicalCard.suspendedBy == 'user';
-        if (!isRequesting && !isFreezing && !isUnfreezing) {
-            return false;
-        }
-      }
-      
-      // --- Règle 3: Le solde d'un compte ne peut être modifié que par un administrateur ---
-      // Cela est vérifié en s'assurant qu'aucun solde de compte n'est différent.
-      // C'est la clé pour les demandes de virement : l'utilisateur ajoute une transaction en attente, mais son solde ne change pas.
-      let hasBalanceChanged = req.resource.data.accounts.filter(
-        (acc, i) => acc.balance != res.data.accounts[i].balance
-      ).size() > 0;
-      
-      if (hasBalanceChanged) {
-        return false;
-      }
-      
-      // --- Règle 4: L'utilisateur ne peut ajouter qu'UNE seule nouvelle transaction à la fois ---
-      // Ceci est une approximation pour s'assurer qu'il s'agit d'une demande de virement.
-      // Le backend/admin validera les détails de la transaction.
-      if (req.resource.data.transactions.size() > res.data.transactions.size()) {
-        if (req.resource.data.transactions.size() != res.data.transactions.size() + 1) {
-          return false; // Interdit d'ajouter plus d'une transaction à la fois.
-        }
-      }
-      
-      // Si toutes les vérifications passent, autoriser la mise à jour.
-      // Cela couvre les mises à jour des informations de profil, des listes de bénéficiaires, des budgets, etc.
-      return true;
-    }
-    
-    // ==================
-    // Admin Collection
-    // ==================
-    match /admins/{adminId} {
-      allow read: if isOwner(adminId);
-    }
-    
-    // ==================
-    // Chat Collection
-    // ==================
+
     match /chats/{chatId} {
-      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+        allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+        
+        match /messages/{messageId} {
+            allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
+            allow create: if isOwner(request.resource.data.senderId);
+            
+            // Permet à l'utilisateur de "supprimer pour soi" (soft delete) ou à un admin de faire des modifications plus larges
+            allow update: if (isOwner(resource.data.senderId) && request.resource.data.keys().hasOnly(['deletedForUser'])) || isAdmin();
+            allow delete: if isAdmin();
+        }
     }
     
-    match /chats/{chatId}/messages/{messageId} {
-      allow read: if (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants) || isAdmin();
-      
-      // Seul l'expéditeur du message peut créer ou supprimer "logiquement" son message.
-      // L'administrateur peut tout faire.
-      allow create: if isOwner(request.resource.data.senderId) || isAdmin();
-      allow update: if (isOwner(resource.data.senderId) && request.resource.data.deletedForUser == true) || isAdmin();
-      // La suppression "dure" est réservée aux administrateurs via les règles de niveau supérieur.
+    match /admins/{adminId} {
+      allow read: if isAdmin();
+      // Empêche toute modification de la liste des admins depuis le client
+      allow write: if false; 
     }
   }
 }
