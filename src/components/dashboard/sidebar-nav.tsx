@@ -24,6 +24,7 @@ import {
   FileText,
   MessageSquare,
   Shield,
+  Receipt,
 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { useAuth } from '@/context/auth-context';
@@ -41,6 +42,7 @@ const accountNavItems = [
   { href: '/cards', icon: CreditCard, labelKey: 'cards' },
   { href: '/history', icon: History, labelKey: 'history' },
   { href: '/budgets', icon: PieChart, labelKey: 'budgets' },
+  { href: '/billing', icon: Receipt, labelKey: 'billing' },
   { href: '/chat', icon: MessageSquare, labelKey: 'chat' },
 ] as const;
 

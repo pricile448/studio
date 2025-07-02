@@ -187,6 +187,7 @@
       "cards": "Cartes",
       "history": "Historique",
       "budgets": "Budgets",
+      "billing": "Facturation",
       "chat": "Discuter avec mon conseiller",
       "settings": "Paramètres",
       "more": "Plus",
@@ -438,6 +439,11 @@
       "actions": "Actions",
       "serviceContract": "Contrat de Service.pdf",
       "privacyPolicy": "Politique de Confidentialité.pdf"
+    },
+    "billing": {
+      "title": "Facturation des services",
+      "description": "Veuillez utiliser les coordonnées bancaires suivantes pour régler vos services et abonnements AmCbunq. N'oubliez pas d'inclure votre référence client dans le libellé du virement.",
+      "cardTitle": "Coordonnées bancaires AmCbunq"
     },
     "iban": {
       "title": "Détails de mon IBAN",

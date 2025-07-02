@@ -187,6 +187,7 @@
       "cards": "Tarjetas",
       "history": "Historial",
       "budgets": "Presupuestos",
+      "billing": "Facturación",
       "chat": "Chatear con mi asesor",
       "settings": "Configuración",
       "more": "Más",
@@ -402,7 +403,8 @@
           "completed": "Completado",
           "pending": "Pendiente",
           "failed": "Fallido",
-          "in_progress": "En Progreso"
+          "in_progress": "En Progreso",
+          "in_review": "En Revisión"
         }
       }
     },
@@ -434,6 +436,11 @@
       "actions": "Acciones",
       "serviceContract": "Acuerdo de Servicio.pdf",
       "privacyPolicy": "Política de Privacidad.pdf"
+    },
+    "billing": {
+      "title": "Facturación de servicios",
+      "description": "Por favor, utilice los siguientes datos bancarios para pagar sus servicios y suscripciones de AmCbunq. Recuerde incluir su referencia de cliente en la descripción de la transferencia.",
+      "cardTitle": "Datos bancarios de AmCbunq"
     },
     "iban": {
       "title": "Mis Datos de IBAN",
@@ -566,7 +573,7 @@
         "emailPlaceholder": "Su correo electrónico",
         "emailInvalid": "Dirección de correo electrónico no válida.",
         "subjectLabel": "Asunto",
-        "subjectPlaceholder": "¿En qué podemos ayudarle?",
+        "placeholder": "¿En qué podemos ayudarle?",
         "subjectRequired": "El asunto es obligatorio.",
         "messageLabel": "Mensaje",
         "messagePlaceholder": "Describa su problema aquí...",
