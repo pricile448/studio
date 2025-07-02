@@ -87,7 +87,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         beneficiaryName: selectedBeneficiary?.name || 'N/A'
       });
       toast({
-        title: transfersDict.transferTracking,
+        title: "Demande de virement envoyée",
         description: 'Votre demande de virement a été envoyée et est en attente de validation.',
       });
       form.reset({
@@ -130,13 +130,13 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-10 w-44" />
             </div>
             <Separator />
-            <div className="grid gap-8 lg:grid-cols-2">
-                <Skeleton className="h-96" />
-                <Skeleton className="h-80" />
+            <div className="grid gap-8 lg:grid-cols-5">
+                <Skeleton className="h-96 lg:col-span-3" />
+                <Skeleton className="h-80 lg:col-span-2" />
             </div>
+            <Skeleton className="h-48" />
         </div>
     )
   }
@@ -191,10 +191,13 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     }
 
     return (
-        <div className="grid lg:grid-cols-5 gap-8">
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          
             <Card className="lg:col-span-3">
                 <CardHeader>
-                    <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
+                  <CardTitle>{transfersDict.newTransfer}</CardTitle>
+                  <CardDescription>{transfersDict.newTransferDescription}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -219,31 +222,9 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                                 <FormControl><SelectTrigger><SelectValue placeholder={transfersDict.selectBeneficiary} /></SelectTrigger></FormControl>
                                 <SelectContent>
                                     {displayBeneficiaries.map(beneficiary => (
-                                    <SelectItem key={beneficiary.id} value={beneficiary.id} className="focus:bg-transparent pr-10">
-                                        <div className="flex w-full items-center justify-between">
-                                            <div className="flex flex-col">
-                                                <span>{beneficiary.name}</span>
-                                                <span className="text-xs text-muted-foreground">{beneficiary.iban}</span>
-                                            </div>
-                                             <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e) => e.stopPropagation()}>
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Supprimer ce bénéficiaire ?</AlertDialogTitle>
-                                                        <AlertDialogDescription>Cette action est irréversible. {beneficiary.name} sera définitivement supprimé de votre liste.</AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDeleteBeneficiary(beneficiary.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </div>
-                                    </SelectItem>
+                                      <SelectItem key={beneficiary.id} value={beneficiary.id}>
+                                          {beneficiary.name}
+                                      </SelectItem>
                                     ))}
                                 </SelectContent>
                                 </Select>
@@ -275,49 +256,90 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
             </Card>
 
             <Card className="lg:col-span-2">
-                <CardHeader>
-                    <CardTitle>{transfersDict.transferTracking}</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg">Liste des bénéficiaires</CardTitle>
+                    <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{transfersDict.to}</TableHead>
-                                <TableHead className="text-right">{dict.history.table.amount}</TableHead>
-                                <TableHead className="text-right">{dict.history.table.status}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {transfersToTrack.length > 0 ? transfersToTrack.map(tx => {
-                                const statusInfo = getStatusInfo(tx.status);
-                                return (
-                                <TableRow key={tx.id}>
-                                    <TableCell>{tx.beneficiaryName}</TableCell>
-                                    <TableCell className="text-right font-medium">{formatCurrency(tx.amount)}</TableCell>
-                                    <TableCell className="text-right">
-                                       {tx.status === 'in_progress' ? (
-                                            <div className="flex items-center justify-end gap-2 text-blue-800 dark:text-blue-300">
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                                <span className="font-medium">{statusInfo.text}</span>
-                                            </div>
-                                        ) : (
-                                            <Badge variant="outline" className={cn(statusInfo.className, "dark:bg-transparent")}>
-                                                {statusInfo.text}
-                                            </Badge>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                                )
-                            }) : (
-                                <TableRow>
-                                    <TableCell colSpan={3} className="text-center text-muted-foreground h-24">{transfersDict.noRecentTransfers}</TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                    <div className="space-y-4">
+                      {beneficiaries.length > 0 ? beneficiaries.map(b => (
+                        <div key={b.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                          <div>
+                            <p className="font-semibold">{b.name}</p>
+                            <p className="text-sm text-muted-foreground font-mono">{b.iban}</p>
+                          </div>
+                           <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                      <AlertDialogTitle>Supprimer {b.name} ?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Êtes-vous sûr de vouloir supprimer ce bénéficiaire ? Cette action est définitive.
+                                      </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteBeneficiary(b.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                  </AlertDialogFooter>
+                              </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )) : (
+                        <p className="text-muted-foreground text-center py-8">Aucun bénéficiaire enregistré.</p>
+                      )}
+                    </div>
                 </CardContent>
             </Card>
         </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Suivi de virement</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>{transfersDict.to}</TableHead>
+                            <TableHead className="text-right">{dict.history.table.amount}</TableHead>
+                            <TableHead className="text-right">{dict.history.table.status}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {transfersToTrack.length > 0 ? transfersToTrack.map(tx => {
+                            const statusInfo = getStatusInfo(tx.status);
+                            return (
+                            <TableRow key={tx.id}>
+                                <TableCell>{tx.beneficiaryName}</TableCell>
+                                <TableCell className="text-right font-medium">{formatCurrency(tx.amount)}</TableCell>
+                                <TableCell className="text-right">
+                                    {tx.status === 'in_progress' ? (
+                                        <div className="flex items-center justify-end gap-2 text-blue-800 dark:text-blue-300">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <span className="font-medium">{statusInfo.text}</span>
+                                        </div>
+                                    ) : (
+                                        <Badge variant="outline" className={cn(statusInfo.className, "dark:bg-transparent")}>
+                                            {statusInfo.text}
+                                        </Badge>
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                            )
+                        }) : (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center text-muted-foreground h-24">{transfersDict.noRecentTransfers}</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -326,7 +348,6 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <h1 className="text-3xl font-bold font-headline">{transfersDict.title}</h1>
-                {userProfile.kycStatus === 'verified' && <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />}
             </div>
             <Separator />
             {renderContent()}

@@ -1,4 +1,3 @@
-
 rules_version = '2';
 
 service cloud.firestore {
@@ -7,73 +6,99 @@ service cloud.firestore {
     // ==================
     // Helper Functions
     // ==================
-    
-    function isUserAuthenticated() {
-      return request.auth != null;
-    }
-
     function isOwner(userId) {
-      return isUserAuthenticated() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
-    
+
     function isAdmin() {
-      // La vérification d'existence est une lecture, donc il faut une règle 'read' sur /admins/{adminId}
-      return isUserAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      // Vérifie si l'UID de l'utilisateur existe dans la collection des administrateurs.
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
     // ==================
-    // Collections
+    // User Collection
     // ==================
-
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId);
+      allow read, create: if isOwner(userId);
+      allow write: if isAdmin(); // Les administrateurs ont un accès en écriture complet.
       
-      // Règle 1: L'utilisateur peut mettre à jour ses informations de base.
-      allow update: if isOwner(userId) && request.resource.data.keys().diff(resource.data.keys()).hasOnly(['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'profession', 'salary', 'pob', 'nationality', 'photoURL', 'notificationPrefs', 'inactivityTimeout']);
-      
-      // Règle 2: L'utilisateur peut gérer sa liste de bénéficiaires.
-      allow update: if isOwner(userId) && request.resource.data.keys().diff(resource.data.keys()).hasOnly(['beneficiaries']);
-
-      // Règle 3: L'utilisateur peut ajouter des documents.
-      allow update: if isOwner(userId) && request.resource.data.keys().diff(resource.data.keys()).hasOnly(['documents']) && request.resource.data.documents.size() > resource.data.documents.size();
-      
-      // Règle 4: L'utilisateur peut demander/gérer ses cartes. La logique fine (blocage par admin) est gérée par les fonctions backend sécurisées.
-      allow update: if isOwner(userId) && (
-        request.resource.data.keys().diff(resource.data.keys()).hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']) ||
-        request.resource.data.keys().diff(resource.data.keys()).hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']) ||
-        (request.resource.data.keys().diff(resource.data.keys()).hasOnly(['cardStatus', 'physicalCard']) && resource.data.physicalCard.suspendedBy != 'admin') ||
-        request.resource.data.keys().diff(resource.data.keys()).hasOnly(['virtualCards'])
-      );
-      
-      // Règle 5: L'utilisateur peut soumettre son KYC (passage de 'unverified' à 'pending').
-      allow update: if isOwner(userId) && request.resource.data.kycStatus == 'pending' && resource.data.kycStatus == 'unverified' && request.resource.data.keys().diff(resource.data.keys()).hasOnly(['kycStatus', 'kycDocuments', 'kycSubmittedAt']);
-      
-      // Règle 6: Un utilisateur peut ajouter une transaction si et seulement si elle est de type 'virement sortant' et a le statut 'en attente'.
-      // Cela empêche un utilisateur de modifier son propre solde.
-      allow update: if isOwner(userId) 
-                      && request.resource.data.keys().diff(resource.data.keys()).hasOnly(['transactions'])
-                      && request.resource.data.transactions.size() == resource.data.transactions.size() + 1
-                      && request.resource.data.transactions[request.resource.data.transactions.size() - 1].status == 'pending'
-                      && request.resource.data.transactions[request.resource.data.transactions.size() - 1].type == 'outgoing_transfer';
+      // Les utilisateurs peuvent mettre à jour leur propre document sous des conditions spécifiques.
+      allow update: if isOwner(userId) && canUpdateOwnProfile(request, resource);
     }
     
-    match /admins/{adminId} {
-      allow read: if isAdmin();
-      allow write: if false; 
-    }
-    
-    match /chats/{chatId} {
-      // Seuls les participants peuvent lire ou écrire dans la conversation.
-      allow read, write: if isUserAuthenticated() && request.auth.uid in resource.data.participants;
-      
-      match /messages/{messageId} {
-        allow read: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        allow create: if isUserAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        // Permet à l'utilisateur de "soft delete" son propre message.
-        allow update: if isOwner(request.resource.data.senderId) && request.resource.data.deletedForUser == true && resource.data.deletedForUser == false;
-        allow delete: if false; // Suppression physique interdite depuis le client.
+    function canUpdateOwnProfile(req, res) {
+      // --- Règle 1: Un utilisateur ne peut pas modifier les champs protégés ---
+      // Ces champs ne peuvent être définis qu'à la création ou modifiés par un administrateur.
+      let isChangingProtectedFields = 
+          req.resource.data.uid != res.data.uid ||
+          req.resource.data.email != res.data.email ||
+          req.resource.data.createdAt != res.data.createdAt ||
+          req.resource.data.kycStatus != res.data.kycStatus ||
+          req.resource.data.iban != res.data.iban ||
+          req.resource.data.bic != res.data.bic;
+          
+      if (isChangingProtectedFields) {
+        return false;
       }
+      
+      // --- Règle 2: Un utilisateur ne peut que "demander" une carte ou la suspendre/réactiver ---
+      let isChangingCardStatus = req.resource.data.cardStatus != res.data.cardStatus;
+      if (isChangingCardStatus) {
+        let isRequesting = req.resource.data.cardStatus == 'requested';
+        let isFreezing = req.resource.data.cardStatus == 'suspended' && req.resource.data.physicalCard.suspendedBy == 'user';
+        let isUnfreezing = req.resource.data.cardStatus == 'active' && res.data.cardStatus == 'suspended' && res.data.physicalCard.suspendedBy == 'user';
+        if (!isRequesting && !isFreezing && !isUnfreezing) {
+            return false;
+        }
+      }
+      
+      // --- Règle 3: Le solde d'un compte ne peut être modifié que par un administrateur ---
+      // Cela est vérifié en s'assurant qu'aucun solde de compte n'est différent.
+      // C'est la clé pour les demandes de virement : l'utilisateur ajoute une transaction en attente, mais son solde ne change pas.
+      let hasBalanceChanged = req.resource.data.accounts.filter(
+        (acc, i) => acc.balance != res.data.accounts[i].balance
+      ).size() > 0;
+      
+      if (hasBalanceChanged) {
+        return false;
+      }
+      
+      // --- Règle 4: L'utilisateur ne peut ajouter qu'UNE seule nouvelle transaction à la fois ---
+      // Ceci est une approximation pour s'assurer qu'il s'agit d'une demande de virement.
+      // Le backend/admin validera les détails de la transaction.
+      if (req.resource.data.transactions.size() > res.data.transactions.size()) {
+        if (req.resource.data.transactions.size() != res.data.transactions.size() + 1) {
+          return false; // Interdit d'ajouter plus d'une transaction à la fois.
+        }
+      }
+      
+      // Si toutes les vérifications passent, autoriser la mise à jour.
+      // Cela couvre les mises à jour des informations de profil, des listes de bénéficiaires, des budgets, etc.
+      return true;
+    }
+    
+    // ==================
+    // Admin Collection
+    // ==================
+    match /admins/{adminId} {
+      allow read: if isOwner(adminId);
+    }
+    
+    // ==================
+    // Chat Collection
+    // ==================
+    match /chats/{chatId} {
+      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+    }
+    
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants) || isAdmin();
+      
+      // Seul l'expéditeur du message peut créer ou supprimer "logiquement" son message.
+      // L'administrateur peut tout faire.
+      allow create: if isOwner(request.resource.data.senderId) || isAdmin();
+      allow update: if (isOwner(resource.data.senderId) && request.resource.data.deletedForUser == true) || isAdmin();
+      // La suppression "dure" est réservée aux administrateurs via les règles de niveau supérieur.
     }
   }
 }
