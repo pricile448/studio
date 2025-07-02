@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw, History } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw, History, PauseCircle, PlayCircle } from 'lucide-react';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '../ui/badge';
@@ -31,7 +31,7 @@ const { db: adminDb } = getFirebaseServices('admin');
 
 type TransferWithUser = Transaction & { userId: string; userName: string };
 
-function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers: TransferWithUser[], onAction: (action: 'validate' | 'execute' | 'cancel', transfer: TransferWithUser) => void, actionInProgressId: string | null }) {
+function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers: TransferWithUser[], onAction: (action: 'validate' | 'execute' | 'cancel' | 'pause' | 'resume', transfer: TransferWithUser) => void, actionInProgressId: string | null }) {
     
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -98,6 +98,18 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                    <Button variant="outline" size="sm" onClick={() => onAction('pause', transfer)} disabled={isLoading}>
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <PauseCircle className="mr-2 h-4 w-4" />} Mettre en pause
+                    </Button>
+                </div>
+            )
+        }
+        if (transfer.status === 'in_review') {
+            return (
+                <div className="space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => onAction('resume', transfer)} disabled={isLoading}>
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <PlayCircle className="mr-2 h-4 w-4" />} Relancer
+                    </Button>
                 </div>
             )
         }
@@ -229,7 +241,7 @@ export function TransfersAdminClient() {
         fetchTransfers();
     }, []);
 
-    const handleAction = async (action: 'validate' | 'execute' | 'cancel', transfer: TransferWithUser) => {
+    const handleAction = async (action: 'validate' | 'execute' | 'cancel' | 'pause' | 'resume', transfer: TransferWithUser) => {
         setActionInProgressId(transfer.id);
         try {
             if (action === 'validate') {
@@ -241,6 +253,12 @@ export function TransfersAdminClient() {
             } else if (action === 'cancel') {
                 await updateTransferStatus(transfer.userId, transfer.id, 'failed', adminDb);
                 toast({ variant: 'destructive', title: 'Action effectuée', description: 'Le virement a été interrompu.' });
+            } else if (action === 'pause') {
+                await updateTransferStatus(transfer.userId, transfer.id, 'in_review', adminDb);
+                toast({ title: 'Succès', description: 'Le virement a été mis en pause pour examen.' });
+            } else if (action === 'resume') {
+                await updateTransferStatus(transfer.userId, transfer.id, 'in_progress', adminDb);
+                toast({ title: 'Succès', description: 'Le virement a été relancé et est de nouveau en cours.' });
             }
             fetchTransfers();
         } catch (error) {
@@ -261,6 +279,7 @@ export function TransfersAdminClient() {
     
     const pendingTransfers = allTransfers.filter(t => t.status === 'pending');
     const inProgressTransfers = allTransfers.filter(t => t.status === 'in_progress');
+    const inReviewTransfers = allTransfers.filter(t => t.status === 'in_review');
     const historicalTransfers = allTransfers.filter(t => t.status === 'completed' || t.status === 'failed');
 
     return (
@@ -276,7 +295,7 @@ export function TransfersAdminClient() {
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="pending">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-4">
                         <TabsTrigger value="pending">
                             <Hourglass className="mr-2 h-4 w-4" />
                             En attente
@@ -286,6 +305,11 @@ export function TransfersAdminClient() {
                              <CheckCircle className="mr-2 h-4 w-4 text-green-600"/>
                             En cours
                              <Badge className="ml-2">{inProgressTransfers.length}</Badge>
+                        </TabsTrigger>
+                         <TabsTrigger value="in_review">
+                            <PauseCircle className="mr-2 h-4 w-4 text-orange-500" />
+                            En examen
+                             <Badge className="ml-2">{inReviewTransfers.length}</Badge>
                         </TabsTrigger>
                          <TabsTrigger value="history">
                             <History className="mr-2 h-4 w-4" />
@@ -299,6 +323,9 @@ export function TransfersAdminClient() {
                     <TabsContent value="in_progress" className="pt-4">
                         <TransfersTable transfers={inProgressTransfers} onAction={handleAction} actionInProgressId={actionInProgressId} />
                     </TabsContent>
+                    <TabsContent value="in_review" className="pt-4">
+                        <TransfersTable transfers={inReviewTransfers} onAction={handleAction} actionInProgressId={actionInProgressId} />
+                    </TabsContent>
                     <TabsContent value="history" className="pt-4">
                         <HistoryTable transfers={historicalTransfers} />
                     </TabsContent>
@@ -307,5 +334,3 @@ export function TransfersAdminClient() {
        </Card>
     );
 }
-
-    

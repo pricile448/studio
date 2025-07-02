@@ -19,7 +19,7 @@ export type Transaction = {
   amount: number;
   currency: string;
   category: string;
-  status: 'completed' | 'pending' | 'failed' | 'in_progress';
+  status: 'completed' | 'pending' | 'failed' | 'in_progress' | 'in_review';
   type: 'debit' | 'credit' | 'internal_transfer' | 'outgoing_transfer';
   beneficiaryId?: string;
   beneficiaryName?: string;
@@ -730,7 +730,7 @@ export async function getAllTransfers(db: Firestore = defaultDb): Promise<Array<
     return allTransfers;
 }
 
-export async function updateTransferStatus(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed', db: Firestore = defaultDb): Promise<void> {
+export async function updateTransferStatus(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed' | 'in_review', db: Firestore = defaultDb): Promise<void> {
     const userRef = doc(db, "users", userId);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) throw new Error("Utilisateur non trouvé.");
