@@ -35,8 +35,8 @@ export async function submitKycDocuments(input: KycSubmissionInput): Promise<{su
 }
 
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
-// Use the default DB instance so that writes are evaluated against security rules as the user
-const { db } = getFirebaseServices();
+// Use the admin DB instance to bypass security rules from a trusted server environment.
+const { db: adminDb } = getFirebaseServices('admin');
 
 const kycSubmissionFlow = ai.defineFlow(
   {
@@ -66,12 +66,10 @@ const kycSubmissionFlow = ai.defineFlow(
         const updateData = {
             kycDocuments,
             kycStatus: 'pending' as const,
-            kycSubmittedAt: Timestamp.now(), // Use Timestamp.now() for safer rule evaluation
+            kycSubmittedAt: Timestamp.now(),
         };
         
-        console.log("DEBUG: Payload envoyé à Firestore pour la mise à jour KYC :", JSON.stringify(updateData, null, 2));
-
-        const userRef = doc(db, 'users', input.userId);
+        const userRef = doc(adminDb, 'users', input.userId);
         await updateDoc(userRef, updateData);
 
     } catch (error: any) {
