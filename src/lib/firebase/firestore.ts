@@ -204,15 +204,11 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
     if (docSnap.exists()) {
         const data = docSnap.data();
 
-        // --- NEW LOGIC ---
-        // Check for a pending KYC submission and override the status if found
-        // This makes the 'pending' status visible to the user without writing it to their protected profile.
         const submissionRef = doc(db, 'kycSubmissions', uid);
         const submissionSnap = await getDoc(submissionRef);
         if (submissionSnap.exists()) {
             data.kycStatus = 'pending';
         }
-        // --- END NEW LOGIC ---
 
         const parseDate = (field: any): Date => {
             if (field && typeof field.toDate === 'function') {
@@ -329,7 +325,6 @@ export async function deleteChatSession(chatId: string, dbInstance: Firestore = 
     const chatRef = doc(dbInstance, 'chats', chatId);
     const messagesRef = collection(dbInstance, 'chats', chatId, 'messages');
     
-    // Étape 1 : Supprimer tous les messages dans la sous-collection.
     const messagesSnap = await getDocs(messagesRef);
     if (!messagesSnap.empty) {
         const deleteBatch = writeBatch(dbInstance);
@@ -339,8 +334,6 @@ export async function deleteChatSession(chatId: string, dbInstance: Firestore = 
         await deleteBatch.commit();
     }
 
-    // Étape 2 : Réinitialiser les champs du document de conversation principal
-    // au lieu de le supprimer. Cela évite les erreurs de permission côté client.
     await updateDoc(chatRef, {
         lastMessageText: deleteField(),
         lastMessageTimestamp: deleteField(),
@@ -381,7 +374,6 @@ export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfil
     return usersList;
 }
 
-// Change: This function now reads from `kycSubmissions` collection.
 export async function getPendingKycUsers(db: Firestore = defaultDb): Promise<any[]> {
     const submissionsCollection = collection(db, 'kycSubmissions');
     const q = query(submissionsCollection, where("status", "==", "pending"));
@@ -389,9 +381,8 @@ export async function getPendingKycUsers(db: Firestore = defaultDb): Promise<any
     const querySnapshot = await getDocs(q);
     const requestsList = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        // Adapt data to match the structure expected by the admin client
         return {
-            uid: data.userId, // The admin client expects 'uid'
+            uid: data.userId, 
             firstName: data.userName.split(' ')[0],
             lastName: data.userName.split(' ').slice(1).join(' '),
             email: data.userEmail,
@@ -519,10 +510,8 @@ export async function resetAccountBalance(userId: string, accountId: string, db:
         throw new Error("Compte non trouvé.");
     }
     
-    // Set balance to 0
     accounts[accountIndex].balance = 0;
 
-    // Update only the accounts array, without adding a transaction
     await updateDoc(userRef, {
         accounts: accounts
     });
@@ -538,7 +527,6 @@ export async function deleteTransaction(userId: string, transactionId: string, d
 
   const userData = userSnap.data();
   const accounts: Account[] = userData.accounts || [];
-  // Use a type assertion to work with the data, assuming it's structured like Transaction
   const transactions = userData.transactions || [];
 
   const transactionIndex = transactions.findIndex((tx: { id: string; }) => tx.id === transactionId);
@@ -550,7 +538,6 @@ export async function deleteTransaction(userId: string, transactionId: string, d
   const accountId = transactionToDelete.accountId;
   const amount = transactionToDelete.amount;
 
-  // Revert the transaction amount from the balance
   const accountIndex = accounts.findIndex(acc => acc.id === accountId);
   if (accountIndex !== -1) {
     accounts[accountIndex].balance -= amount;
@@ -580,7 +567,6 @@ export async function deleteSelectedTransactions(userId: string, transactionIds:
   
   const transactionsToDelete = transactions.filter(tx => transactionIds.includes(tx.id));
 
-  // Revert balances
   for (const tx of transactionsToDelete) {
     const accountIndex = accounts.findIndex(acc => acc.id === tx.accountId);
     if (accountIndex !== -1) {
@@ -607,10 +593,8 @@ export async function deleteAllTransactions(userId: string, db: Firestore = defa
   const userData = userSnap.data();
   let accounts: Account[] = userData.accounts || [];
 
-  // Reset all account balances to 0
   accounts.forEach(acc => acc.balance = 0);
 
-  // Clear all transactions
   await updateDoc(userRef, {
     accounts: accounts,
     transactions: []
@@ -635,7 +619,6 @@ export async function deleteBudget(userId: string, budgetId: string, db: Firesto
   });
 }
 
-// Beneficiary and Transfer specific functions
 export async function addBeneficiary(userId: string, beneficiaryData: Omit<Beneficiary, 'id'>, db: Firestore = defaultDb): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
@@ -701,7 +684,7 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
     ...transferData,
     amount: -Math.abs(transferData.amount), // Outgoing transfers are debits
     status: 'pending',
-    type: 'outgoing_transfer', // Terminology change
+    type: 'outgoing_transfer',
     date: Timestamp.now()
   };
 
@@ -713,7 +696,6 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
   });
 }
 
-// Admin Transfer Functions
 export async function getAllTransfers(db: Firestore = defaultDb): Promise<Array<Transaction & { userId: string, userName: string }>> {
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const allTransfers: Array<Transaction & { userId: string, userName: string }> = [];
@@ -771,20 +753,16 @@ export async function executeTransfer(userId: string, transactionId: string, db:
     const accountIndex = accounts.findIndex(acc => acc.id === transfer.accountId);
     if (accountIndex === -1) throw new Error("Compte de l'utilisateur non trouvé.");
 
-    // Le montant du virement est négatif. Vérifier que le solde est suffisant.
     if (accounts[accountIndex].balance < Math.abs(transfer.amount)) throw new Error("Solde insuffisant.");
 
-    // Débiter le compte en ajoutant le montant négatif de la transaction.
     accounts[accountIndex].balance += transfer.amount;
 
-    // Mettre à jour le statut de la transaction à 'completed'
     transactions[transactionIndex].status = 'completed';
     transactions[transactionIndex].updatedAt = Timestamp.now();
 
     await updateDoc(userRef, { accounts, transactions });
 }
 
-// Admin Billing Config Functions
 export async function getBillingConfig(db: Firestore = defaultDb): Promise<BillingConfig | null> {
   const configRef = doc(db, "config", "billing");
   const docSnap = await getDoc(configRef);
@@ -796,6 +774,5 @@ export async function getBillingConfig(db: Firestore = defaultDb): Promise<Billi
 
 export async function updateBillingConfig(config: BillingConfig, db: Firestore = defaultDb): Promise<void> {
   const configRef = doc(db, "config", "billing");
-  // Use setDoc with merge:true to create the document if it doesn't exist, or update it if it does.
   await setDoc(configRef, config, { merge: true });
 }

@@ -11,7 +11,6 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
-// Change: Import getFirebaseServices and use the admin instance of the database.
 import { getFirebaseServices } from '@/lib/firebase/config'; 
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 
@@ -73,7 +72,6 @@ const kycSubmissionFlow = ai.defineFlow(
         };
         
         // The document ID is the user's ID for easy lookup.
-        // Change: Use the adminDb instance to bypass client-side security rules for this trusted server operation.
         const submissionRef = doc(adminDb, 'kycSubmissions', input.userId);
         await setDoc(submissionRef, submissionData);
 

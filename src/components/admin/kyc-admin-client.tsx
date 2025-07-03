@@ -17,7 +17,6 @@ import { deleteDoc, doc } from 'firebase/firestore';
 
 const { db: adminDb } = getFirebaseServices('admin');
 
-// Change: This now represents a KYC submission, not a full UserProfile.
 type KycRequest = {
     uid: string;
     firstName: string;
@@ -50,24 +49,19 @@ export function KycAdminClient() {
         fetchRequests();
     }, []);
 
-    // Change: Updated logic to handle the new KYC submission flow.
     const handleKycAction = async (userId: string, status: 'verified' | 'unverified') => {
         setUpdatingId(userId);
         try {
             const submissionRef = doc(adminDb, 'kycSubmissions', userId);
 
             if (status === 'verified') {
-                // 1. Update the user's profile
                 await updateUserInFirestore(userId, { kycStatus: 'verified' }, adminDb);
-                // 2. Delete the submission document
                 await deleteDoc(submissionRef);
                 toast({ title: 'Utilisateur approuvé', description: `Le statut KYC de l'utilisateur a été mis à jour.` });
             } else { // 'unverified'
-                // Just delete the submission. The user's status remains 'unverified'.
                 await deleteDoc(submissionRef);
                 toast({ variant: 'destructive', title: 'Demande rejetée', description: 'La soumission KYC a été supprimée.' });
             }
-            // Refresh list after action
             fetchRequests();
         } catch (error) {
             console.error("Erreur lors de la mise à jour du statut KYC:", error);
@@ -134,7 +128,6 @@ export function KycAdminClient() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {/* Desktop view */}
                 <div className="hidden md:block">
                     <Table>
                         <TableHeader>
@@ -161,7 +154,6 @@ export function KycAdminClient() {
                         </TableBody>
                     </Table>
                 </div>
-                 {/* Mobile view */}
                  <div className="md:hidden">
                     <div className="space-y-4">
                         {requests.map(user => (
