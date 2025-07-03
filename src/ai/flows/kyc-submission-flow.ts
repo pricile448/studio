@@ -11,8 +11,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
-import { getFirebaseServices } from '@/lib/firebase/config';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
+// Change: Import default db and setDoc function instead of adminDb and updateDoc
+import { db } from '@/lib/firebase/config'; 
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 
 const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
@@ -35,8 +36,6 @@ export async function submitKycDocuments(input: KycSubmissionInput): Promise<{su
 }
 
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
-// Use the admin DB instance to bypass security rules from a trusted server environment.
-const { db: adminDb } = getFirebaseServices('admin');
 
 const kycSubmissionFlow = ai.defineFlow(
   {
@@ -61,20 +60,24 @@ const kycSubmissionFlow = ai.defineFlow(
             uploadToCloudinary(input.proofOfAddressDataUri, uploadFolder, 'proof_of_address'),
             uploadToCloudinary(input.selfieDataUri, uploadFolder, 'selfie_photo')
         ]);
-
-        const kycDocuments = { idDocumentUrl, proofOfAddressUrl, selfieUrl };
-        const updateData = {
-            kycDocuments,
-            kycStatus: 'pending' as const,
-            kycSubmittedAt: Timestamp.now(),
+        
+        // Change: Create a new document in `kycSubmissions` collection instead of updating the user.
+        const submissionData = {
+            userId: input.userId,
+            userName: input.userName,
+            userEmail: input.userEmail,
+            status: 'pending' as const,
+            submittedAt: Timestamp.now(),
+            documents: { idDocumentUrl, proofOfAddressUrl, selfieUrl }
         };
         
-        const userRef = doc(adminDb, 'users', input.userId);
-        await updateDoc(userRef, updateData);
+        // The document ID is the user's ID for easy lookup.
+        const submissionRef = doc(db, 'kycSubmissions', input.userId);
+        await setDoc(submissionRef, submissionData);
 
     } catch (error: any) {
-        console.error("Failed to upload documents or update user profile:", error);
-        return { success: false, error: error.message || 'Failed to upload one or more documents.' };
+        console.error("Failed to create KYC submission:", error);
+        return { success: false, error: error.message || 'Failed to create KYC submission.' };
     }
 
     const emailSubject = `Nouvelle soumission KYC pour ${input.userName} (${input.userId})`;

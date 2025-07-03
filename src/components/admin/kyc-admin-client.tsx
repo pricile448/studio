@@ -12,11 +12,23 @@ import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import Link from 'next/link';
+import { deleteDoc, doc } from 'firebase/firestore';
+
 
 const { db: adminDb } = getFirebaseServices('admin');
 
+// Change: This now represents a KYC submission, not a full UserProfile.
+type KycRequest = {
+    uid: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    kycSubmittedAt: Date;
+    kycStatus: 'pending';
+}
+
 export function KycAdminClient() {
-    const [requests, setRequests] = useState<UserProfile[]>([]);
+    const [requests, setRequests] = useState<KycRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const { toast } = useToast();
@@ -38,12 +50,24 @@ export function KycAdminClient() {
         fetchRequests();
     }, []);
 
+    // Change: Updated logic to handle the new KYC submission flow.
     const handleKycAction = async (userId: string, status: 'verified' | 'unverified') => {
         setUpdatingId(userId);
         try {
-            await updateUserInFirestore(userId, { kycStatus: status }, adminDb);
-            toast({ title: 'Statut KYC mis à jour', description: `L'utilisateur a été ${status === 'verified' ? 'approuvé' : 'rejeté'}.` });
-            // Refresh list
+            const submissionRef = doc(adminDb, 'kycSubmissions', userId);
+
+            if (status === 'verified') {
+                // 1. Update the user's profile
+                await updateUserInFirestore(userId, { kycStatus: 'verified' }, adminDb);
+                // 2. Delete the submission document
+                await deleteDoc(submissionRef);
+                toast({ title: 'Utilisateur approuvé', description: `Le statut KYC de l'utilisateur a été mis à jour.` });
+            } else { // 'unverified'
+                // Just delete the submission. The user's status remains 'unverified'.
+                await deleteDoc(submissionRef);
+                toast({ variant: 'destructive', title: 'Demande rejetée', description: 'La soumission KYC a été supprimée.' });
+            }
+            // Refresh list after action
             fetchRequests();
         } catch (error) {
             console.error("Erreur lors de la mise à jour du statut KYC:", error);
@@ -127,7 +151,7 @@ export function KycAdminClient() {
                                     <TableCell>{user.firstName} {user.lastName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>
-                                        {user.kycSubmittedAt ? format(new Date(user.kycSubmittedAt), 'dd MMMM yyyy', { locale: fr }) : 'N/A'}
+                                        {user.kycSubmittedAt ? format(user.kycSubmittedAt, 'dd MMMM yyyy', { locale: fr }) : 'N/A'}
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
                                         {kycActionButtons(user.uid)}
@@ -147,7 +171,7 @@ export function KycAdminClient() {
                                     <p className="text-sm text-muted-foreground break-all">{user.email}</p>
                                 </div>
                                 <div className="text-sm text-muted-foreground pt-2 border-t">
-                                    Soumis le: {user.kycSubmittedAt ? format(new Date(user.kycSubmittedAt), 'dd/MM/yy', { locale: fr }) : 'N/A'}
+                                    Soumis le: {user.kycSubmittedAt ? format(user.kycSubmittedAt, 'dd/MM/yy', { locale: fr }) : 'N/A'}
                                 </div>
                                 <div className="flex justify-end items-center gap-2">
                                     {kycActionButtons(user.uid)}

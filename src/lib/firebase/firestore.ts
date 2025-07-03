@@ -204,6 +204,16 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
     if (docSnap.exists()) {
         const data = docSnap.data();
 
+        // --- NEW LOGIC ---
+        // Check for a pending KYC submission and override the status if found
+        // This makes the 'pending' status visible to the user without writing it to their protected profile.
+        const submissionRef = doc(db, 'kycSubmissions', uid);
+        const submissionSnap = await getDoc(submissionRef);
+        if (submissionSnap.exists()) {
+            data.kycStatus = 'pending';
+        }
+        // --- END NEW LOGIC ---
+
         const parseDate = (field: any): Date => {
             if (field && typeof field.toDate === 'function') {
                 return field.toDate();
@@ -235,7 +245,7 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
         const dob = parseDate(data.dob);
         const createdAt = parseDate(data.createdAt);
         const cardRequestedAt = parseOptionalDate(data.cardRequestedAt);
-        const kycSubmittedAt = parseOptionalDate(data.kycSubmittedAt);
+        const kycSubmittedAt = parseOptionalDate(submissionSnap.exists() ? submissionSnap.data().submittedAt : data.kycSubmittedAt);
         const virtualCardRequestedAt = parseOptionalDate(data.virtualCardRequestedAt);
 
 
@@ -371,39 +381,27 @@ export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfil
     return usersList;
 }
 
-export async function getPendingKycUsers(db: Firestore = defaultDb): Promise<UserProfile[]> {
-    const usersCollection = collection(db, 'users');
-    const q = query(usersCollection, where("kycStatus", "==", "pending"));
+// Change: This function now reads from `kycSubmissions` collection.
+export async function getPendingKycUsers(db: Firestore = defaultDb): Promise<any[]> {
+    const submissionsCollection = collection(db, 'kycSubmissions');
+    const q = query(submissionsCollection, where("status", "==", "pending"));
     
     const querySnapshot = await getDocs(q);
-    const usersList = querySnapshot.docs.map(doc => {
+    const requestsList = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        const parseDate = (field: any): Date => {
-            if (field && typeof field.toDate === 'function') {
-                return field.toDate();
-            }
-            return new Date();
-        };
-        const parseOptionalDate = (field: any): Date | undefined => {
-            if (!field) return undefined;
-             if (field && typeof field.toDate === 'function') {
-                return field.toDate();
-            }
-             if (field) {
-                const d = new Date(field);
-                if (!isNaN(d.getTime())) return d;
-            }
-            return undefined;
-        };
+        // Adapt data to match the structure expected by the admin client
         return {
-            ...data,
-            dob: parseDate(data.dob),
-            createdAt: parseDate(data.createdAt),
-            kycSubmittedAt: parseOptionalDate(data.kycSubmittedAt),
-        } as UserProfile;
+            uid: data.userId, // The admin client expects 'uid'
+            firstName: data.userName.split(' ')[0],
+            lastName: data.userName.split(' ').slice(1).join(' '),
+            email: data.userEmail,
+            kycSubmittedAt: data.submittedAt.toDate(),
+            kycStatus: 'pending'
+        };
     });
-    return usersList;
+    return requestsList;
 }
+
 
 export async function addFundsToAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore = defaultDb): Promise<void> {
   const userRef = doc(db, "users", userId);
