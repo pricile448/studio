@@ -4,84 +4,70 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- Helper Functions ---
-    // Fonction pour vérifier si l'utilisateur est un administrateur.
+    // --- HELPER FUNCTIONS ---
+    function isAuthOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
     function isAdmin() {
+      // Check if the requesting user's UID exists in the 'admins' collection
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
-    // Fonction pour vérifier si la requête provient d'un utilisateur authentifié.
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // --- Users Collection Rules ---
+    // --- USER DOCUMENT RULES ---
     match /users/{userId} {
+      allow read: if isAuthOwner(userId) || isAdmin();
+      allow create: if isAuthOwner(userId); // For signup
       
-      // Un utilisateur peut créer son propre document lors de l'inscription.
-      allow create: if request.auth.uid == userId;
-      
-      // Un utilisateur peut lire ses propres données, un admin peut lire n'importe quel profil.
-      allow read: if request.auth.uid == userId || isAdmin();
-      
-      // Un admin peut tout mettre à jour.
-      // Un utilisateur ne peut mettre à jour que certains champs spécifiques de son propre profil.
-      allow update: if isAdmin() || (
-        request.auth.uid == userId &&
-        // Liste des champs que l'utilisateur a le droit de modifier.
-        request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry', 'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL', 'notificationPrefs', 'inactivityTimeout', 'beneficiaries', 'budgets', 'documents', 'virtualCards', 'cardStatus', 'cardType', 'cardRequestedAt', 'cardLimits', 'hasPendingVirtualCardRequest', 'virtualCardRequestedAt', 'kycStatus', 'kycSubmittedAt'])
-          // Un utilisateur ne peut que passer son statut KYC à "pending"
-          && (
-             !request.resource.data.keys().hasAny(['kycStatus']) || 
-             (request.resource.data.kycStatus == 'pending' && resource.data.kycStatus == 'unverified')
-          )
-      );
-
-      // Seuls les admins peuvent supprimer un compte utilisateur.
-      allow delete: if isAdmin();
+      // An update is allowed if it's from an admin OR the owner performing a valid action
+      allow update: if isAdmin() || (isAuthOwner(userId) && (
+                      isUpdatingOwnProfile(request, resource) ||
+                      isSubmittingKyc(request, resource)
+                    ));
     }
     
-    // --- Chats Collection Rules ---
-    match /chats/{chatId} {
-      // Les participants et les admins peuvent lire et écrire les métadonnées du chat.
-      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
-      
-      match /messages/{messageId} {
-        // Les participants peuvent créer des messages.
-        allow create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        
-        // Les participants peuvent lire les messages.
-        allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        
-        // Un utilisateur peut "soft-delete" (masquer) ses propres messages. Un admin peut tout mettre à jour.
-        allow update: if isAdmin() || (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']) &&
-          request.resource.data.deletedForUser == true &&
-          resource.data.senderId == request.auth.uid
-        );
-        
-        // Seuls les admins peuvent supprimer définitivement des messages.
-        allow delete: if isAdmin();
-      }
-    }
-
-    // --- Configuration Collection ---
-    // Contient les documents pour les réglages globaux de l'application.
-    match /config/{docId} {
-      // Tout utilisateur authentifié peut lire la configuration (ex: pour voir les infos de facturation).
-      allow read: if isAuthenticated();
-      
-      // Seuls les admins peuvent écrire dans la configuration.
-      allow write: if isAdmin();
+    // --- USER UPDATE LOGIC ---
+    function isUpdatingOwnProfile(req, res) {
+      // These fields can be updated by the user at any time from their profile page
+      let allowedFields = [
+        'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry',
+        'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL',
+        'notificationPrefs', 'inactivityTimeout', 'beneficiaries', 'budgets',
+        'documents', 'virtualCards', 'cardLimits', 'hasPendingVirtualCardRequest',
+        'virtualCardRequestedAt', 'cardStatus', 'physicalCard'
+      ];
+      // Check that the update ONLY contains fields from the allowed list
+      return req.resource.data.diff(res.data).affectedKeys().hasOnly(allowedFields);
     }
     
-    // --- Admins Collection ---
-    // Cette collection doit être gérée manuellement dans la console Firebase.
-    // Elle sert de liste en lecture seule des UID des administrateurs.
+    function isSubmittingKyc(req, res) {
+      // This is a specific transaction for KYC.
+      // It allows updating only the KYC-related fields, and only if the current status is 'unverified'.
+      let kycFields = ['kycStatus', 'kycSubmittedAt', 'kycDocuments'];
+      return res.data.kycStatus == 'unverified'
+             && req.resource.data.kycStatus == 'pending'
+             && req.resource.data.kycSubmittedAt == request.time
+             && req.resource.data.diff(res.data).affectedKeys().hasOnly(kycFields);
+    }
+
+    // --- OTHER RULES ---
+    
     match /admins/{adminId} {
-        allow read: if isAdmin(); // Les admins peuvent voir qui sont les autres admins.
-        allow write: if false; // Personne ne peut écrire côté client.
+      allow read, write: if isAdmin();
+    }
+    
+    match /chats/{chatId} {
+      allow read, create, update: if request.auth.uid in resource.data.participants;
+    }
+
+    match /chats/{chatId}/messages/{messageId} {
+      allow read, create, update: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+      allow delete: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
+    }
+
+    match /config/billing {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
     }
   }
 }
