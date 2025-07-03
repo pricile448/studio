@@ -69,6 +69,8 @@ const kycSubmissionFlow = ai.defineFlow(
             kycSubmittedAt: Timestamp.now(), // Use Timestamp.now() for safer rule evaluation
         };
         
+        console.log("DEBUG: Payload envoyé à Firestore pour la mise à jour KYC :", JSON.stringify(updateData, null, 2));
+
         const userRef = doc(db, 'users', input.userId);
         await updateDoc(userRef, updateData);
 
