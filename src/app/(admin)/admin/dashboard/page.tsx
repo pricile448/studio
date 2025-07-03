@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase/config';
-import { collection, query, where, getCountFromServer } from 'firebase/firestore';
+import { getFirebaseServices } from '@/lib/firebase/config';
+import { collection, query, getDocs } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShieldCheck, MessageSquare, Loader2 } from "lucide-react";
+import { Users, ShieldCheck, MessageSquare, Loader2, ShieldX, ShieldQuestion } from "lucide-react";
+
+const { db } = getFirebaseServices('admin');
 
 interface Stat {
     title: string;
@@ -16,8 +18,10 @@ interface Stat {
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stat[]>([
     { title: "Utilisateurs Totaux", value: 0, icon: Users, loading: true },
-    { title: "Vérifications KYC en attente", value: 0, icon: ShieldCheck, loading: true },
-    { title: "Tickets de support ouverts", value: 3, icon: MessageSquare, loading: false }, // Valeur statique pour le moment
+    { title: "Vérifications en attente", value: 0, icon: ShieldQuestion, loading: true },
+    { title: "Vérifications approuvées", value: 0, icon: ShieldCheck, loading: true },
+    { title: "Vérifications rejetées", value: 0, icon: ShieldX, loading: true },
+    { title: "Tickets de support ouverts", value: 3, icon: MessageSquare, loading: false },
   ]);
 
   useEffect(() => {
@@ -25,19 +29,34 @@ export default function AdminDashboardPage() {
       try {
         // Récupérer le nombre total d'utilisateurs
         const usersCollection = collection(db, "users");
-        const usersSnapshot = await getCountFromServer(usersCollection);
-        const totalUsers = usersSnapshot.data().count;
+        const usersSnapshot = await getDocs(usersCollection);
+        const totalUsers = usersSnapshot.size;
 
-        // Récupérer les demandes KYC en attente depuis la collection kycSubmissions
+        // Récupérer toutes les soumissions KYC pour les compter
         const kycCollection = collection(db, "kycSubmissions");
-        const kycQuery = query(kycCollection, where("status", "==", "pending"));
-        const kycSnapshot = await getCountFromServer(kycQuery);
-        const pendingKyc = kycSnapshot.data().count;
+        const kycSnapshot = await getDocs(kycCollection);
+        
+        let pendingKyc = 0;
+        let approvedKyc = 0;
+        let rejectedKyc = 0;
+        
+        kycSnapshot.forEach(doc => {
+            const status = doc.data().status;
+            if (status === 'pending') {
+                pendingKyc++;
+            } else if (status === 'approved') {
+                approvedKyc++;
+            } else if (status === 'rejected') {
+                rejectedKyc++;
+            }
+        });
         
         setStats(prevStats => [
             { ...prevStats[0], value: totalUsers, loading: false },
             { ...prevStats[1], value: pendingKyc, loading: false },
-            prevStats[2], // Conserver la statique
+            { ...prevStats[2], value: approvedKyc, loading: false },
+            { ...prevStats[3], value: rejectedKyc, loading: false },
+            prevStats[4], // Conserver la statique
         ]);
 
       } catch (error) {
@@ -55,7 +74,7 @@ export default function AdminDashboardPage() {
       
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 -mr-2">
         <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (

@@ -1,4 +1,3 @@
-
 import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch, deleteField } from "firebase/firestore";
 import { db as defaultDb } from "./config";
 
@@ -92,6 +91,21 @@ export type BillingConfig = {
   bic: string;
   description: string;
 };
+
+export type KycSubmission = {
+    uid: string;
+    userName: string;
+    userEmail: string;
+    status: 'pending' | 'approved' | 'rejected';
+    submittedAt: Date;
+    processedAt?: Date;
+    documents: {
+        idDocumentUrl: string;
+        proofOfAddressUrl: string;
+        selfieUrl: string;
+    };
+};
+
 
 export type UserProfile = {
   uid: string;
@@ -206,7 +220,7 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
 
         const submissionRef = doc(db, 'kycSubmissions', uid);
         const submissionSnap = await getDoc(submissionRef);
-        if (submissionSnap.exists()) {
+        if (submissionSnap.exists() && submissionSnap.data().status === 'pending') {
             data.kycStatus = 'pending';
         }
 
@@ -374,21 +388,22 @@ export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfil
     return usersList;
 }
 
-export async function getPendingKycUsers(db: Firestore = defaultDb): Promise<any[]> {
+export async function getAllKycSubmissions(db: Firestore = defaultDb): Promise<KycSubmission[]> {
     const submissionsCollection = collection(db, 'kycSubmissions');
-    const q = query(submissionsCollection, where("status", "==", "pending"));
+    const q = query(submissionsCollection, orderBy('submittedAt', 'desc'));
     
     const querySnapshot = await getDocs(q);
     const requestsList = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
             uid: data.userId, 
-            firstName: data.userName.split(' ')[0],
-            lastName: data.userName.split(' ').slice(1).join(' '),
-            email: data.userEmail,
-            kycSubmittedAt: data.submittedAt.toDate(),
-            kycStatus: 'pending'
-        };
+            userName: data.userName,
+            userEmail: data.userEmail,
+            status: data.status,
+            submittedAt: data.submittedAt.toDate(),
+            processedAt: data.processedAt ? data.processedAt.toDate() : undefined,
+            documents: data.documents
+        } as KycSubmission;
     });
     return requestsList;
 }
