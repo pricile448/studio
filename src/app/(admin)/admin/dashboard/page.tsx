@@ -13,13 +13,6 @@ import { fr } from 'date-fns/locale';
 
 const { db } = getFirebaseServices('admin');
 
-interface Stat {
-    title: string;
-    value: string | number;
-    icon: React.ElementType;
-    loading: boolean;
-}
-
 interface ActivityItem {
     id: string;
     type: 'user' | 'kyc';
@@ -151,7 +144,7 @@ export default function AdminDashboardPage() {
                     ) : recentActivity.length > 0 ? (
                         <div className="space-y-4">
                             {recentActivity.map(item => (
-                                <div key={item.id} className="flex items-center gap-4">
+                                <div key={`${item.type}-${item.id}`} className="flex items-center gap-4">
                                      <Avatar className="h-9 w-9">
                                         <AvatarImage src={item.data.photoURL} alt={item.type === 'user' ? `${item.data.firstName} ${item.data.lastName}` : item.data.userName} />
                                         <AvatarFallback>{getInitials(item.type === 'user' ? `${item.data.firstName} ${item.data.lastName}` : item.data.userName)}</AvatarFallback>
