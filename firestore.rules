@@ -4,59 +4,80 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // =================================
+    // Helper Functions
+    // =================================
     function isAdmin() {
-      // Un utilisateur est administrateur s'il existe un document avec son UID dans la collection 'admins'.
+      // Check if the user's UID exists in the 'admins' collection.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    match /users/{userId} {
-      // Les administrateurs peuvent tout lire et écrire.
-      allow read, write: if isAdmin();
-      
-      // Un utilisateur peut lire ses propres données.
-      allow get: if request.auth.uid == userId;
-      
-      // Un utilisateur peut créer son propre profil lors de l'inscription.
-      allow create: if request.auth.uid == userId;
-
-      // Un utilisateur peut mettre à jour son propre profil, mais avec des restrictions.
-      allow update: if request.auth.uid == userId && isAllowedUserUpdate(request, resource);
+    function isOwner(userId) {
+      // Check if the requesting user is the owner of the document.
+      return request.auth.uid == userId;
     }
 
-    function isAllowedUserUpdate(request, resource) {
-      // Détecte si l'opération est une soumission KYC.
-      let isKycSubmission = request.resource.data.kycStatus == 'pending'
-                            && resource.data.kycStatus == 'unverified';
+    // =================================
+    // Users Collection
+    // =================================
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
       
-      // Si c'est une soumission KYC, autorise uniquement la modification des champs liés au KYC.
-      if (isKycSubmission) {
-        return request.resource.data.diff(resource.data)
-                      .affectedKeys().hasOnly(['kycStatus', 'kycDocuments', 'kycSubmittedAt']);
+      // Anyone authenticated can create their own user document upon signup.
+      // We are assuming the backend sets the initial data correctly and securely.
+      allow create: if isOwner(userId);
+      
+      // Update rule is more complex to protect sensitive data.
+      allow update: if isAdmin() || (isOwner(userId) && (isGeneralProfileUpdate() || isKycSubmissionUpdate()));
+
+      function isGeneralProfileUpdate() {
+        // A general update is allowed if it does NOT touch protected fields.
+        let protectedKeys = ['accounts', 'transactions', 'kycStatus', 'iban', 'bic', 'uid', 'email', 'createdAt'];
+        return request.resource.data.diff(resource.data).affectedKeys().hasNone(protectedKeys);
       }
       
-      // Pour toutes les autres mises à jour, empêche la modification des champs critiques.
-      let forbiddenKeys = [
-        'accounts', 'transactions', 'kycStatus', 'iban', 'bic', 'uid', 'email', 'createdAt'
-      ];
-      return request.resource.data.diff(resource.data).affectedKeys().hasNone(forbiddenKeys);
+      function isKycSubmissionUpdate() {
+        // A KYC submission is a specific allowed transition.
+        return resource.data.kycStatus == 'unverified' 
+            && request.resource.data.kycStatus == 'pending'
+            // Ensure only KYC related fields are part of this update.
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycDocuments', 'kycSubmittedAt']);
+      }
     }
 
-    // Règles pour les autres collections
-    match /config/billing {
-        allow read: if request.auth != null; // Tout utilisateur authentifié peut lire.
-        allow write: if isAdmin(); // Seuls les administrateurs peuvent écrire.
-    }
-    
+    // =================================
+    // Chats Collection
+    // =================================
     match /chats/{chatId} {
-        allow read, create, update: if request.auth.uid in resource.data.participants || isAdmin();
+      // Users can read/write to chats they are a part of. Admins have full access.
+      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
+
+      match /messages/{messageId} {
+        allow read, create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
         
-        match /messages/{messageId} {
-            allow read, create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-            allow update: if request.auth.uid == resource.data.senderId || isAdmin(); // Permet à l'utilisateur de "supprimer" ses messages.
-        }
+        // Users can "soft delete" (update a flag) their own messages. Admins can do anything.
+        allow update: if (isOwner(request.resource.data.senderId) && request.resource.data.deletedForUser == true && resource.data.deletedForUser == false) || isAdmin();
+        
+        // Only admins can permanently delete messages.
+        allow delete: if isAdmin();
+      }
     }
     
+    // =================================
+    // Config Collection
+    // =================================
+    match /config/billing {
+      // Any authenticated user can read the billing info.
+      allow read: if request.auth.uid != null;
+      // Only admins can change the billing info.
+      allow write: if isAdmin();
+    }
+    
+    // =================================
+    // Admins Collection
+    // =================================
     match /admins/{adminId} {
+      // Only admins can read or write to the admins collection.
       allow read, write: if isAdmin();
     }
   }
