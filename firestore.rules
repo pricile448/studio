@@ -5,61 +5,49 @@ service cloud.firestore {
 
     // --- Fonctions utilitaires ---
     function isAdmin() {
-      // Vérifie si l'UID de l'utilisateur existe dans la collection 'admins'
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     function isOwner(userId) {
-      // Vérifie si l'utilisateur authentifié est le propriétaire du document
       return request.auth != null && request.auth.uid == userId;
     }
     function isParticipant(participants) {
-      // Vérifie si l'utilisateur authentifié fait partie des participants
       return request.auth != null && participants.hasAny([request.auth.uid]);
     }
 
     // --- Accès admins : tout permis ---
-    // Les admins peuvent lire et écrire n'importe quel document dans la base de données.
     match /{document=**} {
       allow read, write: if isAdmin();
     }
 
     // --- Utilisateurs ---
     match /users/{userId} {
-      // Un utilisateur ne peut lire que son propre document
+      // Lecture : uniquement soi-même
       allow read: if isOwner(userId);
 
-      // Un utilisateur peut créer son propre document (à l'inscription)
+      // Création : à l'inscription
       allow create: if isOwner(userId);
 
-      // Un utilisateur peut mettre à jour son propre document sous conditions
+      // Mise à jour : règles fines selon le contexte
       allow update: if isOwner(userId) && canUserUpdate();
 
       function canUserUpdate() {
-        // Les clés affectées par la mise à jour
         let affected = request.resource.data.diff(resource.data).affectedKeys();
 
-        // 1. Soumission KYC : règle plus robuste
-        let isSubmittingKYC = resource.data.kycStatus == 'unverified'
-          && request.resource.data.kycStatus == 'pending'
-          // On vérifie que les 3 champs obligatoires sont bien présents dans la requête
-          && 'kycStatus' in request.resource.data
-          && 'kycSubmittedAt' in request.resource.data
-          && 'kycDocuments' in request.resource.data
-          // On s'assure qu'aucun champ sensible n'est modifié en même temps
-          && !affected.hasAny(['uid', 'email', 'createdAt', 'accounts', 'transactions', 'iban', 'bic', 'cardStatus']);
-
-        // 2. Mise à jour générale du profil (nom, téléphone, etc.)
-        let isGeneralProfileUpdate = !affected.hasAny([
-          'kycStatus', 'accounts', 'transactions', 'cardStatus', 'physicalCard', 'uid', 'email', 'createdAt', 'iban', 'bic'
+        // Mise à jour générale (profil, bénéficiaires, budgets, etc.)
+        // L'utilisateur ne peut pas modifier lui-même les champs critiques.
+        let isGeneralUpdate = !affected.hasAny([
+          'kycStatus', 'accounts', 'transactions', 'cardStatus', 'physicalCard',
+          'uid', 'email', 'createdAt', 'iban', 'bic', 'balance'
         ]);
 
-        // 3. Gestion des tableaux (bénéficiaires, budgets, documents)
-        let isManagingArrays = affected.hasOnly(['beneficiaries'])
-                               || affected.hasOnly(['budgets'])
-                               || affected.hasOnly(['documents'])
-                               || affected.hasOnly(['virtualCards']);
+        // Ajout/suppression de bénéficiaires
+        let isManagingBeneficiaries = affected.hasOnly(['beneficiaries']);
+        // Ajout/suppression de budgets
+        let isManagingBudgets = affected.hasOnly(['budgets']);
+        // Ajout de documents personnels
+        let isManagingDocuments = affected.hasOnly(['documents']);
 
-        // 4. Demande de cartes
+        // Demande de carte physique/virtuelle
         let isRequestingPhysicalCard = resource.data.cardStatus == 'none'
           && request.resource.data.cardStatus == 'requested'
           && affected.hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']);
@@ -67,18 +55,28 @@ service cloud.firestore {
           && request.resource.data.hasPendingVirtualCardRequest == true
           && affected.hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
 
-        // 5. Gel/dégel de carte par l'utilisateur
+        // Blocage/déblocage carte par l'utilisateur
         let isTogglingCardFreeze = (resource.data.cardStatus == 'active' || resource.data.cardStatus == 'suspended')
-          && request.resource.data.physicalCard.suspendedBy == 'user' // L'utilisateur ne peut que se suspendre lui-même
+          && request.resource.data.physicalCard.suspendedBy != 'admin'
           && affected.hasOnly(['cardStatus', 'physicalCard']);
 
-        return isSubmittingKYC
-          || isGeneralProfileUpdate
-          || isManagingArrays
+        return isGeneralUpdate
+          || isManagingBeneficiaries
+          || isManagingBudgets
+          || isManagingDocuments
           || isRequestingPhysicalCard
           || isRequestingVirtualCard
           || isTogglingCardFreeze;
       }
+    }
+    
+    // --- KYC Submissions (New) ---
+    match /kycSubmissions/{userId} {
+      // The user can create their own submission document.
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+
+      // Only admins can read/update/delete submissions.
+      allow read, update, delete: if isAdmin();
     }
 
     // --- Admins ---
@@ -94,19 +92,13 @@ service cloud.firestore {
 
     // --- Messagerie sécurisée ---
     match /chats/{chatId} {
-      // Le document chat ne peut être lu/écrit que par ses participants
       allow read, write: if isParticipant(resource.data.participants);
 
       // Sous-collection messages
       match /messages/{messageId} {
-        // Un message ne peut être lu que par les participants au chat
         allow read: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
-        // Un message ne peut être créé que par un participant au chat
         allow create: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
-        // Un utilisateur ne peut que marquer son propre message comme "supprimé pour moi"
-        allow update: if request.auth.uid == resource.data.senderId
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
-        // Seul un admin peut supprimer définitivement un message
+        allow update: if request.auth.uid == resource.data.senderId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
         allow delete: if isAdmin();
       }
     }
