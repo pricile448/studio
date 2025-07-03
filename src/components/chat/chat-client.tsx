@@ -65,13 +65,6 @@ const getCloudinaryDownloadUrl = (url: string): string => {
     return `${baseUrl}/upload/fl_attachment/${assetPath}`;
 };
 
-const getCloudinaryInlineUrl = (url: string): string => {
-    if (!url || !url.includes('/upload/')) return url;
-    const urlParts = url.split('/upload/');
-    if (urlParts.length !== 2) return url;
-    return `${urlParts[0]}/upload/fl_inline/${urlParts[1]}`;
-};
-
 export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const [chatId, setChatId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -346,7 +339,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                 </button>
                                             ) : msg.fileUrl ? (
                                                 <a
-                                                    href={msg.fileType === 'application/pdf' ? getCloudinaryInlineUrl(msg.fileUrl) : msg.fileUrl}
+                                                    href={msg.fileUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className={cn(

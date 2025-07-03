@@ -78,13 +78,6 @@ const getCloudinaryDownloadUrl = (url: string): string => {
     return `${baseUrl}/upload/fl_attachment/${assetPath}`;
 };
 
-const getCloudinaryInlineUrl = (url: string): string => {
-    if (!url || !url.includes('/upload/')) return url;
-    const urlParts = url.split('/upload/');
-    if (urlParts.length !== 2) return url;
-    return `${urlParts[0]}/upload/fl_inline/${urlParts[1]}`;
-};
-
 function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -255,7 +248,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             </button>
                                         ) : msg.fileUrl ? (
                                             <a
-                                                href={msg.fileType === 'application/pdf' ? getCloudinaryInlineUrl(msg.fileUrl) : msg.fileUrl}
+                                                href={msg.fileUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className={cn(
