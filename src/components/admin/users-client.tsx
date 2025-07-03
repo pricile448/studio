@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
@@ -82,7 +83,7 @@ export function UsersClient() {
                                 <TableHead>Nom</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Statut KYC</TableHead>
-                                <TableHead>Date d'inscription</TableHead>
+                                <TableHead>Dernière connexion</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -96,8 +97,8 @@ export function UsersClient() {
                                             {translateKycStatus(user.kycStatus)}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>
-                                        {format(new Date(user.createdAt), 'dd MMMM yyyy', { locale: fr })}
+                                     <TableCell>
+                                        {user.lastSignInTime ? formatDistanceToNow(user.lastSignInTime, { addSuffix: true, locale: fr }) : "Jamais"}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button asChild variant="outline" size="sm">
@@ -122,6 +123,9 @@ export function UsersClient() {
                                 <Badge variant="outline" className={cn("border shrink-0", getKycStatusVariant(user.kycStatus))}>
                                     {translateKycStatus(user.kycStatus)}
                                 </Badge>
+                            </div>
+                             <div className="text-sm text-muted-foreground">
+                                Dernière connexion : {user.lastSignInTime ? formatDistanceToNow(user.lastSignInTime, { addSuffix: true, locale: fr }) : "Jamais"}
                             </div>
                             <div className="flex justify-between items-center text-sm pt-2 border-t">
                                 <p className="text-muted-foreground">

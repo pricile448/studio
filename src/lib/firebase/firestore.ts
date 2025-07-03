@@ -130,6 +130,7 @@ export type UserProfile = {
   };
   inactivityTimeout?: number; // in minutes, 0 for never
   createdAt: Date;
+  lastSignInTime?: Date;
   kycStatus: 'unverified' | 'pending' | 'verified';
   kycSubmittedAt?: Date;
   kycDocuments?: {
@@ -254,6 +255,7 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
 
         const dob = parseDate(data.dob);
         const createdAt = parseDate(data.createdAt);
+        const lastSignInTime = parseOptionalDate(data.lastSignInTime);
         const cardRequestedAt = parseOptionalDate(data.cardRequestedAt);
         const kycSubmittedAt = parseOptionalDate(submissionSnap.exists() ? submissionSnap.data().submittedAt : data.kycSubmittedAt);
         const virtualCardRequestedAt = parseOptionalDate(data.virtualCardRequestedAt);
@@ -263,6 +265,7 @@ export async function getUserFromFirestore(uid: string, db: Firestore = defaultD
             ...data,
             dob,
             createdAt,
+            lastSignInTime,
             cardRequestedAt,
             kycSubmittedAt,
             virtualCardRequestedAt,
@@ -288,6 +291,9 @@ export async function updateUserInFirestore(uid: string, data: Partial<Omit<User
   }
   if (data.virtualCardRequestedAt instanceof Date) {
     dataToUpdate.virtualCardRequestedAt = Timestamp.fromDate(data.virtualCardRequestedAt);
+  }
+  if (data.lastSignInTime instanceof Date) {
+    dataToUpdate.lastSignInTime = Timestamp.fromDate(data.lastSignInTime);
   }
   
   await updateDoc(userRef, dataToUpdate);
@@ -382,6 +388,7 @@ export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfil
             ...data,
             dob: parseDate(data.dob),
             createdAt: parseDate(data.createdAt),
+            lastSignInTime: parseOptionalDate(data.lastSignInTime),
             kycSubmittedAt: parseOptionalDate(data.kycSubmittedAt),
         } as UserProfile;
     });

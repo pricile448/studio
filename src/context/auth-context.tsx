@@ -69,6 +69,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signOut(auth);
         throw new Error('auth/email-not-verified');
     }
+    
+    // Update last sign-in time in Firestore
+    if (userCredential.user.metadata.lastSignInTime) {
+      await updateUserInFirestore(userCredential.user.uid, { 
+          lastSignInTime: new Date(userCredential.user.metadata.lastSignInTime) 
+      });
+    }
+
     return userCredential;
   };
 
