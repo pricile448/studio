@@ -11,9 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
-// Change: Import default db and setDoc function instead of adminDb and updateDoc
-import { db } from '@/lib/firebase/config'; 
+// Change: Import getFirebaseServices and use the admin instance of the database.
+import { getFirebaseServices } from '@/lib/firebase/config'; 
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
+
+const { db: adminDb } = getFirebaseServices('admin');
 
 const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
@@ -61,7 +63,6 @@ const kycSubmissionFlow = ai.defineFlow(
             uploadToCloudinary(input.selfieDataUri, uploadFolder, 'selfie_photo')
         ]);
         
-        // Change: Create a new document in `kycSubmissions` collection instead of updating the user.
         const submissionData = {
             userId: input.userId,
             userName: input.userName,
@@ -72,7 +73,8 @@ const kycSubmissionFlow = ai.defineFlow(
         };
         
         // The document ID is the user's ID for easy lookup.
-        const submissionRef = doc(db, 'kycSubmissions', input.userId);
+        // Change: Use the adminDb instance to bypass client-side security rules for this trusted server operation.
+        const submissionRef = doc(adminDb, 'kycSubmissions', input.userId);
         await setDoc(submissionRef, submissionData);
 
     } catch (error: any) {
