@@ -1,122 +1,106 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
+    // --- Fonctions utilitaires ---
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
-    // Check if the user is making a valid KYC submission update
-    function isKycSubmission() {
-      let isStatusChangeValid = resource.data.kycStatus == 'unverified' && request.resource.data.kycStatus == 'pending';
-      let allowedKeys = ['kycStatus', 'kycSubmittedAt', 'kycDocuments'];
-      return isStatusChangeValid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeys);
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
-    
-    // Check if a user is updating their basic profile info
-    function isProfileUpdate() {
-        let allowedKeys = [
-            'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 
-            'residenceCountry', 'address', 'city', 'postalCode', 'profession', 
-            'salary', 'notificationPrefs', 'inactivityTimeout'
-        ];
-        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeys);
+    function isParticipant(participants) {
+      return request.auth != null && request.auth.uid in participants;
     }
 
-    // Check if a user is managing their budgets or beneficiaries
-    function isManagingLists() {
-        let allowedKeys = ['budgets', 'beneficiaries', 'documents'];
-        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeys);
+    // --- Accès administrateur global ---
+    match /{document=**} {
+      allow read, write: if isAdmin();
     }
 
-    // Check if a user is requesting a card
-    function isRequestingCard() {
-        let isPhysicalRequest = resource.data.cardStatus == 'none' && request.resource.data.cardStatus == 'requested';
-        let isVirtualRequest = resource.data.hasPendingVirtualCardRequest == false && request.resource.data.hasPendingVirtualCardRequest == true;
-        let allowedKeysPhysical = ['cardStatus', 'cardType', 'cardRequestedAt'];
-        let allowedKeysVirtual = ['hasPendingVirtualCardRequest', 'virtualCardRequestedAt'];
-        
-        return (isPhysicalRequest && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeysPhysical)) ||
-               (isVirtualRequest && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeysVirtual));
-    }
-
-    // Check if a user is managing their own card (freezing/unfreezing)
-    function isManagingCardStatus() {
-        let allowedKeys = ['cardStatus', 'physicalCard'];
-        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeys);
-    }
-    
-    // Check if user is requesting a transfer
-    function isRequestingTransfer() {
-        let allowedKeys = ['transactions'];
-        // Ensure only one transaction is added and it is pending
-        let addedTx = request.resource.data.transactions[-1];
-        return request.resource.data.transactions.size() == resource.data.transactions.size() + 1
-            && addedTx.status == 'pending'
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKeys);
-    }
-
-
-    // USER PROFILES
+    // --- Utilisateurs ---
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
+      // Lecture : uniquement le propriétaire du document
+      allow read: if isOwner(userId);
+
+      // Création : uniquement lors de l'inscription
       allow create: if isOwner(userId);
-      allow update: if isAdmin() || (isOwner(userId) && (
-          isProfileUpdate() ||
-          isKycSubmission() ||
-          isManagingLists() ||
-          isRequestingCard() ||
-          isManagingCardStatus() ||
-          isRequestingTransfer()
-        )
-      );
-      allow delete: if isAdmin();
+
+      // Mise à jour : règles détaillées
+      allow update: if isOwner(userId) && canUserUpdate();
+
+      function canUserUpdate() {
+        let affected = request.resource.data.diff(resource.data).affectedKeys();
+
+        // 1. Soumission KYC : l'utilisateur ne peut que soumettre ses documents une seule fois
+        let isSubmittingKYC = resource.data.kycStatus == 'unverified'
+          && request.resource.data.kycStatus == 'pending'
+          && affected.hasOnly(['kycStatus', 'kycSubmittedAt', 'kycDocuments']);
+
+        // 2. Mise à jour générale du profil (champs non sensibles)
+        let isGeneralUpdate = !affected.hasAny([
+          'uid', 'email', 'createdAt', 'kycStatus', 'accounts', 'iban', 'bic',
+          'transactions', 'cardStatus', 'physicalCard', 'cardType'
+        ]);
+
+        // 3. Gestion des listes (Bénéficiaires, Budgets, Documents)
+        let isManagingBeneficiaries = affected.hasOnly(['beneficiaries']);
+        let isManagingBudgets = affected.hasOnly(['budgets']);
+        let isManagingDocuments = affected.hasOnly(['documents']);
+        let isManagingVirtualCards = affected.hasOnly(['virtualCards']);
+
+        // 4. Demande de carte physique
+        let isRequestingPhysicalCard = resource.data.cardStatus == 'none'
+          && request.resource.data.cardStatus == 'requested'
+          && affected.hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']);
+
+        // 5. Demande de carte virtuelle
+        let isRequestingVirtualCard = (resource.data.hasPendingVirtualCardRequest == false || resource.data.hasPendingVirtualCardRequest == null)
+          && request.resource.data.hasPendingVirtualCardRequest == true
+          && affected.hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
+          
+        // 6. Blocage/déblocage d'une carte par l'utilisateur (pas par l'admin)
+        let isTogglingPhysicalCardFreeze = (resource.data.cardStatus == 'active' || resource.data.cardStatus == 'suspended')
+          && request.resource.data.physicalCard.suspendedBy != 'admin'
+          && affected.hasOnly(['cardStatus', 'physicalCard']);
+          
+        // 7. Demande de virement externe
+        let isRequestingTransfer = affected.hasOnly(['transactions']);
+
+        return isSubmittingKYC
+          || isGeneralUpdate
+          || isManagingBeneficiaries
+          || isManagingBudgets
+          || isManagingDocuments
+          || isManagingVirtualCards
+          || isRequestingPhysicalCard
+          || isRequestingVirtualCard
+          || isTogglingPhysicalCardFreeze
+          || isRequestingTransfer;
+      }
     }
 
-    // ADMINS
+    // --- Admins ---
     match /admins/{adminId} {
-      // Only other admins can see who is an admin.
-      allow read: if isAdmin();
-      // No one can write to the admins collection from the client. Must be done via Firebase Console.
-      allow write: if false;
+      allow read: if isOwner(adminId);
     }
 
-    // CHATS
+    // --- Config (facturation) ---
+    match /config/billing {
+      allow read: if request.auth != null;
+    }
+
+    // --- Messagerie ---
     match /chats/{chatId} {
-        allow get, list: if request.auth.uid in resource.data.participants || isAdmin();
-        // Users can't create or delete chats directly, it's done via a function.
-        // Admins can update lastMessage fields.
-        allow create: if false;
-        allow update: if isAdmin();
-        allow delete: if isAdmin();
+      allow get, list: if isParticipant(resource.data.participants);
+      allow update: if isParticipant(resource.data.participants);
 
-        // MESSAGES
-        match /messages/{messageId} {
-            allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-            allow create: if request.auth.uid == request.resource.data.senderId && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-            // Allow users to soft-delete their own messages, allow admins to hard-delete
-            allow update: if request.auth.uid == resource.data.senderId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
-            allow delete: if isAdmin();
-        }
-    }
-    
-    // CONFIG
-    match /config/{docId} {
-        // Any signed-in user can read the config (e.g., billing info)
-        allow read: if isSignedIn();
-        // Only admins can write to config
-        allow write: if isAdmin();
+      match /messages/{messageId} {
+        allow read: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
+        allow create: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
+        allow update: if request.auth.uid == resource.data.senderId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
+      }
     }
   }
 }
