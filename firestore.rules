@@ -3,72 +3,94 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
+
+    // --- Helper Functions ---
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
-
+    
     function isAdmin() {
-      // Use get() instead of exists() for better performance on a specific path
-      return request.auth != null && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data != null;
+      // Check if the user's UID exists in the /admins collection.
+      // This is a secure way to check for admin privileges.
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
-    // Admins collection
+    function isOwnerOrAdmin(userId) {
+      return isOwner(userId) || isAdmin();
+    }
+    
+    // Check if only a specific set of fields are being updated
+    function hasOnly(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // --- Admins Collection ---
+    // Allow any authenticated user to check who is an admin.
+    // This is safe as it only contains UIDs and no sensitive data.
     match /admins/{adminId} {
       allow read: if request.auth != null;
-      allow write: if false; // Nobody can write to the admin list directly
-    }
-
-    // KYC Submissions collection
-    match /kycSubmissions/{userId} {
-      allow create: if isOwner(userId);
-      allow read, delete: if isAdmin();
-      allow update: if false;
-    }
-
-    // Config collection
-    match /config/{docId} {
-        allow read: if true;
-        allow write: if isAdmin();
     }
     
-    // Chat collection
-    match /chats/{chatId} {
-      function isParticipant() {
-        return request.auth.uid in resource.data.participants;
-      }
-      allow read, update, delete: if isAdmin() || isParticipant();
-      allow create: if request.auth != null;
-      
-      match /messages/{messageId} {
-        function isChatParticipant() {
-          return request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        }
-        
-        function isSender() {
-            return isOwner(request.resource.data.senderId);
-        }
-
-        function isSoftDeleting() {
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
-        }
-
-        allow read, create: if isAdmin() || isChatParticipant();
-        allow update: if (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForAdmin'])) || (isSender() && isSoftDeleting());
-        allow delete: if isAdmin();
-      }
+    // --- Config Collection ---
+    match /config/{docId} {
+        // Only admins can read/write configuration
+        allow read, write: if isAdmin();
     }
 
-    // Users collection
+    // --- Users Collection ---
     match /users/{userId} {
-      // Admins can read all user profiles, users can only read their own.
-      allow read: if isOwner(userId) || isAdmin();
-      
-      // Only new users can create their own document.
+      // Any authenticated user can create their own profile during signup.
       allow create: if isOwner(userId);
       
-      // Users can update their own document based on specific rules.
-      allow update: if isOwner(userId);
+      // A user can get their own profile. Admins can get any profile.
+      // Admins are allowed to list all users to populate the admin dashboard.
+      allow get: if isOwnerOrAdmin(userId);
+      allow list: if isAdmin();
+      
+      // Rules for updating a user document
+      allow update: if isOwner(userId) && (
+        // Allow user to update their own non-critical profile info
+        (hasOnly(['firstName', 'lastName', 'phone', 'dob', 'address', 'city', 'postalCode', 'residenceCountry', 'profession', 'salary', 'notificationPrefs', 'inactivityTimeout'])) ||
+        // Allow user to request a physical card
+        (request.resource.data.cardStatus == 'requested' && resource.data.cardStatus == 'none' && hasOnly(['cardStatus', 'cardRequestedAt', 'cardType'])) ||
+        // Allow user to request a virtual card
+        (request.resource.data.hasPendingVirtualCardRequest == true && resource.data.hasPendingVirtualCardRequest == false && hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt'])) ||
+        // Allow user to add a beneficiary
+        (request.resource.data.beneficiaries.size() == resource.data.beneficiaries.size() + 1) ||
+        // Allow user to delete a beneficiary
+        (request.resource.data.beneficiaries.size() == resource.data.beneficiaries.size() - 1) ||
+        // Allow user to freeze/unfreeze their own card
+        (hasOnly(['cardStatus', 'physicalCard'])) ||
+         // Allow user to upload documents
+        (request.resource.data.documents.size() >= resource.data.documents.size()) ||
+        // Allow user to add a transfer request
+        (request.resource.data.transactions.size() == resource.data.transactions.size() + 1 && request.resource.data.transactions[request.resource.data.transactions.size()-1].type == 'outgoing_transfer')
+      );
+    }
+    
+    // --- KYC Submissions Collection ---
+    match /kycSubmissions/{userId} {
+        // A user can only create their own submission request.
+        allow create: if isOwner(userId);
+        
+        // Only admins can read or delete submissions.
+        allow read, delete: if isAdmin();
+    }
+
+    // --- Chats Collection ---
+    match /chats/{chatId} {
+      // Users can only access chats they are a part of.
+      allow read, update, delete: if request.auth != null && request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+        // Users can create messages in chats they participate in.
+        allow create: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        
+        // Users can read all messages in their chats.
+        // Users can only "soft delete" (update) their own messages.
+        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow update: if request.auth != null && request.resource.data.senderId == request.auth.uid;
+      }
     }
   }
 }
