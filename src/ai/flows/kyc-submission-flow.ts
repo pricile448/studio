@@ -69,6 +69,12 @@ const kycSubmissionFlow = ai.defineFlow(
             kycStatus: 'pending' as const,
             kycSubmittedAt: serverTimestamp(),
         };
+
+        console.log('--- KYC FLOW DEBUG (SERVER) ---');
+        console.log('User ID:', input.userId);
+        console.log('Data being sent to Firestore:', JSON.stringify(updateData, null, 2));
+        console.log('--- END DEBUG ---');
+
         await updateUserInFirestore(input.userId, updateData, adminDb);
 
     } catch (error: any) {

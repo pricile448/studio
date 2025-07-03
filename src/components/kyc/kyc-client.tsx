@@ -77,6 +77,11 @@ export function KycClient({ dict, lang }: KycClientProps) {
       });
       return;
     }
+
+    console.log('--- KYC SUBMISSION DEBUG (CLIENT) ---');
+    console.log('User Profile at submission:', userProfile);
+    console.log('Current KYC Status:', userProfile.kycStatus);
+    console.log('-----------------------------------');
     
     setIsSubmitting(true);
     try {
