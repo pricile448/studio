@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A KYC submission flow.
@@ -13,8 +12,7 @@ import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { updateUserInFirestore } from '@/lib/firebase/firestore';
-import { serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 
 const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
@@ -37,7 +35,8 @@ export async function submitKycDocuments(input: KycSubmissionInput): Promise<{su
 }
 
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
-const { db: adminDb } = getFirebaseServices('admin');
+// Use the default DB instance so that writes are evaluated against security rules as the user
+const { db } = getFirebaseServices();
 
 const kycSubmissionFlow = ai.defineFlow(
   {
@@ -67,15 +66,11 @@ const kycSubmissionFlow = ai.defineFlow(
         const updateData = {
             kycDocuments,
             kycStatus: 'pending' as const,
-            kycSubmittedAt: serverTimestamp(),
+            kycSubmittedAt: Timestamp.now(), // Use Timestamp.now() for safer rule evaluation
         };
-
-        console.log('--- KYC FLOW DEBUG (SERVER) ---');
-        console.log('User ID:', input.userId);
-        console.log('Data being sent to Firestore:', JSON.stringify(updateData, null, 2));
-        console.log('--- END DEBUG ---');
-
-        await updateUserInFirestore(input.userId, updateData, adminDb);
+        
+        const userRef = doc(db, 'users', input.userId);
+        await updateDoc(userRef, updateData);
 
     } catch (error: any) {
         console.error("Failed to upload documents or update user profile:", error);
