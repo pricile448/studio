@@ -1,11 +1,10 @@
-import { use } from 'react';
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { IbanClient } from '@/components/iban/iban-client';
 
-export default function IbanPage({ params }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = use(params);
-  const dict = use(getDictionary(lang));
+export default async function IbanPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
+  const dict = await getDictionary(lang);
   
   const ibanDetails = {
     holder: 'User Name',

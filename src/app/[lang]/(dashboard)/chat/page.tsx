@@ -1,14 +1,12 @@
-
-import { use } from 'react';
 import type { Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { ChatPageClient } from '@/components/chat/chat-page-client';
 
 export const dynamic = 'force-dynamic';
 
-export default function ChatPage({ params }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = use(params);
-  const dict = use(getDictionary(lang));
+export default async function ChatPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
+  const dict = await getDictionary(lang);
   
   return (
     <div className="flex flex-col h-full gap-4">

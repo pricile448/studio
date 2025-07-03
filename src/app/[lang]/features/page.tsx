@@ -1,5 +1,3 @@
-
-import { use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Locale } from '@/lib/dictionaries';
@@ -22,9 +20,9 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default function FeaturesPage({ params: paramsPromise }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = use(paramsPromise);
-  const dict = use(getDictionary(lang));
+export default async function FeaturesPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
+  const dict = await getDictionary(lang);
   const homeDict = dict.homePage;
 
   const navLinks = [

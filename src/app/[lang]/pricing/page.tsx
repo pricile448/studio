@@ -1,5 +1,3 @@
-
-import { use } from 'react';
 import Link from 'next/link';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
@@ -21,9 +19,9 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default function PricingPage({ params: paramsPromise }: { params: Promise<{ lang: Locale }> }) {
-  const { lang } = use(paramsPromise);
-  const dict = use(getDictionary(lang));
+export default async function PricingPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
+  const dict = await getDictionary(lang);
   const homeDict = dict.homePage;
 
   const navLinks = [

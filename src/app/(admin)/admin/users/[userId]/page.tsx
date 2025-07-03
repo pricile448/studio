@@ -1,7 +1,6 @@
 import { UserDetailLoader } from '@/components/admin/user-detail-loader';
-import { use } from 'react';
 
-export default function AdminUserDetailPage({ params: paramsPromise }: { params: Promise<{ userId: string }> }) {
-    const { userId } = use(paramsPromise);
+export default async function AdminUserDetailPage({ params }: { params: { userId: string } }) {
+    const { userId } = params;
     return <UserDetailLoader userId={userId} />;
 }
