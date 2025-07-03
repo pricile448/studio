@@ -3,71 +3,73 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- HELPER FUNCTIONS ---
-    function isAuthOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+
+    // --- Helper Functions ---
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
-    
+
     function isAdmin() {
-      // Check if the requesting user's UID exists in the 'admins' collection
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
-    // --- USER DOCUMENT RULES ---
+    // --- User Profile Rules ---
     match /users/{userId} {
-      allow read: if isAuthOwner(userId) || isAdmin();
-      allow create: if isAuthOwner(userId); // For signup
+      allow read, create: if isOwner(userId) || isAdmin();
       
-      // An update is allowed if it's from an admin OR the owner performing a valid action
-      allow update: if isAdmin() || (isAuthOwner(userId) && (
-                      isUpdatingOwnProfile(request, resource) ||
-                      isSubmittingKyc(request, resource)
-                    ));
-    }
-    
-    // --- USER UPDATE LOGIC ---
-    function isUpdatingOwnProfile(req, res) {
-      // These fields can be updated by the user at any time from their profile page
-      let allowedFields = [
-        'firstName', 'lastName', 'phone', 'dob', 'pob', 'nationality', 'residenceCountry',
-        'address', 'city', 'postalCode', 'profession', 'salary', 'photoURL',
-        'notificationPrefs', 'inactivityTimeout', 'beneficiaries', 'budgets',
-        'documents', 'virtualCards', 'cardLimits', 'hasPendingVirtualCardRequest',
-        'virtualCardRequestedAt', 'cardStatus', 'physicalCard'
-      ];
-      // Check that the update ONLY contains fields from the allowed list
-      return req.resource.data.diff(res.data).affectedKeys().hasOnly(allowedFields);
-    }
-    
-    function isSubmittingKyc(req, res) {
-      // This is a specific transaction for KYC.
-      // It allows updating only the KYC-related fields, and only if the current status is 'unverified'.
-      let kycFields = ['kycStatus', 'kycSubmittedAt', 'kycDocuments'];
-      return res.data.kycStatus == 'unverified'
-             && req.resource.data.kycStatus == 'pending'
-             && req.resource.data.kycSubmittedAt == request.time
-             && req.resource.data.diff(res.data).affectedKeys().hasOnly(kycFields);
-    }
+      // Allow updates if it's an admin OR if it's the user updating their own profile under specific conditions.
+      allow update: if isAdmin() || (isOwner(userId) && (isKycSubmission() || isProfileUpdate()));
+      
+      allow delete: if isAdmin(); // Only admins can delete user docs
+      
+      // Function to check if the update is a valid KYC submission.
+      function isKycSubmission() {
+        // The user can only perform this action if their current status is 'unverified'.
+        // This prevents re-submission.
+        let isCorrectInitialState = resource.data.kycStatus == 'unverified';
+        
+        // The new status must be 'pending'.
+        let isCorrectFinalState = request.resource.data.kycStatus == 'pending';
+        
+        // This is a list of fields a user is allowed to write during KYC submission.
+        let allowedKycFields = ['kycStatus', 'kycDocuments', 'kycSubmittedAt'];
+        
+        // This ensures NO OTHER fields are being changed during KYC submission.
+        let onlyAllowedFieldsChanged = request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedKycFields);
 
-    // --- OTHER RULES ---
+        return isCorrectInitialState && isCorrectFinalState && onlyAllowedFieldsChanged;
+      }
+      
+      // Function to check for general profile updates by the user.
+      // Disallow changing critical fields like kycStatus, accounts, etc.
+      function isProfileUpdate() {
+        let forbiddenFields = ['kycStatus', 'accounts', 'cardStatus', 'physicalCard', 'iban', 'bic', 'transactions', 'virtualCards', 'advisorId', 'uid', 'email', 'createdAt'];
+        return request.resource.data.diff(resource.data).affectedKeys().hasAny(forbiddenFields) == false;
+      }
+    }
     
+    // --- Admin Rules ---
     match /admins/{adminId} {
+      // Only other admins can read/write the admins list.
+      // Management of this collection should happen via the Firebase Console for security.
       allow read, write: if isAdmin();
     }
     
+    // --- Chat Rules ---
     match /chats/{chatId} {
       allow read, create, update: if request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+        allow read, create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        // Allow user to 'soft delete' their own message by setting a flag
+        allow update: if request.auth.uid == resource.data.senderId && 'deletedForUser' in request.resource.data;
+      }
     }
-
-    match /chats/{chatId}/messages/{messageId} {
-      allow read, create, update: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
-      allow delete: if get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
-    }
-
-    match /config/billing {
-      allow read: if request.auth != null;
-      allow write: if isAdmin();
+    
+    // --- Config Rules ---
+    match /config/{docId} {
+        allow read: if request.auth.uid != null;
+        allow write: if isAdmin();
     }
   }
 }
