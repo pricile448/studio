@@ -23,7 +23,6 @@ type AuthContextType = {
   checkEmailVerification: () => Promise<boolean>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   updateUserPassword: (password: string) => Promise<void>;
-  updateKycStatus: (status: 'pending') => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
   uploadDocument: (file: File, documentName: string) => Promise<void>;
@@ -130,13 +129,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth.currentUser) throw new Error("No user is signed in.");
     await updatePassword(auth.currentUser, password);
   }
-
-  const updateKycStatus = async (status: 'pending') => {
-    if (!user) throw new Error("No user is signed in.");
-    await updateUserInFirestore(user.uid, { kycStatus: status, kycSubmittedAt: serverTimestamp() });
-    // Refresh local state
-    await refreshUserProfile();
-  };
   
   const requestCard = async (cardType: PhysicalCardType) => {
     if (!user) throw new Error("No user is signed in.");
@@ -214,7 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateKycStatus, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

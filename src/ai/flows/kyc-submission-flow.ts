@@ -14,6 +14,7 @@ import { sendEmail } from '@/services/mailgun-service';
 import { uploadToCloudinary } from '@/services/cloudinary-service';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { updateUserInFirestore } from '@/lib/firebase/firestore';
+import { serverTimestamp } from 'firebase/firestore';
 
 const KycSubmissionInputSchema = z.object({
   userId: z.string().describe('The unique ID of the user.'),
@@ -63,7 +64,12 @@ const kycSubmissionFlow = ai.defineFlow(
         ]);
 
         const kycDocuments = { idDocumentUrl, proofOfAddressUrl, selfieUrl };
-        await updateUserInFirestore(input.userId, { kycDocuments }, adminDb);
+        const updateData = {
+            kycDocuments,
+            kycStatus: 'pending' as const,
+            kycSubmittedAt: serverTimestamp(),
+        };
+        await updateUserInFirestore(input.userId, updateData, adminDb);
 
     } catch (error: any) {
         console.error("Failed to upload documents or update user profile:", error);

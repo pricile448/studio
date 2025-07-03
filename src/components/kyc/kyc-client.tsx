@@ -30,7 +30,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const [selfie, setSelfie] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { userProfile, updateKycStatus } = useAuth();
+  const { userProfile, refreshUserProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -99,7 +99,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
         throw new Error(result.error || dict.submission_error_desc);
       }
       
-      await updateKycStatus('pending');
+      await refreshUserProfile();
       setStep(6);
     } catch (error: any) {
       console.error("KYC Submission Error:", error);
