@@ -4,81 +4,101 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // =================================
-    // Helper Functions
-    // =================================
+    // ---- HELPER FUNCTIONS ----
     function isAdmin() {
       // Check if the user's UID exists in the 'admins' collection.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-
+    
     function isOwner(userId) {
-      // Check if the requesting user is the owner of the document.
       return request.auth.uid == userId;
     }
 
-    // =================================
-    // Users Collection
-    // =================================
-    match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      
-      // Anyone authenticated can create their own user document upon signup.
-      // We are assuming the backend sets the initial data correctly and securely.
-      allow create: if isOwner(userId);
-      
-      // Update rule is more complex to protect sensitive data.
-      allow update: if isAdmin() || (isOwner(userId) && (isGeneralProfileUpdate() || isKycSubmissionUpdate()));
-
-      function isGeneralProfileUpdate() {
-        // A general update is allowed if it does NOT touch protected fields.
-        let protectedKeys = ['accounts', 'transactions', 'kycStatus', 'iban', 'bic', 'uid', 'email', 'createdAt'];
-        return request.resource.data.diff(resource.data).affectedKeys().hasNone(protectedKeys);
-      }
-      
-      function isKycSubmissionUpdate() {
-        // A KYC submission is a specific allowed transition.
-        return resource.data.kycStatus == 'unverified' 
-            && request.resource.data.kycStatus == 'pending'
-            // Ensure only KYC related fields are part of this update.
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kycStatus', 'kycDocuments', 'kycSubmittedAt']);
-      }
-    }
-
-    // =================================
-    // Chats Collection
-    // =================================
-    match /chats/{chatId} {
-      // Users can read/write to chats they are a part of. Admins have full access.
-      allow read, write: if request.auth.uid in resource.data.participants || isAdmin();
-
-      match /messages/{messageId} {
-        allow read, create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants || isAdmin();
-        
-        // Users can "soft delete" (update a flag) their own messages. Admins can do anything.
-        allow update: if (isOwner(request.resource.data.senderId) && request.resource.data.deletedForUser == true && resource.data.deletedForUser == false) || isAdmin();
-        
-        // Only admins can permanently delete messages.
-        allow delete: if isAdmin();
-      }
-    }
-    
-    // =================================
-    // Config Collection
-    // =================================
-    match /config/billing {
-      // Any authenticated user can read the billing info.
-      allow read: if request.auth.uid != null;
-      // Only admins can change the billing info.
-      allow write: if isAdmin();
-    }
-    
-    // =================================
-    // Admins Collection
-    // =================================
-    match /admins/{adminId} {
-      // Only admins can read or write to the admins collection.
+    // ---- ADMIN CATCH-ALL ----
+    // Admins can do anything. This rule is placed first to grant them universal access.
+    match /{document=**} {
       allow read, write: if isAdmin();
+    }
+    
+    // ---- USER-SPECIFIC RULES ----
+    match /users/{userId} {
+      // Allow a user to read their own profile.
+      allow read: if isOwner(userId);
+      // Allow a user to create their own document upon signup.
+      allow create: if isOwner(userId);
+      // Allow a user to update their own document, but only under specific conditions.
+      allow update: if isOwner(userId) && canUpdateProfile();
+      
+      function canUpdateProfile() {
+        // Get the set of fields that are being changed in this update request.
+        let affected = request.resource.data.diff(resource.data).affectedKeys();
+        
+        // Condition 1: Submitting KYC documents for the first time.
+        // This is only allowed if the current status is 'unverified' and the new status is 'pending'.
+        // It also ensures that ONLY the KYC-related fields are being modified in this specific request.
+        let isSubmittingKYC = resource.data.kycStatus == 'unverified'
+                              && request.resource.data.kycStatus == 'pending'
+                              && affected.hasOnly(['kycStatus', 'kycSubmittedAt', 'kycDocuments']);
+
+        // Condition 2: General profile update.
+        // Allows the user to update non-critical fields.
+        // It explicitly forbids changing fields managed by the system or admins.
+        let isGeneralUpdate = !affected.hasAny(['kycStatus', 'accounts', 'transactions', 'cardStatus', 'physicalCard', 'uid', 'email', 'createdAt', 'iban', 'bic']);
+        
+        // Condition 3: Requesting a physical card.
+        let isRequestingPhysicalCard = resource.data.cardStatus == 'none'
+                                    && request.resource.data.cardStatus == 'requested'
+                                    && affected.hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']);
+
+        // Condition 4: User is freezing/unfreezing their own physical card.
+        let isTogglingCardFreeze = (resource.data.cardStatus == 'active' || resource.data.cardStatus == 'suspended')
+                                   && request.resource.data.physicalCard.suspendedBy != 'admin'
+                                   && affected.hasOnly(['cardStatus', 'physicalCard']);
+        
+        // Condition 5: Requesting a virtual card.
+        let isRequestingVirtualCard = (resource.data.hasPendingVirtualCardRequest == false || resource.data.hasPendingVirtualCardRequest == null)
+                                      && request.resource.data.hasPendingVirtualCardRequest == true
+                                      && affected.hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
+        
+        // Condition 6: Managing arrays (beneficiaries, budgets, documents, virtual cards).
+        // For simplicity, we allow the user to replace the whole array, as long as it's the only thing they're changing.
+        let isManagingBeneficiaries = affected.hasOnly(['beneficiaries']);
+        let isManagingBudgets = affected.hasOnly(['budgets']);
+        let isManagingDocuments = affected.hasOnly(['documents']);
+        let isManagingVirtualCards = affected.hasOnly(['virtualCards']);
+
+        // The update is permitted if it matches ANY of these valid conditions.
+        return isSubmittingKYC 
+            || isGeneralUpdate 
+            || isRequestingPhysicalCard 
+            || isTogglingCardFreeze
+            || isRequestingVirtualCard
+            || isManagingBeneficiaries 
+            || isManagingBudgets 
+            || isManagingDocuments
+            || isManagingVirtualCards;
+      }
+    }
+    
+    // ---- OTHER COLLECTIONS ----
+    match /admins/{adminId} {
+        allow read, write: if isOwner(adminId);
+    }
+    
+    match /config/{docId} {
+        allow read: if request.auth != null;
+        allow write: if isAdmin();
+    }
+    
+    match /chats/{chatId} {
+      allow read, write: if request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+      	allow read: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow update: if isOwner(resource.data.senderId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
+        allow delete: if isAdmin(); // Only admins can hard-delete messages.
+      }
     }
   }
 }
