@@ -1,5 +1,5 @@
 /**
- * @fileOverview This file re-exports the KYC submission flow.
+ * @fileOverview This file re-exports the KYC processing flows.
  * It exists to resolve a module ambiguity between the .ts and .tsx files
  * with the same name. The actual logic is in `kyc-submission-flow.ts`.
  */

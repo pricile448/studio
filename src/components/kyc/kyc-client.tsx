@@ -14,7 +14,9 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { submitKycDocuments } from '@/ai/flows/kyc-submission-flow';
+import { uploadKycFiles, notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 interface KycClientProps {
   dict: any; // Using `any` for simplicity as dict structure for kyc is new
@@ -79,25 +81,53 @@ export function KycClient({ dict, lang }: KycClientProps) {
     
     setIsSubmitting(true);
     try {
+      // Step 1: Convert files to Data URIs
       const [idDocumentDataUri, proofOfAddressDataUri, selfieDataUri] = await Promise.all([
           convertFileToDataUri(idDocument),
           convertFileToDataUri(proofOfAddress),
           convertFileToDataUri(selfie),
       ]);
 
-      const result = await submitKycDocuments({
+      // Step 2: Call server flow to upload files and get URLs
+      const { idDocumentUrl, proofOfAddressUrl, selfieUrl } = await uploadKycFiles({
           userId: userProfile.uid,
-          userName: `${userProfile.firstName} ${userProfile.lastName}`,
-          userEmail: userProfile.email,
           idDocumentDataUri,
           proofOfAddressDataUri,
           selfieDataUri,
       });
-      
-      if (!result.success) {
-        throw new Error(result.error || dict.submission_error_desc);
+
+      // Step 3: Write submission document from the CLIENT (this is the key change)
+      const submissionRef = doc(db, 'kycSubmissions', userProfile.uid);
+      const submissionData = {
+          userId: userProfile.uid,
+          userName: `${userProfile.firstName} ${userProfile.lastName}`,
+          userEmail: userProfile.email,
+          status: 'pending' as const,
+          submittedAt: Timestamp.now(),
+          documents: { idDocumentUrl, proofOfAddressUrl, selfieUrl }
+      };
+      await setDoc(submissionRef, submissionData);
+
+      // Step 4: Call second server flow to notify admin (no DB write)
+      const notifyResult = await notifyAdminOfKyc({
+          userId: userProfile.uid,
+          userName: `${userProfile.firstName} ${userProfile.lastName}`,
+          userEmail: userProfile.email,
+          idDocumentUrl,
+          proofOfAddressUrl,
+          selfieUrl,
+      });
+
+      if (!notifyResult.success) {
+        // Non-fatal error, the submission is saved, but we should inform the user
+        toast({
+          variant: 'destructive',
+          title: "Erreur de notification",
+          description: "Votre soumission a été enregistrée, mais nous n'avons pas pu notifier nos équipes. Le traitement pourrait être retardé.",
+        });
       }
       
+      // Step 5: Refresh UI and move to final step
       await refreshUserProfile();
       setStep(6);
     } catch (error: any) {
