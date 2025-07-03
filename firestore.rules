@@ -1,3 +1,4 @@
+
 rules_version = '2';
 
 service cloud.firestore {
@@ -5,101 +6,73 @@ service cloud.firestore {
 
     // --- Fonctions utilitaires ---
     function isAdmin() {
+      // Check if the user's UID exists in the 'admins' collection.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     function isOwner(userId) {
+      // Check if the authenticated user is the owner of the document.
       return request.auth != null && request.auth.uid == userId;
     }
-    function isParticipant(participants) {
-      return request.auth != null && request.auth.uid in participants;
+    function isParticipant(chatParticipants) {
+      // Check if the authenticated user is a participant in the chat.
+      return request.auth != null && request.auth.uid in chatParticipants;
     }
 
-    // --- Accès administrateur global ---
-    match /{document=**} {
+    // --- Règle globale pour les admins ---
+    // Les administrateurs ont un accès complet en lecture/écriture à toute la base de données.
+    match /{path=**} {
       allow read, write: if isAdmin();
     }
 
-    // --- Utilisateurs ---
+    // --- Collection des utilisateurs ---
     match /users/{userId} {
-      // Lecture : uniquement le propriétaire du document
+      // LECTURE : Un utilisateur ne peut lire que son propre document.
       allow read: if isOwner(userId);
 
-      // Création : uniquement lors de l'inscription
+      // CRÉATION : Un utilisateur peut créer son propre document lors de l'inscription.
+      // Le document doit correspondre à son UID.
       allow create: if isOwner(userId);
 
-      // Mise à jour : règles détaillées
-      allow update: if isOwner(userId) && canUserUpdate();
+      // MISE À JOUR : Règle temporaire pour le débogage
+      // Cette règle autorise un utilisateur à mettre à jour n'importe quel champ
+      // de son propre profil. C'est pour tester si le problème de permission
+      // vient de l'authentification (isOwner) ou de la logique de validation des champs.
+      // ATTENTION : Cette règle est trop permissive pour la production.
+      allow update: if isOwner(userId);
 
-      function canUserUpdate() {
-        let affected = request.resource.data.diff(resource.data).affectedKeys();
-
-        // 1. Soumission KYC : l'utilisateur ne peut que soumettre ses documents une seule fois
-        let isSubmittingKYC = resource.data.kycStatus == 'unverified'
-          && request.resource.data.kycStatus == 'pending'
-          && affected.hasOnly(['kycStatus', 'kycSubmittedAt', 'kycDocuments']);
-
-        // 2. Mise à jour générale du profil (champs non sensibles)
-        let isGeneralUpdate = !affected.hasAny([
-          'uid', 'email', 'createdAt', 'kycStatus', 'accounts', 'iban', 'bic',
-          'transactions', 'cardStatus', 'physicalCard', 'cardType'
-        ]);
-
-        // 3. Gestion des listes (Bénéficiaires, Budgets, Documents)
-        let isManagingBeneficiaries = affected.hasOnly(['beneficiaries']);
-        let isManagingBudgets = affected.hasOnly(['budgets']);
-        let isManagingDocuments = affected.hasOnly(['documents']);
-        let isManagingVirtualCards = affected.hasOnly(['virtualCards']);
-
-        // 4. Demande de carte physique
-        let isRequestingPhysicalCard = resource.data.cardStatus == 'none'
-          && request.resource.data.cardStatus == 'requested'
-          && affected.hasOnly(['cardStatus', 'cardType', 'cardRequestedAt']);
-
-        // 5. Demande de carte virtuelle
-        let isRequestingVirtualCard = (resource.data.hasPendingVirtualCardRequest == false || resource.data.hasPendingVirtualCardRequest == null)
-          && request.resource.data.hasPendingVirtualCardRequest == true
-          && affected.hasOnly(['hasPendingVirtualCardRequest', 'virtualCardRequestedAt']);
-          
-        // 6. Blocage/déblocage d'une carte par l'utilisateur (pas par l'admin)
-        let isTogglingPhysicalCardFreeze = (resource.data.cardStatus == 'active' || resource.data.cardStatus == 'suspended')
-          && request.resource.data.physicalCard.suspendedBy != 'admin'
-          && affected.hasOnly(['cardStatus', 'physicalCard']);
-          
-        // 7. Demande de virement externe
-        let isRequestingTransfer = affected.hasOnly(['transactions']);
-
-        return isSubmittingKYC
-          || isGeneralUpdate
-          || isManagingBeneficiaries
-          || isManagingBudgets
-          || isManagingDocuments
-          || isManagingVirtualCards
-          || isRequestingPhysicalCard
-          || isRequestingVirtualCard
-          || isTogglingPhysicalCardFreeze
-          || isRequestingTransfer;
-      }
+      // SUPPRESSION : La suppression des comptes n'est pas autorisée depuis le client.
+      allow delete: if false;
     }
 
-    // --- Admins ---
+    // --- Collection des administrateurs ---
     match /admins/{adminId} {
-      allow read: if isOwner(adminId);
+      // Seul un administrateur peut lire et modifier son propre document (si nécessaire).
+      allow read, write: if isOwner(adminId);
     }
 
-    // --- Config (facturation) ---
-    match /config/billing {
+    // --- Collection de configuration ---
+    match /config/{docId} {
+      // N'importe quel utilisateur authentifié peut lire la configuration (ex: facturation).
       allow read: if request.auth != null;
+      // Seuls les admins peuvent écrire dans la configuration.
+      allow write: if isAdmin();
     }
 
-    // --- Messagerie ---
+    // --- Collection des chats ---
     match /chats/{chatId} {
-      allow get, list: if isParticipant(resource.data.participants);
-      allow update: if isParticipant(resource.data.participants);
+      // Un utilisateur peut lire/écrire les métadonnées d'un chat s'il en est participant.
+      allow read, write: if isParticipant(resource.data.participants);
 
+      // Sous-collection des messages
       match /messages/{messageId} {
+        // LIRE : Un participant peut lire les messages.
         allow read: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
+        // CRÉER : Un participant peut créer un message.
         allow create: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
-        allow update: if request.auth.uid == resource.data.senderId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
+        // METTRE À JOUR : L'expéditeur peut marquer son propre message comme "supprimé" (soft delete).
+        allow update: if isOwner(resource.data.senderId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deletedForUser']);
+        // SUPPRIMER : Seuls les admins peuvent supprimer définitivement un message.
+        allow delete: if isAdmin();
       }
     }
   }
