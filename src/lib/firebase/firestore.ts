@@ -388,6 +388,21 @@ export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfil
     return usersList;
 }
 
+export async function getAdmins(db: Firestore = defaultDb): Promise<UserProfile[]> {
+    const adminsCol = collection(db, 'admins');
+    const adminSnap = await getDocs(adminsCol);
+    const adminIds = adminSnap.docs.map(doc => doc.id);
+
+    const adminProfiles: UserProfile[] = [];
+    for (const id of adminIds) {
+        const userProfile = await getUserFromFirestore(id, db);
+        if (userProfile) {
+            adminProfiles.push(userProfile);
+        }
+    }
+    return adminProfiles;
+}
+
 export async function getAllKycSubmissions(db: Firestore = defaultDb): Promise<KycSubmission[]> {
     const submissionsCollection = collection(db, 'kycSubmissions');
     const q = query(submissionsCollection, orderBy('submittedAt', 'desc'));
