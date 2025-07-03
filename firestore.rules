@@ -3,62 +3,59 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
+  
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
-
+    
     function isAdmin() {
-      // An admin is a user whose UID is in the 'admins' collection.
-      // exists() is an efficient way to check for a document's presence.
-      return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-    
-    // Admins collection: only authenticated users can check who is an admin.
-    match /admins/{adminId} {
-      allow read: if request.auth != null;
-      allow write: if isAdmin(); // Only admins can manage other admins
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Users collection
     match /users/{userId} {
-      allow create: if request.auth.uid == userId;
       allow read: if isOwner(userId) || isAdmin();
-      allow update: if isOwner(userId) || isAdmin();
-      allow delete: if isAdmin();
-      
-      // Allow admins to list all users for the admin dashboard
-      allow list: if isAdmin();
+      allow update: if isOwner(userId);
+      // Deny create and delete operations from the client side for security.
+      allow create, delete: if false;
     }
     
-    // KYC Submissions
-    match /kycSubmissions/{userId} {
-      allow create: if isOwner(userId);
-      // A user can read their own submission status, admins can read any.
-      allow read: if isOwner(userId) || isAdmin();
-      // Only admins can delete submissions (after processing).
-      allow delete: if isAdmin();
-      // Only admins can list all submissions.
-      allow list: if isAdmin();
-    }
-    
-    // Chat collection
-    match /chats/{chatId} {
-        allow read, write: if request.auth.uid in resource.data.participants;
-        
-        match /messages/{messageId} {
-            allow read, create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-            allow update: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-        }
-    }
-    
-    // Config collection
-    match /config/{docId} {
-      // Any authenticated user can read public configuration like billing info.
+    match /admins/{userId} {
+      // Allow any authenticated user to check who is an admin.
+      // This collection should only contain UIDs and basic, non-sensitive data.
       allow read: if request.auth != null;
-      // Only admins can change the configuration.
-      allow write: if isAdmin();
+    }
+
+    match /chats/{chatId} {
+      allow read, update: if request.auth.uid in resource.data.participants;
+      
+      match /messages/{messageId} {
+        allow read, create: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        // Allow user to "soft delete" by marking a message as deleted for them.
+        allow update: if request.auth.uid == resource.data.senderId && request.resource.data.keys().hasAll(['deletedForUser']);
+      }
+    }
+    
+    match /kycSubmissions/{userId} {
+      // A user can create their own submission document, identified by their UID.
+      // This is now mainly a fallback, as the server with admin rights handles the creation.
+      allow create: if isOwner(userId);
+
+      // A user can read their own submission status. Admins can read any submission.
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Admins need to list all submissions to display them in the admin panel.
+      allow list: if isAdmin();
+
+      // Only an admin can delete a submission (after approving/rejecting it).
+      allow delete: if isAdmin();
+
+      // No one should be able to update a submission document directly.
+      allow update: if false;
+    }
+    
+     match /config/{docId} {
+      allow read: if request.auth != null; // Any authenticated user can read config (like billing info)
+      allow write: if isAdmin(); // Only admins can change config
     }
   }
 }
