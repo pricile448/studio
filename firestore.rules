@@ -3,66 +3,61 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions ---
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
     
+    // Helper function to check for admin role
     function isAdmin() {
-      // Check if the requesting user's UID exists in the 'admins' collection.
+      // Check if the requesting user's UID exists in the 'admins' collection
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // --- Collection Rules ---
-
-    // Admins collection: Contains documents where the doc ID is the UID of an admin.
-    match /admins/{adminId} {
-      // Any authenticated user can check who is an admin. This is safe as it only contains UIDs.
-      allow read: if request.auth != null;
-      // Writes to this collection should only be done via the Firebase Console for security.
-      allow write: if false;
-    }
-
-    // Users collection
     match /users/{userId} {
-      allow create: if true; // Anyone can create a user document during sign-up.
+      allow create: if request.auth.uid == userId;
       
-      // A user can read, update, or delete their own document.
-      allow read, update, delete: if isOwner(userId);
+      // An authenticated user can read their own profile.
+      // An admin can read any user's profile.
+      allow read: if request.auth.uid == userId || isAdmin();
+      
+      // An admin can list all users for the dashboard.
+      allow list: if isAdmin();
 
-      // An admin has full read (get, list) and write (create, update, delete) access.
-      allow get, list, write: if isAdmin();
+      // A user can update their own profile, BUT cannot change their kycStatus.
+      // An admin can update any part of any user's profile (including kycStatus).
+      allow update: if (request.auth.uid == userId && !('kycStatus' in request.resource.data)) || isAdmin();
+
+      // Only admins can delete users.
+      allow delete: if isAdmin();
     }
     
-    // KYC Submissions collection
     match /kycSubmissions/{userId} {
-      // A user can create their own submission and read it (to see pending status).
-      allow create, read: if isOwner(userId);
+      // A user can create their own submission.
+      allow create: if request.auth.uid == userId;
       
-      // An admin can read any submission, list all submissions, and delete them after processing.
-      allow get, list, delete: if isAdmin();
+      // A user can read their own submission. An admin can read any.
+      allow read: if request.auth.uid == userId || isAdmin();
 
-      // Nobody can update a submission once it's created.
-      allow update: if false;
+      // An admin can list, update the status of, or delete submissions.
+      allow list, update, delete: if isAdmin();
     }
-
-    // Chats & Messages
+    
     match /chats/{chatId} {
-      match /messages/{messageId} {
-        allow read, create: if request.auth != null && (isOwner(request.auth.uid) || isAdmin());
-        // Only the sender can "update" a message (for soft-delete).
-        allow update: if request.auth != null && isOwner(request.resource.data.senderId);
-        // Only admins can hard-delete messages.
-        allow delete: if isAdmin();
-      }
-      allow read, create, update: if request.auth != null && (isOwner(request.auth.uid) || isAdmin());
+        allow read, write: if request.auth.uid in resource.data.participants;
     }
-
-    // Config collection (e.g., for billing)
+    
+    match /chats/{chatId}/messages/{messageId} {
+        allow read, write: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+    }
+    
+    match /admins/{adminId} {
+      // Any authenticated user can check the list of admins.
+      // This is needed for the app to determine if the logged-in user has admin rights.
+      allow read: if request.auth != null;
+    }
+    
     match /config/{docId} {
-        allow read: if request.auth != null; // Any authenticated user can read public configs.
-        allow write: if isAdmin(); // Only admins can change configs.
+        // Any authenticated user can read config (like billing info)
+        allow read: if request.auth != null;
+        // Only admins can write config
+        allow write: if isAdmin();
     }
   }
 }
