@@ -149,8 +149,8 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       <main className="flex-1">
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-20 sm:py-32">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-center md:text-left order-2 md:order-1">
+          <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+            <div className="order-1 space-y-6 text-center md:order-1 md:text-left">
               <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl md:text-6xl lg:text-7xl">
                 {homeDict.hero.title_part1}<span className="text-primary">{homeDict.hero.title_highlight}</span>
               </h1>
@@ -166,9 +166,9 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-1 md:order-2 flex justify-center items-center">
+            <div className="order-2 flex items-center justify-center md:order-2">
               <Image
-                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
+                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751629701/TR_l1q90z.png"
                 alt="Application showcase"
                 width={500}
                 height={500}
