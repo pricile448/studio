@@ -150,7 +150,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-20 sm:py-32">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
-            <div className="order-2 flex flex-col justify-center space-y-6 text-center md:order-1 md:text-left">
+            <div className="order-1 flex flex-col justify-center space-y-6 text-center md:order-1 md:text-left">
               <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl md:text-6xl lg:text-7xl">
                 {homeDict.hero.title_part1}<span className="text-primary">{homeDict.hero.title_highlight}</span>
               </h1>
@@ -166,15 +166,30 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="relative flex flex-col items-center justify-center order-1 h-full min-h-[300px] md:order-2">
-              <Image
-                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
-                alt="Application showcase"
-                fill
-                priority
-                data-ai-hint="credit card"
-                className="object-cover transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
-              />
+            <div className="order-2 md:order-2">
+              {/* Desktop Image */}
+              <div className="relative hidden h-full min-h-[300px] md:block">
+                  <Image
+                      src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
+                      alt="Application showcase"
+                      fill
+                      priority
+                      data-ai-hint="credit card"
+                      className="object-contain transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
+                  />
+              </div>
+              {/* Mobile Image */}
+              <div className="relative block h-full md:hidden">
+                  <Image
+                      src="https://placehold.co/400x500.png"
+                      alt="Application showcase mobile"
+                      width={400}
+                      height={500}
+                      priority
+                      data-ai-hint="phone app"
+                      className="mx-auto object-contain transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
+                  />
+              </div>
             </div>
           </div>
         </section>
