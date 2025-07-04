@@ -181,10 +181,10 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
               {/* Mobile Image */}
               <div className="relative block h-full md:hidden">
                   <Image
-                      src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751644038/reorganized_image_400x500_tbssvf.png"
+                      src="https://placehold.co/1000x600.png"
                       alt="Application showcase mobile"
-                      width={400}
-                      height={500}
+                      width={1000}
+                      height={600}
                       priority
                       data-ai-hint="phone app"
                       className="mx-auto object-contain transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
@@ -358,5 +358,3 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
     </div>
   );
 }
-
-    
