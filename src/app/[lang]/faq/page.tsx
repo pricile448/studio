@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { type Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';

@@ -166,15 +166,14 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-1 flex justify-center md:order-2">
+            <div className="order-1 relative md:order-2 min-h-[300px] md:min-h-0">
               <Image
                 src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751629701/TR_l1q90z.png"
                 alt="Application showcase"
-                width={500}
-                height={500}
+                fill
                 priority
                 data-ai-hint="credit card"
-                className="h-full w-full max-w-md rounded-xl object-cover shadow-2xl"
+                className="rounded-xl object-contain shadow-2xl transition-transform duration-300 hover:scale-105"
               />
             </div>
           </div>
