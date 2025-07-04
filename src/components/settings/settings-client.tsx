@@ -20,7 +20,7 @@ export function SettingsClient({ dict, lang }: SettingsClientProps) {
 
   return (
     <Tabs defaultValue="profile" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="h-auto flex-wrap gap-1">
         <TabsTrigger value="profile">
           <User className="mr-2 h-4 w-4" />
           {settingsDict.tabs.profile}

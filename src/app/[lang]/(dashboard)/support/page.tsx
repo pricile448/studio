@@ -26,7 +26,7 @@ export default async function SupportPage({ params }: { params: { lang: Locale }
     <div className="space-y-6">
       <h1 className="text-3xl font-bold font-headline">{helpDict.title}</h1>
       <Tabs defaultValue="faq" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+        <TabsList className="h-auto flex-wrap gap-1">
           <TabsTrigger value="faq"><MessageSquareQuote className="mr-2 h-4 w-4" />{helpDict.faqTitle}</TabsTrigger>
           <TabsTrigger value="contact"><Mail className="mr-2 h-4 w-4" />{helpDict.contactTitle}</TabsTrigger>
           <TabsTrigger value="ai"><Lightbulb className="mr-2 h-4 w-4" />{dict.dashboard.aiAssistant.title}</TabsTrigger>
