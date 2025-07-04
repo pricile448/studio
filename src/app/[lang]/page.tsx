@@ -148,9 +148,9 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-20 sm:py-32">
+        <section className="container mx-auto px-4 py-16 sm:py-24">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
-            <div className="order-1 flex flex-col justify-center space-y-6 text-center md:order-1 md:text-left">
+            <div className="order-2 flex flex-col justify-center space-y-6 text-center md:order-1 md:text-left">
               <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl md:text-6xl lg:text-7xl">
                 {homeDict.hero.title_part1}<span className="text-primary">{homeDict.hero.title_highlight}</span>
               </h1>
@@ -166,7 +166,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-2 md:order-2">
+            <div className="order-1 md:order-2">
               {/* Desktop Image */}
               <div className="relative hidden h-full min-h-[300px] md:block">
                   <Image
@@ -195,7 +195,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Features Section */}
-        <section className="bg-muted/50 py-20 sm:py-32">
+        <section className="bg-muted/50 py-16 sm:py-24">
           <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
               <h2 className="text-3xl font-bold font-headline">{homeDict.featuresSection.title}</h2>
@@ -236,7 +236,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Pricing Section */}
-        <section className="py-20 sm:py-32">
+        <section className="py-16 sm:py-24">
           <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
               <h2 className="text-3xl font-bold font-headline">{homeDict.pricingSection.title}</h2>
@@ -294,7 +294,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20 sm:py-32">
+        <section className="py-16 sm:py-24">
             <div className="container mx-auto px-4">
                  <div className="mb-12 text-center">
                     <h2 className="text-3xl font-bold font-headline">{homeDict.testimonialsSection.title}</h2>
@@ -327,7 +327,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Partners Section */}
-        <section id="partners" className="py-20 sm:py-32 bg-muted/50">
+        <section id="partners" className="py-16 sm:py-24 bg-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
             <div className="flex items-center justify-center gap-6 sm:gap-8 md:gap-12">
