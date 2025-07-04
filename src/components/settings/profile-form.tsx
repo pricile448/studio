@@ -166,7 +166,8 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                   <FormLabel>{dict.dobLabel}</FormLabel>
                   <FormControl>
                     <Input
-                      type="date"
+                      type="text"
+                      placeholder="YYYY-MM-DD"
                       value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
                       onChange={(e) => {
                         if (e.target.value) {
@@ -175,8 +176,6 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                           field.onChange(undefined);
                         }
                       }}
-                      max={format(new Date(), 'yyyy-MM-dd')}
-                      min="1960-01-01"
                     />
                   </FormControl>
                   <FormMessage />

@@ -203,7 +203,8 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
                       <FormLabel>{registerDict.dobLabel}</FormLabel>
                       <FormControl>
                         <Input
-                          type="date"
+                          type="text"
+                          placeholder="YYYY-MM-DD"
                           value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
                           onChange={(e) => {
                             if (e.target.value) {
@@ -212,8 +213,6 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
                               field.onChange(undefined);
                             }
                           }}
-                          max={format(new Date(), 'yyyy-MM-dd')}
-                          min="1960-01-01"
                         />
                       </FormControl>
                       <FormMessage />

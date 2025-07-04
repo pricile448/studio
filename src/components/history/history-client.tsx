@@ -56,7 +56,8 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
             <CardTitle className="font-headline flex-1">{dict.filters}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Input
-                  type="date"
+                  type="text"
+                  placeholder="YYYY-MM-DD"
                   aria-label="Date de début"
                   value={date?.from ? format(date.from, 'yyyy-MM-dd') : ''}
                   onChange={(e) => {
@@ -66,7 +67,8 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
                   className="w-full sm:w-auto"
               />
               <Input
-                  type="date"
+                  type="text"
+                  placeholder="YYYY-MM-DD"
                   aria-label="Date de fin"
                   value={date?.to ? format(date.to, 'yyyy-MM-dd') : ''}
                   onChange={(e) => {

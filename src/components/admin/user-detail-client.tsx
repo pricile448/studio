@@ -128,7 +128,8 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
                                       <FormLabel>Date de naissance</FormLabel>
                                       <FormControl>
                                         <Input
-                                          type="date"
+                                          type="text"
+                                          placeholder="YYYY-MM-DD"
                                           value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
                                           onChange={(e) => {
                                             if (e.target.value) {
