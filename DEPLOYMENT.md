@@ -30,6 +30,34 @@ La plupart des hébergements "mutualisés" standards (basés sur cPanel, conçus
 
 ---
 
+### Étape 1.5 : Configurer les Identifiants du SDK Admin (OBLIGATOIRE POUR LE DASHBOARD ADMIN)
+
+Certaines fonctionnalités, comme le tableau de bord administrateur, s'exécutent côté serveur et nécessitent des permissions élevées pour accéder à votre base de données. Pour cela, l'application utilise le SDK Admin de Firebase, qui doit être authentifié via un **compte de service**.
+
+**Cette étape est cruciale, sinon le tableau de bord administrateur ne fonctionnera pas.**
+
+1.  **Créez un compte de service :**
+    *   Allez dans votre [console Firebase](https://console.firebase.google.com/).
+    *   Sélectionnez votre projet.
+    *   Cliquez sur l'icône en forme d'engrenage à côté de "Project Overview" et sélectionnez "Paramètres du projet".
+    *   Allez dans l'onglet "Comptes de service".
+    *   Cliquez sur le bouton "**Générer une nouvelle clé privée**". Un fichier JSON sera téléchargé.
+
+2.  **Configurez la variable d'environnement :**
+    *   Ouvrez le fichier JSON que vous venez de télécharger.
+    *   Copiez **l'intégralité du contenu** de ce fichier.
+    *   Sur votre plateforme d'hébergement (ou dans votre fichier `.env` pour le développement local), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
+    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable.
+
+**Exemple dans le fichier `.env` :**
+```
+SERVICE_ACCOUNT_JSON='{"type": "service_account", "project_id": "...", ...}'
+```
+
+**Note :** Assurez-vous de coller la chaîne JSON complète, y compris les accolades `{}`. Il est recommandé de l'entourer de guillemets simples `'` ou doubles `"` si votre système le permet. **Ne partagez jamais ce fichier JSON publiquement.**
+
+---
+
 ### Étape 2 : Configurer les Variables d'Environnement (CRUCIAL)
 
 Votre application dépend de clés API secrètes pour fonctionner. **Le fichier `.env` n'est JAMAIS envoyé en production.** Vous devez configurer ces variables directement sur votre plateforme d'hébergement.
@@ -63,7 +91,7 @@ CLOUDINARY_API_SECRET=...
 GOOGLE_API_KEY=...
 ```
 
-**Ceci est l'étape la plus importante. Si elle est oubliée, les fonctionnalités de base comme l'envoi d'e-mails, la connexion ou l'upload de fichiers échoueront.**
+**Ceci est l'une des étapes les plus importantes. Si elle est oubliée, les fonctionnalités de base comme l'envoi d'e-mails, la connexion ou l'upload de fichiers échoueront.**
 
 ---
 
