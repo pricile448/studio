@@ -5,8 +5,6 @@ import * as React from 'react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, Settings, Leaf, HeartPulse, Scale, Star } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -15,19 +13,19 @@ import { VerificationBanner } from './verification-banner';
 import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '../ui/skeleton';
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
+
+const ExpenseChart = dynamic(() => import('./expense-chart').then(mod => mod.ExpenseChart), {
+    ssr: false,
+    loading: () => <Skeleton className="h-[200px] w-full" />,
+});
+
 
 type DashboardClientProps = {
   dict: Dictionary['dashboard'];
   accountsDict: Dictionary['accounts'];
   lang: Locale;
 };
-
-const chartConfig = {
-  expenses: {
-    label: 'Expenses',
-    color: 'hsl(var(--primary))',
-  },
-} satisfies ChartConfig;
 
 const accountIcons: { [key: string]: React.ElementType } = {
   checking: DollarSign,
@@ -210,21 +208,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
             <CardTitle className="font-headline">{dict.expenseChart}</CardTitle>
           </CardHeader>
            <CardContent>
-            {chartData.length > 0 ? (
-              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                <BarChart accessibilityLayer data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="category" tickLine={false} tickMargin={10} axisLine={false} tick={false} />
-                  <YAxis hide />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-            ) : (
-              <div className="flex h-[200px] items-center justify-center text-center text-muted-foreground">
-                <p>{dict.noExpenseData}</p>
-              </div>
-            )}
+            <ExpenseChart chartData={chartData} dict={dict} />
           </CardContent>
         </Card>
       </div>
