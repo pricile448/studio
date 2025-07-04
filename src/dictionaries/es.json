@@ -180,7 +180,7 @@
         "expiredLinkError": "El enlace de verificación no es válido o ha caducado. Por favor, solicite uno nuevo."
     },
     "sidebar": {
-      "dashboard": "Panel",
+      "dashboard": "Mi Espacio Cliente",
       "accounts": "Cuentas",
       "iban": "Mi IBAN",
       "transfers": "Transferencias",
@@ -211,7 +211,7 @@
         "settingsAndMore": "Configuración y Más"
     },
     "dashboard": {
-      "title": "Panel",
+      "title": "Mi Espacio Cliente",
       "totalBalance": "Saldo Total",
       "greeting": "Hola",
       "accountSummary": "Resumen de cuenta",
@@ -671,5 +671,3 @@
       "button": "Ir a la Página de Inicio"
     }
 }
-
-    

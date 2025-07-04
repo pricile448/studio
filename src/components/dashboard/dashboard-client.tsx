@@ -99,7 +99,10 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
   return (
     <div className="flex flex-col gap-6">
       <VerificationBanner dict={dict.verificationBanner} lang={lang} />
-      <h1 className="text-3xl font-bold font-headline">{dict.greeting}, {displayName}!</h1>
+      <div>
+        <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
+        <p className="text-muted-foreground">{dict.greeting}, {displayName}!</p>
+      </div>
       
       {/* Account Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

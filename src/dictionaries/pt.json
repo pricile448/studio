@@ -180,7 +180,7 @@
         "expiredLinkError": "O link de verificação é inválido ou expirou. Por favor, solicite um novo link."
     },
     "sidebar": {
-      "dashboard": "Painel",
+      "dashboard": "Meu Espaço Cliente",
       "accounts": "Contas",
       "iban": "Meu IBAN",
       "transfers": "Transferências",
@@ -211,7 +211,7 @@
         "settingsAndMore": "Configurações e Mais"
     },
     "dashboard": {
-      "title": "Painel",
+      "title": "Meu Espaço Cliente",
       "totalBalance": "Saldo Total",
       "greeting": "Olá",
       "accountSummary": "Resumo da conta",
@@ -671,5 +671,3 @@
       "button": "Ir para a Página Inicial"
     }
 }
-
-    

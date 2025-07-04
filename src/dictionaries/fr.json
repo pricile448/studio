@@ -180,7 +180,7 @@
         "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien."
     },
     "sidebar": {
-      "dashboard": "Tableau de bord",
+      "dashboard": "Mon Espace Client",
       "accounts": "Comptes",
       "iban": "Mon IBAN",
       "transfers": "Virements",
@@ -210,7 +210,7 @@
         "settingsAndMore": "Paramètres & Plus"
     },
     "dashboard": {
-      "title": "Tableau de bord",
+      "title": "Mon Espace Client",
       "totalBalance": "Solde Total",
       "greeting": "Bonjour",
       "accountSummary": "Résumé des comptes",
@@ -674,5 +674,3 @@
       "button": "Retour à l'accueil"
     }
 }
-
-    

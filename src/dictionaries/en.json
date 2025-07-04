@@ -180,7 +180,7 @@
         "expiredLinkError": "The verification link is invalid or has expired. Please request a new link."
     },
     "sidebar": {
-      "dashboard": "Dashboard",
+      "dashboard": "My Account",
       "accounts": "Accounts",
       "iban": "My IBAN",
       "transfers": "Transfers",
@@ -211,7 +211,7 @@
         "settingsAndMore": "Settings & More"
     },
     "dashboard": {
-      "title": "Dashboard",
+      "title": "My Account",
       "totalBalance": "Total Balance",
       "greeting": "Hello",
       "accountSummary": "Account Summary",
@@ -671,6 +671,3 @@
       "button": "Go to Homepage"
     }
 }
-    
-
-    

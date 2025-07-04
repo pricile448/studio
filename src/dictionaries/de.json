@@ -180,7 +180,7 @@
         "expiredLinkError": "Der Bestätigungslink ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an."
     },
     "sidebar": {
-      "dashboard": "Dashboard",
+      "dashboard": "Mein Kundenbereich",
       "accounts": "Konten",
       "iban": "Meine IBAN",
       "transfers": "Überweisungen",
@@ -211,7 +211,7 @@
         "settingsAndMore": "Einstellungen & Mehr"
     },
     "dashboard": {
-      "title": "Dashboard",
+      "title": "Mein Kundenbereich",
       "totalBalance": "Gesamtsaldo",
       "greeting": "Hallo",
       "accountSummary": "Kontenübersicht",
@@ -671,5 +671,3 @@
       "button": "Zur Startseite"
     }
 }
-
-    
