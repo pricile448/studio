@@ -8,7 +8,33 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { adminDb } from '@/lib/firebase/admin';
 import type { UserProfile } from '@/lib/firebase/firestore';
-import type { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
+
+// Serializes a Firestore document data object by converting Timestamps to ISO strings.
+// This is necessary to pass data from Server Components/Actions to Client Components.
+function serializeTimestamps(data: any): any {
+    if (!data || typeof data !== 'object') {
+        return data;
+    }
+
+    if (data instanceof Timestamp) {
+        return data.toDate().toISOString();
+    }
+
+    if (Array.isArray(data)) {
+        return data.map(item => serializeTimestamps(item));
+    }
+    
+    const newObj: { [key: string]: any } = {};
+    for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+            newObj[key] = serializeTimestamps(data[key]);
+        }
+    }
+
+    return newObj;
+}
+
 
 // Serialized schemas for flow output
 const ActivityItemSchema = z.object({
@@ -88,7 +114,7 @@ const getAdminDashboardDataFlow = ai.defineFlow(
           id: doc.id,
           // Convert timestamp to string for serialization
           timestamp: (data.createdAt as Timestamp).toDate().toISOString(), 
-          data: data 
+          data: serializeTimestamps(data)
         };
       });
 
@@ -101,7 +127,7 @@ const getAdminDashboardDataFlow = ai.defineFlow(
           id: doc.id,
           // Convert timestamp to string for serialization
           timestamp: (data.submittedAt as Timestamp).toDate().toISOString(),
-          data: data 
+          data: serializeTimestamps(data)
         };
       });
       
@@ -116,7 +142,7 @@ const getAdminDashboardDataFlow = ai.defineFlow(
       const adminProfileDocs = await Promise.all(adminProfilesPromises);
       const adminList = adminProfileDocs
         .filter(doc => doc.exists)
-        .map(doc => doc.data() as UserProfile);
+        .map(doc => serializeTimestamps(doc.data()));
 
 
       const data = {
