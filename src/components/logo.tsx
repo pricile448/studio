@@ -16,8 +16,8 @@ export function Logo({ text, className }: LogoProps) {
           xmlns="http://www.w3.org/2000/svg"
           className="h-full w-full"
         >
-          <path d="M0 0H24V24H0V0Z" fill="#06b6d4" />
-          <path d="M0 0L24 0L0 24V0Z" fill="#0c4a6e" />
+          <path d="M0 0H24V24H0V0Z" fill="#0f3a99" />
+          <path d="M0 0L24 0L0 24V0Z" fill="#2652b2" />
         </svg>
       </div>
     </div>
