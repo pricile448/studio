@@ -235,16 +235,16 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                     <Star className="h-5 w-5 fill-current absolute top-6 right-[35%] lg:top-20 lg:right-[40%] text-pink-500" />
                 </div>
                 
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 z-10 relative">
+                <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 z-10 relative">
                     <div className="space-y-2 text-center lg:text-left">
-                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline text-primary">{dict.youthOffer.title}</h3>
-                        <p className="text-base sm:text-lg font-medium text-foreground">{dict.youthOffer.subtitle}</p>
+                        <h3 className="text-2xl font-bold font-headline text-primary sm:text-3xl">{dict.youthOffer.title}</h3>
+                        <p className="text-lg font-medium text-foreground sm:text-xl">{dict.youthOffer.subtitle}</p>
                         <p className="text-muted-foreground">{dict.youthOffer.line1}</p>
                         <p className="text-sm text-muted-foreground">{dict.youthOffer.line2}</p>
                     </div>
                     
-                    <div className="relative flex-shrink-0 text-center w-full sm:w-auto self-center lg:self-auto">
-                         <div className="mx-auto relative w-[190px] h-[160px] scale-90 sm:scale-100">
+                    <div className="relative flex justify-center lg:justify-end">
+                         <div className="relative w-[190px] h-[160px]">
                             <div className="bg-primary text-primary-foreground rounded-2xl shadow-lg w-full h-[100px] flex flex-col justify-center items-center pt-2 absolute top-0">
                                 <p className="text-4xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
                                 <p className="text-sm tracking-wide">{dict.youthOffer.offer_subscription}</p>
