@@ -55,8 +55,10 @@ service cloud.firestore {
     
     // --- CONFIG ---
     match /config/{docId} {
-        // Only admin can read/write config
-        allow read, write: if isAdmin();
+        // Allow any authenticated user to read config (e.g., for billing details).
+        allow read: if request.auth != null;
+        // Only admins can change the config.
+        allow write: if isAdmin();
     }
 
     // --- CHATS & MESSAGES ---
