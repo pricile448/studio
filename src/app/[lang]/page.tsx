@@ -182,7 +182,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="md:w-1/2 flex justify-center items-center">
+            <div className="w-full md:w-1/2">
                <HeroSlider images={heroImages} />
             </div>
           </div>

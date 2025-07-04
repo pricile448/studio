@@ -29,7 +29,7 @@ export function HeroSlider({ images, interval = 5000 }: HeroSliderProps) {
   }, [images.length, interval]);
 
   return (
-    <div className="relative h-[320px] w-full max-w-[500px] overflow-hidden rounded-xl shadow-2xl">
+    <div className="relative h-[320px] w-full max-w-[500px] overflow-hidden rounded-xl shadow-2xl mx-auto">
       {images.map((image, index) => (
         <Image
           key={image.src}
