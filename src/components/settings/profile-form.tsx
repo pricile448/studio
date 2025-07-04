@@ -1,10 +1,11 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Camera } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -16,6 +17,7 @@ import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
+import { Separator } from '../ui/separator';
 
 interface ProfileFormProps {
   dict: Dictionary['settings']['profile'];
@@ -38,9 +40,11 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm({ dict }: ProfileFormProps) {
-  const { user, userProfile, updateUserProfileData } = useAuth();
+  const { user, userProfile, updateUserProfileData, updateAvatar } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -87,6 +91,39 @@ export function ProfileForm({ dict }: ProfileFormProps) {
     }
   }
 
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      toast({
+        variant: 'destructive',
+        title: dict.uploadErrorTitle,
+        description: dict.fileTooLargeError,
+      });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+        await updateAvatar(file);
+        toast({
+            title: dict.avatarUpdateSuccess,
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: dict.uploadErrorTitle,
+            description: (error as Error).message || 'An unknown error occurred.',
+        });
+    } finally {
+        setIsUploadingAvatar(false);
+        if(fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }
+  };
+
   if (!userProfile || !user) {
     return (
       <div className="space-y-8">
@@ -104,6 +141,39 @@ export function ProfileForm({ dict }: ProfileFormProps) {
 
   return (
     <>
+      <div className="flex flex-col items-center gap-4">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleAvatarChange}
+          className="hidden"
+          accept="image/png, image/jpeg, image/webp"
+        />
+        <button
+          type="button"
+          className="relative group rounded-full"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploadingAvatar}
+        >
+          <Avatar className="h-24 w-24 text-3xl">
+            <AvatarImage src={user.photoURL ?? ''} alt={userProfile.firstName} />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            {isUploadingAvatar ? (
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+            ) : (
+              <Camera className="h-8 w-8 text-white" />
+            )}
+          </div>
+        </button>
+        <div className="text-center">
+            <p className="font-medium">{dict.uploadAvatarTitle}</p>
+            <p className="text-sm text-muted-foreground">{dict.uploadAvatarDescription}</p>
+        </div>
+      </div>
+      <Separator className="my-6" />
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

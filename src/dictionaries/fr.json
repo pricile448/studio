@@ -508,7 +508,12 @@
         "countryLabel": "Pays",
         "saveButton": "Enregistrer les modifications",
         "updateError": "Échec de la mise à jour du profil",
-        "saveSuccess": "Profil mis à jour avec succès !"
+        "saveSuccess": "Profil mis à jour avec succès !",
+        "uploadAvatarTitle": "Changer d'avatar",
+        "uploadAvatarDescription": "Cliquez sur l'image pour en télécharger une nouvelle.",
+        "uploadErrorTitle": "Erreur de Téléchargement",
+        "fileTooLargeError": "Le fichier est trop volumineux. Veuillez sélectionner une image de moins de 2 Mo.",
+        "avatarUpdateSuccess": "Avatar mis à jour avec succès !"
       },
       "security": {
         "title": "Sécurité",

@@ -23,6 +23,7 @@ type AuthContextType = {
   checkEmailVerification: () => Promise<boolean>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   updateUserPassword: (password: string) => Promise<void>;
+  updateAvatar: (file: File) => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
   uploadDocument: (file: File, documentName: string) => Promise<void>;
@@ -125,8 +126,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     await updateUserInFirestore(user.uid, data);
     
+    const authProfileUpdate: { displayName?: string; photoURL?: string } = {};
+
     if (data.firstName || data.lastName) {
-       await updateProfile(user, { displayName: `${data.firstName || userProfile?.firstName} ${data.lastName || userProfile?.lastName}` });
+       authProfileUpdate.displayName = `${data.firstName || userProfile?.firstName} ${data.lastName || userProfile?.lastName}`;
+    }
+    if (data.photoURL) {
+        authProfileUpdate.photoURL = data.photoURL;
+    }
+
+    if (Object.keys(authProfileUpdate).length > 0) {
+        await updateProfile(user, authProfileUpdate);
     }
     
     // Refresh local state
@@ -137,6 +147,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth.currentUser) throw new Error("No user is signed in.");
     await updatePassword(auth.currentUser, password);
   }
+
+  const updateAvatar = async (file: File) => {
+    if (!user) throw new Error("User not authenticated");
+
+    const reader = new FileReader();
+    const dataUri = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+
+    const folder = `user_avatars/${user.uid}`;
+    const uniqueFileName = `avatar_${Date.now()}`;
+    const url = await uploadToCloudinary(dataUri, folder, uniqueFileName);
+
+    await updateUserProfileData({ photoURL: url });
+  };
   
   const requestCard = async (cardType: PhysicalCardType) => {
     if (!user) throw new Error("No user is signed in.");
@@ -214,7 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

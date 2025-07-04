@@ -505,7 +505,12 @@
         "countryLabel": "Country",
         "saveButton": "Save Changes",
         "updateError": "Failed to update profile",
-        "saveSuccess": "Profile updated successfully!"
+        "saveSuccess": "Profile updated successfully!",
+        "uploadAvatarTitle": "Change Avatar",
+        "uploadAvatarDescription": "Click on the image to upload a new one.",
+        "uploadErrorTitle": "Upload Error",
+        "fileTooLargeError": "File is too large. Please select an image smaller than 2MB.",
+        "avatarUpdateSuccess": "Avatar updated successfully!"
       },
       "security": {
         "title": "Security",
