@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Locale } from '@/lib/dictionaries';
@@ -16,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { HeroSlider } from '@/components/home/hero-slider';
 
 
 export async function generateStaticParams() {
@@ -46,6 +48,19 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
     { ...homeDict.testimonialsSection.testimonial1, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_-_Copie_yosxfs.png", hint: "woman portrait" },
     { ...homeDict.testimonialsSection.testimonial2, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_gwigvs.png", hint: "man portrait" },
     { ...homeDict.testimonialsSection.testimonial3, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_-_Copie_2_yilnmp.png", hint: "woman smiling" }
+  ];
+
+  const heroImages = [
+    {
+      src: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png",
+      alt: "Application showcase",
+      hint: "credit card",
+    },
+    {
+      src: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1751629701/TR_l1q90z.png",
+      alt: "Modern banking app on phone",
+      hint: "banking app",
+    },
   ];
 
 
@@ -168,14 +183,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
               </div>
             </div>
             <div className="flex justify-center items-center">
-               <Image
-                    src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
-                    width={800}
-                    height={500}
-                    alt="Application showcase"
-                    data-ai-hint="credit card"
-                    className="rounded-xl shadow-2xl transition-transform duration-300 hover:scale-105"
-                />
+               <HeroSlider images={heroImages} />
             </div>
           </div>
         </section>
