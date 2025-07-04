@@ -227,15 +227,9 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
       </div>
 
        <div className="grid gap-6">
-          <Card className="bg-gradient-to-br from-blue-100 via-white to-purple-100 dark:from-blue-950/40 dark:via-background dark:to-purple-950/40 w-full overflow-hidden">
-            <CardContent className="p-6 relative">
-                <div className="absolute inset-0 opacity-20">
-                    <Star className="h-6 w-6 fill-current absolute top-8 right-1/4 lg:top-6 lg:right-1/3 text-yellow-400" />
-                    <Star className="h-4 w-4 fill-current absolute top-16 right-[30%] lg:top-12 lg:right-[35%] text-cyan-400" />
-                    <Star className="h-5 w-5 fill-current absolute top-6 right-[35%] lg:top-20 lg:right-[40%] text-pink-500" />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 z-10 relative">
+          <Card className="w-full overflow-hidden border-2 border-primary/20 bg-blue-50/50 dark:bg-blue-950/20">
+            <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8">
                     <div className="space-y-2 text-center md:text-left">
                         <h3 className="text-2xl font-bold font-headline text-primary sm:text-3xl">{dict.youthOffer.title}</h3>
                         <p className="text-lg font-medium text-foreground sm:text-xl">{dict.youthOffer.subtitle}</p>
