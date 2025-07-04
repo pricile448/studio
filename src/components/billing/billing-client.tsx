@@ -58,7 +58,7 @@ export function BillingClient({ dict }: BillingClientProps) {
   if (loading) {
       return (
          <div className="space-y-6">
-            <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold font-headline"><Skeleton className="h-8 w-4/5" /></h1>
             <div className="flex justify-center">
                 <Card className="w-full max-w-2xl shadow-lg">
                     <CardHeader>
@@ -79,7 +79,7 @@ export function BillingClient({ dict }: BillingClientProps) {
   if (!config || !config.isEnabled) {
     return (
          <div className="space-y-6">
-            <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold font-headline break-words">{billingDict.title}</h1>
             <div className="flex justify-center">
                 <Alert variant="info" className="w-full max-w-2xl">
                   <Info className="h-4 w-4" />
@@ -95,7 +95,7 @@ export function BillingClient({ dict }: BillingClientProps) {
 
   return (
     <div className="space-y-6">
-        <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold font-headline break-words">{billingDict.title}</h1>
         <div className="flex justify-center">
             <Card className="w-full max-w-2xl shadow-lg">
                 <CardHeader>
