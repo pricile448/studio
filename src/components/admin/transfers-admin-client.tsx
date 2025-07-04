@@ -295,7 +295,7 @@ export function TransfersAdminClient() {
             </CardHeader>
             <CardContent>
                  <Tabs defaultValue="pending">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                         <TabsTrigger value="pending">
                             <Hourglass className="mr-2 h-4 w-4" />
                             En attente

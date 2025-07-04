@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -173,7 +174,7 @@ export function KycAdminClient() {
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="pending">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3">
                         <TabsTrigger value="pending"><Hourglass className="mr-2 h-4 w-4" />En attente <Badge className="ml-2">{pendingSubmissions.length}</Badge></TabsTrigger>
                         <TabsTrigger value="history_approved"><CheckCircle className="mr-2 h-4 w-4 text-green-600"/>Approuvées</TabsTrigger>
                         <TabsTrigger value="history_rejected"><XCircle className="mr-2 h-4 w-4 text-red-600"/>Rejetées</TabsTrigger>

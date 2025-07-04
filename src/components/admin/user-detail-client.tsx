@@ -1249,7 +1249,7 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
 
             <div className="flex-1 min-h-0 overflow-y-auto pt-6 space-y-6">
                 <Tabs defaultValue="overview">
-                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-6">
+                    <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                         <TabsTrigger value="overview">Aperçu</TabsTrigger>
                         <TabsTrigger value="accounts">Comptes</TabsTrigger>
                         <TabsTrigger value="transactions">Transactions</TabsTrigger>

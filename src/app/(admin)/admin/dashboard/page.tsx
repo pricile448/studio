@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -108,7 +109,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <h1 className="text-3xl font-bold font-headline shrink-0 mb-6">Tableau de bord Administrateur</h1>
+      <h1 className="text-2xl md:text-3xl font-bold font-headline shrink-0 mb-6">Tableau de bord Administrateur</h1>
       
       <div className="flex-1 min-h-0 overflow-y-auto pr-2 -mr-2 space-y-6">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
