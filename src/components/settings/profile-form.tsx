@@ -22,10 +22,12 @@ interface ProfileFormProps {
   dict: Dictionary['settings']['profile'];
 }
 
+// The schema still needs to contain all fields for form validation.
+// We will filter out readonly fields before submitting.
 const profileFormSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters.' }),
-  email: z.string().email().readonly(),
+  email: z.string().email(),
   phone: z.string().min(1, 'Phone number is required'),
   dob: z.coerce.date({ required_error: 'A date of birth is required.' }),
   address: z.string().min(1, 'Street address is required.'),
@@ -75,8 +77,8 @@ export function ProfileForm({ dict }: ProfileFormProps) {
   async function onSubmit(data: ProfileFormValues) {
     setIsSubmitting(true);
     try {
-      // Exclude readonly fields from submission
-      const { email, ...updateData } = data;
+      // Exclude readonly fields from the data sent for update.
+      const { email, firstName, lastName, dob, ...updateData } = data;
       await updateUserProfileData(updateData);
       toast({ title: dict.saveSuccess });
     } catch (error) {
@@ -113,7 +115,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                 <FormItem>
                   <FormLabel>{dict.firstNameLabel}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} readOnly />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,7 +128,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                 <FormItem>
                   <FormLabel>{dict.lastNameLabel}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} readOnly />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,6 +173,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                       {...field}
                       value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : field.value || ''}
                       onChange={(e) => field.onChange(e.target.value)}
+                      readOnly
                     />
                   </FormControl>
                   <FormMessage />
