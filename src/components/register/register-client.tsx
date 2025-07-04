@@ -28,7 +28,7 @@ const registerSchema = z.object({
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
     phone: z.string().min(1, 'Phone number is required'),
-    dob: z.date({ required_error: 'Date of birth is required.' }),
+    dob: z.coerce.date({ required_error: 'Date of birth is required.' }),
     pob: z.string().min(1, 'Place of birth is required'),
     nationality: z.string().min(1, 'Nationality is required'),
     residenceCountry: z.string().min(1, 'Country of residence is required'),
@@ -205,14 +205,9 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
                         <Input
                           type="text"
                           placeholder="YYYY-MM-DD"
-                          value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              field.onChange(new Date(e.target.value.replace(/-/g, '/')));
-                            } else {
-                              field.onChange(undefined);
-                            }
-                          }}
+                          {...field}
+                          value={field.value instanceof Date ? format(field.value, 'yyyy-MM-dd') : field.value || ''}
+                          onChange={(e) => field.onChange(e.target.value)}
                         />
                       </FormControl>
                       <FormMessage />
