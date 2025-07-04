@@ -71,6 +71,12 @@ GOOGLE_API_KEY=...
 
 Si vous n'utilisez pas une plateforme automatisée comme Firebase App Hosting ou Vercel, le processus manuel ressemble généralement à ceci :
 
+#### A. Prérequis : Version de Node.js
+
+**Assurez-vous que votre serveur de production utilise Node.js version 20 ou une version supérieure.** C'est la version recommandée pour la version de Next.js de ce projet. Vous pouvez le vérifier sur le serveur avec la commande `node -v`.
+
+#### B. Processus de déploiement
+
 1.  **Construire l'application (Build) :**
     *   Sur votre machine locale, ou sur le serveur de build, exécutez la commande :
         ```bash
@@ -103,7 +109,7 @@ Si vous n'utilisez pas une plateforme automatisée comme Firebase App Hosting ou
 
 ### Résumé et Recommandations
 
--   **Priorité n°1 :** Vérifiez que votre hébergement supporte Node.js.
+-   **Priorité n°1 :** Vérifiez que votre hébergement supporte **Node.js 20+**.
 -   **Priorité n°2 :** Configurez les variables d'environnement sur la plateforme d'hébergement. C'est la source d'erreur la plus commune.
 -   **Chemin le plus simple :** Utilisez **Firebase App Hosting** ou **Vercel** pour un déploiement simple et sans tracas.
 
