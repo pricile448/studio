@@ -450,7 +450,9 @@
     "billing": {
       "title": "Dienstleistungsabrechnung",
       "description": "Bitte verwenden Sie die folgenden Bankdaten, um Ihre AmCbunq-Dienste und -Abonnements zu bezahlen. Denken Sie daran, Ihre Kundenreferenz in der Beschreibung der Überweisung anzugeben.",
-      "cardTitle": "Bankdaten von AmCbunq"
+      "cardTitle": "Bankdaten von AmCbunq",
+      "noBillingTitle": "Keine Abrechnung ausstehend",
+      "noBillingDescription": "Sie haben derzeit keine Dienste zu bezahlen. Bitte kommen Sie später wieder."
     },
     "iban": {
       "title": "Meine IBAN-Details",

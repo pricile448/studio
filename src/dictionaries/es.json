@@ -450,7 +450,9 @@
     "billing": {
       "title": "Facturación de servicios",
       "description": "Por favor, utilice los siguientes datos bancarios para pagar sus servicios y suscripciones de AmCbunq. Recuerde incluir su referencia de cliente en la descripción de la transferencia.",
-      "cardTitle": "Datos bancarios de AmCbunq"
+      "cardTitle": "Datos bancarios de AmCbunq",
+      "noBillingTitle": "No hay facturación pendiente",
+      "noBillingDescription": "Actualmente no tiene ningún servicio que liquidar. Por favor, vuelva más tarde."
     },
     "iban": {
       "title": "Mis Datos de IBAN",

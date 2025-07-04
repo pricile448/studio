@@ -450,7 +450,9 @@
     "billing": {
       "title": "Service Billing",
       "description": "Please use the following bank details to pay for your AmCbunq services and subscriptions. Remember to include your customer reference in the transfer description.",
-      "cardTitle": "AmCbunq Bank Details"
+      "cardTitle": "AmCbunq Bank Details",
+      "noBillingTitle": "No Pending Billing",
+      "noBillingDescription": "You currently have no services to settle. Please check back later."
     },
     "iban": {
       "title": "My IBAN Details",

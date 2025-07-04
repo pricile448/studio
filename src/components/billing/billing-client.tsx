@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -9,38 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Copy, Check, Info } from 'lucide-react';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '../ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { getBillingConfig, type BillingConfig } from '@/lib/firebase/firestore';
+import type { BillingConfig } from '@/lib/firebase/firestore';
 
 type BillingClientProps = {
   dict: Dictionary;
+  config: BillingConfig | null;
 };
 
-export function BillingClient({ dict }: BillingClientProps) {
+export function BillingClient({ dict, config }: BillingClientProps) {
   const { toast } = useToast();
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [config, setConfig] = useState<BillingConfig | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const billingDict = dict.billing;
   const ibanDict = dict.iban;
-
-  useEffect(() => {
-    const fetchConfig = async () => {
-      setLoading(true);
-      try {
-        const billingConfig = await getBillingConfig();
-        setConfig(billingConfig);
-      } catch (error) {
-        console.error("Failed to fetch billing config:", error);
-        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les informations de facturation.' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchConfig();
-  }, [toast]);
 
   const handleCopy = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
@@ -52,24 +34,6 @@ export function BillingClient({ dict }: BillingClientProps) {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold font-headline">{billingDict.title}</h1>
-        <div className="flex justify-center">
-            <Card className="w-full max-w-2xl shadow-lg">
-                <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
-                <CardContent className="space-y-4">
-                    <Skeleton className="h-10" />
-                    <Skeleton className="h-10" />
-                    <Skeleton className="h-10" />
-                </CardContent>
-            </Card>
-        </div>
-      </div>
-    )
-  }
-
   if (!config || !config.isEnabled) {
     return (
          <div className="space-y-6">
@@ -77,9 +41,9 @@ export function BillingClient({ dict }: BillingClientProps) {
             <div className="flex justify-center">
                 <Alert variant="info" className="w-full max-w-2xl">
                   <Info className="h-4 w-4" />
-                  <AlertTitle>Aucune facturation en attente</AlertTitle>
+                  <AlertTitle>{billingDict.noBillingTitle}</AlertTitle>
                   <AlertDescription>
-                    Vous n'avez actuellement aucun service à régler. Revenez plus tard.
+                    {billingDict.noBillingDescription}
                   </AlertDescription>
                 </Alert>
             </div>

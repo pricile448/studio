@@ -453,7 +453,9 @@
     "billing": {
       "title": "Facturation des services",
       "description": "Veuillez utiliser les coordonnées bancaires suivantes pour régler vos services et abonnements AmCbunq. N'oubliez pas d'inclure votre référence client dans le libellé du virement.",
-      "cardTitle": "Coordonnées bancaires AmCbunq"
+      "cardTitle": "Coordonnées bancaires AmCbunq",
+      "noBillingTitle": "Aucune facturation en attente",
+      "noBillingDescription": "Vous n'avez actuellement aucun service à régler. Revenez plus tard."
     },
     "iban": {
       "title": "Détails de mon IBAN",
