@@ -1,4 +1,5 @@
 
+import { use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Locale } from '@/lib/dictionaries';
@@ -22,9 +23,9 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default async function HomePage({ params }: { params: { lang: Locale } }) {
+export default function HomePage({ params }: { params: { lang: Locale } }) {
   const { lang } = params;
-  const dict = await getDictionary(lang);
+  const dict = use(getDictionary(lang));
   const homeDict = dict.homePage;
 
   const navLinks = [
@@ -148,7 +149,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 sm:py-24">
+        <section className="container mx-auto px-4 py-8 sm:py-16">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
             <div className="flex flex-col justify-center space-y-6 text-center md:text-left">
               <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl md:text-6xl lg:text-7xl">
@@ -167,26 +168,15 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
               </div>
             </div>
             <div>
-              {/* Desktop Image */}
-              <div className="relative hidden h-full min-h-[300px] md:block">
-                  <Image
-                      src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
-                      alt="Application showcase"
-                      fill
-                      priority
-                      data-ai-hint="credit card"
-                      className="object-contain transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
-                  />
-              </div>
-              {/* Mobile Image */}
-              <div className="relative block h-full md:hidden">
+              {/* Image for mobile and desktop */}
+              <div className="relative h-full">
                   <Image
                       src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751645130/image_resized_1000x600_v9ypb9.png"
-                      alt="Application showcase mobile"
+                      alt="Application showcase"
                       width={1000}
                       height={600}
                       priority
-                      data-ai-hint="phone app"
+                      data-ai-hint="credit card app"
                       className="mx-auto object-contain transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
                   />
               </div>
@@ -195,7 +185,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Features Section */}
-        <section className="bg-muted/50 py-16 sm:py-24">
+        <section className="bg-muted/50 py-12 sm:py-20">
           <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
               <h2 className="text-3xl font-bold font-headline">{homeDict.featuresSection.title}</h2>
@@ -236,7 +226,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Pricing Section */}
-        <section className="py-16 sm:py-24">
+        <section className="py-12 sm:py-20">
           <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
               <h2 className="text-3xl font-bold font-headline">{homeDict.pricingSection.title}</h2>
@@ -294,7 +284,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-16 sm:py-24">
+        <section className="py-12 sm:py-20">
             <div className="container mx-auto px-4">
                  <div className="mb-12 text-center">
                     <h2 className="text-3xl font-bold font-headline">{homeDict.testimonialsSection.title}</h2>
@@ -327,7 +317,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         </section>
 
         {/* Partners Section */}
-        <section id="partners" className="py-16 sm:py-24 bg-muted/50">
+        <section id="partners" className="py-12 sm:py-20 bg-muted/50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
             <div className="flex items-center justify-center gap-6 sm:gap-8 md:gap-12">
