@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'AmCbunq - Modern Banking',
   description: 'A beautifully designed, modern banking experience with AI-powered financial insights.',
   icons: {
-    icon: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1751624665/favicon-32x32_zxkby1.png',
+    icon: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1751653823/Capture_d_%C3%A9cran_2025-07-04_122614_x3jikp.jpg',
   },
 };
 
