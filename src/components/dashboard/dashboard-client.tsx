@@ -228,33 +228,33 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
 
        <div className="grid gap-6">
           <Card className="bg-gradient-to-br from-blue-100 via-white to-purple-100 dark:from-blue-950/40 dark:via-background dark:to-purple-950/40 w-full overflow-hidden">
-            <CardContent className="p-6 relative">
+            <CardContent className="p-6 relative min-h-[300px] sm:min-h-0 flex flex-col justify-center">
                 <div className="absolute inset-0 opacity-20">
                     <Star className="h-6 w-6 fill-current absolute top-8 right-1/4 lg:top-6 lg:right-1/3 text-yellow-400" />
                     <Star className="h-4 w-4 fill-current absolute top-16 right-[30%] lg:top-12 lg:right-[35%] text-cyan-400" />
                     <Star className="h-5 w-5 fill-current absolute top-6 right-[35%] lg:top-20 lg:right-[40%] text-pink-500" />
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 z-10 relative">
-                    <div className="space-y-2 text-center lg:text-left">
+                <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 z-10 relative">
+                    <div className="space-y-2 text-center md:text-left">
                         <h3 className="text-2xl font-bold font-headline text-primary sm:text-3xl">{dict.youthOffer.title}</h3>
                         <p className="text-lg font-medium text-foreground sm:text-xl">{dict.youthOffer.subtitle}</p>
                         <p className="text-muted-foreground">{dict.youthOffer.line1}</p>
                         <p className="text-sm text-muted-foreground">{dict.youthOffer.line2}</p>
                     </div>
                     
-                    <div className="relative flex justify-center lg:justify-end">
-                         <div className="relative w-[190px] h-[160px]">
-                            <div className="bg-primary text-primary-foreground rounded-2xl shadow-lg w-full h-[100px] flex flex-col justify-center items-center pt-2 absolute top-0">
-                                <p className="text-4xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
-                                <p className="text-sm tracking-wide">{dict.youthOffer.offer_subscription}</p>
+                    <div className="relative flex justify-center md:justify-end mx-auto">
+                         <div className="relative w-[170px] h-[145px] sm:w-[190px] sm:h-[160px]">
+                            <div className="bg-primary text-primary-foreground rounded-2xl shadow-lg w-full h-[90px] sm:h-[100px] flex flex-col justify-center items-center pt-2 absolute top-0">
+                                <p className="text-3xl sm:text-4xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
+                                <p className="text-xs sm:text-sm tracking-wide">{dict.youthOffer.offer_subscription}</p>
                             </div>
                             
-                            <div className="absolute left-1/2 -translate-x-1/2 top-[75px] bg-red-500 text-white font-bold py-1.5 px-6 rounded-md shadow-md text-lg z-10">
+                            <div className="absolute left-1/2 -translate-x-1/2 top-[68px] sm:top-[75px] bg-red-500 text-white font-bold py-1 sm:py-1.5 px-4 sm:px-6 rounded-md shadow-md text-base sm:text-lg z-10">
                                 {dict.youthOffer.offer_free}
                             </div>
                             
-                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[15px] bg-cyan-400 text-white font-semibold py-1.5 px-5 rounded-full shadow-md text-sm z-20">
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[10px] sm:bottom-[15px] bg-cyan-400 text-white font-semibold py-1 sm:py-1.5 px-4 sm:px-5 rounded-full shadow-md text-xs sm:text-sm z-20">
                                 {dict.youthOffer.offer_commitment}
                             </div>
                         </div>
@@ -266,3 +266,4 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
     </div>
   );
 }
+
