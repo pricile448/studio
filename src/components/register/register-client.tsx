@@ -207,7 +207,6 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
                           value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
                           onChange={(e) => {
                             if (e.target.value) {
-                              // Using replace to avoid timezone issues with `new Date('YYYY-MM-DD')`
                               field.onChange(new Date(e.target.value.replace(/-/g, '/')));
                             } else {
                               field.onChange(undefined);
