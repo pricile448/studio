@@ -15,6 +15,8 @@ type AuthContextType = {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  isBalanceVisible: boolean;
+  toggleBalanceVisibility: () => void;
   refreshUserProfile: () => Promise<void>;
   login: (email: string, password: string) => Promise<UserCredential>;
   signup: (userData: RegistrationData, password: string) => Promise<void>;
@@ -40,6 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null);
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [isBalanceVisible, setIsBalanceVisible] = React.useState(true);
+
+  const toggleBalanceVisibility = () => {
+    setIsBalanceVisible(prev => !prev);
+  };
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -241,7 +248,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer, isBalanceVisible, toggleBalanceVisibility };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

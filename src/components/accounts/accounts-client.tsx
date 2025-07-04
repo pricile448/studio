@@ -27,7 +27,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 };
 
 function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { accounts: Account[], dict: Dictionary['accounts'], lang: Locale, onTransferSuccess: () => void }) {
-  const { user } = useAuth();
+  const { user, isBalanceVisible } = useAuth();
   const { toast } = useToast();
   const [fromAccountId, setFromAccountId] = useState<string>('');
   const [toAccountId, setToAccountId] = useState<string>('');
@@ -146,7 +146,7 @@ function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { account
                 <SelectContent>
                   {accounts.map(account => (
                     <SelectItem key={account.id} value={account.id} disabled={account.status !== 'active'}>
-                      {dict[account.name as keyof typeof dict]} - {formatCurrency(account.balance)} {account.status !== 'active' && "(Suspendu)"}
+                      {dict[account.name as keyof typeof dict]} - {isBalanceVisible ? formatCurrency(account.balance) : '•••••• €'} {account.status !== 'active' && "(Suspendu)"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -161,7 +161,7 @@ function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { account
                 <SelectContent>
                   {accounts.map(account => (
                     <SelectItem key={account.id} value={account.id} disabled={account.status !== 'active'}>
-                       {dict[account.name as keyof typeof dict]} - {formatCurrency(account.balance)} {account.status !== 'active' && "(Suspendu)"}
+                       {dict[account.name as keyof typeof dict]} - {isBalanceVisible ? formatCurrency(account.balance) : '•••••• €'} {account.status !== 'active' && "(Suspendu)"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -184,7 +184,7 @@ function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { account
 }
 
 export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, refreshUserProfile } = useAuth();
+  const { userProfile, loading, refreshUserProfile, isBalanceVisible } = useAuth();
 
   if (loading || !userProfile || !dict) {
     return (
@@ -245,7 +245,7 @@ export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale 
           <Scale className="h-5 w-5 text-primary-foreground/80" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{formatCurrency(totalBalance)}</div>
+          <div className="text-3xl font-bold">{isBalanceVisible ? formatCurrency(totalBalance) : '•••••• €'}</div>
           <p className="text-xs text-primary-foreground/80">{accountsDict.totalBalanceDescription}</p>
         </CardContent>
       </Card>
@@ -260,7 +260,7 @@ export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale 
                 <Icon className="h-5 w-5 text-muted-foreground" />
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="text-3xl font-bold">{formatCurrency(account.balance)}</div>
+                <div className="text-3xl font-bold">{isBalanceVisible ? formatCurrency(account.balance) : '•••••• €'}</div>
                 <Button variant="outline" className="w-full" asChild>
                   <Link href={`/${lang}/accounts/${account.id}`}>
                     {accountsDict.details}
@@ -298,7 +298,7 @@ export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale 
                     <TableCell>{entry.description}</TableCell>
                     <TableCell className="text-right text-accent">{entry.credit > 0 ? formatCurrency(entry.credit) : '-'}</TableCell>
                     <TableCell className="text-right text-destructive">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(entry.balance)}</TableCell>
+                    <TableCell className="text-right font-medium">{isBalanceVisible ? formatCurrency(entry.balance) : '•••••• €'}</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>
@@ -331,7 +331,7 @@ export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale 
                     </div>
                     <div className="text-sm flex justify-between items-center pt-3 border-t">
                       <span className="text-muted-foreground">{dict.accounts.balanceLedger}</span>
-                      <span className="font-semibold">{formatCurrency(entry.balance)}</span>
+                      <span className="font-semibold">{isBalanceVisible ? formatCurrency(entry.balance) : '•••••• €'}</span>
                     </div>
                   </div>
                 )) : (

@@ -203,7 +203,9 @@
         "billing": "Facturation",
         "settings": "Paramètres",
         "logout": "Déconnexion"
-      }
+      },
+      "showBalances": "Afficher les soldes",
+      "hideBalances": "Masquer les soldes"
     },
      "sidebarGroups": {
         "account": "Mon Compte",

@@ -204,7 +204,9 @@
         "billing": "Facturación",
         "settings": "Configuración",
         "logout": "Cerrar sesión"
-      }
+      },
+      "showBalances": "Mostrar saldos",
+      "hideBalances": "Ocultar saldos"
     },
     "sidebarGroups": {
         "account": "Mi Cuenta",

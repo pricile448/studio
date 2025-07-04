@@ -204,7 +204,9 @@
         "billing": "Faturamento",
         "settings": "Configurações",
         "logout": "Sair"
-      }
+      },
+      "showBalances": "Mostrar saldos",
+      "hideBalances": "Ocultar saldos"
     },
     "sidebarGroups": {
         "account": "Minha Conta",

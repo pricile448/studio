@@ -204,7 +204,9 @@
         "billing": "Billing",
         "settings": "Settings",
         "logout": "Log out"
-      }
+      },
+      "showBalances": "Show balances",
+      "hideBalances": "Hide balances"
     },
     "sidebarGroups": {
         "account": "My Account",

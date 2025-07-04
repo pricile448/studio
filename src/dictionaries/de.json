@@ -204,7 +204,9 @@
         "billing": "Abrechnung",
         "settings": "Einstellungen",
         "logout": "Abmelden"
-      }
+      },
+      "showBalances": "Salden anzeigen",
+      "hideBalances": "Salden ausblenden"
     },
     "sidebarGroups": {
         "account": "Mein Konto",

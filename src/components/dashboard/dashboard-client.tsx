@@ -36,7 +36,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 };
 
 export function DashboardClient({ dict, accountsDict, lang }: DashboardClientProps) {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading, isBalanceVisible } = useAuth();
 
   if (loading || !userProfile) {
     return (
@@ -112,7 +112,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                 <Scale className="h-4 w-4 text-primary-foreground/80" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(totalBalance)}</div>
+                <div className="text-2xl font-bold">{isBalanceVisible ? formatCurrency(totalBalance) : '•••••• €'}</div>
               </CardContent>
         </Card>
         {accounts.map((account) => {
@@ -124,7 +124,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                 <Icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(account.balance)}</div>
+                <div className="text-2xl font-bold">{isBalanceVisible ? formatCurrency(account.balance) : '•••••• €'}</div>
               </CardContent>
             </Card>
           );

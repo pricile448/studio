@@ -51,6 +51,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { BalanceToggle } from '@/components/ui/balance-toggle';
 
 export function DashboardLayoutClient({
   children,
@@ -185,6 +186,7 @@ export function DashboardLayoutClient({
             {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
+               <BalanceToggle dict={dict.sidebar} />
                <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">

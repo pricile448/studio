@@ -26,7 +26,7 @@ interface AccountDetailsClientProps {
 }
 
 export function AccountDetailsClient({ dict, lang, accountId }: AccountDetailsClientProps) {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading, isBalanceVisible } = useAuth();
 
   if (loading || !userProfile || !dict) {
     return (
@@ -93,7 +93,7 @@ export function AccountDetailsClient({ dict, lang, accountId }: AccountDetailsCl
           </div>
           <div className="text-right">
               <p className="text-sm text-muted-foreground">{accountsDict.totalBalance}</p>
-              <p className="text-2xl font-bold">{formatCurrency(account.balance)}</p>
+              <p className="text-2xl font-bold">{isBalanceVisible ? formatCurrency(account.balance) : '•••••• €'}</p>
           </div>
            <div className="md:col-span-2">
               <p className="text-sm text-muted-foreground">{accountsDict.accountNumber}</p>
