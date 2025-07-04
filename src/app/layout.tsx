@@ -8,6 +8,9 @@ import { Providers } from './providers';
 export const metadata: Metadata = {
   title: 'AmCbunq - Modern Banking',
   description: 'A beautifully designed, modern banking experience with AI-powered financial insights.',
+  icons: {
+    icon: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1751624665/favicon-32x32_zxkby1.png',
+  },
 };
 
 export default function RootLayout({
