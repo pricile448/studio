@@ -2,103 +2,61 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getFirebaseServices } from '@/lib/firebase/config';
-import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
+import { getAdminDashboardData, type AdminDashboardDataOutput } from '@/ai/flows/get-admin-dashboard-data-flow';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, ShieldCheck, MessageSquare, Loader2, ShieldX, ShieldQuestion, UserPlus, FileCheck2 } from "lucide-react";
 import type { UserProfile } from '@/lib/firebase/firestore';
-import { getAdmins } from '@/lib/firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const { db } = getFirebaseServices('admin');
-
 interface ActivityItem {
     id: string;
     type: 'user' | 'kyc';
-    timestamp: Date;
+    timestamp: Date; // Parsed from ISO string
     data: any;
 }
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<Stat[]>([
+  const [stats, setStats] = useState([
     { title: "Utilisateurs Totaux", value: 0, icon: Users, loading: true },
     { title: "Vérifications en attente", value: 0, icon: ShieldQuestion, loading: true },
     { title: "Vérifications approuvées", value: 0, icon: ShieldCheck, loading: true },
     { title: "Vérifications rejetées", value: 0, icon: ShieldX, loading: true },
-    { title: "Tickets de support ouverts", value: 3, icon: MessageSquare, loading: false },
+    { title: "Tickets de support ouverts", value: 3, icon: MessageSquare, loading: false }, // Static for now
   ]);
 
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [admins, setAdmins] = useState<UserProfile[]>([]);
-  const [activityLoading, setActivityLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      setActivityLoading(true);
+      setLoading(true);
       try {
-        // --- Fetch Stats ---
-        const usersCollection = collection(db, "users");
-        const usersSnapshot = await getDocs(usersCollection);
-        const totalUsers = usersSnapshot.size;
-
-        const kycCollection = collection(db, "kycSubmissions");
-        const kycSnapshot = await getDocs(kycCollection);
-        
-        let pendingKyc = 0;
-        let approvedKyc = 0;
-        let rejectedKyc = 0;
-        
-        kycSnapshot.forEach(doc => {
-            const status = doc.data().status;
-            if (status === 'pending') pendingKyc++;
-            else if (status === 'approved') approvedKyc++;
-            else if (status === 'rejected') rejectedKyc++;
-        });
+        const data: AdminDashboardDataOutput = await getAdminDashboardData();
         
         setStats(prevStats => [
-            { ...prevStats[0], value: totalUsers, loading: false },
-            { ...prevStats[1], value: pendingKyc, loading: false },
-            { ...prevStats[2], value: approvedKyc, loading: false },
-            { ...prevStats[3], value: rejectedKyc, loading: false },
+            { ...prevStats[0], value: data.stats.totalUsers, loading: false },
+            { ...prevStats[1], value: data.stats.pendingKyc, loading: false },
+            { ...prevStats[2], value: data.stats.approvedKyc, loading: false },
+            { ...prevStats[3], value: data.stats.rejectedKyc, loading: false },
             prevStats[4],
         ]);
 
-        // --- Fetch Recent Activities ---
-        const usersQuery = query(usersCollection, orderBy("createdAt", "desc"), limit(3));
-        const recentUsersSnapshot = await getDocs(usersQuery);
-        const recentUsers = recentUsersSnapshot.docs.map(doc => ({ 
-            type: 'user' as const, 
-            id: doc.id,
-            timestamp: doc.data().createdAt.toDate(),
-            data: doc.data()
+        const parsedActivity = data.recentActivity.map(item => ({
+            ...item,
+            timestamp: new Date(item.timestamp), // Parse ISO string back to Date
         }));
+        setRecentActivity(parsedActivity);
 
-        const kycQuery = query(kycCollection, orderBy("submittedAt", "desc"), limit(3));
-        const recentKycSnapshot = await getDocs(kycQuery);
-        const recentKyc = recentKycSnapshot.docs.map(doc => ({ 
-            type: 'kyc' as const, 
-            id: doc.id,
-            timestamp: doc.data().submittedAt.toDate(),
-            data: doc.data()
-        }));
-
-        const combinedActivity = [...recentUsers, ...recentKyc]
-            .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-            .slice(0, 5);
-            
-        setRecentActivity(combinedActivity);
-
-        // --- Fetch Admins ---
-        const adminList = await getAdmins(db);
-        setAdmins(adminList);
+        setAdmins(data.admins as UserProfile[]);
 
       } catch (error) {
         console.error("Erreur lors de la récupération des données du tableau de bord:", error);
         setStats(prevStats => prevStats.map(stat => ({ ...stat, loading: false, value: 'Erreur' })));
       } finally {
-        setActivityLoading(false);
+        setLoading(false);
       }
     };
 
@@ -140,7 +98,7 @@ export default function AdminDashboardPage() {
                     <CardDescription>Les dernières inscriptions et soumissions KYC.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {activityLoading ? (
+                    {loading ? (
                         <div className="flex items-center justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
                     ) : recentActivity.length > 0 ? (
                         <div className="space-y-4">
@@ -176,7 +134,7 @@ export default function AdminDashboardPage() {
                     <CardDescription>Liste des utilisateurs avec des privilèges d'administrateur.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     {activityLoading ? (
+                     {loading ? (
                         <div className="flex items-center justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
                     ) : admins.length > 0 ? (
                         <div className="space-y-4">
