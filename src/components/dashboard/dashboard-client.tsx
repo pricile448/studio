@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, Settings, Leaf, HeartPulse, Scale } from 'lucide-react';
+import { CreditCard, DollarSign, PiggyBank, ArrowRightLeft, UserPlus, History, Settings, Leaf, HeartPulse, Scale, Star } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -226,30 +226,43 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
         </Card>
       </div>
 
-       <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader className="flex-row items-center gap-4 space-y-0">
-               <div className="p-3 rounded-full bg-primary/10 text-primary">
-                 <HeartPulse className="h-6 w-6" />
-               </div>
-               <CardTitle className="font-headline">{dict.ourServicesTitle}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{dict.ourServicesDescription}</p>
-            </CardContent>
-          </Card>
-           <Card>
-            <CardHeader className="flex-row items-center gap-4 space-y-0">
-                <div className="p-3 rounded-full bg-green-500/10 text-green-600">
-                    <Leaf className="h-6 w-6" />
+       <div className="grid gap-6">
+          <Card className="bg-gradient-to-br from-blue-100 via-white to-purple-100 dark:from-blue-950/40 dark:via-background dark:to-purple-950/40 w-full overflow-hidden">
+            <CardContent className="p-6 relative">
+                <div className="absolute inset-0 opacity-20">
+                    <Star className="h-6 w-6 fill-current absolute top-8 right-1/4 md:top-6 md:right-1/3 text-yellow-400" />
+                    <Star className="h-4 w-4 fill-current absolute top-16 right-[30%] md:top-12 md:right-[35%] text-cyan-400" />
+                    <Star className="h-5 w-5 fill-current absolute top-6 right-[35%] md:top-20 md:right-[40%] text-pink-500" />
                 </div>
-               <CardTitle className="font-headline">{dict.carbonFootprintTitle}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{dict.carbonFootprintDescription}</p>
+                
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 z-10 relative">
+                    <div className="space-y-2 text-center md:text-left">
+                        <h3 className="text-2xl md:text-3xl font-bold font-headline text-primary">{dict.youthOffer.title}</h3>
+                        <p className="text-lg font-medium text-foreground">{dict.youthOffer.subtitle}</p>
+                        <p className="text-muted-foreground">{dict.youthOffer.line1}</p>
+                        <p className="text-sm text-muted-foreground">{dict.youthOffer.line2}</p>
+                    </div>
+                    
+                    <div className="relative flex-shrink-0 text-center mt-6 md:mt-0 w-[190px] h-[160px]">
+                        <div className="bg-primary text-primary-foreground rounded-2xl shadow-lg w-full h-[100px] flex flex-col justify-center items-center pt-2 absolute top-0">
+                            <p className="text-4xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
+                            <p className="text-sm tracking-wide">{dict.youthOffer.offer_subscription}</p>
+                        </div>
+                        
+                        <div className="absolute left-1/2 -translate-x-1/2 top-[75px] bg-red-500 text-white font-bold py-1.5 px-6 rounded-md shadow-md text-lg z-10">
+                            {dict.youthOffer.offer_free}
+                        </div>
+                        
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-[15px] bg-cyan-400 text-white font-semibold py-1.5 px-5 rounded-full shadow-md text-sm z-20">
+                            {dict.youthOffer.offer_commitment}
+                        </div>
+                    </div>
+                </div>
             </CardContent>
           </Card>
        </div>
     </div>
   );
 }
+
+    

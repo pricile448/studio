@@ -249,6 +249,16 @@
       "ourServicesDescription": "Entdecken Sie unser Leistungsspektrum, das Ihnen hilft, Ihr Vermögen zu vermehren.",
       "carbonFootprintTitle": "Ihr CO2-Fußabdruck",
       "carbonFootprintDescription": "Verfolgen Sie die Umweltauswirkungen Ihrer Ausgaben und tragen Sie zu einem grüneren Planeten bei.",
+      "youthOffer": {
+        "title": "Zwischen 18 und 25?",
+        "subtitle": "Ihre finanzielle Freiheit beginnt hier!",
+        "line1": "Ihr Konto, Ihre Regeln, ohne Verpflichtung.",
+        "line2": "AmCbunq. Die Bank, die an Ihr Potenzial glaubt.",
+        "offer_year": "1 Jahr",
+        "offer_subscription": "Abonnement",
+        "offer_free": "geschenkt",
+        "offer_commitment": "Ohne Verpflichtung"
+      },
       "verificationBanner": {
         "title": "Verifizierung ausstehend",
         "description": "Schließen Sie Ihre Identitätsprüfung ab",
@@ -577,7 +587,7 @@
         "emailPlaceholder": "Ihre E-Mail",
         "emailInvalid": "Ungültige E-Mail-Adresse.",
         "subjectLabel": "Betreff",
-        "subjectPlaceholder": "Wie können wir Ihnen helfen?",
+        "placeholder": "Wie können wir Ihnen helfen?",
         "subjectRequired": "Betreff ist erforderlich.",
         "messageLabel": "Nachricht",
         "messagePlaceholder": "Beschreiben Sie Ihr Problem hier...",
@@ -659,3 +669,5 @@
       "button": "Zur Startseite"
     }
 }
+
+    

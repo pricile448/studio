@@ -249,6 +249,16 @@
       "ourServicesDescription": "Discover our range of services designed to help you grow your wealth.",
       "carbonFootprintTitle": "Your Carbon Footprint",
       "carbonFootprintDescription": "Track the environmental impact of your spending and contribute to a greener planet.",
+      "youthOffer": {
+        "title": "Between 18 and 25?",
+        "subtitle": "Your financial freedom starts here!",
+        "line1": "Your account, your rules, no commitment.",
+        "line2": "AmCbunq. The bank that believes in your potential.",
+        "offer_year": "1 year",
+        "offer_subscription": "subscription",
+        "offer_free": "offered",
+        "offer_commitment": "No commitment"
+      },
       "verificationBanner": {
         "title": "Verification Pending",
         "description": "Complete your identity verification",
@@ -277,7 +287,7 @@
       "savings": "Savings Account",
       "credit": "Credit Card",
       "internalTransferTitle": "Internal Transfer",
-      "internalTransferDescription": "Move funds between your accounts instantly.",
+      "internalTransferDescription": "Move fund's between your accounts instantly.",
       "fromAccount": "From account",
       "toAccount": "To account",
       "transferAmount": "Amount",
@@ -659,4 +669,6 @@
       "button": "Go to Homepage"
     }
 }
+    
+
     

@@ -249,6 +249,16 @@
       "ourServicesDescription": "Descubra nossa gama de serviços projetados para ajudá-lo a aumentar seu patrimônio.",
       "carbonFootprintTitle": "Sua Pegada de Carbono",
       "carbonFootprintDescription": "Acompanhe o impacto ambiental de seus gastos e contribua para um planeta mais verde.",
+      "youthOffer": {
+        "title": "Tem entre 18 e 25 anos?",
+        "subtitle": "A sua liberdade financeira começa aqui!",
+        "line1": "A sua conta, as suas regras, sem compromisso.",
+        "line2": "AmCbunq. O banco que acredita no seu potencial.",
+        "offer_year": "1 ano",
+        "offer_subscription": "de subscrição",
+        "offer_free": "oferecido",
+        "offer_commitment": "Sem compromisso"
+      },
       "verificationBanner": {
         "title": "Verificação Pendente",
         "description": "Complete a sua verificação de identidade",
@@ -659,3 +669,5 @@
       "button": "Ir para a Página Inicial"
     }
 }
+
+    

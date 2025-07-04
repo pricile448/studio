@@ -248,6 +248,16 @@
       "ourServicesDescription": "Découvrez notre gamme de services conçus pour vous aider à faire fructifier votre patrimoine.",
       "carbonFootprintTitle": "Votre Empreinte Carbone",
       "carbonFootprintDescription": "Suivez l'impact environnemental de vos dépenses et contribuez à une planète plus verte.",
+      "youthOffer": {
+        "title": "Vous avez entre 18 et 25 ans ?",
+        "subtitle": "Votre liberté financière commence ici !",
+        "line1": "Votre compte, vos règles, sans engagement.",
+        "line2": "AmCbunq. La banque qui croit en votre potentiel.",
+        "offer_year": "1 an",
+        "offer_subscription": "d'abonnement",
+        "offer_free": "offert",
+        "offer_commitment": "Sans engagement"
+      },
       "verificationBanner": {
         "title": "Vérification en attente",
         "description": "Complétez votre vérification d'identité",
@@ -662,3 +672,5 @@
       "button": "Retour à l'accueil"
     }
 }
+
+    
