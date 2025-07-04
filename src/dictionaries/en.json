@@ -426,7 +426,7 @@
       "noBudgetsTitle": "You have no budgets yet",
       "noBudgetsDescription": "Create a budget to start tracking your spending and reach your financial goals."
     },
-    "documents": {
+     "documents": {
       "title": "My Documents",
       "description": "Manage your uploaded documents.",
       "upload": "Upload Document",
@@ -518,7 +518,10 @@
         "minutes_5": "5 minutes",
         "minutes_15": "15 minutes",
         "minutes_30": "30 minutes",
-        "never": "Never"
+        "never": "Never",
+        "lastConnectionTitle": "Last Connection",
+        "lastConnectionDescription": "Your last recorded connection",
+        "lastConnectionNever": "Never"
       },
       "notifications": {
         "title": "Notifications",

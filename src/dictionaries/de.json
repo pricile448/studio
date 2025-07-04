@@ -518,7 +518,10 @@
         "minutes_5": "5 Minuten",
         "minutes_15": "15 Minuten",
         "minutes_30": "30 Minuten",
-        "never": "Niemals"
+        "never": "Niemals",
+        "lastConnectionTitle": "Letzte Verbindung",
+        "lastConnectionDescription": "Ihre letzte aufgezeichnete Verbindung",
+        "lastConnectionNever": "Niemals"
       },
       "notifications": {
         "title": "Benachrichtigungen",

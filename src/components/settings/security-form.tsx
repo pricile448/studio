@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { fr, en, de, es, pt } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
+const locales: {[key: string]: typeof fr} = { fr, en, de, es, pt };
 
 const passwordFormSchema = (dict: Dictionary['settings']['security']) => z.object({
   currentPassword: z.string().min(1, { message: dict.passwordRequiredError }),
@@ -226,8 +230,25 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
 }
 
 export function SecurityForm({ dict, lang }: { dict: Dictionary['settings']['security']; lang: string; }) {
+    const { userProfile } = useAuth();
+    
     return (
         <div className="space-y-8">
+            <div>
+                <h3 className="text-lg font-medium">{dict.lastConnectionTitle}</h3>
+                <p className="text-sm text-muted-foreground">
+                    {dict.lastConnectionDescription}:{' '}
+                    {userProfile?.lastSignInTime ? (
+                        <span className="font-semibold">
+                            {format(userProfile.lastSignInTime, 'PPPP p', { locale: locales[lang] || fr })}
+                        </span>
+                    ) : (
+                        <span>{dict.lastConnectionNever}</span>
+                    )}
+                </p>
+            </div>
+            
+            <Separator className="my-8" />
             <PasswordChangeForm dict={dict} />
             <Separator className="my-8" />
             <div>
