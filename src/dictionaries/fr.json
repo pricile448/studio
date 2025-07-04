@@ -587,7 +587,7 @@
       "contactDescription": "Vous ne trouvez pas ce que vous cherchez ? Contactez notre équipe de support.",
       "faq": [
         { "question": "Comment ouvrir un compte ?", "answer": "Vous pouvez ouvrir un compte directement depuis notre page d'accueil en cliquant sur 'Ouvrir un compte'. Le processus est rapide et ne prend que quelques minutes." },
-        { "question": "Quels documents sont nécessaires pour la vérification ?", "answer": "Pour la vérification, vous aurez besoin d'une pièce d'identité avec photo valide émise par le gouvernement (Passeport ou Carte d'identité), d'un justificatif de domicile (comme une facture d'électricité), et vous devrez prendre un selfie pour la vérification biométrique." },
+        { "question": "Quels documents sont nécessaires pour la vérification ?", "answer": "Pour la vérification, vous aurez besoin d'une pièce d'identité avec photo en cours de validité émise par le gouvernement (Passeport ou Carte d'identité), d'un justificatif de domicile (comme une facture d'électricité), et vous devrez prendre un selfie pour la vérification biométrique." },
         { "question": "Mon argent est-il en sécurité ?", "answer": "Votre sécurité est notre priorité absolue. Nous utilisons un cryptage de pointe, une authentification à deux facteurs et nous respectons des normes réglementaires strictes pour protéger votre argent et vos données." },
         { "question": "Y a-t-il des frais ?", "answer": "Nous croyons en une tarification transparente. Vous pouvez trouver notre structure de frais sur notre page de tarification. De nombreux services standard comme la tenue de compte sont gratuits." }
       ],
