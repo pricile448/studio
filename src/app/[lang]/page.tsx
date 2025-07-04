@@ -150,7 +150,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-16 sm:py-24">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
-            <div className="order-2 flex flex-col justify-center space-y-6 text-center md:order-1 md:text-left">
+            <div className="flex flex-col justify-center space-y-6 text-center md:text-left">
               <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl md:text-6xl lg:text-7xl">
                 {homeDict.hero.title_part1}<span className="text-primary">{homeDict.hero.title_highlight}</span>
               </h1>
@@ -166,7 +166,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-1 md:order-2">
+            <div>
               {/* Desktop Image */}
               <div className="relative hidden h-full min-h-[300px] md:block">
                   <Image
