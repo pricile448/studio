@@ -237,24 +237,26 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                 
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 z-10 relative">
                     <div className="space-y-2 text-center lg:text-left">
-                        <h3 className="text-2xl lg:text-3xl font-bold font-headline text-primary">{dict.youthOffer.title}</h3>
-                        <p className="text-lg font-medium text-foreground">{dict.youthOffer.subtitle}</p>
+                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline text-primary">{dict.youthOffer.title}</h3>
+                        <p className="text-base sm:text-lg font-medium text-foreground">{dict.youthOffer.subtitle}</p>
                         <p className="text-muted-foreground">{dict.youthOffer.line1}</p>
                         <p className="text-sm text-muted-foreground">{dict.youthOffer.line2}</p>
                     </div>
                     
-                    <div className="relative flex-shrink-0 text-center mt-6 lg:mt-0 w-[190px] h-[160px] self-center lg:self-auto">
-                        <div className="bg-primary text-primary-foreground rounded-2xl shadow-lg w-full h-[100px] flex flex-col justify-center items-center pt-2 absolute top-0">
-                            <p className="text-4xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
-                            <p className="text-sm tracking-wide">{dict.youthOffer.offer_subscription}</p>
-                        </div>
-                        
-                        <div className="absolute left-1/2 -translate-x-1/2 top-[75px] bg-red-500 text-white font-bold py-1.5 px-6 rounded-md shadow-md text-lg z-10">
-                            {dict.youthOffer.offer_free}
-                        </div>
-                        
-                        <div className="absolute left-1/2 -translate-x-1/2 bottom-[15px] bg-cyan-400 text-white font-semibold py-1.5 px-5 rounded-full shadow-md text-sm z-20">
-                            {dict.youthOffer.offer_commitment}
+                    <div className="relative flex-shrink-0 text-center w-full sm:w-auto self-center lg:self-auto">
+                         <div className="mx-auto relative w-[190px] h-[160px] scale-90 sm:scale-100">
+                            <div className="bg-primary text-primary-foreground rounded-2xl shadow-lg w-full h-[100px] flex flex-col justify-center items-center pt-2 absolute top-0">
+                                <p className="text-4xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
+                                <p className="text-sm tracking-wide">{dict.youthOffer.offer_subscription}</p>
+                            </div>
+                            
+                            <div className="absolute left-1/2 -translate-x-1/2 top-[75px] bg-red-500 text-white font-bold py-1.5 px-6 rounded-md shadow-md text-lg z-10">
+                                {dict.youthOffer.offer_free}
+                            </div>
+                            
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[15px] bg-cyan-400 text-white font-semibold py-1.5 px-5 rounded-full shadow-md text-sm z-20">
+                                {dict.youthOffer.offer_commitment}
+                            </div>
                         </div>
                     </div>
                 </div>
