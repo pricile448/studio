@@ -280,7 +280,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     </DialogContent>
                 </Dialog>
 
-                <ScrollArea className="flex-1 p-4 min-h-0">
+                <ScrollArea className="flex-1 p-4 min-h-0" hideScrollbar>
                     <div className="space-y-4">
                         {messages.length === 0 && (
                             <div className="text-center text-muted-foreground p-8">
@@ -339,7 +339,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                                                 </button>
                                             ) : msg.fileUrl ? (
                                                 <a
-                                                    href={msg.fileUrl}
+                                                    href={getCloudinaryDownloadUrl(msg.fileUrl)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className={cn(
