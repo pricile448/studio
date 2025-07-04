@@ -5,13 +5,10 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-import { collection, query, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
-import { getFirebaseServices } from '@/lib/firebase/config';
+import { z } from 'zod';
+import { adminDb } from '@/lib/firebase/admin';
 import type { UserProfile } from '@/lib/firebase/firestore';
-import { getAdmins } from '@/lib/firebase/firestore';
-
-const { db } = getFirebaseServices('admin');
+import type { Timestamp } from 'firebase-admin/firestore';
 
 // Serialized schemas for flow output
 const ActivityItemSchema = z.object({
@@ -47,12 +44,12 @@ const getAdminDashboardDataFlow = ai.defineFlow(
   async () => {
     try {
       // --- Fetch Stats ---
-      const usersCollection = collection(db, "users");
-      const usersSnapshot = await getDocs(usersCollection);
+      const usersCollection = adminDb.collection("users");
+      const usersSnapshot = await usersCollection.get();
       const totalUsers = usersSnapshot.size;
 
-      const kycCollection = collection(db, "kycSubmissions");
-      const kycSnapshot = await getDocs(kycCollection);
+      const kycCollection = adminDb.collection("kycSubmissions");
+      const kycSnapshot = await kycCollection.get();
       
       let pendingKyc = 0;
       let approvedKyc = 0;
@@ -66,8 +63,8 @@ const getAdminDashboardDataFlow = ai.defineFlow(
       });
 
       // --- Fetch Recent Activities ---
-      const usersQuery = query(usersCollection, orderBy("createdAt", "desc"), limit(3));
-      const recentUsersSnapshot = await getDocs(usersQuery);
+      const usersQuery = usersCollection.orderBy("createdAt", "desc").limit(3);
+      const recentUsersSnapshot = await usersQuery.get();
       const recentUsers = recentUsersSnapshot.docs.map(doc => {
         const data = doc.data();
         return { 
@@ -79,8 +76,8 @@ const getAdminDashboardDataFlow = ai.defineFlow(
         };
       });
 
-      const kycQuery = query(kycCollection, orderBy("submittedAt", "desc"), limit(3));
-      const recentKycSnapshot = await getDocs(kycQuery);
+      const kycQuery = kycCollection.orderBy("submittedAt", "desc").limit(3);
+      const recentKycSnapshot = await kycQuery.get();
       const recentKyc = recentKycSnapshot.docs.map(doc => {
         const data = doc.data();
         return { 
@@ -97,7 +94,14 @@ const getAdminDashboardDataFlow = ai.defineFlow(
           .slice(0, 5);
 
       // --- Fetch Admins ---
-      const adminList = await getAdmins(db);
+      const adminsSnap = await adminDb.collection('admins').get();
+      const adminIds = adminsSnap.docs.map(doc => doc.id);
+      const adminProfilesPromises = adminIds.map(id => usersCollection.doc(id).get());
+      const adminProfileDocs = await Promise.all(adminProfilesPromises);
+      const adminList = adminProfileDocs
+        .filter(doc => doc.exists)
+        .map(doc => doc.data() as UserProfile);
+
 
       return {
           stats: { totalUsers, pendingKyc, approvedKyc, rejectedKyc },
