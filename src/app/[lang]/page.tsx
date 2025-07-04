@@ -149,7 +149,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       <main className="flex-1">
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-20 sm:py-32">
-          <div className="grid grid-cols-1 items-stretch gap-12 md:grid-cols-2">
+          <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
             <div className="order-2 flex flex-col justify-center space-y-6 text-center md:order-1 md:text-left">
               <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl md:text-6xl lg:text-7xl">
                 {homeDict.hero.title_part1}<span className="text-primary">{homeDict.hero.title_highlight}</span>
@@ -166,14 +166,14 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-1 relative md:order-2 min-h-[300px] md:min-h-0">
+            <div className="relative flex flex-col items-center justify-center order-1 h-full min-h-[300px] md:order-2">
               <Image
-                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751629701/TR_l1q90z.png"
+                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
                 alt="Application showcase"
                 fill
                 priority
                 data-ai-hint="credit card"
-                className="rounded-xl object-contain shadow-2xl transition-transform duration-300 hover:scale-105"
+                className="object-cover transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
               />
             </div>
           </div>
@@ -343,3 +343,5 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
     </div>
   );
 }
+
+    
