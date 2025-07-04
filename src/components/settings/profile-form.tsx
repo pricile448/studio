@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +9,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useAuth } from '@/context/auth-context';
@@ -78,7 +77,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
     setIsSubmitting(true);
     try {
       // Exclude readonly fields from the data sent for update.
-      const { email, firstName, lastName, dob, ...updateData } = data;
+      const { email, firstName, lastName, dob, phone, residenceCountry, ...updateData } = data;
       await updateUserProfileData(updateData);
       toast({ title: dict.saveSuccess });
     } catch (error) {
@@ -154,8 +153,9 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                 <FormItem>
                   <FormLabel>{dict.phoneLabel}</FormLabel>
                   <FormControl>
-                    <Input type="tel" {...field} />
+                    <Input type="tel" {...field} readOnly />
                   </FormControl>
+                  <FormDescription>{dict.phoneDescription}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -187,7 +187,7 @@ export function ProfileForm({ dict }: ProfileFormProps) {
                 <FormItem>
                   <FormLabel>{dict.countryLabel}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} readOnly />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

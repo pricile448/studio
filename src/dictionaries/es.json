@@ -483,6 +483,7 @@
         "lastNameLabel": "Apellido",
         "emailLabel": "Dirección de correo electrónico",
         "phoneLabel": "Número de teléfono",
+        "phoneDescription": "Para cambiar su número de teléfono, por favor contacte al soporte.",
         "dobLabel": "Fecha de nacimiento",
         "dobPlaceholder": "Seleccione una fecha",
         "addressGroupTitle": "Dirección Postal",

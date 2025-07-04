@@ -486,6 +486,7 @@
         "lastNameLabel": "Nom",
         "emailLabel": "Adresse e-mail",
         "phoneLabel": "Numéro de téléphone",
+        "phoneDescription": "Pour tout changement de numéro, veuillez contacter le support.",
         "dobLabel": "Date de naissance",
         "dobPlaceholder": "Sélectionnez une date",
         "addressGroupTitle": "Adresse Postale",
