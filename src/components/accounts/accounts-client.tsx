@@ -279,34 +279,68 @@ export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale 
           <CardTitle className="font-headline">{accountsDict.accountingTitle}</CardTitle>
         </CardHeader>
         <CardContent>
-           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{dict.history.table.date}</TableHead>
-                <TableHead>{dict.history.table.description}</TableHead>
-                <TableHead className="text-right">{dict.accounts.creditLedger}</TableHead>
-                <TableHead className="text-right">{dict.accounts.debitLedger}</TableHead>
-                <TableHead className="text-right">{dict.accounts.balanceLedger}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ledger.length > 0 ? ledger.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{entry.date}</TableCell>
-                  <TableCell>{entry.description}</TableCell>
-                  <TableCell className="text-right text-accent">{entry.credit > 0 ? formatCurrency(entry.credit) : '-'}</TableCell>
-                  <TableCell className="text-right text-destructive">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(entry.balance)}</TableCell>
-                </TableRow>
-              )) : (
+           {/* Desktop Table */}
+           <div className="hidden md:block">
+             <Table>
+              <TableHeader>
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
-                        {dict.history.noTransactions}
-                    </TableCell>
+                  <TableHead>{dict.history.table.date}</TableHead>
+                  <TableHead>{dict.history.table.description}</TableHead>
+                  <TableHead className="text-right">{dict.accounts.creditLedger}</TableHead>
+                  <TableHead className="text-right">{dict.accounts.debitLedger}</TableHead>
+                  <TableHead className="text-right">{dict.accounts.balanceLedger}</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {ledger.length > 0 ? ledger.map((entry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell>{entry.date}</TableCell>
+                    <TableCell>{entry.description}</TableCell>
+                    <TableCell className="text-right text-accent">{entry.credit > 0 ? formatCurrency(entry.credit) : '-'}</TableCell>
+                    <TableCell className="text-right text-destructive">{entry.debit > 0 ? formatCurrency(entry.debit) : '-'}</TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(entry.balance)}</TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          {dict.history.noTransactions}
+                      </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+           </div>
+           
+            {/* Mobile Cards */}
+            <div className="md:hidden">
+              <div className="space-y-4">
+                {ledger.length > 0 ? ledger.map((entry) => (
+                  <div key={entry.id} className="p-4 border rounded-lg space-y-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1">
+                        <div className="font-semibold">{entry.description}</div>
+                        <div className="text-sm text-muted-foreground">{entry.date}</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        {entry.credit > 0 ? (
+                          <div className="font-semibold text-accent">{formatCurrency(entry.credit)}</div>
+                        ) : (
+                          <div className="font-semibold text-destructive">{formatCurrency(entry.debit)}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-sm flex justify-between items-center pt-3 border-t">
+                      <span className="text-muted-foreground">{dict.accounts.balanceLedger}</span>
+                      <span className="font-semibold">{formatCurrency(entry.balance)}</span>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="text-center text-muted-foreground py-12">
+                    <p>{dict.history.noTransactions}</p>
+                  </div>
+                )}
+              </div>
+            </div>
         </CardContent>
       </Card>
     </div>
