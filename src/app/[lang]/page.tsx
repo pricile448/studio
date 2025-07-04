@@ -181,7 +181,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
               {/* Mobile Image */}
               <div className="relative block h-full md:hidden">
                   <Image
-                      src="https://placehold.co/1000x600.png"
+                      src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751645130/image_resized_1000x600_v9ypb9.png"
                       alt="Application showcase mobile"
                       width={1000}
                       height={600}
