@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle, FileText } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,

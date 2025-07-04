@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw, History, PauseCircle, PlayCircle } from 'lucide-react';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
