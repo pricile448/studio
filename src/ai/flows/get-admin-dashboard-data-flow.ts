@@ -42,6 +42,10 @@ const getAdminDashboardDataFlow = ai.defineFlow(
     outputSchema: AdminDashboardDataSchema,
   },
   async () => {
+    if (!adminDb) {
+        throw new Error("Firebase Admin SDK n'est pas initialisé. Veuillez configurer SERVICE_ACCOUNT_JSON dans votre fichier .env pour le développement local. Voir DEPLOYMENT.md pour les instructions.");
+    }
+
     try {
       // --- Fetch Stats ---
       const usersCollection = adminDb.collection("users");
@@ -111,6 +115,9 @@ const getAdminDashboardDataFlow = ai.defineFlow(
 
     } catch (error: any) {
         console.error("Error fetching admin dashboard data in flow:", error);
+        if (error.message.includes('Could not refresh access token')) {
+             throw new Error("Échec de l'authentification auprès de Firebase. Assurez-vous que vos identifiants de compte de service (SERVICE_ACCOUNT_JSON) sont corrects et valides.");
+        }
         throw new Error("Failed to fetch admin dashboard data: " + error.message);
     }
   }
