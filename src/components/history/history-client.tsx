@@ -9,13 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Filter } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
+import { Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { DateRange } from 'react-day-picker';
 import { addDays, format } from 'date-fns';
+import { Input } from '@/components/ui/input';
 
 type HistoryClientProps = {
   dict: Dictionary['history'];
@@ -56,39 +55,26 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <CardTitle className="font-headline flex-1">{dict.filters}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    variant="outline"
-                    className="w-full sm:w-[260px] justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date?.from ? (
-                      date.to ? (
-                        <>
-                          {format(date.from, "LLL dd, y")} -{" "}
-                          {format(date.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(date.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>{dict.dateRange}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
+              <Input
+                  type="date"
+                  aria-label="Date de début"
+                  value={date?.from ? format(date.from, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => {
+                      const fromDate = e.target.value ? new Date(e.target.value.replace(/-/g, '/')) : undefined;
+                      setDate(current => ({ ...current, from: fromDate }));
+                  }}
+                  className="w-full sm:w-auto"
+              />
+              <Input
+                  type="date"
+                  aria-label="Date de fin"
+                  value={date?.to ? format(date.to, 'yyyy-MM-dd') : ''}
+                  onChange={(e) => {
+                      const toDate = e.target.value ? new Date(e.target.value.replace(/-/g, '/')) : undefined;
+                      setDate(current => ({ ...current, to: toDate }));
+                  }}
+                  className="w-full sm:w-auto"
+              />
 
               <Select defaultValue="all">
                 <SelectTrigger className="w-full sm:w-[180px]">

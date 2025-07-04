@@ -26,8 +26,6 @@ import { Checkbox } from '../ui/checkbox';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import Link from 'next/link';
 import { Timestamp, serverTimestamp, deleteField } from 'firebase/firestore';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -122,9 +120,29 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
                                 <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>Prénom</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Nom</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Téléphone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={form.control} name="dob" render={({ field }) => (
-                                    <FormItem className="flex flex-col pt-2"><FormLabel>Date de naissance</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className="font-normal justify-start">{field.value ? format(field.value, 'dd/MM/yyyy') : <span>Choisir une date</span>}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                                )}/>
+                                <FormField
+                                  control={form.control}
+                                  name="dob"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Date de naissance</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="date"
+                                          value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                                          onChange={(e) => {
+                                            if (e.target.value) {
+                                              field.onChange(new Date(e.target.value.replace(/-/g, '/')));
+                                            } else {
+                                              field.onChange(undefined);
+                                            }
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
                                 <FormField control={form.control} name="pob" render={({ field }) => (<FormItem><FormLabel>Lieu de naissance</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="nationality" render={({ field }) => (<FormItem><FormLabel>Nationalité</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={form.control} name="residenceCountry" render={({ field }) => (<FormItem><FormLabel>Pays de résidence</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
