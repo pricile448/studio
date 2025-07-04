@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -30,6 +31,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(adminAuth, async (user) => {
+      setLoading(true); // Set loading to true whenever auth state might change
       setUser(user);
       if (user) {
         // Check for admin privileges
@@ -43,8 +45,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         } else {
           setIsAdmin(false);
           setUserProfile(null);
-          // Log out non-admin users immediately
+          // Log out non-admin users immediately to prevent access
           await signOut(adminAuth);
+          // After sign out, onAuthStateChanged will fire again with user=null
+          // which will correctly set loading to false. We can return here to avoid a redundant setLoading(false).
+          return;
         }
 
       } else {
