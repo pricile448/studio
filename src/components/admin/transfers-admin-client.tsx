@@ -63,7 +63,7 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
         }
         if (transfer.status === 'in_progress') {
             return (
-                <div className="space-x-2">
+                <div className="flex flex-wrap gap-2 justify-end">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                              <Button variant="success" size="sm" disabled={isLoading}>{isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : null} Exécuter</Button>
@@ -106,7 +106,7 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
         }
         if (transfer.status === 'in_review') {
             return (
-                <div className="space-x-2">
+                <div className="flex flex-wrap gap-2 justify-end">
                     <Button variant="outline" size="sm" onClick={() => onAction('resume', transfer)} disabled={isLoading}>
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : <PlayCircle className="mr-2 h-4 w-4" />} Relancer
                     </Button>
@@ -125,34 +125,65 @@ function TransfersTable({ transfers, onAction, actionInProgressId }: { transfers
     }
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Bénéficiaire</TableHead>
-                    <TableHead>Montant</TableHead>
-                    <TableHead>Date de demande</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {transfers.map((transfer) => (
-                    <TableRow key={transfer.id}>
-                        <TableCell>
-                            <div className="font-medium">{transfer.userName}</div>
-                            <div className="text-sm text-muted-foreground">{transfer.userId}</div>
-                        </TableCell>
-                        <TableCell>
-                             <div className="font-medium">{transfer.beneficiaryName}</div>
-                             <div className="text-sm text-muted-foreground">{transfer.description}</div>
-                        </TableCell>
-                        <TableCell className="font-semibold">{formatCurrency(transfer.amount)}</TableCell>
-                        <TableCell>{format(new Date(transfer.date), 'dd MMMM yyyy, HH:mm', { locale: fr })}</TableCell>
-                        <TableCell className="text-right">{actionButtons(transfer)}</TableCell>
+      <>
+        {/* Desktop View */}
+        <div className="hidden md:block">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Utilisateur</TableHead>
+                        <TableHead>Bénéficiaire</TableHead>
+                        <TableHead>Montant</TableHead>
+                        <TableHead>Date de demande</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {transfers.map((transfer) => (
+                        <TableRow key={transfer.id}>
+                            <TableCell>
+                                <div className="font-medium">{transfer.userName}</div>
+                                <div className="text-sm text-muted-foreground truncate max-w-[200px]">{transfer.userId}</div>
+                            </TableCell>
+                            <TableCell>
+                                 <div className="font-medium">{transfer.beneficiaryName}</div>
+                                 <div className="text-sm text-muted-foreground">{transfer.description}</div>
+                            </TableCell>
+                            <TableCell className="font-semibold">{formatCurrency(transfer.amount)}</TableCell>
+                            <TableCell>{format(new Date(transfer.date), 'dd MMMM yyyy, HH:mm', { locale: fr })}</TableCell>
+                            <TableCell className="text-right">{actionButtons(transfer)}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+        
+        {/* Mobile View */}
+        <div className="md:hidden">
+          <div className="space-y-4">
+            {transfers.map(transfer => (
+              <div key={transfer.id} className="p-4 border rounded-lg space-y-3">
+                <div className="flex justify-between items-start gap-2">
+                  <div>
+                    <div className="font-semibold">{transfer.userName}</div>
+                    <div className="text-xs text-muted-foreground truncate max-w-[150px]">{transfer.userId}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">{formatCurrency(transfer.amount)}</div>
+                    <div className="text-xs text-muted-foreground">vers {transfer.beneficiaryName}</div>
+                  </div>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {format(new Date(transfer.date), "dd MMM yyyy 'à' HH:mm", { locale: fr })}
+                </div>
+                <div className="pt-3 border-t">
+                  {actionButtons(transfer)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
     );
 }
 
@@ -178,34 +209,62 @@ function HistoryTable({ transfers }: { transfers: TransferWithUser[] }) {
     }
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Utilisateur</TableHead>
-                    <TableHead>Bénéficiaire</TableHead>
-                    <TableHead>Montant</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Statut Final</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {transfers.map((transfer) => (
-                    <TableRow key={transfer.id}>
-                        <TableCell>
-                            <div className="font-medium">{transfer.userName}</div>
-                            <div className="text-sm text-muted-foreground">{transfer.userId}</div>
-                        </TableCell>
-                        <TableCell>
-                             <div className="font-medium">{transfer.beneficiaryName}</div>
-                             <div className="text-sm text-muted-foreground">{transfer.description}</div>
-                        </TableCell>
-                        <TableCell className="font-semibold">{formatCurrency(transfer.amount)}</TableCell>
-                        <TableCell>{format(new Date(transfer.date), 'dd MMMM yyyy, HH:mm', { locale: fr })}</TableCell>
-                        <TableCell className="text-right">{getStatusBadge(transfer.status as 'completed' | 'failed')}</TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+        <>
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Utilisateur</TableHead>
+                            <TableHead>Bénéficiaire</TableHead>
+                            <TableHead>Montant</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead className="text-right">Statut Final</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {transfers.map((transfer) => (
+                            <TableRow key={transfer.id}>
+                                <TableCell>
+                                    <div className="font-medium">{transfer.userName}</div>
+                                    <div className="text-sm text-muted-foreground">{transfer.userId}</div>
+                                </TableCell>
+                                <TableCell>
+                                     <div className="font-medium">{transfer.beneficiaryName}</div>
+                                     <div className="text-sm text-muted-foreground">{transfer.description}</div>
+                                </TableCell>
+                                <TableCell className="font-semibold">{formatCurrency(transfer.amount)}</TableCell>
+                                <TableCell>{format(new Date(transfer.date), 'dd MMMM yyyy, HH:mm', { locale: fr })}</TableCell>
+                                <TableCell className="text-right">{getStatusBadge(transfer.status as 'completed' | 'failed')}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden">
+                <div className="space-y-4">
+                    {transfers.map(transfer => (
+                        <div key={transfer.id} className="p-4 border rounded-lg space-y-3">
+                            <div className="flex justify-between items-start gap-2">
+                                <div>
+                                    <div className="font-semibold">{transfer.userName}</div>
+                                    <div className="text-xs text-muted-foreground">vers {transfer.beneficiaryName}</div>
+                                </div>
+                                {getStatusBadge(transfer.status as 'completed' | 'failed')}
+                            </div>
+                             <div className="flex justify-between items-center text-sm pt-3 border-t">
+                                <span className="text-muted-foreground">
+                                    {format(new Date(transfer.date), "dd MMM yyyy", { locale: fr })}
+                                </span>
+                                <span className="font-semibold">{formatCurrency(transfer.amount)}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </>
     );
 }
 
