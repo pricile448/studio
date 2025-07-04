@@ -166,7 +166,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-1 flex items-center justify-center md:order-2">
+            <div className="order-1 flex justify-center md:order-2">
               <Image
                 src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751629701/TR_l1q90z.png"
                 alt="Application showcase"
