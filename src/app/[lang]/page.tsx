@@ -17,8 +17,6 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { HeroSlider } from '@/components/home/hero-slider';
-
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -49,20 +47,6 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
     { ...homeDict.testimonialsSection.testimonial2, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_gwigvs.png", hint: "man portrait" },
     { ...homeDict.testimonialsSection.testimonial3, avatar: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750971442/smiling_group_with_heads_-_Copie_2_yilnmp.png", hint: "woman smiling" }
   ];
-
-  const heroImages = [
-    {
-      src: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png",
-      alt: "Application showcase",
-      hint: "credit card",
-    },
-    {
-      src: "https://res.cloudinary.com/dxvbuhadg/image/upload/v1751629701/TR_l1q90z.png",
-      alt: "Modern banking app on phone",
-      hint: "banking app",
-    },
-  ];
-
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-body">
@@ -182,8 +166,16 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                 </Button>
               </div>
             </div>
-            <div className="order-1 md:order-2">
-               <HeroSlider images={heroImages} />
+            <div className="order-1 md:order-2 flex justify-center items-center">
+              <Image
+                src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750968975/image_k0k2r6.png"
+                alt="Application showcase"
+                width={500}
+                height={500}
+                priority
+                data-ai-hint="credit card"
+                className="w-full max-w-md h-auto rounded-xl shadow-2xl"
+              />
             </div>
           </div>
         </section>
