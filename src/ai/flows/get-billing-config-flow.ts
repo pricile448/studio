@@ -33,7 +33,14 @@ const getBillingConfigFlowInternal = ai.defineFlow(
     outputSchema: z.nullable(BillingConfigSchema),
   },
   async () => {
-    const config = await getBillingConfig();
-    return config;
+    try {
+        const config = await getBillingConfig();
+        return config;
+    } catch (error) {
+        // This catch block prevents the page from crashing due to Firestore permission errors.
+        // It logs the error on the server and returns null, allowing the UI to handle the "unavailable" state gracefully.
+        console.error("Could not fetch billing config due to permissions, returning null. Error:", error);
+        return null;
+    }
   }
 );
