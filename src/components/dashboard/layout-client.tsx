@@ -100,11 +100,8 @@ export function DashboardLayoutClient({
   const timeoutMinutes = userProfile?.inactivityTimeout ?? 15;
   const timeoutMs = timeoutMinutes * 60 * 1000;
 
-  // Only activate the hook if the timeout is greater than 0.
-  // A value of 0 means "Never".
-  if (timeoutMinutes > 0) {
-    useInactivityLogout(timeoutMs, () => handleLogout(true));
-  }
+  // The hook is now called unconditionally. The internal logic of the hook handles the `timeout > 0` case.
+  useInactivityLogout(timeoutMs, () => handleLogout(true));
 
 
   useEffect(() => {

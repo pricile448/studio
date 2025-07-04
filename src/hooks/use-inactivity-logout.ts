@@ -1,23 +1,39 @@
+
 'use client';
 
 import { useEffect, useCallback, useRef } from 'react';
 
 export const useInactivityLogout = (timeout: number, onIdle: () => void) => {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const onIdleRef = useRef(onIdle);
+
+  // Keep the onIdle function reference up to date without re-triggering the effect
+  useEffect(() => {
+    onIdleRef.current = onIdle;
+  }, [onIdle]);
 
   const resetTimer = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    timeoutRef.current = setTimeout(onIdle, timeout);
-  }, [onIdle, timeout]);
-
-  const handleActivity = useCallback(() => {
-    resetTimer();
-  }, [resetTimer]);
+    if (timeout > 0) {
+      timeoutRef.current = setTimeout(() => onIdleRef.current(), timeout);
+    }
+  }, [timeout]);
 
   useEffect(() => {
-    const events = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll', 'visibilitychange'];
+    // Don't set up listeners if timeout is disabled
+    if (timeout <= 0) {
+        // Clean up timer if timeout is set to 0 while active
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        return;
+    }
+
+    const events = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'];
+    
+    const handleActivity = () => {
+      resetTimer();
+    };
     
     // Set up event listeners
     events.forEach(event => window.addEventListener(event, handleActivity, { passive: true }));
@@ -32,5 +48,5 @@ export const useInactivityLogout = (timeout: number, onIdle: () => void) => {
       }
       events.forEach(event => window.removeEventListener(event, handleActivity));
     };
-  }, [handleActivity, resetTimer]);
+  }, [resetTimer, timeout]);
 };
