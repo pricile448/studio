@@ -2,13 +2,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAdminDashboardData, type AdminDashboardDataOutput } from '@/ai/flows/get-admin-dashboard-data-flow';
+import { getAdminDashboardData, type AdminDashboardDataResult } from '@/ai/flows/get-admin-dashboard-data-flow';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, ShieldCheck, MessageSquare, Loader2, ShieldX, ShieldQuestion, UserPlus, FileCheck2 } from "lucide-react";
+import { Users, ShieldCheck, MessageSquare, Loader2, ShieldX, ShieldQuestion, UserPlus, FileCheck2, AlertTriangle } from "lucide-react";
 import type { UserProfile } from '@/lib/firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ActivityItem {
     id: string;
@@ -29,32 +30,40 @@ export default function AdminDashboardPage() {
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [admins, setAdmins] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
+      setDashboardError(null);
       try {
-        const data: AdminDashboardDataOutput = await getAdminDashboardData();
+        const result: AdminDashboardDataResult = await getAdminDashboardData();
         
-        setStats(prevStats => [
-            { ...prevStats[0], value: data.stats.totalUsers, loading: false },
-            { ...prevStats[1], value: data.stats.pendingKyc, loading: false },
-            { ...prevStats[2], value: data.stats.approvedKyc, loading: false },
-            { ...prevStats[3], value: data.stats.rejectedKyc, loading: false },
-            prevStats[4],
-        ]);
+        if (result.success && result.data) {
+          const data = result.data;
+          setStats(prevStats => [
+              { ...prevStats[0], value: data.stats.totalUsers, loading: false },
+              { ...prevStats[1], value: data.stats.pendingKyc, loading: false },
+              { ...prevStats[2], value: data.stats.approvedKyc, loading: false },
+              { ...prevStats[3], value: data.stats.rejectedKyc, loading: false },
+              prevStats[4],
+          ]);
 
-        const parsedActivity = data.recentActivity.map(item => ({
-            ...item,
-            timestamp: new Date(item.timestamp), // Parse ISO string back to Date
-        }));
-        setRecentActivity(parsedActivity);
+          const parsedActivity = data.recentActivity.map(item => ({
+              ...item,
+              timestamp: new Date(item.timestamp),
+          }));
+          setRecentActivity(parsedActivity);
+          setAdmins(data.admins as UserProfile[]);
 
-        setAdmins(data.admins as UserProfile[]);
+        } else {
+          console.error("Erreur lors de la récupération des données du tableau de bord:", result.error);
+          setDashboardError(result.error || "Une erreur inconnue est survenue.");
+        }
 
-      } catch (error) {
-        console.error("Erreur lors de la récupération des données du tableau de bord:", error);
-        setStats(prevStats => prevStats.map(stat => ({ ...stat, loading: false, value: 'Erreur' })));
+      } catch (error: any) {
+        console.error("Erreur inattendue lors de la récupération des données:", error);
+        setDashboardError(error.message || "Une erreur réseau ou inattendue est survenue.");
       } finally {
         setLoading(false);
       }
@@ -64,6 +73,27 @@ export default function AdminDashboardPage() {
   }, []);
   
   const getInitials = (name: string) => (name || '').split(' ').map(n => n[0]).join('') || '?';
+
+  if (loading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (dashboardError) {
+      return (
+          <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Erreur de chargement des données</AlertTitle>
+              <AlertDescription>
+                  <p>{dashboardError}</p>
+                  <p className="mt-2">Veuillez consulter les instructions dans le fichier <strong>DEPLOYMENT.md</strong> à la racine de votre projet pour configurer l'accès à la base de données.</p>
+              </AlertDescription>
+          </Alert>
+      );
+  }
 
   return (
     <div className="h-full flex flex-col">

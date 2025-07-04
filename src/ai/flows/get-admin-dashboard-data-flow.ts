@@ -31,7 +31,16 @@ const AdminDashboardDataSchema = z.object({
 
 export type AdminDashboardDataOutput = z.infer<typeof AdminDashboardDataSchema>;
 
-export async function getAdminDashboardData(): Promise<AdminDashboardDataOutput> {
+// New schema for the result object
+const AdminDashboardDataResultSchema = z.object({
+    success: z.boolean(),
+    data: AdminDashboardDataSchema.optional(),
+    error: z.string().optional(),
+});
+export type AdminDashboardDataResult = z.infer<typeof AdminDashboardDataResultSchema>;
+
+
+export async function getAdminDashboardData(): Promise<AdminDashboardDataResult> {
     return getAdminDashboardDataFlow();
 }
 
@@ -39,11 +48,14 @@ const getAdminDashboardDataFlow = ai.defineFlow(
   {
     name: 'getAdminDashboardDataFlow',
     inputSchema: z.void(),
-    outputSchema: AdminDashboardDataSchema,
+    outputSchema: AdminDashboardDataResultSchema,
   },
   async () => {
     if (!adminDb) {
-        throw new Error("Firebase Admin SDK n'est pas initialisé. Veuillez configurer SERVICE_ACCOUNT_JSON dans votre fichier .env pour le développement local. Voir DEPLOYMENT.md pour les instructions.");
+        return {
+            success: false,
+            error: "Firebase Admin SDK n'est pas initialisé. Veuillez configurer SERVICE_ACCOUNT_JSON dans votre fichier .env pour le développement local. Voir DEPLOYMENT.md pour les instructions.",
+        };
     }
 
     try {
@@ -107,18 +119,20 @@ const getAdminDashboardDataFlow = ai.defineFlow(
         .map(doc => doc.data() as UserProfile);
 
 
-      return {
+      const data = {
           stats: { totalUsers, pendingKyc, approvedKyc, rejectedKyc },
           recentActivity: combinedActivity,
           admins: adminList,
       };
 
+      return { success: true, data };
+
     } catch (error: any) {
         console.error("Error fetching admin dashboard data in flow:", error);
         if (error.message.includes('Could not refresh access token')) {
-             throw new Error("Échec de l'authentification auprès de Firebase. Assurez-vous que vos identifiants de compte de service (SERVICE_ACCOUNT_JSON) sont corrects et valides.");
+             return { success: false, error: "Échec de l'authentification auprès de Firebase. Assurez-vous que vos identifiants de compte de service (SERVICE_ACCOUNT_JSON) sont corrects et valides." };
         }
-        throw new Error("Failed to fetch admin dashboard data: " + error.message);
+        return { success: false, error: "Failed to fetch admin dashboard data: " + error.message };
     }
   }
 );
