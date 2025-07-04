@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -7,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
-import { getDictionary } from '@/lib/get-dictionary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Logo } from '@/components/logo';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -28,7 +26,7 @@ const registerSchema = z.object({
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
     phone: z.string().min(1, 'Phone number is required'),
-    dob: z.coerce.date({ required_error: 'Date of birth is required.' }),
+    dob: z.coerce.date({ required_error: 'A date of birth is required.' }),
     pob: z.string().min(1, 'Place of birth is required'),
     nationality: z.string().min(1, 'Nationality is required'),
     residenceCountry: z.string().min(1, 'Country of residence is required'),
@@ -56,6 +54,8 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
   const { signup } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const form = useForm<RegisterFormValues>({
@@ -289,14 +289,24 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{dict.login.passwordLabel}</FormLabel>
-                  <FormControl><Input type="password" {...field} /></FormControl>
+                  <div className="relative">
+                    <FormControl><Input type={showPassword ? 'text' : 'password'} {...field} /></FormControl>
+                    <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}/>
               <FormField control={form.control} name="confirmPassword" render={({ field }) => (
                 <FormItem>
                   <FormLabel>{registerDict.confirmPasswordLabel}</FormLabel>
-                  <FormControl><Input type="password" {...field} /></FormControl>
+                  <div className="relative">
+                    <FormControl><Input type={showConfirmPassword ? 'text' : 'password'} {...field} /></FormControl>
+                    <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                      {showConfirmPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}/>

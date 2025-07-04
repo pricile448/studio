@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Loader2, LogOut } from 'lucide-react';
+import { Loader2, LogOut, Eye, EyeOff } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -36,6 +36,7 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
@@ -148,9 +149,20 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
                         {loginDict.forgotPassword}
                       </Link>
                     </div>
-                     <FormControl>
-                        <Input id="password" type="password" required {...field} />
-                     </FormControl>
+                     <div className="relative">
+                        <FormControl>
+                            <Input id="password" type={showPassword ? 'text' : 'password'} required {...field} />
+                        </FormControl>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <EyeOff /> : <Eye />}
+                        </Button>
+                     </div>
                     <FormMessage />
                   </FormItem>
                 )}
