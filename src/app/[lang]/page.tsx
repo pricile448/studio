@@ -99,8 +99,8 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0">
-              <SheetHeader className="p-6 pb-4 border-b">
+            <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0 flex flex-col">
+              <SheetHeader className="p-6 pb-4 border-b shrink-0">
                  <SheetTitle asChild>
                     <Link href={`/${lang}`} className="flex items-center gap-2 text-lg font-semibold">
                       <Logo text={dict.logo} />
@@ -109,7 +109,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
                  </SheetTitle>
                  <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
               </SheetHeader>
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-6 flex-1 overflow-y-auto">
                   <nav className="grid gap-4 text-base font-medium">
                     {navLinks.map((link) => (
                       <Link key={link.href} href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
