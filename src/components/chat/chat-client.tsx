@@ -232,56 +232,56 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         return name.split(' ').map(n => n[0]).join('');
     }
     
-    const renderContent = () => {
-        if (isLoading) {
-            return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-        }
+    if (isLoading) {
+        return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    }
 
-        if (error) {
-            return (
-                <div className="flex items-center justify-center h-full p-4">
-                    <Alert variant="destructive" className="max-w-md">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>{chatDict.connectionError}</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                </div>
-            )
-        }
-        
+    if (error) {
         return (
-            <>
-                <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
-                    <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
-                         <DialogHeader className="sr-only">
-                           <DialogTitle>Aperçu de l'image</DialogTitle>
-                         </DialogHeader>
-                        {previewImage && (
-                            <div className="relative w-full h-full flex flex-col">
-                                <div className="relative flex-1">
-                                    <Image src={previewImage.url} alt={previewImage.name || 'Preview'} fill style={{objectFit: 'contain'}} />
-                                </div>
-                                <DialogFooter className="p-2 sm:justify-between bg-black/50 backdrop-blur-sm border-t border-black/20 text-white">
-                                    <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
-                                    <div className="flex gap-2 w-full sm:w-auto justify-end">
-                                        <Button variant="secondary" asChild>
-                                           <a href={getCloudinaryDownloadUrl(previewImage.url)} download={previewImage.name}>
-                                              <Download className="mr-2 h-4 w-4" />
-                                              {dict.documents.download}
-                                           </a>
-                                        </Button>
-                                        <DialogClose asChild>
-                                            <Button variant="secondary">{dict.cards.closeButton}</Button>
-                                        </DialogClose>
-                                    </div>
-                                </DialogFooter>
-                            </div>
-                        )}
-                    </DialogContent>
-                </Dialog>
+            <div className="flex items-center justify-center h-full p-4">
+                <Alert variant="destructive" className="max-w-md">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>{chatDict.connectionError}</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            </div>
+        )
+    }
 
-                <ScrollArea className="flex-1 p-4 min-h-0" hideScrollbar>
-                    <div className="space-y-4">
+    return (
+        <div className="flex flex-col h-full">
+            <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
+                <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
+                        <DialogHeader className="sr-only">
+                        <DialogTitle>Aperçu de l'image</DialogTitle>
+                        </DialogHeader>
+                    {previewImage && (
+                        <div className="relative w-full h-full flex flex-col">
+                            <div className="relative flex-1">
+                                <Image src={previewImage.url} alt={previewImage.name || 'Preview'} fill style={{objectFit: 'contain'}} />
+                            </div>
+                            <DialogFooter className="p-2 sm:justify-between bg-black/50 backdrop-blur-sm border-t border-black/20 text-white">
+                                <span className="font-medium hidden sm:block truncate">{previewImage.name}</span>
+                                <div className="flex gap-2 w-full sm:w-auto justify-end">
+                                    <Button variant="secondary" asChild>
+                                        <a href={getCloudinaryDownloadUrl(previewImage.url)} download={previewImage.name}>
+                                            <Download className="mr-2 h-4 w-4" />
+                                            {dict.documents.download}
+                                        </a>
+                                    </Button>
+                                    <DialogClose asChild>
+                                        <Button variant="secondary">{dict.cards.closeButton}</Button>
+                                    </DialogClose>
+                                </div>
+                            </DialogFooter>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <div className="flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                    <div className="p-4 space-y-4">
                         {messages.length === 0 && (
                             <div className="text-center text-muted-foreground p-8">
                                 <p className="font-medium">{chatDict.welcomeMessage}</p>
@@ -293,7 +293,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                             return (
                                 <div key={msg.id || index} className={cn('group flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
                                     {isUser && (
-                                       <AlertDialog>
+                                        <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <Trash2 className="h-4 w-4" />
@@ -369,32 +369,27 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                     </div>
                     <div ref={scrollAreaEndRef} />
                 </ScrollArea>
-                <div className="p-4 border-t">
-                    <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                        <Input
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder={chatDict.inputPlaceholder}
-                            disabled={isSending || !chatId}
-                        />
-                        <input type="file" ref={fileInputRef} onChange={handleSendFile} className="hidden" />
-                        <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isSending || !chatId}>
-                            <Paperclip className="h-4 w-4" />
-                            <span className="sr-only">Joindre un fichier</span>
-                        </Button>
-                        <Button type="submit" size="icon" disabled={isSending || !newMessage.trim() || !chatId}>
-                            {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                            <span className="sr-only">{chatDict.sendButton}</span>
-                        </Button>
-                    </form>
-                </div>
-            </>
-        )
-    }
+            </div>
 
-    return (
-        <div className="flex flex-col h-full">
-            {renderContent()}
+            <div className="p-4 border-t bg-background">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                    <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder={chatDict.inputPlaceholder}
+                        disabled={isSending || !chatId}
+                    />
+                    <input type="file" ref={fileInputRef} onChange={handleSendFile} className="hidden" />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isSending || !chatId}>
+                        <Paperclip className="h-4 w-4" />
+                        <span className="sr-only">Joindre un fichier</span>
+                    </Button>
+                    <Button type="submit" size="icon" disabled={isSending || !newMessage.trim() || !chatId}>
+                        {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        <span className="sr-only">{chatDict.sendButton}</span>
+                    </Button>
+                </form>
+            </div>
         </div>
     );
 }
