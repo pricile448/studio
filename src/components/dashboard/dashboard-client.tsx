@@ -98,8 +98,8 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
     <div className="flex flex-col gap-6">
       <VerificationBanner dict={dict.verificationBanner} lang={lang} />
       <div>
-        <h1 className="text-3xl font-bold font-headline">{dict.title}</h1>
-        <p className="text-muted-foreground">{dict.greeting}, {displayName}!</p>
+        <h1 className="text-2xl font-bold font-headline md:text-3xl break-words">{dict.title}</h1>
+        <p className="text-muted-foreground break-words">{dict.greeting}, {displayName}!</p>
       </div>
       
       {/* Account Summary Cards */}
