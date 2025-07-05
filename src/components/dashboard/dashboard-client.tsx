@@ -225,7 +225,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                     </div>
                     
                     <div className="flex justify-center md:justify-end">
-                        <div className="bg-card p-4 rounded-xl shadow-lg border w-full max-w-xs text-center flex flex-col items-center gap-2">
+                        <div className="bg-card p-4 rounded-xl shadow-lg border w-full text-center flex flex-col items-center gap-2">
                             <div className="bg-primary text-primary-foreground rounded-lg p-3 w-full">
                                 <p className="text-2xl font-bold leading-none">{dict.youthOffer.offer_year}</p>
                                 <p className="text-xs tracking-wide">{dict.youthOffer.offer_subscription}</p>

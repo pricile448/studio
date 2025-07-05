@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
@@ -39,8 +39,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
+import { useToast } from '@/hooks/use-toast';
+import { ChatPageClient } from '@/components/chat/chat-page-client';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { BalanceToggle } from '@/components/ui/balance-toggle';
 
 export function DashboardLayoutClient({
   children,
@@ -53,6 +64,7 @@ export function DashboardLayoutClient({
 }) {
   const { user, userProfile, loading, logout } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const notificationsDict = dict.dashboard.notifications;
@@ -71,11 +83,27 @@ export function DashboardLayoutClient({
 
   const [selectedNotification, setSelectedNotification] = useState<(typeof mockNotifications)[0] | null>(null);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async (isInactive = false) => {
+    if (isLoggingOut) return;
+    
     setIsLoggingOut(true);
+    if (isInactive) {
+      toast({
+          title: dict.login.inactivityLogoutTitle,
+          description: dict.login.inactivityLogoutDescription,
+      });
+    }
     await logout();
-    router.push(`/${lang}`);
-  };
+    router.push(`/${lang}/login${isInactive ? '?reason=inactivity' : ''}`);
+  }, [isLoggingOut, logout, router, lang, toast, dict]);
+
+  // Read timeout from user profile, with a default of 15 minutes.
+  const timeoutMinutes = userProfile?.inactivityTimeout ?? 15;
+  const timeoutMs = timeoutMinutes * 60 * 1000;
+
+  // The hook is now called unconditionally. The internal logic of the hook handles the `timeout > 0` case.
+  useInactivityLogout(timeoutMs, () => handleLogout(true));
+
 
   useEffect(() => {
     if (loading || isLoggingOut) return;
@@ -87,7 +115,7 @@ export function DashboardLayoutClient({
     }
   }, [user, loading, router, lang, isLoggingOut]);
 
-  if (loading || !user || !user.emailVerified || !userProfile) {
+  if (loading || !user || !user.emailVerified || !userProfile || !dict) {
     return (
         <div className="flex h-screen w-full bg-background">
             <div className="hidden md:block">
@@ -128,14 +156,14 @@ export function DashboardLayoutClient({
                         <AvatarImage src={user.photoURL || ""} alt={displayName} />
                         <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
-                    {userProfile.kycStatus === 'verified' && (
+                    {userProfile?.kycStatus === 'verified' && (
                         <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar" />
                     )}
                 </div>
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                     <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
-                    {userProfile.kycStatus === 'verified' ? (
-                        <span className="text-xs text-green-500 font-medium">{dict.sidebar.verified}</span>
+                    {userProfile?.kycStatus === 'verified' ? (
+                        <span className="text-xs font-bold text-green-400">{dict.sidebar.verified}</span>
                     ) : (
                         <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
                     )}
@@ -143,7 +171,7 @@ export function DashboardLayoutClient({
             </div>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleLogout} tooltip={dict.sidebar.userMenu.logout}>
+                    <SidebarMenuButton onClick={() => handleLogout(false)} tooltip={dict.sidebar.userMenu.logout}>
                         <LogOut />
                         <span>{dict.sidebar.userMenu.logout}</span>
                     </SidebarMenuButton>
@@ -157,7 +185,23 @@ export function DashboardLayoutClient({
           <div className="w-full flex-1">
             {/* Future search bar could go here */}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+               <BalanceToggle dict={dict.sidebar} />
+               <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MessageSquare className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full max-w-md p-0 flex flex-col">
+                  <SheetHeader className="p-4 border-b">
+                    <SheetTitle>{dict.chat.headerTitle}</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex-1">
+                    <ChatPageClient dict={dict} />
+                  </div>
+                </SheetContent>
+              </Sheet>
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -213,7 +257,7 @@ export function DashboardLayoutClient({
             </DropdownMenu>
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background overflow-x-hidden">
           {children}
         </main>
         <footer className="border-t bg-card/50">
