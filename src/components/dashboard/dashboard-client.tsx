@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -169,7 +170,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                   {recentTransactions.map((tx) => (
                     <TableRow key={tx.id}>
                       <TableCell>
-                        <div className="font-medium">{tx.description}</div>
+                        <div className="font-medium break-words">{tx.description}</div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">{tx.category}</TableCell>
                       <TableCell className="hidden lg:table-cell">{tx.date}</TableCell>
@@ -188,7 +189,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
                   <div key={tx.id}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium">{tx.description}</p>
+                        <p className="font-medium break-words">{tx.description}</p>
                         <p className="text-sm text-muted-foreground">{tx.category}</p>
                       </div>
                       <p className={`font-semibold ${tx.amount > 0 ? 'text-accent' : ''}`}>
