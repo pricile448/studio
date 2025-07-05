@@ -279,99 +279,97 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 </DialogContent>
             </Dialog>
 
-            <div className="flex-1 min-h-0">
-                <ScrollArea className="h-full">
-                    <div className="p-4 space-y-4">
-                        {messages.length === 0 && (
-                            <div className="text-center text-muted-foreground p-8">
-                                <p className="font-medium">{chatDict.welcomeMessage}</p>
-                                <p className="text-xs mt-2">{chatDict.welcomeMessageSubtext}</p>
-                            </div>
-                        )}
-                        {messages.filter(msg => !msg.deletedForUser).map((msg, index) => {
-                            const isUser = msg.senderId === user.uid;
-                            return (
-                                <div key={msg.id || index} className={cn('group flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
-                                    {isUser && (
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                <AlertDialogTitle>Supprimer ce message ?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    Cette action ne peut pas être annulée. Le message sera masqué pour vous.
-                                                </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeleteMessage(msg.id)} disabled={isDeleting}>
-                                                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
-                                                </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    )}
-                                    {!isUser && (
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarFallback>{getInitials(chatDict.advisorName)}</AvatarFallback>
-                                        </Avatar>
-                                    )}
-                                    <div className={cn(
-                                        'max-w-[85%] md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
-                                        isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                                    )}>
-                                        <div className={cn(msg.text ? 'mb-1' : '')}>
-                                            {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
-                                                <button
-                                                onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
-                                                className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
-                                                >
-                                                <Image
-                                                    src={msg.fileUrl}
-                                                    alt={msg.fileName || 'Image en pièce jointe'}
-                                                    fill
-                                                    style={{ objectFit: 'cover' }}
-                                                />
-                                                </button>
-                                            ) : msg.fileUrl ? (
-                                                <a
-                                                    href={getCloudinaryDownloadUrl(msg.fileUrl)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className={cn(
-                                                        "flex items-center gap-2 p-2 rounded-md transition-colors",
-                                                        isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
-                                                    )}
-                                                >
-                                                    {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
-                                                    <span className="font-medium truncate min-w-0">{msg.fileName || 'Fichier partagé'}</span>
-                                                </a>
-                                            ) : null}
-                                        </div>
-                                        {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
-                                        <p className={cn("text-xs mt-1 text-right", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
-                                            {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </p>
+            <ScrollArea className="flex-1">
+                <div className="p-4 space-y-4">
+                    {messages.length === 0 && (
+                        <div className="text-center text-muted-foreground p-8">
+                            <p className="font-medium">{chatDict.welcomeMessage}</p>
+                            <p className="text-xs mt-2">{chatDict.welcomeMessageSubtext}</p>
+                        </div>
+                    )}
+                    {messages.filter(msg => !msg.deletedForUser).map((msg, index) => {
+                        const isUser = msg.senderId === user.uid;
+                        return (
+                            <div key={msg.id || index} className={cn('group flex items-end gap-2', isUser ? 'justify-end' : 'justify-start')}>
+                                {isUser && (
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Supprimer ce message ?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Cette action ne peut pas être annulée. Le message sera masqué pour vous.
+                                            </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteMessage(msg.id)} disabled={isDeleting}>
+                                                {isDeleting ? <Loader2 className="h-4 w-4 animate-spin"/> : "Supprimer"}
+                                            </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                )}
+                                {!isUser && (
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarFallback>{getInitials(chatDict.advisorName)}</AvatarFallback>
+                                    </Avatar>
+                                )}
+                                <div className={cn(
+                                    'max-w-[85%] md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
+                                    isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                                )}>
+                                    <div className={cn(msg.text ? 'mb-1' : '')}>
+                                        {msg.fileUrl && msg.fileType?.startsWith('image/') ? (
+                                            <button
+                                            onClick={() => setPreviewImage({ url: msg.fileUrl!, name: msg.fileName || 'image.png' })}
+                                            className="block relative w-48 h-48 rounded-md overflow-hidden cursor-pointer"
+                                            >
+                                            <Image
+                                                src={msg.fileUrl}
+                                                alt={msg.fileName || 'Image en pièce jointe'}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                            </button>
+                                        ) : msg.fileUrl ? (
+                                            <a
+                                                href={getCloudinaryDownloadUrl(msg.fileUrl)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={cn(
+                                                    "flex items-center gap-2 p-2 rounded-md transition-colors",
+                                                    isUser ? "bg-white/20 hover:bg-white/30" : "bg-black/5 hover:bg-black/10"
+                                                )}
+                                            >
+                                                {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
+                                                <span className="font-medium truncate min-w-0">{msg.fileName || 'Fichier partagé'}</span>
+                                            </a>
+                                        ) : null}
                                     </div>
-                                    {isUser && (
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'user'} />
-                                            <AvatarFallback>{getInitials(user.displayName || 'U')}</AvatarFallback>
-                                        </Avatar>
-                                    )}
+                                    {msg.text && <p className="whitespace-pre-wrap">{msg.text}</p>}
+                                    <p className={cn("text-xs mt-1 text-right", isUser ? "text-primary-foreground/70" : "text-muted-foreground/70")}>
+                                        {msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
                                 </div>
-                            );
-                        })}
-                    </div>
-                    <div ref={scrollAreaEndRef} />
-                </ScrollArea>
-            </div>
+                                {isUser && (
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'user'} />
+                                        <AvatarFallback>{getInitials(user.displayName || 'U')}</AvatarFallback>
+                                    </Avatar>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+                <div ref={scrollAreaEndRef} />
+            </ScrollArea>
 
-            <div className="p-4 border-t bg-background">
+            <div className="p-4 border-t bg-background shrink-0">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                     <Input
                         value={newMessage}
