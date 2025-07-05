@@ -197,7 +197,7 @@ export function DashboardLayoutClient({
                   <SheetHeader className="p-4 border-b">
                     <SheetTitle>{dict.chat.headerTitle}</SheetTitle>
                   </SheetHeader>
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0">
                     <ChatPageClient dict={dict} />
                   </div>
                 </SheetContent>
