@@ -185,20 +185,34 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
             {/* Mobile list */}
             <div className="md:hidden px-6 pb-6">
               <div className="space-y-4">
-                {recentTransactions.map((tx, index) => (
-                  <div key={tx.id}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium break-words">{tx.description}</p>
-                        <p className="text-sm text-muted-foreground">{tx.category}</p>
+                {recentTransactions.map((tx, index) => {
+                  const isInternalTransfer = tx.category === 'Virement interne' && (tx.description.startsWith('Virement vers ') || tx.description.startsWith('Virement depuis '));
+                  
+                  return (
+                    <div key={tx.id}>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium break-words">
+                            {isInternalTransfer ? (
+                              <>
+                                {tx.description.split(' ').slice(0, 2).join(' ')}
+                                <br />
+                                {tx.description.split(' ').slice(2).join(' ')}
+                              </>
+                            ) : (
+                              tx.description
+                            )}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{tx.category}</p>
+                        </div>
+                        <p className={`text-right font-semibold shrink-0 ${tx.amount > 0 ? 'text-accent' : ''}`}>
+                          {formatCurrency(tx.amount)}
+                        </p>
                       </div>
-                      <p className={`text-right font-semibold shrink-0 ${tx.amount > 0 ? 'text-accent' : ''}`}>
-                        {formatCurrency(tx.amount)}
-                      </p>
+                      {index < recentTransactions.length - 1 && <Separator className="my-4" />}
                     </div>
-                    {index < recentTransactions.length - 1 && <Separator className="my-4" />}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </CardContent>
