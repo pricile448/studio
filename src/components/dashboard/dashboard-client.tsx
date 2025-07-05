@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -213,7 +212,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
         </Card>
       </div>
 
-       <div className="grid gap-6">
+       <div className="hidden md:grid gap-6">
           <Card className="w-full overflow-hidden border-2 border-primary/20 bg-blue-50/50 dark:bg-blue-950/20">
             <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8">
