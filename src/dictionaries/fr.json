@@ -188,7 +188,7 @@
       "history": "Historique",
       "budgets": "Budgets",
       "billing": "Facturation",
-      "chat": "Discuter avec mon conseiller",
+      "chat": "Messagerie",
       "settings": "Paramètres",
       "more": "Plus",
       "help": "Aide & Support",
@@ -617,7 +617,7 @@
     },
     "chat": {
       "title": "Messagerie",
-      "headerTitle": "Contacter mon conseiller",
+      "headerTitle": "Messagerie",
       "headerDescription": "Posez vos questions directement à votre conseiller financier.",
       "inputPlaceholder": "Écrivez votre message...",
       "sendButton": "Envoyer",
