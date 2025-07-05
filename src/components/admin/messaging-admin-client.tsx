@@ -235,7 +235,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                     </Avatar>
                                 )}
                                 <div className={cn(
-                                    'max-w-xs md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
+                                    'max-w-[85%] md:max-w-md rounded-lg px-3 py-2 text-sm break-words',
                                     isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                 )}>
                                     <div className={cn(msg.text ? 'mb-1' : '')}>

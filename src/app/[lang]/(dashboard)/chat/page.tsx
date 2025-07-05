@@ -10,7 +10,7 @@ export default async function ChatPage({ params }: { params: { lang: Locale } })
   
   return (
     <div className="flex flex-col h-full gap-4">
-      <h1 className="text-3xl font-bold font-headline shrink-0">{dict.chat.headerTitle}</h1>
+      <h1 className="text-3xl font-bold font-headline shrink-0 break-words">{dict.chat.headerTitle}</h1>
       <div className="flex-1 min-h-0">
         <ChatPageClient dict={dict} />
       </div>
