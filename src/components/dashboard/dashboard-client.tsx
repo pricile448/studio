@@ -187,16 +187,16 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
               <div className="space-y-4">
                 {recentTransactions.map((tx, index) => (
                   <div key={tx.id}>
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
                         <p className="font-medium break-words">{tx.description}</p>
                         <p className="text-sm text-muted-foreground">{tx.category}</p>
                       </div>
-                      <p className={`font-semibold ${tx.amount > 0 ? 'text-accent' : ''}`}>
+                      <p className={`text-right font-semibold shrink-0 ${tx.amount > 0 ? 'text-accent' : ''}`}>
                         {formatCurrency(tx.amount)}
                       </p>
                     </div>
-                    {index < transactions.length - 1 && <Separator className="my-4" />}
+                    {index < recentTransactions.length - 1 && <Separator className="my-4" />}
                   </div>
                 ))}
               </div>
