@@ -194,10 +194,10 @@ export function DashboardLayoutClient({
                   </Button>
                 </SheetTrigger>
                 <SheetContent className="w-full max-w-md p-0 flex flex-col">
-                  <SheetHeader className="p-4 border-b">
+                  <SheetHeader className="p-4 border-b shrink-0">
                     <SheetTitle>{dict.chat.headerTitle}</SheetTitle>
                   </SheetHeader>
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0">
                     <ChatPageClient dict={dict} />
                   </div>
                 </SheetContent>
@@ -257,7 +257,7 @@ export function DashboardLayoutClient({
             </DropdownMenu>
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background overflow-x-hidden">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
           {children}
         </main>
         <footer className="border-t bg-card/50">

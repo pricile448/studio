@@ -249,7 +249,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     }
 
     return (
-        <div className="grid grid-rows-[1fr_auto] h-full">
+        <div className="flex flex-col h-full">
             <Dialog open={!!previewImage} onOpenChange={(isOpen) => !isOpen && setPreviewImage(null)}>
                 <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 bg-transparent shadow-none">
                         <DialogHeader className="sr-only">
@@ -279,7 +279,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 </DialogContent>
             </Dialog>
 
-            <ScrollArea className="overflow-y-auto">
+            <ScrollArea className="flex-1">
                 <div className="p-4 space-y-4">
                     {messages.length === 0 && (
                         <div className="text-center text-muted-foreground p-8">
