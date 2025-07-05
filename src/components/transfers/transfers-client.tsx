@@ -255,7 +255,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
             </Card>
 
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="flex flex-col items-stretch gap-4 md:flex-row md:items-center md:justify-between pb-2">
                     <CardTitle className="text-lg">Liste des bénéficiaires</CardTitle>
                     <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />
                 </CardHeader>
