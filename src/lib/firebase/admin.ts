@@ -15,12 +15,15 @@ if (admin.apps.length) {
     adminInitialized = true;
 } else if (isProduction) {
     // In a deployed App Hosting environment, Application Default Credentials are used.
+    // We explicitly pass the projectId to avoid auto-detection issues.
     try {
-        admin.initializeApp();
-        console.log("Firebase Admin SDK initialized with Application Default Credentials for production.");
+        admin.initializeApp({
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        });
+        console.log("Firebase Admin SDK initialized for production with Project ID.");
         adminInitialized = true;
     } catch(error: any) {
-        console.error('Firebase Admin SDK initialization error in production with ADC:', error.message);
+        console.error('Firebase Admin SDK initialization error in production:', error.message);
     }
 } else if (serviceAccountJson) {
     // For local development, SERVICE_ACCOUNT_JSON is the required method.
