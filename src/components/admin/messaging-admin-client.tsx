@@ -257,7 +257,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                                 )}
                                                 >
                                                 {msg.fileType === 'application/pdf' ? <FileText className="h-6 w-6 flex-shrink-0" /> : <FileIcon className="h-6 w-6 flex-shrink-0" />}
-                                                <span className="font-medium truncate">{msg.fileName || 'Fichier partagé'}</span>
+                                                <span className="font-medium truncate min-w-0">{msg.fileName || 'Fichier partagé'}</span>
                                             </a>
                                         ) : null}
                                     </div>
