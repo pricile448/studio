@@ -180,7 +180,7 @@ export function DashboardLayoutClient({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="w-full flex-1">
             {/* Future search bar could go here */}
@@ -257,10 +257,10 @@ export function DashboardLayoutClient({
             </DropdownMenu>
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background overflow-y-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto bg-background p-4 lg:p-6">
           {children}
         </main>
-        <footer className="border-t bg-card/50">
+        <footer className="shrink-0 border-t bg-card/50">
             <div className="container mx-auto flex items-center justify-center p-4">
               <p className="text-sm text-muted-foreground">
                 {dict.homePage.footer.copyright}
