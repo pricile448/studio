@@ -322,21 +322,23 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
             <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
             
             {/* Mobile View - visible on small screens, hidden on medium and up */}
-            <div className="flex flex-wrap items-center justify-center gap-6 md:hidden">
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="Partner Logo 1" className="h-8 w-auto object-contain opacity-60" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Partner Logo 2" className="h-8 w-auto object-contain opacity-60" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Partner Logo 3" className="h-8 w-auto object-contain opacity-60" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Partner Logo 4" className="h-8 w-auto object-contain opacity-60" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="Partner Logo 5" className="h-8 w-auto object-contain opacity-60" />
+             <div className="grid grid-cols-2 items-center justify-items-center gap-y-10 gap-x-4 md:hidden">
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="bunq logo" data-ai-hint="bunq logo" className="h-8 w-auto object-contain opacity-60" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Crédit Agricole logo" data-ai-hint="Crédit Agricole logo" className="h-8 w-auto object-contain opacity-60" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Crédit Mutuel logo" data-ai-hint="Crédit Mutuel logo" className="h-8 w-auto object-contain opacity-60" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Sogexia logo" data-ai-hint="Sogexia logo" className="h-8 w-auto object-contain opacity-60" />
+              <div className="col-span-2 flex justify-center">
+                <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="BNP Paribas logo" data-ai-hint="BNP Paribas logo" className="h-8 w-auto object-contain opacity-60" />
+              </div>
             </div>
 
             {/* Desktop View - hidden on small screens, visible on medium and up */}
             <div className="hidden md:flex flex-wrap items-center justify-center gap-16">
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="Partner Logo 1" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Partner Logo 2" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Partner Logo 3" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Partner Logo 4" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
-              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="Partner Logo 5" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={140} height={50} alt="bunq logo" data-ai-hint="bunq logo" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={140} height={50} alt="Crédit Agricole logo" data-ai-hint="Crédit Agricole logo" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={140} height={50} alt="Crédit Mutuel logo" data-ai-hint="Crédit Mutuel logo" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={140} height={50} alt="Sogexia logo" data-ai-hint="Sogexia logo" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
+              <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={140} height={50} alt="BNP Paribas logo" data-ai-hint="BNP Paribas logo" className="h-16 w-auto object-contain opacity-60 transition-all duration-300 hover:opacity-100 hover:scale-110" />
             </div>
 
              <div className="mt-16 max-w-3xl mx-auto">
