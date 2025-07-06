@@ -14,7 +14,6 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription as ShadCardDescription, CardFooter, CardHeader as ShadCardHeader, CardTitle as ShadCardTitle } from '@/components/ui/card';
-import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -42,9 +41,9 @@ export default async function PricingPage({ params }: { params: { lang: Locale }
 
 
   return (
-    <div className="flex h-screen flex-col bg-background font-body">
+    <div className="flex min-h-screen flex-col bg-background font-body">
       {/* Header */}
-      <header className="z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
             <Link href={`/${lang}`} className="flex items-center gap-4">
             <Logo text={dict.logo} />
@@ -69,7 +68,6 @@ export default async function PricingPage({ params }: { params: { lang: Locale }
             <Button asChild>
                 <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
             </Button>
-            <ThemeToggleButton />
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -128,11 +126,6 @@ export default async function PricingPage({ params }: { params: { lang: Locale }
                             ))}
                         </nav>
                     </div>
-                    <Separator />
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.theme}</p>
-                            <ThemeToggleButton />
-                        </div>
                 </div>
                 </SheetContent>
             </Sheet>
