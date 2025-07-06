@@ -46,15 +46,24 @@ Certaines fonctionnalités, comme le tableau de bord administrateur, s'exécuten
 2.  **Configurez la variable d'environnement :**
     *   Ouvrez le fichier JSON que vous venez de télécharger.
     *   Copiez **l'intégralité du contenu** de ce fichier.
-    *   Sur votre plateforme d'hébergement (ou dans votre fichier `.env` pour le développement local), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
+    *   Sur votre plateforme d'hébergement (cPanel, etc.), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
     *   Collez l'intégralité du contenu JSON comme valeur pour cette variable.
 
-**Exemple dans le fichier `.env` :**
-```
-SERVICE_ACCOUNT_JSON='{"type": "service_account", "project_id": "...", ...}'
-```
+    **ATTENTION : C'EST UNE ÉTAPE CRUCIALE POUR cPANEL**
 
-**Note :** Assurez-vous de coller la chaîne JSON complète, y compris les accolades `{}`. Il est recommandé de l'entourer de guillemets simples `'` ou doubles `"` si votre système le permet. **Ne partagez jamais ce fichier JSON publiquement.**
+    Le contenu JSON que vous collez **DOIT IMPÉRATIVEMENT** être entouré de guillemets simples (`'`). Sans cela, votre serveur ne pourra pas démarrer et affichera une erreur de type `not a valid identifier`.
+
+    **Exemple de configuration CORRECTE dans cPanel :**
+
+    *   **Nom de la variable :** `SERVICE_ACCOUNT_JSON`
+    *   **Valeur de la variable :** `'{"type": "service_account", "project_id": "...", ...}'`  *(<-- notez les guillemets simples au début et à la fin)*
+
+    **Exemple de configuration INCORRECTE qui causera une erreur :**
+
+    *   **Valeur de la variable :** `{"type": "service_account", "project_id": "...", ...}`  *(<-- sans les guillemets simples)*
+
+
+**Note :** Assurez-vous de coller la chaîne JSON complète, y compris les accolades `{}`. **Ne partagez jamais ce fichier JSON publiquement.**
 
 ---
 
