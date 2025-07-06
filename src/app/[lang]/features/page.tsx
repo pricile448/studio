@@ -177,16 +177,17 @@ export default async function FeaturesPage({ params }: { params: { lang: Locale 
             </div>
           </div>
         </section>
-        {/* Footer */}
-        <footer className="border-t">
-          <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
-            <p className="text-sm text-muted-foreground">{homeDict.footer.copyright}</p>
-            <div className="flex gap-4 text-sm text-muted-foreground">
-              <Link href="#" className="hover:underline">{homeDict.footer.legal}</Link>
-            </div>
-          </div>
-        </footer>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t">
+        <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
+          <p className="text-sm text-muted-foreground">{homeDict.footer.copyright}</p>
+          <div className="flex gap-4 text-sm text-muted-foreground">
+            <Link href="#" className="hover:underline">{homeDict.footer.legal}</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
