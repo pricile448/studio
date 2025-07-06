@@ -151,3 +151,34 @@ Si vous n'utilisez pas une plateforme automatisée comme Firebase App Hosting ou
 -   **Chemin le plus simple :** Utilisez **Firebase App Hosting** ou **Vercel** pour un déploiement simple et sans tracas.
 
 Bon déploiement !
+
+---
+
+### Annexe : Dépannage des Erreurs Courantes
+
+#### Erreur : `ENOTEMPTY: directory not empty` lors de `npm install`
+
+Cette erreur est l'une des plus fréquentes lors du déploiement sur cPanel et indique généralement que votre dossier de dépendances (`node_modules`) est dans un état incohérent, souvent suite à une installation interrompue ou échouée.
+
+**Ce n'est PAS une erreur dans le code de votre application.**
+
+Pour la résoudre, vous devez forcer une réinstallation propre des dépendances :
+
+1.  **Arrêtez l'application Node.js :**
+    *   Dans votre cPanel, allez dans "Setup Node.js App".
+    *   Cliquez sur le bouton "**Stop App**".
+
+2.  **Supprimez les dépendances existantes :**
+    *   Allez dans le "Gestionnaire de fichiers" de cPanel.
+    *   Naviguez jusqu'au répertoire racine de votre application.
+    *   **Supprimez complètement le dossier `node_modules`**.
+    *   Par précaution, **supprimez également le fichier `package-lock.json`**.
+
+3.  **Réinstallez les dépendances :**
+    *   Retournez dans "Setup Node.js App".
+    *   Cliquez sur le bouton "**Run NPM Install**". Laissez-lui le temps de se terminer. Cela va recréer un dossier `node_modules` propre.
+
+4.  **Redémarrez l'application :**
+    *   Cliquez sur le bouton "**Start App**".
+
+Cela résout le problème dans la grande majorité des cas en repartant sur une base saine.
