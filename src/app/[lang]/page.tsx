@@ -50,9 +50,9 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-body">
+    <div className="flex h-screen flex-col bg-background font-body">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
             <Link href={`/${lang}`} className="flex items-center gap-4">
             <Logo text={dict.logo} />
@@ -149,7 +149,7 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 overflow-y-auto">
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-8 sm:py-16">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
@@ -350,17 +350,16 @@ export default function HomePage({ params }: { params: { lang: Locale } }) {
           </div>
         </section>
 
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t">
-        <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
-          <p className="text-sm text-muted-foreground">{homeDict.footer.copyright}</p>
-          <div className="flex gap-4 text-sm text-muted-foreground">
-            <Link href="#" className="hover:underline">{homeDict.footer.legal}</Link>
+        {/* Footer */}
+        <footer className="border-t">
+          <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
+            <p className="text-sm text-muted-foreground">{homeDict.footer.copyright}</p>
+            <div className="flex gap-4 text-sm text-muted-foreground">
+              <Link href="#" className="hover:underline">{homeDict.footer.legal}</Link>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </main>
     </div>
   );
 }
