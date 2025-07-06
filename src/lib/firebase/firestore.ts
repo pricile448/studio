@@ -345,6 +345,7 @@ export async function deleteChatSession(chatId: string, dbInstance: Firestore = 
     const chatRef = doc(dbInstance, 'chats', chatId);
     const messagesRef = collection(dbInstance, 'chats', chatId, 'messages');
     
+    // Delete all messages in the subcollection first.
     const messagesSnap = await getDocs(messagesRef);
     if (!messagesSnap.empty) {
         const deleteBatch = writeBatch(dbInstance);
@@ -354,11 +355,9 @@ export async function deleteChatSession(chatId: string, dbInstance: Firestore = 
         await deleteBatch.commit();
     }
 
-    await updateDoc(chatRef, {
-        lastMessageText: deleteField(),
-        lastMessageTimestamp: deleteField(),
-        lastMessageSenderId: deleteField()
-    });
+    // Now, delete the parent chat document itself to ensure a clean state.
+    // This prevents "zombie" chat sessions that cause permission errors.
+    await deleteDoc(chatRef);
 }
 
 
