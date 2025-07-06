@@ -95,9 +95,9 @@
             }
         },
         "partnersSection": {
-            "title": "Nos partenaires",
-            "invitation": "Vous êtes un grand facturier et vous souhaitez proposer les services d'AmCbunq à vos clients ?",
-            "description": "Devenez partenaire AmCbunq, et mettez à disposition de vos usagers les solutions de paiement en espèces ou par carte dans l'un des 10 000 points de paiement agréés."
+            "title": "Sécurité et Conformité",
+            "invitation": "Un établissement de paiement agréé et supervisé",
+            "description": "AmCbunq est agréé et réglementé par l'Autorité de Contrôle Prudentiel et de Résolution (ACPR). Vos fonds sont protégés et sécurisés conformément aux normes réglementaires les plus strictes. La sécurité de vos transactions et de vos données personnelles est notre priorité absolue."
         },
         "footer": {
             "legal": "Mentions Légales",
