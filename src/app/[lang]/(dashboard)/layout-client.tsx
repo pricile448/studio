@@ -180,7 +180,7 @@ export function DashboardLayoutClient({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="w-full flex-1">
             {/* Future search bar could go here */}
@@ -194,7 +194,7 @@ export function DashboardLayoutClient({
                   </Button>
                 </SheetTrigger>
                 <SheetContent className="w-full max-w-md p-0 flex flex-col">
-                  <SheetHeader className="p-4 border-b shrink-0">
+                  <SheetHeader className="p-4 border-b">
                     <SheetTitle>{dict.chat.headerTitle}</SheetTitle>
                   </SheetHeader>
                   <div className="flex-1 min-h-0">
@@ -257,10 +257,10 @@ export function DashboardLayoutClient({
             </DropdownMenu>
           </div>
         </header>
-        <main className="flex-1 min-h-0 overflow-y-auto bg-background p-4 lg:p-6">
+        <main className="overflow-y-auto bg-background p-4 lg:p-6">
           {children}
         </main>
-        <footer className="shrink-0 border-t bg-card/50">
+        <footer className="border-t bg-card/50">
             <div className="container mx-auto flex items-center justify-center p-4">
               <p className="text-sm text-muted-foreground">
                 {dict.homePage.footer.copyright}
