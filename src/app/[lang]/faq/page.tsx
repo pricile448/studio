@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescri
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription as ShadCardDescription, CardHeader as ShadCardHeader, CardTitle as ShadCardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -69,6 +70,7 @@ export default async function FaqPage({ params }: { params: { lang: Locale } }) 
             <Button asChild>
                 <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
             </Button>
+            <ThemeToggleButton />
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">

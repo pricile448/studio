@@ -14,6 +14,7 @@ import { getDictionary } from '@/lib/get-dictionary';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription as ShadCardDescription, CardFooter, CardHeader as ShadCardHeader, CardTitle as ShadCardTitle } from '@/components/ui/card';
+import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -68,6 +69,7 @@ export default async function PricingPage({ params }: { params: { lang: Locale }
             <Button asChild>
                 <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
             </Button>
+            <ThemeToggleButton />
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">

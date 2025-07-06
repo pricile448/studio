@@ -16,6 +16,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescri
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -75,6 +76,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
             <Button asChild>
                 <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
             </Button>
+            <ThemeToggleButton />
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
