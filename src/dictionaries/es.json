@@ -18,6 +18,16 @@
             "ctaPrimary": "Comience hoy",
             "ctaSecondary": "Saber más"
         },
+        "youthOffer": {
+            "title": "¿Tienes entre 18 y 25 años?",
+            "line1": "¡Tu libertad financiera comienza aquí!",
+            "line2": "Tu cuenta, tus reglas, sin compromiso.",
+            "line3": "AmCbunq. El banco que cree en tu potencial.",
+            "offer_year": "1 año",
+            "offer_subscription": "de suscripción",
+            "offer_free": "gratis",
+            "offer_commitment": "Sin compromiso"
+        },
         "featuresSection": {
             "title": "Una experiencia bancaria diseñada para usted",
             "feature1": {

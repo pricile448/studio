@@ -18,6 +18,16 @@
             "ctaPrimary": "Commencez aujourd'hui",
             "ctaSecondary": "En savoir plus"
         },
+        "youthOffer": {
+            "title": "Vous avez entre 18 et 25 ans ?",
+            "line1": "Votre liberté financière commence ici !",
+            "line2": "Votre compte, vos règles, sans engagement.",
+            "line3": "AmCbunq. La banque qui croit en votre potentiel.",
+            "offer_year": "1 an",
+            "offer_subscription": "d'abonnement",
+            "offer_free": "offert",
+            "offer_commitment": "Sans engagement"
+        },
         "featuresSection": {
             "title": "Une expérience bancaire conçue pour vous",
             "feature1": {
@@ -275,7 +285,7 @@
         "verificationDescription": "Veuillez compléter votre vérification d'identité. Pour se conformer aux réglementations financières et assurer la sécurité de votre compte, c'est une étape nécessaire pour accéder à des fonctionnalités comme les virements et les services de carte.",
         "viewAll": "Voir toutes les notifications",
         "noNotifications": "Aucune nouvelle notification.",
-        "markAllAsRead": "Tout marquer comme lu"
+        "markAllAsRead": "Tout marquer como lu"
       }
     },
     "accounts": {

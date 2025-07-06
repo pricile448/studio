@@ -164,17 +164,31 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
               </div>
             </div>
             <div>
-              {/* Image for mobile and desktop */}
-              <div className="relative h-full">
-                  <Image
-                      src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1751645130/image_resized_1000x600_v9ypb9.png"
-                      alt="Application showcase"
-                      width={1000}
-                      height={600}
-                      priority
-                      data-ai-hint="credit card app"
-                      className="mx-auto object-contain transition-transform duration-300 rounded-xl shadow-2xl hover:scale-105"
-                  />
+              <div className="relative p-6 sm:p-8 rounded-2xl shadow-2xl bg-gradient-to-br from-blue-50 via-white to-pink-50 dark:from-blue-900/20 dark:via-background dark:to-pink-900/20 overflow-hidden border">
+                {/* Stars for decoration */}
+                <svg className="absolute top-4 left-20 h-5 w-5 text-yellow-400 animate-pulse" style={{ animationDelay: '0.5s' }} fill="currentColor" viewBox="0 0 20 20" data-ai-hint="star"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                <svg className="absolute bottom-12 right-24 h-4 w-4 text-blue-400 animate-pulse" style={{ animationDelay: '1s' }} fill="currentColor" viewBox="0 0 20 20" data-ai-hint="star"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                
+                <div className="relative z-10">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="space-y-3 text-center sm:text-left">
+                      <h2 className="text-xl sm:text-2xl font-bold font-headline text-primary">{homeDict.youthOffer.title}</h2>
+                      <p className="text-muted-foreground">{homeDict.youthOffer.line1}</p>
+                      <p className="text-muted-foreground text-sm">{homeDict.youthOffer.line2}</p>
+                      <p className="text-muted-foreground text-sm">{homeDict.youthOffer.line3}</p>
+                    </div>
+                    <div className="bg-primary text-primary-foreground rounded-lg p-4 text-center shadow-lg w-40 flex-shrink-0">
+                      <p className="text-2xl font-bold leading-none">{homeDict.youthOffer.offer_year}</p>
+                      <p className="text-xs tracking-wide">{homeDict.youthOffer.offer_subscription}</p>
+                      <div className="relative my-2 inline-block">
+                        <span className="bg-red-500 text-white font-bold py-1 px-3 rounded-md shadow-md text-sm">{homeDict.youthOffer.offer_free}</span>
+                      </div>
+                      <div className="bg-cyan-400 text-white font-semibold py-1 px-3 rounded-full shadow-md text-xs w-fit mx-auto mt-2">
+                        {homeDict.youthOffer.offer_commitment}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
