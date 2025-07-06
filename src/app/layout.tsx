@@ -1,5 +1,5 @@
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/dictionaries';
@@ -11,12 +11,13 @@ export const metadata: Metadata = {
   icons: {
     icon: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1751655892/favicon-32x32_lcz5bt.png',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
