@@ -127,13 +127,14 @@ Si vous n'utilisez pas une plateforme automatisée comme Firebase App Hosting ou
         *   Le dossier `public`
         *   Le fichier `package.json` et `package-lock.json`
         *   Le fichier `next.config.ts`
+        *   Le fichier `app.js`
 
 3.  **Installer les dépendances de production sur le serveur :**
     *   Connectez-vous à votre serveur via un terminal (SSH) et exécutez :
         ```bash
         npm install --production
         ```
-    *   Cela installe uniquement les paquets nécessaires au fonctionnement de l'application, pas ceux de développement.
+    *   Cette commande lit votre `package.json` mais n'installe **que** les paquets de production (`dependencies`), en ignorant les paquets de développement (`devDependencies`). Cela rend votre installation plus légère et plus rapide.
 
 4.  **Démarrer l'application :**
     *   La commande pour lancer l'application en mode production est :
