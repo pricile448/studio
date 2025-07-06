@@ -51,26 +51,26 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-background font-body">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95">
+      <header className="sticky top-0 z-50 w-full border-b border-primary/20 bg-gradient-to-r from-primary/95 to-primary-gradient-end/95 text-primary-foreground backdrop-blur-sm">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
             <Link href={`/${lang}`} className="flex items-center gap-4">
             <Logo text={dict.logo} />
             <div>
                 <h1 className="text-xl font-bold font-headline">{dict.logo}</h1>
-                <p className="hidden text-sm text-muted-foreground sm:block">{homeDict.slogan}</p>
+                <p className="hidden text-sm text-primary-foreground/80 sm:block">{homeDict.slogan}</p>
             </div>
             </Link>
             <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
             {navLinks.map((link) => (
-                <Button variant="ghost" asChild key={link.href}>
-                <Link href={link.href} className="hover:bg-accent/50 active:bg-accent/80">
+                <Button variant="ghost" asChild key={link.href} className="hover:bg-primary-foreground/10 active:bg-primary-foreground/20">
+                <Link href={link.href}>
                     {link.label}
                 </Link>
                 </Button>
             ))}
             </nav>
             <div className="hidden items-center gap-2 md:flex">
-            <Button variant="ghost" asChild>
+            <Button variant="ghost" asChild className="hover:bg-primary-foreground/10 active:bg-primary-foreground/20">
                 <Link href={`/${lang}/login`}>{homeDict.nav.login}</Link>
             </Button>
             <Button asChild>
@@ -79,7 +79,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
             <ThemeToggleButton />
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hover:bg-primary-foreground/10 active:bg-primary-foreground/20">
                     <Globe />
                 </Button>
                 </DropdownMenuTrigger>
@@ -346,11 +346,11 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       </main>
 
       {/* Footer */}
-      <footer className="border-t">
+      <footer className="bg-gradient-to-r from-primary to-primary-gradient-end text-primary-foreground">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row">
-          <p className="text-sm text-muted-foreground">{homeDict.footer.copyright}</p>
-          <div className="flex gap-4 text-sm text-muted-foreground">
-            <Link href="#" className="hover:underline">{homeDict.footer.legal}</Link>
+          <p className="text-sm text-primary-foreground/80">{homeDict.footer.copyright}</p>
+          <div className="flex gap-4 text-sm">
+            <Link href="#" className="hover:underline text-primary-foreground/80 hover:text-primary-foreground">{homeDict.footer.legal}</Link>
           </div>
         </div>
       </footer>
