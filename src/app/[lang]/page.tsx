@@ -370,3 +370,5 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
     </div>
   );
 }
+
+    
