@@ -6,7 +6,7 @@ import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEma
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard, Beneficiary, addBeneficiary as addBeneficiaryToDb, deleteBeneficiary as deleteBeneficiaryFromDb, Transaction, requestTransfer as requestTransferInDb } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
-import { uploadToCloudinary } from '@/services/cloudinary-service';
+import { getCloudinaryUrl } from '@/app/actions';
 
 // Initialize default (client-side) Firebase services
 const { auth, db } = getFirebaseServices();
@@ -165,11 +165,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         reader.readAsDataURL(file);
     });
 
-    const folder = `user_avatars/${user.uid}`;
-    const uniqueFileName = `avatar_${Date.now()}`;
-    const url = await uploadToCloudinary(dataUri, folder, uniqueFileName);
+    const result = await getCloudinaryUrl(user.uid, dataUri, 'avatars', file.name);
 
-    await updateUserProfileData({ photoURL: url });
+    if (result.success && result.url) {
+      await updateUserProfileData({ photoURL: result.url });
+    } else {
+      throw new Error(result.error || 'Avatar upload failed');
+    }
   };
   
   const requestCard = async (cardType: PhysicalCardType) => {
@@ -205,21 +207,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       const dataUri = await fileReadPromise;
-      const folder = `user_documents/${user.uid}`;
-      const url = await uploadToCloudinary(dataUri, folder, file.name);
       
-      const newDocument: Document = {
-        id: `doc_${Date.now()}`,
-        name: documentName,
-        url: url,
-        createdAt: Timestamp.now()
-      };
+      const result = await getCloudinaryUrl(user.uid, dataUri, 'documents', file.name);
 
-      const updatedDocuments = [...(userProfile.documents || []), newDocument];
-      await updateUserInFirestore(user.uid, { documents: updatedDocuments });
-      
-      // Refresh local state
-      await refreshUserProfile();
+      if (result.success && result.url) {
+          const newDocument: Document = {
+            id: `doc_${Date.now()}`,
+            name: documentName,
+            url: result.url,
+            createdAt: Timestamp.now()
+          };
+
+          const updatedDocuments = [...(userProfile.documents || []), newDocument];
+          await updateUserInFirestore(user.uid, { documents: updatedDocuments });
+          
+          await refreshUserProfile();
+      } else {
+        throw new Error(result.error || 'Document upload failed');
+      }
   };
 
   const deleteConversation = async (chatId: string) => {
