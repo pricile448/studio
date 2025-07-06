@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '../ui/skeleton';
 
 interface AppearanceFormProps {
   dict: Dictionary['settings']['appearance'];
@@ -15,33 +18,48 @@ interface AppearanceFormProps {
 }
 
 export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState<string | null>(null);
   const pathname = usePathname();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme') || 'light';
+    // This effect runs only on the client, after the initial render.
+    const storedTheme = localStorage.getItem('theme') || 'system';
     setTheme(storedTheme);
-    if (storedTheme === 'dark' || (storedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   }, []);
 
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else if (newTheme === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  useEffect(() => {
+    if (!theme) return;
+
+    localStorage.setItem('theme', theme);
+
+    const applyTheme = () => {
+      if (
+        theme === 'dark' ||
+        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      ) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
+    };
+    
+    applyTheme();
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (theme === 'system') {
+      mediaQuery.addEventListener('change', applyTheme);
     }
+    
+    return () => {
+      // No need to check for theme === 'system' here, as the listener is only added if it was.
+      mediaQuery.removeEventListener('change', applyTheme);
+    };
+  }, [theme]);
+
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
   };
   
   const getNewPath = (newLang: Locale) => {
@@ -49,15 +67,38 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
     pathParts[1] = newLang;
     return pathParts.join('/');
   }
-
-  return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <Label>{dict.theme}</Label>
+  
+  const renderThemePicker = () => {
+    if (!theme) {
+      return (
+        <div className="space-y-2 pt-2">
+            <Skeleton className="h-10 max-w-sm" />
+        </div>
+      );
+    }
+    
+    if (isMobile) {
+      return (
+        <div className="pt-2">
+            <Select value={theme} onValueChange={handleThemeChange}>
+            <SelectTrigger className="max-w-sm">
+                <SelectValue placeholder={dict.theme} />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="light">{dict.themeLight}</SelectItem>
+                <SelectItem value="dark">{dict.themeDark}</SelectItem>
+                <SelectItem value="system">{dict.themeSystem}</SelectItem>
+            </SelectContent>
+            </Select>
+        </div>
+      );
+    }
+    
+    return (
         <RadioGroup
-          defaultValue={theme}
+          value={theme}
           onValueChange={handleThemeChange}
-          className="grid max-w-md grid-cols-1 sm:grid-cols-3 gap-8 pt-2"
+          className="grid max-w-md grid-cols-3 gap-8 pt-2"
         >
           <Label className="[&:has([data-state=checked])>div]:border-primary">
             <RadioGroupItem value="light" className="sr-only" />
@@ -109,6 +150,14 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
             <span className="block w-full p-2 text-center font-normal">{dict.themeSystem}</span>
           </Label>
         </RadioGroup>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <Label>{dict.theme}</Label>
+        {renderThemePicker()}
       </div>
 
       <div className="space-y-2">
