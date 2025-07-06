@@ -87,14 +87,19 @@ export function DashboardLayoutClient({
     if (isLoggingOut) return;
     
     setIsLoggingOut(true);
+
+    let redirectPath = `/${lang}`; // Default redirect to home page
+
     if (isInactive) {
       toast({
           title: dict.login.inactivityLogoutTitle,
           description: dict.login.inactivityLogoutDescription,
       });
+      redirectPath = `/${lang}/login?reason=inactivity`;
     }
+    
     await logout();
-    router.push(`/${lang}/login${isInactive ? '?reason=inactivity' : ''}`);
+    router.push(redirectPath);
   }, [isLoggingOut, logout, router, lang, toast, dict]);
 
   // Read timeout from user profile, with a default of 15 minutes.
