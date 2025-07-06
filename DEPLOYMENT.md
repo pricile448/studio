@@ -108,9 +108,19 @@ GOOGLE_API_KEY=...
 
 Si vous n'utilisez pas une plateforme automatisée comme Firebase App Hosting ou Vercel, le processus manuel ressemble généralement à ceci :
 
-#### A. Prérequis : Version de Node.js
+#### A. Prérequis CRUCIAL : Version de Node.js
 
-**Assurez-vous que votre serveur de production utilise Node.js version 20 ou une version supérieure.** C'est la version recommandée pour la version de Next.js de ce projet. Vous pouvez le vérifier sur le serveur avec la commande `node -v`.
+**Votre application nécessite impérativement Node.js version 20 ou une version supérieure pour fonctionner.**
+
+L'erreur `Unsupported engine` que vous pouvez rencontrer indique que votre serveur utilise une version plus ancienne (comme Node.js 16), ce qui causera l'échec de l'installation des dépendances (`npm install`) ou des erreurs au démarrage de l'application.
+
+**Comment corriger sur cPanel :**
+
+1.  Allez dans l'interface **"Setup Node.js App"**.
+2.  En haut de la page, vous trouverez un menu déroulant pour la **"Node.js version"**.
+3.  Sélectionnez la version la plus récente disponible, idéalement **20.x** ou supérieure.
+4.  Cliquez sur **"Save"** ou le bouton équivalent pour appliquer le changement.
+5.  Ce n'est qu'après avoir changé la version que vous devez lancer "Run NPM Install".
 
 #### B. Processus de déploiement
 
