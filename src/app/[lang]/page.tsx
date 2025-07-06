@@ -143,7 +143,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-8 sm:py-16">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">

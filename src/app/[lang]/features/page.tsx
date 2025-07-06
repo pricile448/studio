@@ -136,7 +136,7 @@ export default async function FeaturesPage({ params }: { params: { lang: Locale 
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         {/* Features Section */}
         <section className="bg-muted/50 py-20 sm:py-32">
           <div className="container mx-auto px-4">

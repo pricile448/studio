@@ -137,7 +137,7 @@ export default async function FaqPage({ params }: { params: { lang: Locale } }) 
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto py-20 sm:py-32">
+      <main className="flex-1 py-20 sm:py-32">
         <div className="container mx-auto px-4 space-y-8">
             <Card>
                 <ShadCardHeader>
