@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -22,6 +21,7 @@ import { Loader2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 import type { Dictionary } from '@/lib/dictionaries';
+import { getCloudinaryUrl, addDocumentToProfile } from '@/app/actions';
 
 interface AddDocumentDialogProps {
   dict: Dictionary['documents'];
@@ -35,9 +35,18 @@ const documentSchema = z.object({
 
 type DocumentFormValues = z.infer<typeof documentSchema>;
 
+const convertFileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
 export function AddDocumentDialog({ dict, onUpload }: AddDocumentDialogProps) {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const { uploadDocument } = useAuth();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,10 +56,25 @@ export function AddDocumentDialog({ dict, onUpload }: AddDocumentDialogProps) {
   });
 
   const onSubmit = async (data: DocumentFormValues) => {
+    if (!user) return;
     setIsSubmitting(true);
+
     try {
       const file = data.file[0];
-      await uploadDocument(file, data.name);
+      const dataUri = await convertFileToDataUri(file);
+
+      // Step 1: Upload to Cloudinary via server action
+      const uploadResult = await getCloudinaryUrl(user.uid, dataUri, 'documents', file.name);
+      if (!uploadResult.success || !uploadResult.url) {
+        throw new Error(uploadResult.error || 'Cloudinary upload failed.');
+      }
+
+      // Step 2: Save URL to profile via server action
+      const saveResult = await addDocumentToProfile(user.uid, data.name, uploadResult.url);
+      if (!saveResult.success) {
+          throw new Error(saveResult.error || 'Failed to save document to profile.');
+      }
+      
       toast({
         title: "Document Uploaded",
         description: `"${data.name}" has been successfully uploaded.`,

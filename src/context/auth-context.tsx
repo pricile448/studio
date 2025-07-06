@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -28,7 +27,6 @@ type AuthContextType = {
   updateAvatar: (file: File) => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
-  uploadDocument: (file: File, documentName: string) => Promise<void>;
   deleteConversation: (chatId: string) => Promise<void>;
   deleteMessage: (chatId: string, messageId: string) => Promise<void>;
   addBeneficiary: (beneficiaryData: Omit<Beneficiary, 'id'>) => Promise<void>;
@@ -196,37 +194,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   }
 
-  const uploadDocument = async (file: File, documentName: string) => {
-      if (!user || !userProfile) throw new Error("User not authenticated");
-      
-      const reader = new FileReader();
-      const fileReadPromise = new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-      
-      const dataUri = await fileReadPromise;
-      
-      const result = await getCloudinaryUrl(user.uid, dataUri, 'documents', file.name);
-
-      if (result.success && result.url) {
-          const newDocument: Document = {
-            id: `doc_${Date.now()}`,
-            name: documentName,
-            url: result.url,
-            createdAt: Timestamp.now()
-          };
-
-          const updatedDocuments = [...(userProfile.documents || []), newDocument];
-          await updateUserInFirestore(user.uid, { documents: updatedDocuments });
-          
-          await refreshUserProfile();
-      } else {
-        throw new Error(result.error || 'Document upload failed');
-      }
-  };
-
   const deleteConversation = async (chatId: string) => {
     await deleteChatSession(chatId, db);
   };
@@ -253,7 +220,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, uploadDocument, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer, isBalanceVisible, toggleBalanceVisibility };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer, isBalanceVisible, toggleBalanceVisibility };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

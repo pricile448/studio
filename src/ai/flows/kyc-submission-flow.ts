@@ -8,7 +8,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
-import { uploadToCloudinary } from '@/services/cloudinary-service';
+import { uploadKycDocumentsAction } from '@/app/actions';
 
 // --- Flow 1: Upload Files ---
 const UploadKycFilesInputSchema = z.object({
@@ -43,13 +43,17 @@ const uploadKycFilesFlow = ai.defineFlow(
     outputSchema: UploadKycFilesOutputSchema,
   },
   async (input) => {
-    const uploadFolder = `kyc_documents/${input.userId}`;
-    const [idDocumentUrl, proofOfAddressUrl, selfieUrl] = await Promise.all([
-      uploadToCloudinary(input.idDocumentDataUri, uploadFolder, 'identity_document'),
-      uploadToCloudinary(input.proofOfAddressDataUri, uploadFolder, 'proof_of_address'),
-      uploadToCloudinary(input.selfieDataUri, uploadFolder, 'selfie_photo'),
-    ]);
-    return { idDocumentUrl, proofOfAddressUrl, selfieUrl };
+    const result = await uploadKycDocumentsAction(input);
+
+    if (result.success && result.idDocumentUrl && result.proofOfAddressUrl && result.selfieUrl) {
+        return {
+            idDocumentUrl: result.idDocumentUrl,
+            proofOfAddressUrl: result.proofOfAddressUrl,
+            selfieUrl: result.selfieUrl,
+        };
+    } else {
+        throw new Error(result.error || 'An unknown error occurred during file upload.');
+    }
   }
 );
 
