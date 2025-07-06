@@ -5,31 +5,41 @@ import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function ThemeToggleButton() {
+  const [mounted, setMounted] = useState(false);
   const [theme, setThemeState] = useState('light');
 
-  // Effect to set initial theme from localStorage or default to 'light'
+  // After mounting on the client, we can safely access localStorage
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') || 'light';
     setThemeState(storedTheme);
-    if (storedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    setMounted(true);
   }, []);
+  
+  // When theme changes, update the document class and localStorage
+  useEffect(() => {
+    if (mounted) {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+  }, [theme, mounted]);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    setThemeState(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
+
+  // Render a placeholder on the server and on initial client render
+  // to prevent a hydration mismatch.
+  if (!mounted) {
+    return <Skeleton className="h-10 w-10 rounded-md" />;
+  }
 
   return (
     <Button variant="ghost" size="icon" onClick={toggleTheme}>
