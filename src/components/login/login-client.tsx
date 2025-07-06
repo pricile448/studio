@@ -72,27 +72,6 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
       setIsSubmitting(false);
     }
   };
-
-  if (!dict) {
-     return (
-        <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
-            <Card className="mx-auto w-full max-w-sm">
-                <CardHeader>
-                    <div className="flex justify-center mb-4">
-                        <Skeleton className="h-10 w-10" />
-                    </div>
-                     <Skeleton className="h-7 w-24 mx-auto" />
-                     <Skeleton className="h-4 w-48 mx-auto mt-2" />
-                </CardHeader>
-                <CardContent className="grid gap-4">
-                     <Skeleton className="h-10" />
-                     <Skeleton className="h-10" />
-                     <Skeleton className="h-10" />
-                </CardContent>
-            </Card>
-        </div>
-     )
-  }
   
   const loginDict = dict.login;
 

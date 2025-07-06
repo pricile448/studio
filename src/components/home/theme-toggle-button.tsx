@@ -1,48 +1,47 @@
-
 'use client';
 
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
 import { Button } from '@/components/ui/button';
 
 export function ThemeToggleButton() {
-  const [mounted, setMounted] = useState(false);
-  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+  // 1. Initialiser l'état à null pour que le rendu serveur et client initial soient identiques.
+  const [theme, setTheme] = useState<'light' | 'dark' | null>(null);
 
-  // When the component mounts on the client, we determine the theme.
   useEffect(() => {
+    // 2. Ce code s'exécute uniquement sur le client, après l'hydratation.
     const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark' || (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setThemeState('dark');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+      setTheme('dark');
     } else {
-      setThemeState('light');
+      setTheme('light');
     }
-    setMounted(true);
-  }, []);
+  }, []); // Le tableau de dépendances vide garantit une exécution unique au montage.
 
-  // Whenever the theme state changes, update the class on the <html> element and in localStorage.
   useEffect(() => {
-    if (mounted) {
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      }
+    // 3. Cet effet applique la classe de thème à l'élément HTML lorsque le thème change.
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
-  }, [theme, mounted]);
+  }, [theme]);
 
   const toggleTheme = () => {
-    setThemeState(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
-  // To prevent hydration mismatch, we render a placeholder until the component is mounted on the client.
-  if (!mounted) {
+  // 4. Sur le serveur et au rendu client initial, afficher un bouton désactivé.
+  // Cela empêche l'erreur de correspondance d'hydratation.
+  if (theme === null) {
     return <Button variant="ghost" size="icon" disabled />;
   }
 
+  // 5. Une fois monté et le thème déterminé, afficher le bouton réel.
   return (
     <Button variant="ghost" size="icon" onClick={toggleTheme}>
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

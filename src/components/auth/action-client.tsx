@@ -59,8 +59,6 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
 
 
   useEffect(() => {
-    if (!dict) return;
-
     const currentMode = searchParams.get('mode');
     const currentActionCode = searchParams.get('oobCode');
     
@@ -126,11 +124,11 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
   }
 
   const renderContent = () => {
-    if (loading || !dict) {
+    if (loading) {
       return (
          <div className="flex flex-col items-center gap-4 text-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">{dict?.verifyEmail.verifyingTitle || 'Verification in progress...'}</p>
+            <p className="text-muted-foreground">{dict.verifyEmail.verifyingTitle}</p>
         </div>
       );
     }
