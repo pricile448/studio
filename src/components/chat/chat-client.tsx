@@ -36,7 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { uploadToCloudinary } from '@/services/cloudinary-service';
+import { uploadChatAttachment } from '@/app/actions';
 import Image from 'next/image';
 
 interface ChatClientProps {
@@ -204,13 +204,16 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         setIsSending(true);
         try {
             const dataUri = await convertFileToDataUri(file);
-            const folder = `chat_attachments/${chatId}`;
-            const url = await uploadToCloudinary(dataUri, folder, file.name);
+            const result = await uploadChatAttachment(chatId, dataUri, file.name);
+
+            if (!result.success || !result.url) {
+                throw new Error(result.error || "Échec du téléversement du fichier.");
+            }
     
             await addMessageToChat(chatId, {
                 senderId: user.uid,
                 timestamp: Timestamp.now(),
-                fileUrl: url,
+                fileUrl: result.url,
                 fileName: file.name,
                 fileType: file.type,
             });
@@ -220,7 +223,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             toast({
                 variant: 'destructive',
                 title: 'Erreur',
-                description: 'Impossible d\'envoyer le fichier.',
+                description: (error as Error).message || 'Impossible d\'envoyer le fichier.',
             });
         } finally {
             setIsSending(false);

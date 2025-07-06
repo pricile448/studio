@@ -38,7 +38,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Firestore } from 'firebase/firestore';
-import { uploadToCloudinary } from '@/services/cloudinary-service';
+import { uploadChatAttachment } from '@/app/actions';
 import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -129,13 +129,16 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
         setIsSending(true);
         try {
             const dataUri = await convertFileToDataUri(file);
-            const folder = `chat_attachments/${chatSession.id}`;
-            const url = await uploadToCloudinary(dataUri, folder, file.name);
+            const result = await uploadChatAttachment(chatSession.id, dataUri, file.name);
+
+            if (!result.success || !result.url) {
+                throw new Error(result.error || "Échec du téléversement du fichier.");
+            }
 
             await addMessageToChat(chatSession.id, {
                 senderId: adminId,
                 timestamp: Timestamp.now(),
-                fileUrl: url,
+                fileUrl: result.url,
                 fileName: file.name,
                 fileType: file.type,
             }, adminDb);
@@ -145,7 +148,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
             toast({
                 variant: 'destructive',
                 title: 'Erreur',
-                description: 'Impossible d\'envoyer le fichier.',
+                description: (error as Error).message || 'Impossible d\'envoyer le fichier.',
             });
         } finally {
             setIsSending(false);
