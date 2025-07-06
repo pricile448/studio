@@ -5,10 +5,10 @@ import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export function ThemeToggleButton() {
   const [mounted, setMounted] = useState(false);
+  // Default to 'light' to avoid mismatch. Client-side effect will correct it.
   const [theme, setThemeState] = useState('light');
 
   // After mounting on the client, we can safely access localStorage
@@ -17,7 +17,7 @@ export function ThemeToggleButton() {
     setThemeState(storedTheme);
     setMounted(true);
   }, []);
-  
+
   // When theme changes, update the document class and localStorage
   useEffect(() => {
     if (mounted) {
@@ -38,7 +38,8 @@ export function ThemeToggleButton() {
   // Render a placeholder on the server and on initial client render
   // to prevent a hydration mismatch.
   if (!mounted) {
-    return <Skeleton className="h-10 w-10 rounded-md" />;
+    // Using a disabled button as a placeholder to prevent layout shift.
+    return <Button variant="ghost" size="icon" disabled className="h-10 w-10" />;
   }
 
   return (
