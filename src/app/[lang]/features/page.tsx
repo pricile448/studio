@@ -1,8 +1,7 @@
 
-import { use } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { type Locale } from '@/lib/dictionaries';
+import type { Locale } from '@/lib/dictionaries';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { Globe, Menu, MoveRight } from 'lucide-react';
@@ -22,9 +21,9 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default function FeaturesPage({ params }: { params: { lang: Locale } }) {
+export default async function FeaturesPage({ params }: { params: { lang: Locale } }) {
   const { lang } = params;
-  const dict = use(getDictionary(lang));
+  const dict = await getDictionary(lang);
   const homeDict = dict.homePage;
 
   const navLinks = [

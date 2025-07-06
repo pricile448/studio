@@ -1,5 +1,5 @@
 
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import type { Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { LoginClient } from '@/components/login/login-client';
@@ -31,8 +31,8 @@ function LoginFallback() {
     )
 }
 
-export default function LoginPage({ params }: { params: { lang: Locale }}) {
-  const dict = use(getDictionary(params.lang));
+export default async function LoginPage({ params }: { params: { lang: Locale }}) {
+  const dict = await getDictionary(params.lang);
   return (
     <Suspense fallback={<LoginFallback />}>
       <LoginClient dict={dict} lang={params.lang} />

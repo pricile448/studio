@@ -1,5 +1,5 @@
 
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import type { Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { AuthActionClient } from '@/components/auth/action-client';
@@ -21,8 +21,8 @@ function AuthActionFallback() {
 }
 
 // Reworked to use a standard async Server Component to avoid experimental `use(Promise)` issues with the build.
-export default function AuthActionPage({ params }: { params: { lang: Locale }}) {
-  const dict = use(getDictionary(params.lang));
+export default async function AuthActionPage({ params }: { params: { lang: Locale }}) {
+  const dict = await getDictionary(params.lang);
 
   return (
     <Suspense fallback={<AuthActionFallback />}>
