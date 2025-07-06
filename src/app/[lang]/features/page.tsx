@@ -42,7 +42,7 @@ export default async function FeaturesPage({ params }: { params: { lang: Locale 
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-body">
+    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-background font-body">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
@@ -136,7 +136,7 @@ export default async function FeaturesPage({ params }: { params: { lang: Locale 
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="overflow-y-auto">
         {/* Features Section */}
         <section className="bg-muted/50 py-20 sm:py-32">
           <div className="container mx-auto px-4">

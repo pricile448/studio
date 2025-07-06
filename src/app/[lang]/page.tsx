@@ -49,7 +49,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-body">
+    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-background font-body">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
@@ -143,7 +143,7 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="overflow-y-auto">
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-8 sm:py-16">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
