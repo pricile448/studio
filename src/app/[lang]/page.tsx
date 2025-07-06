@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
+import { AnimatedFeatures } from '@/components/home/animated-features';
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
@@ -332,14 +333,12 @@ export default async function HomePage({ params }: { params: { lang: Locale } })
             <h2 className="text-3xl font-bold font-headline mb-12">{homeDict.partnersSection.title}</h2>
             
             {/* Mobile View - visible on small screens, hidden on medium and up */}
-             <div className="relative w-full overflow-x-auto md:hidden">
-                <div className="flex items-center justify-start gap-10 px-4">
-                    <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={120} height={40} alt="bunq logo" data-ai-hint="bunq logo" className="h-10 w-auto object-contain opacity-60 flex-shrink-0" />
-                    <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={120} height={40} alt="Crédit Agricole logo" data-ai-hint="Crédit Agricole logo" className="h-10 w-auto object-contain opacity-60 flex-shrink-0" />
-                    <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={120} height={40} alt="Crédit Mutuel logo" data-ai-hint="Crédit Mutuel logo" className="h-10 w-auto object-contain opacity-60 flex-shrink-0" />
-                    <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={120} height={40} alt="Sogexia logo" data-ai-hint="Sogexia logo" className="h-10 w-auto object-contain opacity-60 flex-shrink-0" />
-                    <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={120} height={40} alt="BNP Paribas logo" data-ai-hint="BNP Paribas logo" className="h-10 w-auto object-contain opacity-60 flex-shrink-0" />
-                </div>
+             <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8 md:hidden">
+                <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882507/im_2_kptbng.jpg" width={120} height={40} alt="bunq logo" data-ai-hint="bunq logo" className="h-10 w-auto object-contain opacity-60" />
+                <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_4_fpoqlg.png" width={120} height={40} alt="Crédit Agricole logo" data-ai-hint="Crédit Agricole logo" className="h-10 w-auto object-contain opacity-60" />
+                <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882501/im_2_tdtu8c.png" width={120} height={40} alt="Crédit Mutuel logo" data-ai-hint="Crédit Mutuel logo" className="h-10 w-auto object-contain opacity-60" />
+                <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_odx3zt.jpg" width={120} height={40} alt="Sogexia logo" data-ai-hint="Sogexia logo" className="h-10 w-auto object-contain opacity-60" />
+                <Image src="https://res.cloudinary.com/dxvbuhadg/image/upload/v1750882500/im_1_ztlbyx.webp" width={120} height={40} alt="BNP Paribas logo" data-ai-hint="BNP Paribas logo" className="h-10 w-auto object-contain opacity-60" />
             </div>
 
             {/* Desktop View - hidden on small screens, visible on medium and up */}
