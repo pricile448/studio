@@ -45,97 +45,99 @@ export default function PricingPage({ params }: { params: { lang: Locale } }) {
   return (
     <div className="flex min-h-screen flex-col bg-background font-body">
       {/* Header */}
-      <header className="container mx-auto flex h-20 items-center justify-between px-4">
-        <Link href={`/${lang}`} className="flex items-center gap-4">
-          <Logo text={dict.logo} />
-          <div>
-            <h1 className="text-xl font-bold font-headline">{dict.logo}</h1>
-            <p className="hidden text-sm text-muted-foreground sm:block">{homeDict.slogan}</p>
-          </div>
-        </Link>
-        <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
-          {navLinks.map((link) => (
-            <Button variant="ghost" asChild key={link.href}>
-              <Link href={link.href}>
-                {link.label}
-              </Link>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4">
+            <Link href={`/${lang}`} className="flex items-center gap-4">
+            <Logo text={dict.logo} />
+            <div>
+                <h1 className="text-xl font-bold font-headline">{dict.logo}</h1>
+                <p className="hidden text-sm text-muted-foreground sm:block">{homeDict.slogan}</p>
+            </div>
+            </Link>
+            <nav className="hidden items-center gap-2 text-sm font-medium md:flex">
+            {navLinks.map((link) => (
+                <Button variant="ghost" asChild key={link.href}>
+                <Link href={link.href}>
+                    {link.label}
+                </Link>
+                </Button>
+            ))}
+            </nav>
+            <div className="hidden items-center gap-2 md:flex">
+            <Button variant="ghost" asChild>
+                <Link href={`/${lang}/login`}>{homeDict.nav.login}</Link>
             </Button>
-          ))}
-        </nav>
-        <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href={`/${lang}/login`}>{homeDict.nav.login}</Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
-          </Button>
-          <ThemeToggleButton />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Globe />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {langLinks.map(({ lang: linkLang, label, flag }) => (
-                <DropdownMenuItem key={linkLang} asChild>
-                  <Link href={`/${linkLang}/pricing`} className="flex items-center gap-2">
-                    {flag}
-                    <span>{label}</span>
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0 flex flex-col">
-              <SheetHeader className="p-6 pb-4 border-b shrink-0">
-                 <SheetTitle asChild>
-                    <Link href={`/${lang}`} className="flex items-center gap-2 text-lg font-semibold">
-                      <Logo text={dict.logo} />
-                      <span>{dict.logo}</span>
+            <Button asChild>
+                <Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link>
+            </Button>
+            <ThemeToggleButton />
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Globe />
+                </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                {langLinks.map(({ lang: linkLang, label, flag }) => (
+                    <DropdownMenuItem key={linkLang} asChild>
+                    <Link href={`/${linkLang}/pricing`} className="flex items-center gap-2">
+                        {flag}
+                        <span>{label}</span>
                     </Link>
-                 </SheetTitle>
-                 <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
-              </SheetHeader>
-              <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-                  <nav className="grid gap-4 text-base font-medium">
-                    {navLinks.map((link) => (
-                      <Link key={link.href} href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
-                        {link.label}
-                      </Link>
-                    ))}
-                  </nav>
-                  <Separator />
-                  <div className="grid gap-2">
-                    <Button variant="outline" asChild className="w-full"><Link href={`/${lang}/login`}>{homeDict.nav.login}</Link></Button>
-                    <Button asChild className="w-full"><Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
-                  </div>
-                  <Separator />
-                  <div className="grid gap-4">
-                    <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.language}</p>
-                    <nav className="grid gap-3">
-                        {langLinks.map(({ lang: linkLang, label, flag }) => (
-                            <Link key={linkLang} href={`/${linkLang}/pricing`} className="text-muted-foreground transition-colors hover:text-foreground flex items-center gap-2 text-base">
-                                {flag}
-                                <span>{label}</span>
-                            </Link>
+                    </DropdownMenuItem>
+                ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+            </div>
+            <div className="md:hidden">
+            <Sheet>
+                <SheetTrigger asChild>
+                <Button variant="ghost" size="icon"><Menu className="h-6 w-6" /></Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm p-0 flex flex-col">
+                <SheetHeader className="p-6 pb-4 border-b shrink-0">
+                    <SheetTitle asChild>
+                        <Link href={`/${lang}`} className="flex items-center gap-2 text-lg font-semibold">
+                        <Logo text={dict.logo} />
+                        <span>{dict.logo}</span>
+                        </Link>
+                    </SheetTitle>
+                    <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
+                </SheetHeader>
+                <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+                    <nav className="grid gap-4 text-base font-medium">
+                        {navLinks.map((link) => (
+                        <Link key={link.href} href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
+                            {link.label}
+                        </Link>
                         ))}
                     </nav>
-                  </div>
-                   <Separator />
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.theme}</p>
-                        <ThemeToggleButton />
+                    <Separator />
+                    <div className="grid gap-2">
+                        <Button variant="outline" asChild className="w-full"><Link href={`/${lang}/login`}>{homeDict.nav.login}</Link></Button>
+                        <Button asChild className="w-full"><Link href={`/${lang}/register`}>{homeDict.nav.openAccount}</Link></Button>
                     </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+                    <Separator />
+                    <div className="grid gap-4">
+                        <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.language}</p>
+                        <nav className="grid gap-3">
+                            {langLinks.map(({ lang: linkLang, label, flag }) => (
+                                <Link key={linkLang} href={`/${linkLang}/pricing`} className="text-muted-foreground transition-colors hover:text-foreground flex items-center gap-2 text-base">
+                                    {flag}
+                                    <span>{label}</span>
+                                </Link>
+                            ))}
+                        </nav>
+                    </div>
+                    <Separator />
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-muted-foreground">{dict.settings.appearance.theme}</p>
+                            <ThemeToggleButton />
+                        </div>
+                </div>
+                </SheetContent>
+            </Sheet>
+            </div>
         </div>
       </header>
 
