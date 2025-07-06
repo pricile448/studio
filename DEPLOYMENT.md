@@ -9,23 +9,33 @@ Votre application est construite avec **Next.js**. Ce n'est pas un site web stat
 
 ---
 
-### Étape 1 : Vérifier la Compatibilité de votre Hébergement
+### Étape 1 : Choisir et Configurer votre Hébergement
 
 La plupart des hébergements "mutualisés" standards (basés sur cPanel, conçus pour PHP/WordPress) ne supportent pas les applications Node.js nativement. Vous devez vous assurer que votre hébergeur propose bien une offre compatible avec **Node.js**.
 
 **Options d'hébergement :**
 
-1.  **Recommandé : Firebase App Hosting**
-    *   **Pourquoi ?** C'est la solution la plus simple et la plus intégrée pour un projet développé dans Firebase Studio. Votre projet contient déjà un fichier `apphosting.yaml` qui facilite ce déploiement. Il gère automatiquement le build, l'installation des dépendances et le démarrage du serveur.
+1.  **Firebase App Hosting**
+    *   **Pourquoi ?** C'est une solution simple et intégrée pour un projet développé dans Firebase Studio. Votre projet contient déjà un fichier `apphosting.yaml` qui facilite ce déploiement. Il gère automatiquement le build, l'installation des dépendances et le démarrage du serveur.
     *   **Comment ?** Le déploiement se fait généralement via la console Firebase ou les commandes `firebase deploy`.
 
-2.  **Autres plateformes modernes (Alternatives simples)**
-    *   Des services comme **Vercel** (par les créateurs de Next.js), **Netlify**, ou **Render** sont spécialisés dans le déploiement d'applications comme la vôtre. Le processus est souvent aussi simple que de lier votre dépôt de code.
+2.  **Recommandé : Vercel (par les créateurs de Next.js)**
+    *   **Pourquoi ?** Vercel est la plateforme conçue spécifiquement pour Next.js. Le déploiement est extrêmement simple, rapide et optimisé. Vercel gère automatiquement le build, les dépendances et la mise à l'échelle.
+    *   **Comment ?**
+        1.  Créez un compte sur [Vercel](https://vercel.com).
+        2.  Liez votre dépôt de code (GitHub, GitLab, ou Bitbucket).
+        3.  Vercel détectera automatiquement que c'est un projet Next.js et configurera le build.
+        4.  **Crucial :** Allez dans les paramètres de votre projet sur Vercel (`Settings` -> `Environment Variables`) et ajoutez toutes les variables d'environnement listées dans l'étape 2 de ce guide (Firebase, Mailgun, Cloudinary, etc.).
+        5.  **Pour `SERVICE_ACCOUNT_JSON` :** Copiez simplement le contenu complet du fichier JSON et collez-le comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes, vous n'avez **pas besoin** d'ajouter de guillemets simples (`'`) comme pour cPanel.
+        6.  Lancez le déploiement.
 
-3.  **Hébergement Mutualisé (avec support Node.js)**
-    *   Si votre hébergeur le permet, vous aurez accès à une interface pour configurer une application Node.js. Vous devrez spécifier le fichier de démarrage et la version de Node.js.
+3.  **Autres plateformes modernes (Netlify, Render)**
+    *   Ces services fonctionnent de manière similaire à Vercel et sont également d'excellentes options.
 
-4.  **Serveur Privé Virtuel (VPS) (Option avancée)**
+4.  **Hébergement Mutualisé (avec support Node.js, ex: cPanel)**
+    *   Si vous utilisez ce type d'hébergement, suivez les instructions détaillées plus bas. C'est une option plus complexe et moins optimisée que Vercel ou Firebase App Hosting.
+
+5.  **Serveur Privé Virtuel (VPS) (Option avancée)**
     *   Des services comme DigitalOcean, Linode, ou AWS EC2 vous donnent un contrôle total, mais vous êtes responsable de la configuration complète du serveur (installation de Node.js, Nginx, gestion de la sécurité, etc.).
 
 ---
@@ -46,12 +56,12 @@ Certaines fonctionnalités, comme le tableau de bord administrateur, s'exécuten
 2.  **Configurez la variable d'environnement :**
     *   Ouvrez le fichier JSON que vous venez de télécharger.
     *   Copiez **l'intégralité du contenu** de ce fichier.
-    *   Sur votre plateforme d'hébergement (cPanel, etc.), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
+    *   Sur votre plateforme d'hébergement (Vercel, cPanel, etc.), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
     *   Collez l'intégralité du contenu JSON comme valeur pour cette variable.
 
     **ATTENTION : C'EST UNE ÉTAPE CRUCIALE POUR cPANEL**
 
-    Le contenu JSON que vous collez **DOIT IMPÉRATIVEMENT** être entouré de guillemets simples (`'`). Sans cela, votre serveur ne pourra pas démarrer et affichera une erreur de type `not a valid identifier`.
+    Si vous utilisez cPanel, le contenu JSON que vous collez **DOIT IMPÉRATIVEMENT** être entouré de guillemets simples (`'`). Sans cela, votre serveur ne pourra pas démarrer et affichera une erreur de type `not a valid identifier`.
 
     **Exemple de configuration CORRECTE dans cPanel :**
 
@@ -104,9 +114,9 @@ GOOGLE_API_KEY=...
 
 ---
 
-### Étape 3 : Processus de Déploiement Général
+### Étape 3 : Processus de Déploiement sur cPanel / Hébergement Manuel
 
-Si vous n'utilisez pas une plateforme automatisée comme Firebase App Hosting ou Vercel, le processus manuel ressemble généralement à ceci :
+Si vous n'utilisez pas une plateforme automatisée comme Vercel ou Firebase App Hosting, le processus manuel ressemble généralement à ceci :
 
 #### A. Prérequis CRUCIAL : Version de Node.js
 
@@ -159,7 +169,7 @@ L'erreur `Unsupported engine` que vous pouvez rencontrer indique que votre serve
 
 -   **Priorité n°1 :** Vérifiez que votre hébergement supporte **Node.js 20+**.
 -   **Priorité n°2 :** Configurez les variables d'environnement sur la plateforme d'hébergement. C'est la source d'erreur la plus commune.
--   **Chemin le plus simple :** Utilisez **Firebase App Hosting** ou **Vercel** pour un déploiement simple et sans tracas.
+-   **Chemin le plus simple :** Utilisez **Vercel** ou **Firebase App Hosting** pour un déploiement simple et sans tracas.
 
 Bon déploiement !
 
