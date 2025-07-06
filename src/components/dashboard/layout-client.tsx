@@ -85,10 +85,9 @@ export function DashboardLayoutClient({
 
   const handleLogout = useCallback(async (isInactive = false) => {
     if (isLoggingOut) return;
-    
     setIsLoggingOut(true);
 
-    let redirectPath = `/${lang}`; // Default redirect to home page
+    let redirectPath = `/${lang}`;
 
     if (isInactive) {
       toast({
@@ -98,8 +97,11 @@ export function DashboardLayoutClient({
       redirectPath = `/${lang}/login?reason=inactivity`;
     }
     
-    await logout();
+    // Redirect first to prevent a race condition with the auth state listener.
+    // This ensures this component unmounts before the user state becomes null.
     router.push(redirectPath);
+    await logout();
+
   }, [isLoggingOut, logout, router, lang, toast, dict]);
 
   // Read timeout from user profile, with a default of 15 minutes.
@@ -257,6 +259,11 @@ export function DashboardLayoutClient({
                         <Link href={`/${lang}/settings`}>
                             {dict.sidebar.userMenu.settings}
                         </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleLogout(false)}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>{dict.sidebar.userMenu.logout}</span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
