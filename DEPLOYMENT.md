@@ -192,6 +192,13 @@ Une fois votre application déployée, vous voudrez probablement qu'elle soit ac
 **Et la sécurité (SSL/HTTPS) ?**
 Vercel s'en occupe automatiquement ! Une fois que votre domaine est correctement configuré, Vercel générera et renouvellera automatiquement un certificat SSL gratuit pour vous, garantissant que votre site est sécurisé et accessible via `https`.
 
+#### Et pour un sous-domaine ?
+
+Oui, c'est tout à fait possible et le processus est très similaire.
+1.  Dans Vercel, à l'étape 3, entrez le sous-domaine complet (par exemple, `app.mon-site.com`).
+2.  À l'étape 4, Vercel vous fournira un enregistrement de type `CNAME`.
+3.  Chez votre fournisseur de domaine, créez un nouvel enregistrement `CNAME` où l'hôte est votre sous-domaine (par exemple, `app`) et la valeur est celle fournie par Vercel.
+
 ---
 
 ### Résumé et Recommandations
@@ -232,3 +239,5 @@ Pour la résoudre, vous devez forcer une réinstallation propre des dépendances
     *   Cliquez sur le bouton "**Start App**".
 
 Cela résout le problème dans la grande majorité des cas en repartant sur une base saine.
+
+```
