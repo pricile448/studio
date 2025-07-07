@@ -55,8 +55,9 @@ export function AdminLayoutClient({ children }: { children: ReactNode }) {
     }, [user, isAdmin, loading, router, pathname]);
 
     const handleLogout = async () => {
-        await logout();
+        // Redirect first to prevent race conditions with the auth state listener
         router.push('/admin/login');
+        await logout();
     };
 
     if (loading) {
