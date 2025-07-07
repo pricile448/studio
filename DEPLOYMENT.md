@@ -9,71 +9,25 @@ Votre application est construite avec **Next.js**. Ce n'est pas un site web stat
 
 ---
 
-### Étape 1 : Choisir et Configurer votre Hébergement
+### Étape 1 : Choisir votre Plateforme d'Hébergement
 
-La plupart des hébergements "mutualisés" standards (basés sur cPanel, conçus pour PHP/WordPress) ne supportent pas les applications Node.js nativement. Vous devez vous assurer que votre hébergeur propose bien une offre compatible avec **Node.js**.
+#### Option 1 : Vercel (Fortement Recommandé)
 
-**Options d'hébergement :**
+*   **Pourquoi ?** Vercel est la plateforme conçue spécifiquement pour Next.js par ses créateurs. Le déploiement est extrêmement simple, rapide et optimisé. Vercel gère automatiquement la construction, les dépendances et la mise à l'échelle de votre application. C'est la solution la plus simple et la plus performante.
+*   **Comment ?** Suivez les étapes détaillées plus bas dans ce guide.
 
-1.  **Firebase App Hosting**
-    *   **Pourquoi ?** C'est une solution simple et intégrée pour un projet développé dans Firebase Studio. Votre projet contient déjà un fichier `apphosting.yaml` qui facilite ce déploiement. Il gère automatiquement le build, l'installation des dépendances et le démarrage du serveur.
-    *   **Comment ?** Le déploiement se fait généralement via la console Firebase ou les commandes `firebase deploy`.
+#### Option 2 : Firebase App Hosting
 
-2.  **Recommandé : Vercel (par les créateurs de Next.js)**
-    *   **Pourquoi ?** Vercel est la plateforme conçue spécifiquement pour Next.js. Le déploiement est extrêmement simple, rapide et optimisé. Vercel gère automatiquement le build, les dépendances et la mise à l'échelle.
-    *   **Comment ?**
-        1.  Créez un compte sur [Vercel](https://vercel.com).
-        2.  Liez votre dépôt de code (GitHub, GitLab, ou Bitbucket).
-        3.  Vercel détectera automatiquement que c'est un projet Next.js et configurera le build.
-        4.  **Crucial :** Allez dans les paramètres de votre projet sur Vercel (`Settings` -> `Environment Variables`) et ajoutez toutes les variables d'environnement listées dans l'étape 2 de ce guide (Firebase, Mailgun, Cloudinary, etc.).
-        5.  **Pour `SERVICE_ACCOUNT_JSON` :** Copiez simplement le contenu complet du fichier JSON et collez-le comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes, vous n'avez **pas besoin** d'ajouter de guillemets simples (`'`) comme pour cPanel.
-        6.  Lancez le déploiement.
+*   **Pourquoi ?** C'est une solution simple et intégrée si vous êtes familier avec l'écosystème Firebase. Votre projet contient déjà un fichier `apphosting.yaml` qui facilite ce déploiement.
+*   **Comment ?** Le déploiement se fait généralement via la console Firebase ou les commandes `firebase deploy`.
 
-3.  **Autres plateformes modernes (Netlify, Render)**
-    *   Ces services fonctionnent de manière similaire à Vercel et sont également d'excellentes options.
+#### Option 3 : Autres plateformes (Netlify, Render)
 
-4.  **Hébergement Mutualisé (avec support Node.js, ex: cPanel)**
-    *   Si vous utilisez ce type d'hébergement, suivez les instructions détaillées plus bas. C'est une option plus complexe et moins optimisée que Vercel ou Firebase App Hosting.
+*   Ces services fonctionnent de manière similaire à Vercel et sont également d'excellentes options.
 
-5.  **Serveur Privé Virtuel (VPS) (Option avancée)**
-    *   Des services comme DigitalOcean, Linode, ou AWS EC2 vous donnent un contrôle total, mais vous êtes responsable de la configuration complète du serveur (installation de Node.js, Nginx, gestion de la sécurité, etc.).
+#### Option 4 : Hébergement Manuel (cPanel, VPS - Avancé)
 
----
-
-### Étape 1.5 : Configurer les Identifiants du SDK Admin (OBLIGATOIRE POUR LE DASHBOARD ADMIN)
-
-Certaines fonctionnalités, comme le tableau de bord administrateur, s'exécutent côté serveur et nécessitent des permissions élevées pour accéder à votre base de données. Pour cela, l'application utilise le SDK Admin de Firebase, qui doit être authentifié via un **compte de service**.
-
-**Cette étape est cruciale, sinon le tableau de bord administrateur ne fonctionnera pas.**
-
-1.  **Créez un compte de service :**
-    *   Allez dans votre [console Firebase](https://console.firebase.google.com/).
-    *   Sélectionnez votre projet.
-    *   Cliquez sur l'icône en forme d'engrenage à côté de "Project Overview" et sélectionnez "Paramètres du projet".
-    *   Allez dans l'onglet "Comptes de service".
-    *   Cliquez sur le bouton "**Générer une nouvelle clé privée**". Un fichier JSON sera téléchargé.
-
-2.  **Configurez la variable d'environnement :**
-    *   Ouvrez le fichier JSON que vous venez de télécharger.
-    *   Copiez **l'intégralité du contenu** de ce fichier.
-    *   Sur votre plateforme d'hébergement (Vercel, cPanel, etc.), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
-    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable.
-
-    **ATTENTION : C'EST UNE ÉTAPE CRUCIALE POUR cPANEL**
-
-    Si vous utilisez cPanel, le contenu JSON que vous collez **DOIT IMPÉRATIVEMENT** être entouré de guillemets simples (`'`). Sans cela, votre serveur ne pourra pas démarrer et affichera une erreur de type `not a valid identifier`.
-
-    **Exemple de configuration CORRECTE dans cPanel :**
-
-    *   **Nom de la variable :** `SERVICE_ACCOUNT_JSON`
-    *   **Valeur de la variable :** `'{"type": "service_account", "project_id": "...", ...}'`  *(<-- notez les guillemets simples au début et à la fin)*
-
-    **Exemple de configuration INCORRECTE qui causera une erreur :**
-
-    *   **Valeur de la variable :** `{"type": "service_account", "project_id": "...", ...}`  *(<-- sans les guillemets simples)*
-
-
-**Note :** Assurez-vous de coller la chaîne JSON complète, y compris les accolades `{}`. **Ne partagez jamais ce fichier JSON publiquement.**
+*   Utiliser un hébergement mutualisé avec support Node.js (comme cPanel) ou un serveur privé virtuel (VPS) est possible, mais beaucoup plus complexe. Cette méthode est détaillée en annexe de ce guide pour les utilisateurs avancés.
 
 ---
 
@@ -81,7 +35,7 @@ Certaines fonctionnalités, comme le tableau de bord administrateur, s'exécuten
 
 Votre application dépend de clés API secrètes pour fonctionner. **Le fichier `.env` n'est JAMAIS envoyé en production.** Vous devez configurer ces variables directement sur votre plateforme d'hébergement.
 
-Votre hébergeur doit fournir une interface (souvent dans le tableau de bord de votre site) pour ajouter des "variables d'environnement".
+Votre hébergeur doit fournir une interface (souvent dans le tableau de bord de votre site) pour ajouter des "variables d'environnement". Sur Vercel, cela se trouve dans `Settings` -> `Environment Variables`.
 
 **Variables à configurer :**
 
@@ -110,134 +64,104 @@ CLOUDINARY_API_SECRET=...
 GOOGLE_API_KEY=...
 ```
 
-**Ceci est l'une des étapes les plus importantes. Si elle est oubliée, les fonctionnalités de base comme l'envoi d'e-mails, la connexion ou l'upload de fichiers échoueront.**
+**Note importante pour `SERVICE_ACCOUNT_JSON` :**
+Vous devez également ajouter la variable `SERVICE_ACCOUNT_JSON` pour le tableau de bord administrateur (voir étape suivante). Sur Vercel, vous pouvez simplement copier le contenu complet du fichier JSON et le coller comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes, vous n'avez **pas besoin** d'ajouter des guillemets simples (`'`).
 
 ---
 
-### Étape 3 : Processus de Déploiement sur cPanel / Hébergement Manuel
+### Étape 3 : Configurer les Identifiants du SDK Admin (OBLIGATOIRE POUR LE DASHBOARD ADMIN)
 
-Si vous n'utilisez pas une plateforme automatisée comme Vercel ou Firebase App Hosting, le processus manuel ressemble généralement à ceci :
+Certaines fonctionnalités, comme le tableau de bord administrateur, nécessitent des permissions élevées. Pour cela, l'application utilise le SDK Admin de Firebase, qui doit être authentifié via un **compte de service**.
+
+1.  **Créez un compte de service :**
+    *   Allez dans votre [console Firebase](https://console.firebase.google.com/).
+    *   Sélectionnez votre projet.
+    *   Cliquez sur l'icône en forme d'engrenage à côté de "Project Overview" et sélectionnez "Paramètres du projet".
+    *   Allez dans l'onglet "Comptes de service".
+    *   Cliquez sur le bouton "**Générer une nouvelle clé privée**". Un fichier JSON sera téléchargé.
+
+2.  **Configurez la variable d'environnement :**
+    *   Ouvrez le fichier JSON que vous venez de télécharger.
+    *   Copiez **l'intégralité du contenu** de ce fichier.
+    *   Sur votre plateforme d'hébergement (Vercel), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
+    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable.
+
+---
+
+### Étape 4 : Déployer sur Vercel
+
+1.  **Créez un compte** sur [Vercel](https://vercel.com).
+2.  **Liez votre dépôt de code** (GitHub, GitLab, ou Bitbucket).
+3.  **Importez votre projet**. Vercel détectera automatiquement que c'est un projet Next.js et configurera le build pour vous.
+4.  **Configurez les variables d'environnement** comme décrit à l'étape 2.
+5.  **Lancez le déploiement**. Votre site sera en ligne en quelques minutes sur une URL fournie par Vercel (par exemple `mon-projet.vercel.app`).
+
+---
+
+### Étape 5 : Configurer votre Nom de Domaine Personnalisé
+
+1.  **Allez dans votre tableau de bord Vercel** et sélectionnez votre projet.
+2.  **Accédez à la section des domaines :** `Settings` -> `Domains`.
+3.  **Ajoutez votre nom de domaine** (par exemple, `mon-site.com`) ou votre sous-domaine (`app.mon-site.com`).
+4.  **Configurez vos enregistrements DNS :** Suivez les instructions fournies par Vercel pour mettre à jour les DNS chez votre fournisseur de domaine (OVH, GoDaddy, etc.). Cela implique généralement d'ajouter un enregistrement `A` ou `CNAME`.
+5.  **Attendez la propagation.** Vercel vérifiera la configuration et s'occupera automatiquement du certificat SSL (HTTPS).
+
+---
+
+### Étape 6 : Mettre à jour votre Application (le Flux de Travail Git)
+
+C'est là que la magie de Vercel opère. Mettre à jour votre site est incroyablement simple.
+
+1.  **Demandez vos modifications de code** dans Firebase Studio.
+2.  Une fois les modifications appliquées, **envoyez-les à votre dépôt Git** avec les commandes suivantes dans votre terminal :
+    ```bash
+    git add .
+    git commit -m "Description de vos modifications"
+    git push
+    ```
+3.  **Vercel s'occupe du reste !** Dès que Vercel détecte le `push` sur votre branche principale, il lance automatiquement un nouveau build et déploie la mise à jour sur votre site de production. Vous n'avez rien d'autre à faire.
+
+**Déploiements de prévisualisation (Preview Deployments) :**
+Si vous poussez votre code sur une autre branche que la branche principale (par exemple, une branche nommée `nouvelle-fonctionnalite`), Vercel créera un déploiement de **prévisualisation**. C'est une version de votre site accessible via une URL unique, où vous pouvez tester vos changements en conditions réelles avant de les fusionner sur la branche principale.
+
+---
+
+### Annexe A : Déploiement Manuel sur cPanel
+
+Si vous n'utilisez pas une plateforme automatisée comme Vercel, le processus manuel ressemble généralement à ceci :
 
 #### A. Prérequis CRUCIAL : Version de Node.js
 
-**Votre application nécessite impérativement Node.js version 20 ou une version supérieure pour fonctionner.**
-
-L'erreur `Unsupported engine` que vous pouvez rencontrer indique que votre serveur utilise une version plus ancienne (comme Node.js 16), ce qui causera l'échec de l'installation des dépendances (`npm install`) ou des erreurs au démarrage de l'application.
-
-**Comment corriger sur cPanel :**
-
-1.  Allez dans l'interface **"Setup Node.js App"**.
-2.  En haut de la page, vous trouverez un menu déroulant pour la **"Node.js version"**.
-3.  Sélectionnez la version la plus récente disponible, idéalement **20.x** ou supérieure.
-4.  Cliquez sur **"Save"** ou le bouton équivalent pour appliquer le changement.
-5.  Ce n'est qu'après avoir changé la version que vous devez lancer "Run NPM Install".
+**Votre application nécessite impérativement Node.js version 20 ou une version supérieure pour fonctionner.** L'erreur `Unsupported engine` indique que votre serveur utilise une version plus ancienne.
+*   **Correction sur cPanel :** Allez dans **"Setup Node.js App"** -> **"Node.js version"** et sélectionnez `20.x` ou plus.
 
 #### B. Processus de déploiement
 
 1.  **Construire l'application (Build) :**
-    *   Sur votre machine locale, ou sur le serveur de build, exécutez la commande :
-        ```bash
-        npm run build
-        ```
-    *   Cette commande crée un dossier `.next` optimisé pour la production.
-
+    *   Sur votre machine locale, exécutez : `npm run build`
 2.  **Téléverser les Fichiers :**
-    *   Vous devez téléverser (via FTP ou SSH) les fichiers et dossiers suivants sur votre serveur :
-        *   Le dossier `.next`
-        *   Le dossier `public`
-        *   Le fichier `package.json` et `package-lock.json`
-        *   Le fichier `next.config.ts`
-        *   Le fichier `app.js`
-
+    *   Téléversez (via FTP ou SSH) les fichiers et dossiers suivants : `.next`, `public`, `package.json`, `package-lock.json`, `next.config.ts`, `app.js`.
 3.  **Installer les dépendances de production sur le serveur :**
-    *   Connectez-vous à votre serveur via un terminal (SSH) et exécutez :
-        ```bash
-        npm install --production
-        ```
-    *   Cette commande lit votre `package.json` mais n'installe **que** les paquets de production (`dependencies`), en ignorant les paquets de développement (`devDependencies`). Cela rend votre installation plus légère et plus rapide.
-
-4.  **Démarrer l'application :**
-    *   La commande pour lancer l'application en mode production est :
-        ```bash
-        npm start
-        ```
-    *   Votre hébergeur doit s'assurer que cette commande est exécutée et que le processus reste actif (souvent via un gestionnaire de processus comme PM2).
+    *   Connectez-vous via un terminal (SSH) et exécutez : `npm install --production`
+4.  **Configurer et démarrer l'application dans cPanel :**
+    *   Allez dans **"Setup Node.js App"**.
+    *   Vérifiez que le **"Application startup file"** est bien `app.js`.
+    *   Configurez les **variables d'environnement** comme décrit à l'étape 2.
+    *   **ATTENTION :** Pour `SERVICE_ACCOUNT_JSON`, la valeur doit être entourée de guillemets simples : `'{"type": "...", ...}'`
+    *   Cliquez sur **"Run NPM Install"**, puis **"Restart"**.
 
 ---
 
-### Étape 4 : Configurer votre Nom de Domaine Personnalisé (sur Vercel)
-
-Une fois votre application déployée, vous voudrez probablement qu'elle soit accessible via votre propre nom de domaine (par exemple, `www.mon-site.com`) plutôt que l'adresse par défaut de Vercel.
-
-1.  **Allez dans votre tableau de bord Vercel :**
-    *   Connectez-vous à votre compte Vercel et sélectionnez votre projet.
-
-2.  **Accédez à la section des domaines :**
-    *   Allez dans l'onglet **"Settings"** (Paramètres) de votre projet.
-    *   Dans le menu de gauche, cliquez sur **"Domains"** (Domaines).
-
-3.  **Ajoutez votre nom de domaine :**
-    *   Entrez votre nom de domaine dans le champ prévu à cet effet (par exemple, `mon-site.com`) et cliquez sur **"Add"** (Ajouter).
-    *   Vercel vous recommandera probablement d'ajouter la version `www` également (par exemple, `www.mon-site.com`) et de choisir une redirection. Suivez simplement les instructions.
-
-4.  **Configurez vos enregistrements DNS :**
-    *   C'est l'étape la plus technique. Vercel vous fournira des instructions spécifiques sur les enregistrements DNS à configurer. Vous devrez faire ces changements chez le fournisseur où vous avez acheté votre nom de domaine (par exemple, GoDaddy, OVH, Gandi, Namecheap, etc.).
-    *   Généralement, Vercel vous demandera de modifier soit un **enregistrement de type A**, soit un **enregistrement CNAME**. Suivez simplement les instructions fournies par Vercel.
-    *   Copiez la valeur fournie par Vercel et collez-la dans les paramètres DNS de votre fournisseur de domaine.
-
-5.  **Attendez la propagation :**
-    *   Les changements DNS peuvent prendre de quelques minutes à quelques heures pour se propager sur Internet.
-    *   Vercel vérifiera automatiquement la configuration. Une fois que c'est fait, un badge vert ou une coche apparaîtra à côté de votre nom de domaine dans le tableau de bord Vercel.
-
-**Et la sécurité (SSL/HTTPS) ?**
-Vercel s'en occupe automatiquement ! Une fois que votre domaine est correctement configuré, Vercel générera et renouvellera automatiquement un certificat SSL gratuit pour vous, garantissant que votre site est sécurisé et accessible via `https`.
-
-#### Et pour un sous-domaine ?
-
-Oui, c'est tout à fait possible et le processus est très similaire.
-1.  Dans Vercel, à l'étape 3, entrez le sous-domaine complet (par exemple, `app.mon-site.com`).
-2.  À l'étape 4, Vercel vous fournira un enregistrement de type `CNAME`.
-3.  Chez votre fournisseur de domaine, créez un nouvel enregistrement `CNAME` où l'hôte est votre sous-domaine (par exemple, `app`) et la valeur est celle fournie par Vercel.
-
----
-
-### Résumé et Recommandations
-
--   **Priorité n°1 :** Vérifiez que votre hébergement supporte **Node.js 20+**.
--   **Priorité n°2 :** Configurez les variables d'environnement sur la plateforme d'hébergement. C'est la source d'erreur la plus commune.
--   **Chemin le plus simple :** Utilisez **Vercel** ou **Firebase App Hosting** pour un déploiement simple et sans tracas.
-
-Bon déploiement !
-
----
-
-### Annexe : Dépannage des Erreurs Courantes
+### Annexe B : Dépannage des Erreurs Courantes sur cPanel
 
 #### Erreur : `ENOTEMPTY: directory not empty` lors de `npm install`
 
-Cette erreur est l'une des plus fréquentes lors du déploiement sur cPanel et indique généralement que votre dossier de dépendances (`node_modules`) est dans un état incohérent, souvent suite à une installation interrompue ou échouée.
+Cette erreur indique que votre dossier de dépendances (`node_modules`) est dans un état incohérent.
+1.  **Arrêtez l'application** dans cPanel.
+2.  **Supprimez** le dossier `node_modules` et le fichier `package-lock.json`.
+3.  **Réinstallez** en cliquant sur "Run NPM Install".
+4.  **Redémarrez** l'application.
 
-**Ce n'est PAS une erreur dans le code de votre application.**
+#### Erreur : `not a valid identifier` au démarrage
 
-Pour la résoudre, vous devez forcer une réinstallation propre des dépendances :
-
-1.  **Arrêtez l'application Node.js :**
-    *   Dans votre cPanel, allez dans "Setup Node.js App".
-    *   Cliquez sur le bouton "**Stop App**".
-
-2.  **Supprimez les dépendances existantes :**
-    *   Allez dans le "Gestionnaire de fichiers" de cPanel.
-    *   Naviguez jusqu'au répertoire racine de votre application.
-    *   **Supprimez complètement le dossier `node_modules`**.
-    *   Par précaution, **supprimez également le fichier `package-lock.json`**.
-
-3.  **Réinstallez les dépendances :**
-    *   Retournez dans "Setup Node.js App".
-    *   Cliquez sur le bouton "**Run NPM Install**". Laissez-lui le temps de se terminer. Cela va recréer un dossier `node_modules` propre.
-
-4.  **Redémarrez l'application :**
-    *   Cliquez sur le bouton "**Start App**".
-
-Cela résout le problème dans la grande majorité des cas en repartant sur une base saine.
-
-```
+Cela signifie que votre variable d'environnement `SERVICE_ACCOUNT_JSON` n'est pas correctement formatée. Assurez-vous que la valeur est bien entourée de guillemets simples (`'...'`).
