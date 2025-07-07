@@ -165,6 +165,35 @@ L'erreur `Unsupported engine` que vous pouvez rencontrer indique que votre serve
 
 ---
 
+### Étape 4 : Configurer votre Nom de Domaine Personnalisé (sur Vercel)
+
+Une fois votre application déployée, vous voudrez probablement qu'elle soit accessible via votre propre nom de domaine (par exemple, `www.mon-site.com`) plutôt que l'adresse par défaut de Vercel.
+
+1.  **Allez dans votre tableau de bord Vercel :**
+    *   Connectez-vous à votre compte Vercel et sélectionnez votre projet.
+
+2.  **Accédez à la section des domaines :**
+    *   Allez dans l'onglet **"Settings"** (Paramètres) de votre projet.
+    *   Dans le menu de gauche, cliquez sur **"Domains"** (Domaines).
+
+3.  **Ajoutez votre nom de domaine :**
+    *   Entrez votre nom de domaine dans le champ prévu à cet effet (par exemple, `mon-site.com`) et cliquez sur **"Add"** (Ajouter).
+    *   Vercel vous recommandera probablement d'ajouter la version `www` également (par exemple, `www.mon-site.com`) et de choisir une redirection. Suivez simplement les instructions.
+
+4.  **Configurez vos enregistrements DNS :**
+    *   C'est l'étape la plus technique. Vercel vous fournira des instructions spécifiques sur les enregistrements DNS à configurer. Vous devrez faire ces changements chez le fournisseur où vous avez acheté votre nom de domaine (par exemple, GoDaddy, OVH, Gandi, Namecheap, etc.).
+    *   Généralement, Vercel vous demandera de modifier soit un **enregistrement de type A**, soit un **enregistrement CNAME**. Suivez simplement les instructions fournies par Vercel.
+    *   Copiez la valeur fournie par Vercel et collez-la dans les paramètres DNS de votre fournisseur de domaine.
+
+5.  **Attendez la propagation :**
+    *   Les changements DNS peuvent prendre de quelques minutes à quelques heures pour se propager sur Internet.
+    *   Vercel vérifiera automatiquement la configuration. Une fois que c'est fait, un badge vert ou une coche apparaîtra à côté de votre nom de domaine dans le tableau de bord Vercel.
+
+**Et la sécurité (SSL/HTTPS) ?**
+Vercel s'en occupe automatiquement ! Une fois que votre domaine est correctement configuré, Vercel générera et renouvellera automatiquement un certificat SSL gratuit pour vous, garantissant que votre site est sécurisé et accessible via `https`.
+
+---
+
 ### Résumé et Recommandations
 
 -   **Priorité n°1 :** Vérifiez que votre hébergement supporte **Node.js 20+**.
