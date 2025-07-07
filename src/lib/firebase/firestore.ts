@@ -138,6 +138,8 @@ export type UserProfile = {
     proofOfAddressUrl: string;
     selfieUrl: string;
   };
+  emailVerificationCode?: string;
+  emailVerificationCodeExpires?: Timestamp;
   cardStatus: 'none' | 'requested' | 'active' | 'suspended' | 'cancelled';
   physicalCard?: PhysicalCard;
   cardType?: PhysicalCardType;

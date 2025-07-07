@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -6,6 +7,8 @@ import { getFirebaseServices } from '@/lib/firebase/config';
 import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard, Beneficiary, addBeneficiary as addBeneficiaryToDb, deleteBeneficiary as deleteBeneficiaryFromDb, Transaction, requestTransfer as requestTransferInDb } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { getCloudinaryUrl } from '@/app/actions';
+import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
+import { verifyEmailCode } from '@/ai/flows/verify-email-code-flow';
 
 // Initialize default (client-side) Firebase services
 const { auth, db } = getFirebaseServices();
@@ -32,6 +35,7 @@ type AuthContextType = {
   addBeneficiary: (beneficiaryData: Omit<Beneficiary, 'id'>) => Promise<void>;
   deleteBeneficiary: (beneficiaryId: string) => Promise<void>;
   requestTransfer: (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => Promise<void>;
+  verifyCode: (code: string) => Promise<{ success: boolean; error?: string }>;
 };
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -72,8 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     if (!userCredential.user.emailVerified) {
-        await signOut(auth);
-        throw new Error('auth/email-not-verified');
+        // Even if not verified, proceed with login but let the UI handle redirection
+        // based on the `user.emailVerified` property.
+        console.log("User email not verified, but login successful.");
     }
     
     // Update last sign-in time in Firestore
@@ -98,13 +103,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ...userData,
       uid: user.uid,
     });
-
-    await sendEmailVerification(userCredential.user);
+    
+    await sendVerificationCode({
+        userId: user.uid,
+        email: user.email!,
+        userName: userData.firstName,
+    });
   };
   
   const resendVerificationEmail = async () => {
-    if (auth.currentUser) {
-        await sendEmailVerification(auth.currentUser);
+    if (auth.currentUser && userProfile) {
+        await sendVerificationCode({
+            userId: auth.currentUser.uid,
+            email: auth.currentUser.email!,
+            userName: userProfile.firstName,
+        });
     } else {
         throw new Error("No user is signed in to resend verification email.");
     }
@@ -120,6 +133,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return true;
     }
     return false;
+  };
+  
+  const verifyCode = async (code: string) => {
+    if (!user) throw new Error("No user is signed in.");
+    const result = await verifyEmailCode({ userId: user.uid, code });
+    if (result.success) {
+      // Manually refresh the user object to get the latest `emailVerified` status
+      await reload(user);
+      // Update the user state in the context
+      setUser(auth.currentUser);
+    }
+    return result;
   };
 
   const logout = async () => {
@@ -220,7 +245,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   };
 
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer, isBalanceVisible, toggleBalanceVisibility };
+  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer, isBalanceVisible, toggleBalanceVisibility, verifyCode };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

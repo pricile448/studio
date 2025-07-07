@@ -187,7 +187,13 @@
         "verifyingDescription": "Bitte warten Sie einen Moment.",
         "verificationErrorTitle": "Verifizierungsfehler",
         "invalidAction": "Die angeforderte Aktion ist ungültig.",
-        "expiredLinkError": "Der Bestätigungslink ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an."
+        "expiredLinkError": "Der Bestätigungslink ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.",
+        "title_code": "Bestätigen Sie Ihre E-Mail-Adresse",
+        "description_code": "Wir haben einen Bestätigungscode an {email} gesendet. Bitte geben Sie den Code ein, um Ihr Konto zu aktivieren.",
+        "codeLabel": "Bestätigungscode",
+        "codeInvalidError": "Der Code muss 6-stellig sein.",
+        "verifyButton": "Bestätigen",
+        "noCodePrompt": "Keinen Code erhalten?"
     },
     "sidebar": {
       "dashboard": "Mein Kundenbereich",

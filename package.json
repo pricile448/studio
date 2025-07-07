@@ -48,6 +48,7 @@
     "firebase-admin": "^12.2.0",
     "form-data": "^4.0.0",
     "genkit": "^1.8.0",
+    "input-otp": "^1.2.5",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.475.0",
     "mailgun.js": "^10.2.1",

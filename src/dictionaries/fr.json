@@ -187,7 +187,13 @@
         "verifyingDescription": "Veuillez patienter un instant.",
         "verificationErrorTitle": "Erreur de vérification",
         "invalidAction": "L'action demandée est invalide.",
-        "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien."
+        "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien.",
+        "title_code": "Vérifiez votre adresse e-mail",
+        "description_code": "Nous avons envoyé un code de vérification à {email}. Veuillez saisir le code pour activer votre compte.",
+        "codeLabel": "Code de vérification",
+        "codeInvalidError": "Le code doit comporter 6 chiffres.",
+        "verifyButton": "Vérifier",
+        "noCodePrompt": "Vous n'avez pas reçu de code ?"
     },
     "sidebar": {
       "dashboard": "Mon Espace Client",

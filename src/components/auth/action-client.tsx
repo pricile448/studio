@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { applyActionCode, verifyPasswordResetCode, confirmPasswordReset } from 'firebase/auth';
+import { verifyPasswordResetCode, confirmPasswordReset } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useAuth } from '@/context/auth-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
@@ -65,29 +66,13 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
     setMode(currentMode);
     setActionCode(currentActionCode);
 
-    if (currentMode === 'verifyEmail' && currentActionCode) {
-      handleVerifyEmail(currentActionCode, dict.verifyEmail);
-    } else if (currentMode === 'resetPassword' && currentActionCode) {
+    if (currentMode === 'resetPassword' && currentActionCode) {
       handleVerifyPasswordReset(currentActionCode, dict.forgotPassword);
     } else {
       setError(dict.verifyEmail.invalidAction);
       setLoading(false);
     }
   }, [searchParams, dict]);
-
-  const handleVerifyEmail = async (code: string, verifyDict: Dictionary['verifyEmail']) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await applyActionCode(auth, code);
-      setSuccess(true);
-    } catch (e: any) {
-      console.error(e);
-      setError(verifyDict.expiredLinkError);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleVerifyPasswordReset = async (code: string, forgotPasswordDict: Dictionary['forgotPassword']) => {
     setLoading(true);
@@ -197,13 +182,6 @@ export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
   };
 
   const getSuccessDialogContent = () => {
-    if (mode === 'verifyEmail') {
-      return {
-        title: dict?.verifyEmail.verificationSuccessTitle,
-        description: dict?.verifyEmail.verificationSuccessDescription,
-        buttonText: dict?.verifyEmail.proceedToLoginButton,
-      };
-    }
     if (mode === 'resetPassword') {
       return {
         title: dict?.forgotPassword.resetSuccessTitle,

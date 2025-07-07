@@ -187,7 +187,13 @@
         "verifyingDescription": "Por favor, espere un momento.",
         "verificationErrorTitle": "Error de verificación",
         "invalidAction": "La acción solicitada no es válida.",
-        "expiredLinkError": "El enlace de verificación no es válido o ha caducado. Por favor, solicite uno nuevo."
+        "expiredLinkError": "El enlace de verificación no es válido o ha caducado. Por favor, solicite uno nuevo.",
+        "title_code": "Verifique su dirección de correo electrónico",
+        "description_code": "Hemos enviado un código de verificación a {email}. Por favor, introduzca el código para activar su cuenta.",
+        "codeLabel": "Código de verificación",
+        "codeInvalidError": "El código debe tener 6 dígitos.",
+        "verifyButton": "Verificar",
+        "noCodePrompt": "¿No recibió un código?"
     },
     "sidebar": {
       "dashboard": "Mi Espacio Cliente",

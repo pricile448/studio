@@ -187,7 +187,13 @@
         "verifyingDescription": "Please wait a moment.",
         "verificationErrorTitle": "Verification Error",
         "invalidAction": "The requested action is invalid.",
-        "expiredLinkError": "The verification link is invalid or has expired. Please request a new link."
+        "expiredLinkError": "The verification link is invalid or has expired. Please request a new link.",
+        "title_code": "Verify Your Email Address",
+        "description_code": "We've sent a verification code to {email}. Please enter the code to activate your account.",
+        "codeLabel": "Verification Code",
+        "codeInvalidError": "Code must be 6 digits.",
+        "verifyButton": "Verify",
+        "noCodePrompt": "Didn't receive a code?"
     },
     "sidebar": {
       "dashboard": "My Account",
