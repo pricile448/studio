@@ -2,7 +2,7 @@
 {
     "logo": "AmCbunq",
     "homePage": {
-        "slogan": "Votre banque de crédit mutuel",
+        "slogan": "Votre avenir financier, simplifié et sécurisé.",
         "nav": {
             "home": "Accueil",
             "features": "Fonctionnalités",
@@ -252,7 +252,7 @@
         "title": "Actions Rapides",
         "makeTransfer": "Faire un virement",
         "payBill": "Payer une facture",
-        "addBeneficiary": "Bénéficiaire",
+        "addBeneficiary": "Bénéficiaires",
         "viewHistory": "Voir l'historique",
         "settings": "Paramètres"
       },
