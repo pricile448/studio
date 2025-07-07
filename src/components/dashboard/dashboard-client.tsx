@@ -141,7 +141,7 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
               <Button key={index} variant="outline" className="h-20 flex-col gap-2" asChild>
                 <Link href={action.href}>
                   <Icon className="h-6 w-6 text-primary" />
-                  <span className="text-center">{action.label}</span>
+                  <span className="text-center text-xs leading-tight">{action.label}</span>
                 </Link>
               </Button>
             );
