@@ -85,16 +85,23 @@ export function DashboardLayoutClient({
 
   const handleLogout = useCallback(async (isInactive = false) => {
     if (isLoggingOut) return;
-    
     setIsLoggingOut(true);
+
+    let redirectPath = `/${lang}/login`;
+
     if (isInactive) {
       toast({
           title: dict.login.inactivityLogoutTitle,
           description: dict.login.inactivityLogoutDescription,
       });
+      redirectPath = `/${lang}/login?reason=inactivity`;
     }
+    
+    // Redirect first to prevent a race condition with the auth state listener.
+    // This ensures this component unmounts before the user state becomes null.
+    router.push(redirectPath);
     await logout();
-    router.push(`/${lang}/login${isInactive ? '?reason=inactivity' : ''}`);
+
   }, [isLoggingOut, logout, router, lang, toast, dict]);
 
   // Read timeout from user profile, with a default of 15 minutes.
@@ -180,7 +187,7 @@ export function DashboardLayoutClient({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
           <SidebarTrigger className="md:hidden" />
           <div className="w-full flex-1">
             {/* Future search bar could go here */}
@@ -253,11 +260,16 @@ export function DashboardLayoutClient({
                             {dict.sidebar.userMenu.settings}
                         </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => handleLogout(false)}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>{dict.sidebar.userMenu.logout}</span>
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </header>
-        <main className="overflow-y-auto bg-background p-4 lg:p-6">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
           {children}
         </main>
         <footer className="border-t bg-card/50">
