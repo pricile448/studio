@@ -138,10 +138,10 @@ export function DashboardClient({ dict, accountsDict, lang }: DashboardClientPro
           {quickActions.map((action, index) => {
             const Icon = action.icon;
             return (
-              <Button key={index} variant="outline" className="min-h-20 flex-col items-center justify-center gap-2 p-3" asChild>
+              <Button key={index} variant="outline" className="h-auto min-h-20 flex-col items-center justify-center gap-2 p-3" asChild>
                 <Link href={action.href}>
                   <Icon className="h-6 w-6 text-primary" />
-                  <span className="text-center text-xs leading-tight">{action.label}</span>
+                  <span className="text-center text-xs leading-tight break-words">{action.label}</span>
                 </Link>
               </Button>
             );
