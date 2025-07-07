@@ -5,11 +5,28 @@ import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/dictionaries';
 import { Providers } from './providers';
 
+const siteTitle = 'AmCbunq - Modern Banking';
+const siteDescription = 'Votre avenir financier, simplifié et sécurisé.';
+
 export const metadata: Metadata = {
-  title: 'AmCbunq - Modern Banking',
-  description: 'Votre avenir financier, simplifié et sécurisé.',
+  title: siteTitle,
+  description: siteDescription,
   icons: {
     icon: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1751655892/favicon-32x32_lcz5bt.png',
+  },
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    type: 'website',
+    url: 'https://mybunq.amccredit.com',
+    images: [
+      {
+        url: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1750897367/IM_5_xfdv9p.png',
+        width: 1200,
+        height: 630,
+        alt: siteTitle,
+      },
+    ],
   },
 };
 
