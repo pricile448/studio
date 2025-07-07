@@ -65,7 +65,17 @@ GOOGLE_API_KEY=...
 ```
 
 **Note importante pour `SERVICE_ACCOUNT_JSON` :**
-Vous devez également ajouter la variable `SERVICE_ACCOUNT_JSON` pour le tableau de bord administrateur (voir étape suivante). Sur Vercel, vous pouvez simplement copier le contenu complet du fichier JSON et le coller comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes, vous n'avez **pas besoin** d'ajouter des guillemets simples (`'`).
+Vous devez également ajouter la variable `SERVICE_ACCOUNT_JSON` pour le tableau de bord administrateur. Le formatage de cette variable est **différent** selon votre hébergeur.
+
+*   **Sur Vercel :**
+    *   **NE PAS** utiliser de guillemets.
+    *   Copiez simplement le contenu complet du fichier JSON et collez-le comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes.
+    *   La valeur doit commencer par `{` et finir par `}`.
+
+*   **Sur cPanel / Plesk :**
+    *   **UTILISER** des guillemets simples.
+    *   Vous devez transformer le contenu JSON en une seule ligne et l'entourer de guillemets simples (`'...'`).
+    *   La valeur doit commencer par `'` et finir par `'`.
 
 ---
 
@@ -83,8 +93,8 @@ Certaines fonctionnalités, comme le tableau de bord administrateur, nécessiten
 2.  **Configurez la variable d'environnement :**
     *   Ouvrez le fichier JSON que vous venez de télécharger.
     *   Copiez **l'intégralité du contenu** de ce fichier.
-    *   Sur votre plateforme d'hébergement (Vercel), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
-    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable.
+    *   Sur votre plateforme d'hébergement (Vercel, cPanel, etc.), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
+    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable, en respectant la note de l'étape 2 sur les guillemets.
 
 ---
 
@@ -93,8 +103,9 @@ Certaines fonctionnalités, comme le tableau de bord administrateur, nécessiten
 1.  **Créez un compte** sur [Vercel](https://vercel.com).
 2.  **Liez votre dépôt de code** (GitHub, GitLab, ou Bitbucket).
 3.  **Importez votre projet**. Vercel détectera automatiquement que c'est un projet Next.js et configurera le build pour vous.
-4.  **Configurez les variables d'environnement** comme décrit à l'étape 2.
+4.  **Configurez les variables d'environnement** comme décrit à l'étape 2. Assurez-vous que la valeur de `SERVICE_ACCOUNT_JSON` commence par `{` et se termine par `}` (pas de guillemets).
 5.  **Lancez le déploiement**. Votre site sera en ligne en quelques minutes sur une URL fournie par Vercel (par exemple `mon-projet.vercel.app`).
+6.  **Redéployez après avoir ajouté les variables :** Après avoir ajouté ou modifié des variables d'environnement, il est crucial de redéployer votre application. Allez dans l'onglet "Deployments", trouvez le dernier déploiement et cliquez sur le bouton "Redeploy".
 
 ---
 
