@@ -104,20 +104,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       uid: user.uid,
     });
     
-    await sendVerificationCode({
+    // Check the result of sending the code
+    const result = await sendVerificationCode({
         userId: user.uid,
         email: user.email!,
         userName: userData.firstName,
     });
+
+    // If it fails, throw an error to be caught by the UI
+    if (!result.success) {
+      throw new Error(result.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
+    }
   };
   
   const resendVerificationEmail = async () => {
     if (auth.currentUser && userProfile) {
-        await sendVerificationCode({
+        // Check the result of sending the code
+        const result = await sendVerificationCode({
             userId: auth.currentUser.uid,
             email: auth.currentUser.email!,
             userName: userProfile.firstName,
         });
+        
+        // If it fails, throw an error to be caught by the UI
+        if (!result.success) {
+          throw new Error(result.error || "Failed to resend verification email.");
+        }
     } else {
         throw new Error("No user is signed in to resend verification email.");
     }
