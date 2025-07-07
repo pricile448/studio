@@ -14,7 +14,7 @@
         "hero": {
             "title_part1": "La banque, simplifiée et ",
             "title_highlight": "intelligente.",
-            "subtitle": "Gérez vos finances avec des outils puissants, des transactions instantanées et une sécurité de pointe.",
+            "subtitle": "Votre avenir financier, simplifié et sécurisé.",
             "ctaPrimary": "Commencez aujourd'hui",
             "ctaSecondary": "En savoir plus"
         },
@@ -252,7 +252,7 @@
         "title": "Actions Rapides",
         "makeTransfer": "Faire un virement",
         "payBill": "Payer une facture",
-        "addBeneficiary": "Ajouter un bénéficiaire",
+        "addBeneficiary": "Bénéficiaires",
         "viewHistory": "Voir l'historique",
         "settings": "Paramètres"
       },

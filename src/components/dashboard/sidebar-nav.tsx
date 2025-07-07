@@ -90,7 +90,7 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
   const { userProfile } = useAuth();
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex flex-col">
       <SidebarGroup>
         <SidebarGroupLabel>{sidebarGroupsDict.account}</SidebarGroupLabel>
         <NavMenu items={accountNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
