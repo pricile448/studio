@@ -73,31 +73,39 @@ const verifyEmailCodeFlow = ai.defineFlow(
       // --- New feature: Send welcome email after verification ---
       try {
         const userName = userData.firstName || 'nouvel utilisateur';
-        const emailSubject = `Bienvenue chez AmCbunq ! Votre compte est activé.`;
+        const emailSubject = `Votre compte AmCbunq est activé`;
         const emailText = `
-Bonjour ${userName},
+          Bonjour ${userName},
 
-Félicitations ! Votre adresse e-mail a été vérifiée et votre compte AmCbunq est maintenant actif.
+          Votre adresse e-mail a été vérifiée avec succès. Votre compte est maintenant actif.
 
-Vous pouvez vous connecter ici : ${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}
+          Pour accéder à votre espace client, veuillez visiter : ${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}
 
-Cordialement,
-L'équipe AmCbunq
+          Cordialement,
+          L'équipe AmCbunq
         `;
         const emailHtml = `
-          <div style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-              <h1 style="font-size: 24px; color: #013A81;">Bienvenue chez AmCbunq !</h1>
-              <p>Félicitations, ${userName}.</p>
-              <p>Votre adresse e-mail a été vérifiée et votre compte est maintenant entièrement actif.</p>
-              <p>Vous pouvez vous connecter en utilisant le lien ci-dessous :</p>
-              <p><a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="color: #013A81; text-decoration: underline;">Accéder à mon compte</a></p>
-              <br>
-              <p>Cordialement,<br>L'équipe AmCbunq</p>
-              <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-              <p style="font-size: 12px; color: #999;">© ${new Date().getFullYear()} AmCbunq. Tous droits réservés.</p>
-            </div>
-          </div>
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+              <meta charset="UTF-8">
+              <title>Bienvenue chez AmCbung</title>
+          </head>
+          <body style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0;">
+              <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #dddddd; border-radius: 8px;">
+                  <h1 style="font-size: 24px; color: #013A81; margin: 0 0 20px 0;">AmCbung</h1>
+                  <h2 style="font-size: 18px; color: #333333; margin: 0 0 10px 0;">Bonjour ${userName},</h2>
+                  <p style="margin: 0 0 15px 0;">Votre adresse e-mail a été vérifiée avec succès. Votre compte est maintenant actif.</p>
+                  <p style="margin: 0 0 25px 0;">Pour accéder à votre espace client, veuillez cliquer sur le bouton ci-dessous :</p>
+                  <p style="margin: 25px 0; text-align: center;">
+                      <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="background-color: #013A81; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Se connecter à mon compte</a>
+                  </p>
+                  <p style="margin: 30px 0 0 0;">Cordialement,<br>L'équipe AmCbung</p>
+                  <hr style="border: 0; border-top: 1px solid #dddddd; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #999999; margin: 0; text-align: center;">© ${new Date().getFullYear()} AmCbung. Tous droits réservés.</p>
+              </div>
+          </body>
+          </html>
         `;
 
         await sendEmail({
