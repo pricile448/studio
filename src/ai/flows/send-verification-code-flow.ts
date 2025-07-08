@@ -7,7 +7,8 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { sendEmail } from '@/services/mailgun-service';
 import { updateUserInFirestore } from '@/lib/firebase/firestore';
-import { Timestamp } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase/admin'; // Import adminDb
+import { Timestamp } from 'firebase-admin/firestore'; // Use the admin Timestamp
 
 const SendVerificationCodeInputSchema = z.object({
   userId: z.string(),
@@ -27,16 +28,23 @@ const sendVerificationCodeFlow = ai.defineFlow(
     outputSchema: z.object({ success: z.boolean(), error: z.string().optional() }),
   },
   async ({ userId, email, userName }) => {
+    // Check if the admin SDK is initialized before proceeding
+    if (!adminDb) {
+        const error = "Firebase Admin SDK not initialized. Cannot update user for verification code.";
+        console.error(error);
+        return { success: false, error };
+    }
+
     const code = generateVerificationCode();
     // Expiry in 10 minutes
     const expires = Timestamp.fromDate(new Date(Date.now() + 10 * 60 * 1000));
 
     try {
-      // Store the code and expiry on the user's document
+      // Store the code and expiry on the user's document using the Admin DB
       await updateUserInFirestore(userId, {
         emailVerificationCode: code,
         emailVerificationCodeExpires: expires,
-      });
+      }, adminDb); // <-- Pass adminDb here
 
       // Send the email
       const emailSubject = `Votre code de vérification AmCbunq`;
