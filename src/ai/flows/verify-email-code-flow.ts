@@ -7,6 +7,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
+import { sendEmail } from '@/services/mailgun-service';
 
 const VerifyEmailCodeInputSchema = z.object({
   userId: z.string(),
@@ -68,6 +69,58 @@ const verifyEmailCodeFlow = ai.defineFlow(
         emailVerificationCode: null,
         emailVerificationCodeExpires: null,
       });
+
+      // --- New feature: Send welcome email after verification ---
+      try {
+        const userName = userData.firstName || 'nouvel utilisateur';
+        const emailSubject = `Bienvenue chez AmCbunq ! Votre compte est activé.`;
+        const emailText = `
+Bonjour ${userName},
+
+Félicitations ! Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.
+
+Vous pouvez dès maintenant :
+- Commander votre carte bancaire physique ou virtuelle.
+- Effectuer des virements sécurisés.
+- Créer des budgets pour suivre vos dépenses.
+- Profiter de toutes nos offres promotionnelles.
+
+Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir.
+
+L'équipe AmCbunq
+        `;
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+              <h2 style="color: #013A81;">Félicitations, ${userName} !</h2>
+              <p>Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.</p>
+              <p>Vous pouvez dès maintenant explorer toutes les fonctionnalités :</p>
+              <ul style="list-style-type: none; padding-left: 0;">
+                  <li style="margin-bottom: 10px;">✅ Commander votre carte bancaire physique ou virtuelle.</li>
+                  <li style="margin-bottom: 10px;">✅ Effectuer des virements sécurisés.</li>
+                  <li style="margin-bottom: 10px;">✅ Créer des budgets pour suivre vos dépenses.</li>
+                  <li style="margin-bottom: 10px;">✅ Profiter de toutes nos offres promotionnelles.</li>
+              </ul>
+              <p>Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir.</p>
+              <p style="margin-top: 20px;">
+                  <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="background-color: #013A81; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Se connecter</a>
+              </p>
+              <p style="margin-top: 30px;">Merci,<br>L'équipe AmCbunq</p>
+          </div>
+        `;
+
+        await sendEmail({
+            to: userData.email,
+            subject: emailSubject,
+            text: emailText,
+            html: emailHtml,
+        });
+
+      } catch (emailError: any) {
+          // Log the error but don't fail the entire flow because of it.
+          // The user verification was successful, which is the main goal.
+          console.error("Failed to send welcome email after verification:", emailError);
+      }
+      // --- End of new feature ---
 
       return { success: true };
     } catch (error: any) {
