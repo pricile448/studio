@@ -27,7 +27,7 @@ if (admin.apps.length) {
     } catch (error: any) {
         console.error('Firebase Admin SDK initialization error from JSON:', error.message);
         if (error.message.includes('JSON.parse')) {
-            console.error("Hint: The SERVICE_ACCOUNT_JSON environment variable might be malformed. Ensure it's a valid JSON string.");
+            console.error("Hint: The SERVICE_ACCOUNT_JSON environment variable is likely malformed. In your .env file, ensure the entire multi-line JSON object is wrapped in single quotes. Example: SERVICE_ACCOUNT_JSON='{...}'");
         }
     }
 } else if (isProduction) {
@@ -53,7 +53,7 @@ if (!adminInitialized) {
         "For local development, the SERVICE_ACCOUNT_JSON environment variable must be set in your .env file.\n" +
         "For production, it must be set in your hosting provider's environment variable settings.\n" +
         "Server-side admin features (like the Admin Dashboard) will not work.\n" +
-        "Please see the 'Étape 1.5' section in DEPLOYMENT.md for instructions.\n" +
+        "Please see the 'Étape 3' section in DEPLOYMENT.md for instructions.\n" +
         '********************************************************************************************************\n'
     );
 }

@@ -67,12 +67,11 @@ GOOGLE_API_KEY=...
 **Note importante pour `SERVICE_ACCOUNT_JSON` :**
 Vous devez également ajouter la variable `SERVICE_ACCOUNT_JSON` pour le tableau de bord administrateur. Le formatage de cette variable est **différent** selon votre hébergeur.
 
-*   **Sur Vercel :**
-    *   **NE PAS** utiliser de guillemets.
-    *   Copiez simplement le contenu complet du fichier JSON et collez-le comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes.
-    *   La valeur doit commencer par `{` et finir par `}`.
+*   **Sur Vercel & dans `.env` (local) :**
+    *   **NE PAS** utiliser de guillemets doubles (`"`) autour de la valeur.
+    *   Copiez simplement le contenu complet du fichier JSON et collez-le comme valeur de la variable. Vercel gère correctement les variables sur plusieurs lignes. **L'important est que la valeur commence par `{` et finisse par `}`.**
 
-*   **Sur cPanel / Plesk :**
+*   **Sur cPanel / Plesk (Hébergement manuel) :**
     *   **UTILISER** des guillemets simples.
     *   Vous devez transformer le contenu JSON en une seule ligne et l'entourer de guillemets simples (`'...'`).
     *   La valeur doit commencer par `'` et finir par `'`.
@@ -90,11 +89,11 @@ Certaines fonctionnalités, comme le tableau de bord administrateur, nécessiten
     *   Allez dans l'onglet "Comptes de service".
     *   Cliquez sur le bouton "**Générer une nouvelle clé privée**". Un fichier JSON sera téléchargé.
 
-2.  **Configurez la variable d'environnement :**
+2.  **Configurez la variable d'environnement `SERVICE_ACCOUNT_JSON` :**
     *   Ouvrez le fichier JSON que vous venez de télécharger.
     *   Copiez **l'intégralité du contenu** de ce fichier.
-    *   Sur votre plateforme d'hébergement (Vercel, cPanel, etc.), créez une nouvelle variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
-    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable, en respectant la note de l'étape 2 sur les guillemets.
+    *   Sur votre plateforme d'hébergement (Vercel, etc.) ou dans votre fichier `.env` local, créez ou modifiez la variable d'environnement nommée `SERVICE_ACCOUNT_JSON`.
+    *   Collez l'intégralité du contenu JSON comme valeur pour cette variable, en respectant la note de l'étape 2. La valeur doit commencer par `{` et finir par `}`.
 
 ---
 
