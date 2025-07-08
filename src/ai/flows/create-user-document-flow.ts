@@ -96,7 +96,13 @@ const createUserDocumentFlow = ai.defineFlow(
 
     } catch (error: any) {
         console.error("Error creating user document in flow:", error);
-        return { success: false, error: "Failed to create user profile in database: " + error.message };
+        let errorMessage = "Échec de la création du profil utilisateur dans la base de données.";
+        if (error.message && error.message.includes('Could not refresh access token')) {
+            errorMessage = "Échec de l'authentification auprès de Firebase. Veuillez vérifier que votre variable d'environnement `SERVICE_ACCOUNT_JSON` sur Vercel est correcte et valide. Consultez DEPLOYMENT.md.";
+        } else if (error.message) {
+            errorMessage += ` Détail : ${error.message}`;
+        }
+        return { success: false, error: errorMessage };
     }
   }
 );
