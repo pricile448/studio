@@ -3,7 +3,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/dictionaries';
-import { Providers } from './providers';
+import { AuthProvider } from '@/context/auth-context';
+import { Toaster } from '@/components/ui/toaster';
 
 const siteTitle = 'AmCbunq - Modern Banking';
 const siteDescription = 'Votre avenir financier, simplifié et sécurisé.';
@@ -52,9 +53,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className={cn("font-body antialiased", process.env.NODE_ENV === 'development' ? 'debug-screens' : undefined)}>
-        <Providers>
+        <AuthProvider>
           {children}
-        </Providers>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
