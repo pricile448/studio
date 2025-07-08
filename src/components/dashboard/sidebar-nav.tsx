@@ -95,12 +95,10 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
         <SidebarGroupLabel>{sidebarGroupsDict.account}</SidebarGroupLabel>
         <NavMenu items={accountNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
       </SidebarGroup>
-      <div className="mt-auto">
-        <SidebarGroup>
-          <SidebarGroupLabel>{sidebarGroupsDict.settingsAndMore}</SidebarGroupLabel>
-          <NavMenu items={otherNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
-        </SidebarGroup>
-      </div>
+      <SidebarGroup>
+        <SidebarGroupLabel>{sidebarGroupsDict.settingsAndMore}</SidebarGroupLabel>
+        <NavMenu items={otherNavItems} lang={lang} dict={sidebarDict} pathname={pathname} />
+      </SidebarGroup>
     </div>
   );
 }
