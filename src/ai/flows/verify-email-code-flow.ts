@@ -72,7 +72,14 @@ const verifyEmailCodeFlow = ai.defineFlow(
       return { success: true };
     } catch (error: any) {
       console.error("Failed to verify email code:", error);
-      return { success: false, error: error.message || "Échec de la vérification du code d'e-mail" };
+      let errorMessage = error.message || "Échec de la vérification du code d'e-mail";
+      
+      // Provide a more user-friendly error for the specific GCP permission issue.
+      if (typeof errorMessage === 'string' && errorMessage.includes('serviceusage.services.use')) {
+          errorMessage = "Une permission est manquante sur Google Cloud. Le compte de service de votre application (service account) doit avoir le rôle 'Consommateur de services' (Service Usage Consumer) pour fonctionner correctement. Veuillez ajouter ce rôle dans la section IAM de la console Google Cloud.";
+      }
+
+      return { success: false, error: errorMessage };
     }
   }
 );
