@@ -14,6 +14,15 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '../ui/input-otp';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const verifyCodeSchema = (dict: any) => z.object({
   code: z.string().min(6, { message: dict.codeInvalidError }),
@@ -30,6 +39,7 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const form = useForm<z.infer<ReturnType<typeof verifyCodeSchema>>>({
     resolver: zodResolver(verifyCodeSchema(dict.verifyEmail)),
@@ -75,12 +85,8 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     setIsSubmitting(false);
 
     if (result.success) {
-      toast({
-        title: "E-mail vérifié !",
-        description: "Déconnexion réussie. Veuillez vous reconnecter pour accéder à votre compte.",
-      });
       await logout();
-      router.push(`/${lang}/login`);
+      setShowSuccessDialog(true);
     } else {
       toast({
         variant: 'destructive',
@@ -166,6 +172,22 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
           </div>
         </CardContent>
       </Card>
+
+      <AlertDialog open={showSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{verifyDict.verificationSuccessTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {verifyDict.verificationSuccessDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => router.push(`/${lang}/login`)}>
+              {verifyDict.proceedToLoginButton}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
