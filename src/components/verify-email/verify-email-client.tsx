@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -78,9 +77,10 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     if (result.success) {
       toast({
         title: "E-mail vérifié !",
-        description: "Vous allez être redirigé vers le tableau de bord.",
+        description: "Déconnexion réussie. Veuillez vous reconnecter pour accéder à votre compte.",
       });
-      router.push(`/${lang}/dashboard`);
+      await logout();
+      router.push(`/${lang}/login`);
     } else {
       toast({
         variant: 'destructive',
