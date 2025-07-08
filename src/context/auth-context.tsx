@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (!createUserDocResult) {
-          throw new Error("La création du profil utilisateur a échoué (réponse du serveur indéfinie).");
+          throw new Error("La création du profil utilisateur a échoué. Le serveur n'a pas répondu, probablement à cause d'un problème de configuration des variables d'environnement sur Vercel. Vérifiez les logs de votre fonction Vercel.");
       }
       if (!createUserDocResult.success) {
           throw new Error(createUserDocResult.error || "Échec de la création du profil utilisateur dans la base de données.");

@@ -44,7 +44,7 @@ const createUserDocumentFlow = ai.defineFlow(
   },
   async (userData) => {
     if (!adminDb) {
-        const error = "Firebase Admin SDK n'est pas initialisé. Pour le développement local, vérifiez la variable SERVICE_ACCOUNT_JSON dans votre fichier .env. Pour la production (Vercel, etc.), définissez-la dans les variables d'environnement de votre hébergeur. Consultez DEPLOYMENT.md pour les instructions.";
+        const error = "L'accès à la base de données a échoué. Assurez-vous que la variable d'environnement SERVICE_ACCOUNT_JSON est correctement configurée sur Vercel. Elle ne doit pas être entre guillemets et doit être le contenu JSON complet. Consultez DEPLOYMENT.md pour les instructions détaillées.";
         console.error(error);
         return { success: false, error };
     }
