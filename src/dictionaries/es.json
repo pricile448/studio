@@ -170,7 +170,9 @@
       "registerErrorTitle": "Error de registro",
       "registerErrorDescription": "Ocurrió un error inesperado durante el registro.",
       "emailInUseError": "Esta dirección de correo electrónico ya está en uso por otra cuenta.",
-      "permissionDeniedError": "Permisos faltantes o insuficientes. Por favor, revise sus reglas de seguridad de Firestore."
+      "permissionDeniedError": "Permisos faltantes o insuficientes. Por favor, revise sus reglas de seguridad de Firestore.",
+      "mailgunSandboxErrorTitle": "Error de configuración de correo electrónico",
+      "mailgunSandboxErrorDescription": "Su cuenta de Mailgun está en modo sandbox y solo puede enviar a destinatarios autorizados. Agregue el correo electrónico del destinatario a su lista de 'destinatarios autorizados' de Mailgun o configure un dominio de envío personalizado."
     },
      "verifyEmail": {
         "title": "Verifique su dirección de correo electrónico",

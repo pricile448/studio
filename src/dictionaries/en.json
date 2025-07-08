@@ -170,7 +170,9 @@
       "registerErrorTitle": "Registration Failed",
       "registerErrorDescription": "An unexpected error occurred during registration.",
       "emailInUseError": "This email address is already in use by another account.",
-      "permissionDeniedError": "Missing or insufficient permissions. Please check your Firestore security rules."
+      "permissionDeniedError": "Missing or insufficient permissions. Please check your Firestore security rules.",
+      "mailgunSandboxErrorTitle": "Email Configuration Error",
+      "mailgunSandboxErrorDescription": "Your Mailgun account is in sandbox mode and can only send to authorized recipients. Please add the recipient's email to your Mailgun 'Authorized Recipients' list or configure a custom sending domain."
     },
     "verifyEmail": {
         "title": "Verify Your Email Address",

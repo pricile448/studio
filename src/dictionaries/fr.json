@@ -170,7 +170,9 @@
       "registerErrorTitle": "Échec de l'inscription",
       "registerErrorDescription": "Une erreur inattendue est survenue lors de l'inscription.",
       "emailInUseError": "Cette adresse e-mail est déjà utilisée par un autre compte.",
-      "permissionDeniedError": "Permissions manquantes ou insuffisantes. Veuillez vérifier vos règles de sécurité Firestore."
+      "permissionDeniedError": "Permissions manquantes ou insuffisantes. Veuillez vérifier vos règles de sécurité Firestore.",
+      "mailgunSandboxErrorTitle": "Erreur de configuration e-mail",
+      "mailgunSandboxErrorDescription": "Votre compte Mailgun est en mode 'sandbox' et ne peut envoyer des e-mails qu'aux adresses autorisées. Veuillez ajouter l'adresse e-mail de destination à vos 'Authorized Recipients' dans Mailgun ou configurer un domaine d'envoi personnalisé."
     },
     "verifyEmail": {
         "title": "Vérifiez votre adresse e-mail",

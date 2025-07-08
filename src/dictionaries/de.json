@@ -170,7 +170,9 @@
       "registerErrorTitle": "Registrierung fehlgeschlagen",
       "registerErrorDescription": "Bei der Registrierung ist ein unerwarteter Fehler aufgetreten.",
       "emailInUseError": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet.",
-      "permissionDeniedError": "Fehlende oder unzureichende Berechtigungen. Bitte überprüfen Sie Ihre Firestore-Sicherheitsregeln."
+      "permissionDeniedError": "Fehlende oder unzureichende Berechtigungen. Bitte überprüfen Sie Ihre Firestore-Sicherheitsregeln.",
+      "mailgunSandboxErrorTitle": "E-Mail Konfigurationsfehler",
+      "mailgunSandboxErrorDescription": "Ihr Mailgun-Konto befindet sich im Sandbox-Modus und kann nur an autorisierte Empfänger senden. Bitte fügen Sie die E-Mail des Empfängers zu Ihrer Liste der 'autorisierten Empfänger' in Mailgun hinzu oder konfigurieren Sie eine benutzerdefinierte Sendedomäne."
     },
     "verifyEmail": {
         "title": "Bestätigen Sie Ihre E-Mail-Adresse",
