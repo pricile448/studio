@@ -107,8 +107,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           dob: userData.dob.toISOString(), // Pass date as ISO string
       });
       
-      if (!createUserDocResult.success) {
-          throw new Error(createUserDocResult.error || "Failed to create user profile in database.");
+      if (!createUserDocResult || !createUserDocResult.success) {
+          throw new Error(createUserDocResult?.error || "Failed to create user profile in database.");
       }
       
       const result = await sendVerificationCode({
@@ -117,8 +117,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userName: userData.firstName,
       });
 
-      if (!result.success) {
-        throw new Error(result.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
+      if (!result || !result.success) {
+        throw new Error(result?.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
       }
     } catch (error) {
       // If any step after user creation in Auth fails, delete the user to allow a clean retry.
