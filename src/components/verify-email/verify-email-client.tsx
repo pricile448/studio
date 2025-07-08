@@ -51,8 +51,6 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     if (loading) return;
     if (!user) {
       router.replace(`/${lang}/login`);
-    } else if (user.emailVerified) {
-      router.replace(`/${lang}/dashboard`);
     }
   }, [user, loading, router, lang]);
 
