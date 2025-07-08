@@ -79,13 +79,9 @@ Bonjour ${userName},
 
 Félicitations ! Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.
 
-Vous pouvez dès maintenant :
-- Commander votre carte bancaire pour vos achats.
-- Effectuer des virements en toute sécurité.
-- Créer des budgets pour mieux gérer vos finances.
-- Découvrir toutes les fonctionnalités de votre espace client.
+Vous pouvez désormais vous connecter pour accéder à toutes les fonctionnalités de votre espace client.
 
-Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir.
+Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir : ${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}
 
 L'équipe AmCbunq
         `;
@@ -111,18 +107,11 @@ L'équipe AmCbunq
                                               <td style="padding: 35px;">
                                                   <h1 style="color: #2F3133; font-size: 19px; font-weight: bold; margin-top: 0;">Félicitations, ${userName} !</h1>
                                                   <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.</p>
-                                                  <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Vous pouvez dès maintenant explorer toutes les fonctionnalités :</p>
-                                                  <ul style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0; padding-left: 20px;">
-                                                      <li>Commander votre carte bancaire pour vos achats.</li>
-                                                      <li>Effectuer des virements en toute sécurité.</li>
-                                                      <li>Créer des budgets pour mieux gérer vos finances.</li>
-                                                      <li>Découvrir toutes les fonctionnalités de votre espace client.</li>
-                                                  </ul>
-                                                  <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir.</p>
+                                                  <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Vous pouvez désormais vous connecter pour accéder à toutes les fonctionnalités de votre espace client.</p>
                                                   <table align="center" width="100%" cellpadding="0" cellspacing="0" style="margin: 30px auto; padding: 0; text-align: center; width: 100%;">
                                                       <tr>
                                                           <td align="center">
-                                                              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="background-color: #013A81; border-radius: 5px; color: #ffffff; display: inline-block; padding: 12px 25px; text-decoration: none; font-weight: bold;">Se connecter</a>
+                                                              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="background-color: #013A81; border-radius: 5px; color: #ffffff; display: inline-block; padding: 12px 25px; text-decoration: none; font-weight: bold;">Se connecter à mon compte</a>
                                                           </td>
                                                       </tr>
                                                   </table>
