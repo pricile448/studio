@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -74,7 +75,7 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     }
   }
 
-  const handleLogout = async () => {
+  const handleProceedToLogin = async () => {
     await logout();
     router.push(`/${lang}/login`);
   }
@@ -85,7 +86,7 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     setIsSubmitting(false);
 
     if (result.success) {
-      await logout();
+      // Do not log out here. Just show the dialog.
       setShowSuccessDialog(true);
     } else {
       toast({
@@ -182,7 +183,7 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => router.push(`/${lang}/login`)}>
+            <AlertDialogAction onClick={handleProceedToLogin}>
               {verifyDict.proceedToLoginButton}
             </AlertDialogAction>
           </AlertDialogFooter>
