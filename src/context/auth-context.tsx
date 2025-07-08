@@ -4,11 +4,12 @@
 import * as React from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { addUserToFirestore, getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard, Beneficiary, addBeneficiary as addBeneficiaryToDb, deleteBeneficiary as deleteBeneficiaryFromDb, Transaction, requestTransfer as requestTransferInDb } from '@/lib/firebase/firestore';
+import { getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard, Beneficiary, addBeneficiary as addBeneficiaryToDb, deleteBeneficiary as deleteBeneficiaryFromDb, Transaction, requestTransfer as requestTransferInDb } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { getCloudinaryUrl } from '@/app/actions';
 import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
 import { verifyEmailCode } from '@/ai/flows/verify-email-code-flow';
+import { createUserDocument } from '@/ai/flows/create-user-document-flow';
 
 // Initialize default (client-side) Firebase services
 const { auth, db } = getFirebaseServices();
@@ -95,38 +96,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
     const { user } = userCredential;
 
-    await updateProfile(user, {
-      displayName: `${userData.firstName} ${userData.lastName}`
-    });
-    
-    await addUserToFirestore({
-      ...userData,
-      uid: user.uid,
-    });
-    
-    // Check the result of sending the code
-    const result = await sendVerificationCode({
-        userId: user.uid,
-        email: user.email!,
-        userName: userData.firstName,
-    });
+    try {
+      await updateProfile(user, {
+        displayName: `${userData.firstName} ${userData.lastName}`
+      });
 
-    // If it fails, throw an error to be caught by the UI
-    if (!result.success) {
-      throw new Error(result.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
+      const createUserDocResult = await createUserDocument({
+          ...userData,
+          uid: user.uid,
+          dob: userData.dob.toISOString(), // Pass date as ISO string
+      });
+      
+      if (!createUserDocResult.success) {
+          throw new Error(createUserDocResult.error || "Failed to create user profile in database.");
+      }
+      
+      const result = await sendVerificationCode({
+          userId: user.uid,
+          email: user.email!,
+          userName: userData.firstName,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
+      }
+    } catch (error) {
+      // If any step after user creation in Auth fails, delete the user to allow a clean retry.
+      await user.delete();
+      // Re-throw the error to be caught by the calling component (register-client.tsx)
+      throw error;
     }
   };
   
   const resendVerificationEmail = async () => {
     if (auth.currentUser && userProfile) {
-        // Check the result of sending the code
         const result = await sendVerificationCode({
             userId: auth.currentUser.uid,
             email: auth.currentUser.email!,
             userName: userProfile.firstName,
         });
         
-        // If it fails, throw an error to be caught by the UI
         if (!result.success) {
           throw new Error(result.error || "Failed to resend verification email.");
         }
@@ -151,9 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) throw new Error("No user is signed in.");
     const result = await verifyEmailCode({ userId: user.uid, code });
     if (result.success) {
-      // Manually refresh the user object to get the latest `emailVerified` status
       await reload(user);
-      // Update the user state in the context
       setUser(auth.currentUser);
     }
     return result;
@@ -181,7 +188,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await updateProfile(user, authProfileUpdate);
     }
     
-    // Refresh local state
     await refreshUserProfile();
   }
 

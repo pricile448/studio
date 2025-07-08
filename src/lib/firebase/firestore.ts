@@ -178,42 +178,6 @@ export type RegistrationData = {
 };
 
 
-export async function addUserToFirestore(userData: RegistrationData & { uid: string }) {
-  const userRef = doc(defaultDb, "users", userData.uid);
-  
-  const defaultAccounts: Account[] = [
-    { id: 'checking-1', name: 'checking', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 1234', status: 'active' },
-    { id: 'savings-1', name: 'savings', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 5678', status: 'active' },
-    { id: 'credit-1', name: 'credit', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 9010', status: 'active' },
-  ];
-
-  const fullProfile: Omit<UserProfile, 'createdAt' | 'physicalCard' | 'cardType'> = {
-    ...userData,
-    kycStatus: 'unverified',
-    cardStatus: 'none',
-    cardLimits: { monthly: 2000, withdrawal: 500 },
-    notificationPrefs: {
-        email: true,
-        promotions: false,
-        security: true,
-    },
-    inactivityTimeout: 5, // Default timeout of 5 minutes
-    hasPendingVirtualCardRequest: false,
-    accounts: defaultAccounts,
-    transactions: [],
-    beneficiaries: [],
-    budgets: [],
-    documents: [],
-    virtualCards: [],
-    advisorId: 'advisor_123'
-  };
-
-  await setDoc(userRef, {
-    ...fullProfile,
-    createdAt: serverTimestamp(),
-  });
-}
-
 export async function getUserFromFirestore(uid: string, db: Firestore = defaultDb): Promise<UserProfile | null> {
     const userRef = doc(db, 'users', uid);
     const docSnap = await getDoc(userRef);
