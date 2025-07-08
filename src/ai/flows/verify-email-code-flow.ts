@@ -80,10 +80,10 @@ Bonjour ${userName},
 Félicitations ! Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.
 
 Vous pouvez dès maintenant :
-- Commander votre carte bancaire physique ou virtuelle.
-- Effectuer des virements sécurisés.
-- Créer des budgets pour suivre vos dépenses.
-- Profiter de toutes nos offres promotionnelles.
+- Commander votre carte bancaire pour vos achats.
+- Effectuer des virements en toute sécurité.
+- Créer des budgets pour mieux gérer vos finances.
+- Découvrir toutes les fonctionnalités de votre espace client.
 
 Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir.
 
@@ -113,10 +113,10 @@ L'équipe AmCbunq
                                                   <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.</p>
                                                   <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Vous pouvez dès maintenant explorer toutes les fonctionnalités :</p>
                                                   <ul style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0; padding-left: 20px;">
-                                                      <li>Commander votre carte bancaire physique ou virtuelle.</li>
-                                                      <li>Effectuer des virements sécurisés.</li>
-                                                      <li>Créer des budgets pour suivre vos dépenses.</li>
-                                                      <li>Profiter de toutes nos offres promotionnelles.</li>
+                                                      <li>Commander votre carte bancaire pour vos achats.</li>
+                                                      <li>Effectuer des virements en toute sécurité.</li>
+                                                      <li>Créer des budgets pour mieux gérer vos finances.</li>
+                                                      <li>Découvrir toutes les fonctionnalités de votre espace client.</li>
                                                   </ul>
                                                   <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir.</p>
                                                   <table align="center" width="100%" cellpadding="0" cellspacing="0" style="margin: 30px auto; padding: 0; text-align: center; width: 100%;">
