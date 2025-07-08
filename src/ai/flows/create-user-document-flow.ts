@@ -7,7 +7,7 @@
 import { ai } from '@/ai/genkit';
 import { adminDb } from '@/lib/firebase/admin';
 import { z } from 'zod';
-import { doc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore";
+import { Timestamp, FieldValue } from 'firebase-admin/firestore'; // Use Admin SDK imports
 import type { Account } from '@/lib/firebase/firestore';
 
 
@@ -44,13 +44,13 @@ const createUserDocumentFlow = ai.defineFlow(
   },
   async (userData) => {
     if (!adminDb) {
-        const error = "Firebase Admin SDK is not initialized.";
+        const error = "Firebase Admin SDK is not initialized. Cannot create user document.";
         console.error(error);
         return { success: false, error };
     }
 
     try {
-        const userRef = doc(adminDb, "users", userData.uid);
+        const userRef = adminDb.collection("users").doc(userData.uid);
         
         const defaultAccounts: Account[] = [
             { id: 'checking-1', name: 'checking', balance: 0, currency: 'EUR', accountNumber: '**** **** **** 1234', status: 'active' },
@@ -69,7 +69,7 @@ const createUserDocumentFlow = ai.defineFlow(
         const fullProfile = {
             ...registrationData,
             uid: uid,
-            dob: Timestamp.fromDate(dobAsDate),
+            dob: Timestamp.fromDate(dobAsDate), // Uses Timestamp from firebase-admin
             kycStatus: 'unverified' as const,
             cardStatus: 'none' as const,
             cardLimits: { monthly: 2000, withdrawal: 500 },
@@ -87,10 +87,10 @@ const createUserDocumentFlow = ai.defineFlow(
             documents: [],
             virtualCards: [],
             advisorId: 'advisor_123',
-            createdAt: serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(), // Uses FieldValue from firebase-admin
         };
 
-        await setDoc(userRef, fullProfile);
+        await userRef.set(fullProfile); // Use Admin SDK's .set() method
         
         return { success: true };
 

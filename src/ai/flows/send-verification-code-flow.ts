@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to send a 6-digit email verification code.
@@ -6,7 +7,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { sendEmail } from '@/services/mailgun-service';
-import { updateUserInFirestore } from '@/lib/firebase/firestore';
 import { adminDb } from '@/lib/firebase/admin'; // Import adminDb
 import { Timestamp } from 'firebase-admin/firestore'; // Use the admin Timestamp
 
@@ -40,11 +40,12 @@ const sendVerificationCodeFlow = ai.defineFlow(
     const expires = Timestamp.fromDate(new Date(Date.now() + 10 * 60 * 1000));
 
     try {
-      // Store the code and expiry on the user's document using the Admin DB
-      await updateUserInFirestore(userId, {
+      // Use Admin SDK directly to update the document
+      const userRef = adminDb.collection('users').doc(userId);
+      await userRef.update({
         emailVerificationCode: code,
         emailVerificationCodeExpires: expires,
-      }, adminDb); // <-- Pass adminDb here
+      });
 
       // Send the email
       const emailSubject = `Votre code de vérification AmCbunq`;

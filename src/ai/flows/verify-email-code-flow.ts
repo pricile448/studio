@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to verify the 6-digit email verification code.
@@ -6,7 +7,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const VerifyEmailCodeInputSchema = z.object({
   userId: z.string(),
@@ -28,14 +28,18 @@ const verifyEmailCodeFlow = ai.defineFlow(
     }
 
     try {
-      const userRef = doc(adminDb, 'users', userId);
-      const userSnap = await getDoc(userRef);
+      const userRef = adminDb.collection('users').doc(userId);
+      const userSnap = await userRef.get();
 
-      if (!userSnap.exists()) {
+      if (!userSnap.exists) {
         return { success: false, error: "Utilisateur non trouvé." };
       }
 
       const userData = userSnap.data();
+      if (!userData) {
+         return { success: false, error: "Données utilisateur introuvables." };
+      }
+
       const storedCode = userData.emailVerificationCode;
       const expiry = userData.emailVerificationCodeExpires?.toDate();
 
@@ -45,7 +49,7 @@ const verifyEmailCodeFlow = ai.defineFlow(
 
       if (expiry < new Date()) {
         // Clear expired code
-        await updateDoc(userRef, {
+        await userRef.update({
             emailVerificationCode: null,
             emailVerificationCodeExpires: null,
         });
@@ -60,7 +64,7 @@ const verifyEmailCodeFlow = ai.defineFlow(
       await adminAuth.updateUser(userId, { emailVerified: true });
       
       // Clear verification fields in Firestore
-      await updateDoc(userRef, {
+      await userRef.update({
         emailVerificationCode: null,
         emailVerificationCodeExpires: null,
       });
