@@ -16,11 +16,24 @@ const FROM_EMAIL = process.env.MAILGUN_FROM_EMAIL;
 const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
 const API_HOST = process.env.MAILGUN_API_HOST; // e.g., 'https://api.eu.mailgun.net' for EU region
 
-if (!API_KEY || !DOMAIN || !FROM_EMAIL || !ADMIN_EMAIL) {
+// Enhanced warning message
+if (!API_KEY || !DOMAIN || !FROM_EMAIL || !ADMIN_EMAIL || !API_HOST) {
+  const missingVars = [];
+  if (!API_KEY) missingVars.push('MAILGUN_API_KEY');
+  if (!DOMAIN) missingVars.push('MAILGUN_DOMAIN');
+  if (!FROM_EMAIL) missingVars.push('MAILGUN_FROM_EMAIL');
+  if (!ADMIN_EMAIL) missingVars.push('MAILGUN_ADMIN_EMAIL');
+  if (!API_HOST) missingVars.push('MAILGUN_API_HOST');
+  
   console.warn(
-    'Mailgun environment variables are not fully set. Email functionality will be disabled.'
+    `\n**************************************************\n` +
+    `WARN: Mailgun is not fully configured. Email functionality will be disabled.\n` +
+    `Missing environment variables: ${missingVars.join(', ')}\n` +
+    `Please check your .env file or Vercel environment settings.\n` +
+    `**************************************************\n`
   );
 }
+
 
 const mg = API_KEY && DOMAIN ? mailgun.client({
     username: 'api',
@@ -41,7 +54,7 @@ interface EmailParams {
 
 export async function sendEmail({to, subject, text, html, attachment}: EmailParams): Promise<void> {
   if (!mg || !DOMAIN || !FROM_EMAIL) {
-    const errorMsg = 'Mailgun client not initialized. Check server environment variables.';
+    const errorMsg = 'Mailgun client not initialized. Check server environment variables. This is likely due to missing MAILGUN_API_KEY, MAILGUN_DOMAIN, or MAILGUN_FROM_EMAIL.';
     console.error(errorMsg);
     throw new Error(errorMsg);
   }
