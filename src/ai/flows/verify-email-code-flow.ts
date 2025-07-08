@@ -77,66 +77,26 @@ const verifyEmailCodeFlow = ai.defineFlow(
         const emailText = `
 Bonjour ${userName},
 
-Félicitations ! Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.
+Félicitations ! Votre adresse e-mail a été vérifiée et votre compte AmCbunq est maintenant actif.
 
-Vous pouvez désormais vous connecter pour accéder à toutes les fonctionnalités de votre espace client.
+Vous pouvez vous connecter ici : ${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}
 
-Connectez-vous pour découvrir tout ce que AmCbunq a à vous offrir : ${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}
-
+Cordialement,
 L'équipe AmCbunq
         `;
         const emailHtml = `
-          <div style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; box-sizing: border-box; background-color: #f5f8fa; color: #74787e; height: 100%; line-height: 1.4; margin: 0; width: 100% !important; -webkit-text-size-adjust: none;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; box-sizing: border-box; margin: 0; padding: 0; width: 100%;">
-                  <tr>
-                      <td align="center">
-                          <table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; box-sizing: border-box; margin: 0; padding: 0; width: 100%;">
-                              <!-- Email Header -->
-                              <tr>
-                                  <td style="padding: 25px 0; text-align: center;">
-                                      <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; box-sizing: border-box; color: #013A81; font-size: 19px; font-weight: bold; text-decoration: none;">
-                                          AmCbunq
-                                      </a>
-                                  </td>
-                              </tr>
-                              <!-- Email Body -->
-                              <tr>
-                                  <td width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-bottom: 1px solid #edeff2; border-top: 1px solid #edeff2; margin: 0; padding: 0; width: 100%;">
-                                      <table align="center" width="570" cellpadding="0" cellspacing="0" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; box-sizing: border-box; margin: 0 auto; padding: 0; width: 570px;">
-                                          <tr>
-                                              <td style="padding: 35px;">
-                                                  <h1 style="color: #2F3133; font-size: 19px; font-weight: bold; margin-top: 0;">Félicitations, ${userName} !</h1>
-                                                  <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Votre adresse e-mail a été vérifiée avec succès. Votre compte AmCbunq est maintenant entièrement actif.</p>
-                                                  <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Vous pouvez désormais vous connecter pour accéder à toutes les fonctionnalités de votre espace client.</p>
-                                                  <table align="center" width="100%" cellpadding="0" cellspacing="0" style="margin: 30px auto; padding: 0; text-align: center; width: 100%;">
-                                                      <tr>
-                                                          <td align="center">
-                                                              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="background-color: #013A81; border-radius: 5px; color: #ffffff; display: inline-block; padding: 12px 25px; text-decoration: none; font-weight: bold;">Se connecter à mon compte</a>
-                                                          </td>
-                                                      </tr>
-                                                  </table>
-                                                  <p style="color: #74787E; font-size: 16px; line-height: 1.5em; margin-top: 0;">Merci,<br>L'équipe AmCbunq</p>
-                                              </td>
-                                          </tr>
-                                      </table>
-                                  </td>
-                              </tr>
-                              <!-- Email Footer -->
-                              <tr>
-                                  <td>
-                                      <table align="center" width="570" cellpadding="0" cellspacing="0" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; box-sizing: border-box; margin: 0 auto; padding: 0; text-align: center; width: 570px;">
-                                          <tr>
-                                              <td align="center" style="padding: 35px;">
-                                                  <p style="color: #aeaeae; font-size: 12px; line-height: 1.5em; margin-top: 0; text-align: center;">© ${new Date().getFullYear()} AmCbunq. Tous droits réservés.</p>
-                                              </td>
-                                          </tr>
-                                      </table>
-                                  </td>
-                              </tr>
-                          </table>
-                      </td>
-                  </tr>
-              </table>
+          <div style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+              <h1 style="font-size: 24px; color: #013A81;">Bienvenue chez AmCbunq !</h1>
+              <p>Félicitations, ${userName}.</p>
+              <p>Votre adresse e-mail a été vérifiée et votre compte est maintenant entièrement actif.</p>
+              <p>Vous pouvez vous connecter en utilisant le lien ci-dessous :</p>
+              <p><a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://mybunq.amccredit.com'}" style="color: #013A81; text-decoration: underline;">Accéder à mon compte</a></p>
+              <br>
+              <p>Cordialement,<br>L'équipe AmCbunq</p>
+              <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+              <p style="font-size: 12px; color: #999;">© ${new Date().getFullYear()} AmCbunq. Tous droits réservés.</p>
+            </div>
           </div>
         `;
 
