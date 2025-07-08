@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -219,7 +218,9 @@ const Sidebar = React.forwardRef<
               <SheetTitle>Menu</SheetTitle>
               <SheetDescription>Main navigation menu for the application.</SheetDescription>
             </SheetHeader>
-            <div className="flex h-full w-full flex-col">{children}</div>
+            <ScrollArea className="h-full w-full">
+              <div className="flex h-full flex-col">{children}</div>
+            </ScrollArea>
           </SheetContent>
         </Sheet>
       )
@@ -386,7 +387,7 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-2 p-2 mt-auto", className)}
       {...props}
     />
   )
@@ -413,10 +414,9 @@ const SidebarContent = React.forwardRef<
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
   return (
-    <ScrollArea
+    <div
       ref={ref}
       data-sidebar="content"
-      hideScrollbar
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 group-data-[collapsible=icon]:overflow-hidden",
         className

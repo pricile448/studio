@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -155,36 +154,36 @@ export function DashboardLayoutClient({
         </SidebarHeader>
         <SidebarContent>
           <SidebarNav lang={lang} dict={dict} />
-           <div className="mt-auto">
-                <div className="flex items-center gap-3 p-2">
-                    <div className="relative">
-                        <Avatar className="h-9 w-9">
-                            <AvatarImage src={user.photoURL || ""} alt={displayName} />
-                            <AvatarFallback>{initials}</AvatarFallback>
-                        </Avatar>
-                        {userProfile?.kycStatus === 'verified' && (
-                            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar" />
-                        )}
-                    </div>
-                    <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                        <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
-                        {userProfile?.kycStatus === 'verified' ? (
-                            <span className="text-xs font-bold text-green-400">{dict.sidebar.verified}</span>
-                        ) : (
-                            <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
-                        )}
-                    </div>
-                </div>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton onClick={() => handleLogout(false)} tooltip={dict.sidebar.userMenu.logout}>
-                            <LogOut />
-                            <span>{dict.sidebar.userMenu.logout}</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </div>
         </SidebarContent>
+        <SidebarFooter>
+            <div className="flex items-center gap-3 p-2">
+                <div className="relative">
+                    <Avatar className="h-9 w-9">
+                        <AvatarImage src={user.photoURL || ""} alt={displayName} />
+                        <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    {userProfile?.kycStatus === 'verified' && (
+                        <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-sidebar" />
+                    )}
+                </div>
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                    <span className="text-sm font-semibold text-sidebar-foreground truncate">{displayName}</span>
+                    {userProfile?.kycStatus === 'verified' ? (
+                        <span className="text-xs font-bold text-green-400">{dict.sidebar.verified}</span>
+                    ) : (
+                        <span className="text-xs text-sidebar-foreground/70 truncate">{dict.sidebar.unverified}</span>
+                    )}
+                </div>
+            </div>
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton onClick={() => handleLogout(false)} tooltip={dict.sidebar.userMenu.logout}>
+                        <LogOut />
+                        <span>{dict.sidebar.userMenu.logout}</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
