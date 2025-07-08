@@ -51,6 +51,10 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     if (loading) return;
     if (!user) {
       router.replace(`/${lang}/login`);
+    } else if (user.emailVerified) {
+      // If user is already verified, maybe they opened the link again.
+      // Redirect them to the dashboard.
+      router.replace(`/${lang}/dashboard`);
     }
   }, [user, loading, router, lang]);
 
@@ -74,7 +78,8 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   }
 
   const handleProceedToLogin = async () => {
-    await logout();
+    // No need to logout, user state is not fully "logged in" yet from UI perspective.
+    // AuthProvider will handle the state change on login page.
     router.push(`/${lang}/login`);
   }
   
@@ -84,7 +89,6 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     setIsSubmitting(false);
 
     if (result.success) {
-      // Do not log out here. Just show the dialog.
       setShowSuccessDialog(true);
     } else {
       toast({
@@ -178,6 +182,9 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
             <AlertDialogTitle>{verifyDict.verificationSuccessTitle}</AlertDialogTitle>
             <AlertDialogDescription>
               {verifyDict.verificationSuccessDescription}
+              <p className="mt-4 text-sm text-muted-foreground">
+                <strong>NB :</strong> Si vous ne recevez pas l'e-mail de bienvenue dans les prochaines minutes, veuillez consulter votre dossier de courrier indésirable (spam).
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
