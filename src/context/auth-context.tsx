@@ -93,10 +93,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signup = async (userData: RegistrationData, password: string) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
-    const { user } = userCredential;
-
+    let userCredential;
     try {
+      userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
+      const { user } = userCredential;
+
       await updateProfile(user, {
         displayName: `${userData.firstName} ${userData.lastName}`
       });
@@ -111,20 +112,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new Error(createUserDocResult?.error || "Failed to create user profile in database.");
       }
       
-      const result = await sendVerificationCode({
+      const sendCodeResult = await sendVerificationCode({
           userId: user.uid,
           email: user.email!,
           userName: userData.firstName,
       });
 
-      if (!result || !result.success) {
-        throw new Error(result?.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
+      if (!sendCodeResult || !sendCodeResult.success) {
+        throw new Error(sendCodeResult?.error || "Failed to send verification email. Please check server logs and Mailgun configuration.");
       }
     } catch (error) {
-      // If any step after user creation in Auth fails, delete the user to allow a clean retry.
-      await user.delete();
-      // Re-throw the error to be caught by the calling component (register-client.tsx)
-      throw error;
+        // If user was created in Auth but something failed after, delete the user to allow a clean retry.
+        if (auth.currentUser) {
+            await auth.currentUser.delete();
+        }
+        // Re-throw the error to be caught by the calling component
+        throw error;
     }
   };
   

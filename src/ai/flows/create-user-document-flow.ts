@@ -44,7 +44,7 @@ const createUserDocumentFlow = ai.defineFlow(
   },
   async (userData) => {
     if (!adminDb) {
-        const error = "Firebase Admin SDK is not initialized. Cannot create user document.";
+        const error = "Firebase Admin SDK n'est pas initialisé. Pour le développement local, vérifiez la variable SERVICE_ACCOUNT_JSON dans votre fichier .env. Pour la production (Vercel, etc.), définissez-la dans les variables d'environnement de votre hébergeur. Consultez DEPLOYMENT.md pour les instructions.";
         console.error(error);
         return { success: false, error };
     }
