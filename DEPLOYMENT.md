@@ -176,3 +176,36 @@ Cette erreur indique que votre dossier de dépendances (`node_modules`) est dans
 #### Erreur : `not a valid identifier` au démarrage
 
 Cela signifie que votre variable d'environnement `SERVICE_ACCOUNT_JSON` n'est pas correctement formatée. Assurez-vous que la valeur est bien entourée de guillemets simples (`'...'`).
+
+---
+
+### Annexe C : Dépannage des Problèmes de Déploiement
+
+#### Problème : Mes dernières modifications n'apparaissent pas sur Vercel après un déploiement
+
+C'est un problème courant. Voici les étapes à suivre pour le résoudre :
+
+1.  **Vérifiez la branche Git :**
+    *   Assurez-vous que vous avez bien envoyé (`git push`) vos dernières modifications sur la bonne branche (généralement `main` ou `master`).
+    *   Dans votre tableau de bord Vercel, allez dans `Settings` -> `Git`. Vérifiez quelle "Production Branch" est configurée. C'est cette branche que Vercel utilise pour les déploiements en production.
+
+2.  **Examinez le dernier déploiement sur Vercel :**
+    *   Allez dans l'onglet "Deployments" de votre projet sur Vercel.
+    *   Regardez le déploiement le plus récent. A-t-il le statut "Ready" (en vert) ?
+    *   S'il a échoué ("Failed" en rouge), cliquez dessus pour voir les logs et identifier l'erreur.
+
+3.  **Redéployez en vidant le cache :**
+    *   Vercel utilise un cache pour accélérer les builds. Parfois, ce cache peut causer des problèmes.
+    *   Dans l'onglet "Deployments", trouvez le dernier déploiement réussi.
+    *   Cliquez sur le menu "..." à droite et sélectionnez **"Redeploy"**.
+    *   Une boîte de dialogue apparaîtra. **Décochez la case** qui parle d'utiliser le cache ("Use existing Build Cache") pour forcer une reconstruction complète.
+    *   Lancez le redéploiement.
+
+4.  **Videz le cache de votre navigateur :**
+    *   Il est possible que votre navigateur vous montre une ancienne version de la page.
+    *   Faites un "hard refresh" :
+        *   **Windows/Linux :** `Ctrl + Shift + R`
+        *   **Mac :** `Cmd + Shift + R`
+    *   Si cela ne fonctionne pas, videz manuellement le cache de votre navigateur pour ce site.
+
+En suivant ces étapes, vous devriez pouvoir identifier et résoudre le problème. Le plus souvent, le problème vient du cache de Vercel (étape 3) ou du cache du navigateur (étape 4).
