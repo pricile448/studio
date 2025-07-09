@@ -22,12 +22,12 @@ type AuthContextType = {
   toggleBalanceVisibility: () => void;
   refreshUserProfile: () => Promise<void>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (userData: RegistrationData, password: string) => Promise<void>;
+  signup: (userData: RegistrationData, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
-  updateUserPassword: (currentPass: string, newPass: string) => Promise<void>;
+  updateUserPassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   updateAvatar: (file: File) => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
@@ -89,15 +89,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         return { success: true };
     } catch (error: any) {
-        console.error("Firebase Login Error:", error);
         if (error.code === 'auth/invalid-credential') {
             return { success: false, error: 'wrongCredentials' };
         }
+        console.error("Unexpected Firebase Login Error:", error);
         return { success: false, error: 'api.unexpected' };
     }
   };
 
-  const signup = async (userData: RegistrationData, password: string) => {
+  const signup = async (userData: RegistrationData, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
       const { user } = userCredential;
@@ -125,20 +125,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!sendCodeResult || !sendCodeResult.success) {
         throw new Error(sendCodeResult?.error || "Échec de l'envoi de l'e-mail de vérification.");
       }
+      return { success: true };
     } catch (error: any) {
         if (auth.currentUser) {
             await auth.currentUser.delete().catch(e => console.error("Failed to delete temporary auth user:", e));
         }
         
-        console.error("Firebase Signup Error:", error);
-
         if (error.code === 'auth/email-already-in-use') {
-          throw new Error('emailInUse');
+          return { success: false, error: 'emailInUse' };
         }
         if (error.code === 'auth/weak-password') {
-          throw new Error('weakPassword');
+          return { success: false, error: 'weakPassword' };
         }
-        throw new Error('api.unexpected');
+
+        console.error("Unexpected Firebase Signup Error:", error);
+        return { success: false, error: 'api.unexpected' };
     }
   };
   
@@ -205,22 +206,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   }
 
-  const updateUserPassword = async (currentPass: string, newPass: string) => {
-    if (!user || !user.email) throw new Error("api.unexpected");
+  const updateUserPassword = async (currentPass: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
+    if (!user || !user.email) return { success: false, error: 'api.unexpected' };
     
     try {
       const credential = EmailAuthProvider.credential(user.email, currentPass);
       await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPass);
+      return { success: true };
     } catch (error: any) {
-        console.error("Firebase Password Update Error:", error);
         if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-            throw new Error('wrongCredentials');
+            return { success: false, error: 'wrongCredentials' };
         }
         if (error.code === 'auth/requires-recent-login') {
-            throw new Error('reauthRequired');
+            return { success: false, error: 'reauthRequired' };
         }
-        throw new Error('api.unexpected');
+        console.error("Unexpected Firebase Password Update Error:", error);
+        return { success: false, error: 'api.unexpected' };
     }
   }
 

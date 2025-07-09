@@ -32,7 +32,7 @@ const passwordFormSchema = (dict: Dictionary['settings']['security']) => z.objec
 type PasswordFormValues = z.infer<ReturnType<typeof passwordFormSchema>>;
 
 function PasswordChangeForm({ dict, errorDict }: { dict: Dictionary['settings']['security'], errorDict: Dictionary['errors'] }) {
-  const { user, updateUserPassword } = useAuth();
+  const { updateUserPassword } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -50,21 +50,21 @@ function PasswordChangeForm({ dict, errorDict }: { dict: Dictionary['settings'][
 
   const onSubmit = async (data: PasswordFormValues) => {
     setIsSubmitting(true);
-    try {
-      await updateUserPassword(data.currentPassword, data.newPassword);
+    const result = await updateUserPassword(data.currentPassword, data.newPassword);
+    
+    if (result.success) {
       toast({ title: dict.passwordUpdateSuccess });
       form.reset();
-    } catch (error: any) {
-      const errorKey = error.message as keyof typeof errorDict.messages.auth;
+    } else {
+      const errorKey = result.error as keyof typeof errorDict.messages.auth;
       const message = errorDict.messages.auth[errorKey] || errorDict.messages.api.unexpected;
       toast({ 
         variant: 'destructive', 
         title: errorDict.titles.passwordUpdateFailed, 
         description: message 
       });
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (

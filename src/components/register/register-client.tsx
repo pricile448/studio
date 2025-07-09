@@ -83,22 +83,21 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsSubmitting(true);
-    try {
-      const { password, confirmPassword, terms, ...userData } = data;
-      await signup(userData, password);
-      router.push(`/${lang}/verify-email`);
-    } catch (error: any) {
-      const errorKey = error.message as keyof typeof dict.errors.messages.auth;
-      const message = dict.errors.messages.auth[errorKey] || error.message || dict.errors.messages.api.unexpected;
+    const { password, confirmPassword, terms, ...userData } = data;
+    const result = await signup(userData, password);
 
+    if (result.success) {
+      router.push(`/${lang}/verify-email`);
+    } else {
+      const errorKey = result.error as keyof typeof dict.errors.messages.auth;
+      const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
       toast({
         variant: 'destructive',
         title: dict.errors.titles.registrationFailed,
         description: message,
       });
-    } finally {
-        setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   if (!dict) {
