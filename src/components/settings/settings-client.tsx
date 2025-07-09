@@ -3,12 +3,28 @@
 
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AppearanceForm } from '@/components/settings/appearance-form';
 import { User, Lock, Bell, Paintbrush } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ProfileForm } from './profile-form';
-import { SecurityForm } from './security-form';
-import { NotificationsForm } from './notifications-form';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Dynamically import the form components to split them into separate chunks
+const ProfileForm = dynamic(() => import('./profile-form').then(mod => mod.ProfileForm), {
+  loading: () => <Skeleton className="h-[250px] w-full" />,
+  ssr: false,
+});
+const SecurityForm = dynamic(() => import('./security-form').then(mod => mod.SecurityForm), {
+  loading: () => <Skeleton className="h-[250px] w-full" />,
+  ssr: false,
+});
+const NotificationsForm = dynamic(() => import('./notifications-form').then(mod => mod.NotificationsForm), {
+  loading: () => <Skeleton className="h-[250px] w-full" />,
+  ssr: false,
+});
+const AppearanceForm = dynamic(() => import('./appearance-form').then(mod => mod.AppearanceForm), {
+  loading: () => <Skeleton className="h-[250px] w-full" />,
+  ssr: false,
+});
 
 type SettingsClientProps = {
   dict: Dictionary;
