@@ -414,6 +414,7 @@
       "income": "Receita",
       "expense": "Despesa",
       "applyFilters": "Aplicar Filtros",
+      "resetFiltersButton": "Redefinir",
       "noTransactions": "Nenhuma transação encontrada para o período selecionado.",
       "table": {
         "date": "Data",

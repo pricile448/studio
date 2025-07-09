@@ -414,6 +414,7 @@
       "income": "Income",
       "expense": "Expense",
       "applyFilters": "Apply Filters",
+      "resetFiltersButton": "Reset",
       "noTransactions": "No transactions found for the selected period.",
       "table": {
         "date": "Date",
@@ -594,7 +595,7 @@
       "faq": [
         { "question": "How do I open an account?", "answer": "You can open an account right from our homepage by clicking 'Open an Account'. The process is fast and takes only a few minutes." },
         { "question": "What documents do I need for verification?", "answer": "For verification, you will need a valid government-issued photo ID (Passport or ID Card), a proof of address (like a utility bill), and you'll need to take a selfie for biometric verification." },
-        { "question": "How secure is my money?", "answer": "Your security is our top priority. We use state-of-the-art encryption, two-factor authentication, and adhere to strict regulatory standards to protect your money and data." },
+        { "question": "How secure is my money?", "answer": "Your security is our top priority. We use state-of-the-art encryption, two-factor authentication, and adhere to strict regulatory standards to protect your money and your data." },
         { "question": "Are there any fees?", "answer": "We believe in transparent pricing. You can find our fee structure on our pricing page. Many standard services like account maintenance are free." }
       ],
       "contactForm": {

@@ -417,6 +417,7 @@
       "income": "Revenus",
       "expense": "Dépenses",
       "applyFilters": "Appliquer les filtres",
+      "resetFiltersButton": "Réinitialiser",
       "noTransactions": "Aucune transaction trouvée pour la période sélectionnée.",
       "table": {
         "date": "Date",

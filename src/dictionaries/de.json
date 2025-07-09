@@ -414,6 +414,7 @@
       "income": "Einkommen",
       "expense": "Ausgabe",
       "applyFilters": "Filter anwenden",
+      "resetFiltersButton": "Zurücksetzen",
       "noTransactions": "Für den ausgewählten Zeitraum wurden keine Transaktionen gefunden.",
       "table": {
         "date": "Datum",
@@ -701,7 +702,7 @@
                 "emailInUse": "Diese E-Mail-Adresse wird bereits verwendet. Bitte melden Sie sich an oder verwenden Sie eine andere Adresse.",
                 "emailNotVerified": "Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink, bevor Sie sich anmelden.",
                 "weakPassword": "Zu Ihrer Sicherheit muss Ihr Passwort mindestens 6 Zeichen lang sein.",
-                "reauthRequired": "Dies ist ein sensibler Vorgang und erfordert eine kürzliche Authentifizierung. Bitte melden Sie sich erneut an und versuchen Sie es erneut."
+                "reauthRequired": "Dieser Vorgang ist sensibel und erfordert eine kürzliche Authentifizierung. Bitte melden Sie sich erneut an und versuchen Sie es erneut."
             },
             "forms": {
                 "incomplete": "Bitte füllen Sie alle Pflichtfelder aus und korrigieren Sie eventuelle Fehler, bevor Sie fortfahren."

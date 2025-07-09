@@ -160,7 +160,7 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
                 </Select>
                 <Button variant="ghost" onClick={resetFilters} className="w-full sm:w-auto">
                     <X className="mr-2 h-4 w-4" />
-                    Reset
+                    {dict.resetFiltersButton}
                 </Button>
             </div>
           </div>

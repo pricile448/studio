@@ -414,6 +414,7 @@
       "income": "Ingresos",
       "expense": "Gastos",
       "applyFilters": "Aplicar Filtros",
+      "resetFiltersButton": "Restablecer",
       "noTransactions": "No se encontraron transacciones para el período seleccionado.",
       "table": {
         "date": "Fecha",
