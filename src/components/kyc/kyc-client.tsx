@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Locale } from '@/lib/dictionaries';
+import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -20,7 +20,7 @@ import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
 interface KycClientProps {
-  dict: any; // Using `any` for simplicity as dict structure for kyc is new
+  dict: Dictionary;
   lang: Locale;
 }
 
@@ -281,7 +281,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
         <CardHeader>
           {step < totalSteps && (
             <>
-            <p className="text-sm font-medium text-muted-foreground">{kycDict.progress.replace('{step}', step).replace('{totalSteps}', totalSteps -1)}</p>
+            <p className="text-sm font-medium text-muted-foreground">{kycDict.progress.replace('{step}', String(step)).replace('{totalSteps}', String(totalSteps -1))}</p>
             <Progress value={(step / (totalSteps - 1)) * 100} className="mt-2" />
             </>
           )}
