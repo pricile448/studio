@@ -243,6 +243,10 @@ export function SecurityForm({ dict, lang, errorDict }: { dict: Dictionary['sett
             </div>
             
             <Separator className="my-8" />
+            <div>
+                 <h3 className="text-lg font-medium">{dict.saveButton}</h3>
+                 <p className="text-sm text-muted-foreground">{dict.description}</p>
+            </div>
             <PasswordChangeForm dict={dict} errorDict={errorDict} />
             <Separator className="my-8" />
             <div>

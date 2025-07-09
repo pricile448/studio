@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
         if (!userCredential.user.emailVerified) {
-            throw new Error('auth.emailNotVerified');
+            throw new Error('emailNotVerified');
         }
 
         if (userCredential.user.metadata.lastSignInTime) {
@@ -89,10 +89,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         return userCredential;
     } catch (error: any) {
+        console.error("Firebase Login Error:", error);
         if (error.code === 'auth/invalid-credential') {
-            throw new Error('auth.wrongCredentials');
+            throw new Error('wrongCredentials');
         }
-        throw error;
+        throw new Error('api.unexpected');
     }
   };
 
@@ -128,14 +129,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (auth.currentUser) {
             await auth.currentUser.delete().catch(e => console.error("Failed to delete temporary auth user:", e));
         }
+        
+        console.error("Firebase Signup Error:", error);
 
         if (error.code === 'auth/email-already-in-use') {
-          throw new Error('auth.emailInUse');
+          throw new Error('emailInUse');
         }
         if (error.code === 'auth/weak-password') {
-          throw new Error('auth.weakPassword');
+          throw new Error('weakPassword');
         }
-        throw error;
+        throw new Error('api.unexpected');
     }
   };
   
@@ -210,11 +213,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPass);
     } catch (error: any) {
-        if (error.code === 'auth/wrong-password') {
-            throw new Error('auth.wrongCredentials');
+        console.error("Firebase Password Update Error:", error);
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            throw new Error('wrongCredentials');
         }
         if (error.code === 'auth/requires-recent-login') {
-            throw new Error('auth.reauthRequired');
+            throw new Error('reauthRequired');
         }
         throw new Error('api.unexpected');
     }
