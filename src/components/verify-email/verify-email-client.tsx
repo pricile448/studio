@@ -47,17 +47,6 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     defaultValues: { code: '' },
   });
 
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace(`/${lang}/login`);
-    } else if (user.emailVerified) {
-      // If user is already verified, maybe they opened the link again.
-      // Redirect them to the dashboard.
-      router.replace(`/${lang}/dashboard`);
-    }
-  }, [user, loading, router, lang]);
-
   const handleResendEmail = async () => {
     setIsResending(true);
     try {
@@ -183,7 +172,7 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
             <AlertDialogDescription>
               {verifyDict.verificationSuccessDescription}
               <p className="mt-4 text-sm text-muted-foreground">
-                <strong>NB :</strong> Si vous ne recevez pas l'e-mail de bienvenue dans les prochaines minutes, veuillez consulter votre dossier de courrier indésirable (spam).
+                {verifyDict.spamNote}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>

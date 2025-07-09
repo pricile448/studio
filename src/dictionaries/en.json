@@ -195,7 +195,8 @@
         "codeLabel": "Verification Code",
         "codeInvalidError": "Code must be 6 digits.",
         "verifyButton": "Verify",
-        "noCodePrompt": "Didn't receive a code?"
+        "noCodePrompt": "Didn't receive a code?",
+        "spamNote": "Note: Sometimes, due to high demand, our welcome email may end up in your spam folder. Please remember to check it."
     },
     "sidebar": {
       "dashboard": "My Account",

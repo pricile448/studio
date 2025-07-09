@@ -195,7 +195,8 @@
         "codeLabel": "Código de verificação",
         "codeInvalidError": "O código deve ter 6 dígitos.",
         "verifyButton": "Verificar",
-        "noCodePrompt": "Não recebeu um código?"
+        "noCodePrompt": "Não recebeu um código?",
+        "spamNote": "Nota: Por vezes, devido à elevada procura, o nosso e-mail de boas-vindas pode ir parar à sua pasta de spam. Lembre-se de a verificar."
     },
     "sidebar": {
       "dashboard": "Meu Espaço Cliente",

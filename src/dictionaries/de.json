@@ -195,7 +195,8 @@
         "codeLabel": "Bestätigungscode",
         "codeInvalidError": "Der Code muss 6-stellig sein.",
         "verifyButton": "Bestätigen",
-        "noCodePrompt": "Keinen Code erhalten?"
+        "noCodePrompt": "Keinen Code erhalten?",
+        "spamNote": "Hinweis: Aufgrund der hohen Nachfrage kann unsere Willkommens-E-Mail manchmal in Ihrem Spam-Ordner landen. Bitte denken Sie daran, diesen zu überprüfen."
     },
     "sidebar": {
       "dashboard": "Mein Kundenbereich",
