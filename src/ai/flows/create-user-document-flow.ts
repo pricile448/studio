@@ -9,6 +9,7 @@ import { adminDb } from '@/lib/firebase/admin';
 import { z } from 'zod';
 import { Timestamp, FieldValue } from 'firebase-admin/firestore'; // Use Admin SDK imports
 import type { Account } from '@/lib/firebase/firestore';
+import { sendEmail } from '@/services/mailgun-service';
 
 
 const CreateUserDocumentInputSchema = z.object({
@@ -92,6 +93,50 @@ const createUserDocumentFlow = ai.defineFlow(
 
         await userRef.set(fullProfile); // Use Admin SDK's .set() method
         
+        const ADMIN_EMAIL = process.env.MAILGUN_ADMIN_EMAIL;
+        if (ADMIN_EMAIL) {
+            try {
+                const subject = `Nouvelle inscription sur AmCbunq : ${userData.firstName} ${userData.lastName}`;
+                const text = `
+                    Un nouvel utilisateur vient de s'inscrire sur la plateforme.
+
+                    Détails de l'utilisateur :
+                    - Nom : ${userData.firstName} ${userData.lastName}
+                    - Email : ${userData.email}
+                    - Téléphone : ${userData.phone}
+                    - UID : ${userData.uid}
+                    - Date d'inscription : ${new Date().toLocaleString('fr-FR')}
+
+                    Vous pouvez consulter son profil dans le tableau de bord administrateur.
+                `;
+                const html = `
+                    <h1>Nouvelle inscription sur AmCbunq</h1>
+                    <p>Un nouvel utilisateur vient de s'inscrire sur la plateforme.</p>
+                    <h2>Détails de l'utilisateur :</h2>
+                    <ul>
+                        <li><strong>Nom :</strong> ${userData.firstName} ${userData.lastName}</li>
+                        <li><strong>Email :</strong> ${userData.email}</li>
+                        <li><strong>Téléphone :</strong> ${userData.phone}</li>
+                        <li><strong>UID :</strong> ${userData.uid}</li>
+                        <li><strong>Date d'inscription :</strong> ${new Date().toLocaleString('fr-FR')}</li>
+                    </ul>
+                    <p>Vous pouvez consulter son profil dans le tableau de bord administrateur.</p>
+                `;
+
+                await sendEmail({
+                    to: ADMIN_EMAIL,
+                    subject: subject,
+                    text: text,
+                    html: html,
+                });
+            } catch (emailError) {
+                // Log the email error but don't fail the entire user registration flow.
+                console.error("Échec de l'envoi de l'e-mail de notification d'inscription à l'administrateur :", emailError);
+            }
+        } else {
+            console.warn("MAILGUN_ADMIN_EMAIL n'est pas défini. L'e-mail de notification d'inscription ne sera pas envoyé.");
+        }
+
         return { success: true };
 
     } catch (error: any) {
