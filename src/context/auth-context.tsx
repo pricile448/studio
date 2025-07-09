@@ -21,7 +21,7 @@ type AuthContextType = {
   isBalanceVisible: boolean;
   toggleBalanceVisibility: () => void;
   refreshUserProfile: () => Promise<void>;
-  login: (email: string, password: string) => Promise<UserCredential>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (userData: RegistrationData, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
@@ -74,12 +74,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
         if (!userCredential.user.emailVerified) {
-            throw new Error('emailNotVerified');
+             return { success: false, error: 'emailNotVerified' };
         }
 
         if (userCredential.user.metadata.lastSignInTime) {
@@ -87,13 +87,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               lastSignInTime: new Date(userCredential.user.metadata.lastSignInTime) 
           });
         }
-        return userCredential;
+        return { success: true };
     } catch (error: any) {
         console.error("Firebase Login Error:", error);
         if (error.code === 'auth/invalid-credential') {
-            throw new Error('wrongCredentials');
+            return { success: false, error: 'wrongCredentials' };
         }
-        throw new Error('api.unexpected');
+        return { success: false, error: 'api.unexpected' };
     }
   };
 

@@ -52,21 +52,20 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
 
   const onSubmit = async (values: LoginFormValues) => {
     setIsSubmitting(true);
-    try {
-      await login(values.email, values.password);
-      router.push(`/${lang}/dashboard`);
-    } catch (error: any) {
-      const errorKey = error.message as keyof typeof dict.errors.messages.auth;
-      const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
+    const result = await login(values.email, values.password);
 
+    if (result.success) {
+      router.push(`/${lang}/dashboard`);
+    } else {
+      const errorKey = result.error as keyof typeof dict.errors.messages.auth;
+      const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
       toast({
         variant: 'destructive',
         title: dict.errors.titles.loginFailed,
         description: message,
       });
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
   
   const loginDict = dict.login;
