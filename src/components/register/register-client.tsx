@@ -88,28 +88,14 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
       await signup(userData, password);
       router.push(`/${lang}/verify-email`);
     } catch (error: any) {
-        const registerDict = dict?.register;
-        let description = registerDict?.registerErrorDescription || 'An unexpected error occurred.';
-        let title = registerDict?.registerErrorTitle || 'Registration Failed';
+      const errorKey = error.message as keyof typeof dict.errors.messages.auth;
+      const message = dict.errors.messages.auth[errorKey] || error.message || dict.errors.messages.api.unexpected;
 
-        if (error.code === 'auth/email-already-in-use') {
-            description = registerDict?.emailInUseError || 'This email is already in use by another account.';
-        } else if (error.code === 'permission-denied') {
-             description = registerDict?.permissionDeniedError || 'Missing or insufficient permissions. Please check your Firestore security rules.';
-        } else if (error.message) {
-             if (error.message.includes('is not allowed to send')) { // Mailgun sandbox error
-                title = registerDict?.mailgunSandboxErrorTitle || 'Email Configuration Error';
-                description = registerDict?.mailgunSandboxErrorDescription || "Your Mailgun account is in sandbox mode and can only send to authorized recipients. Please add the recipient's email to your Mailgun 'Authorized Recipients' list or configure a custom sending domain.";
-            } else {
-                description = error.message;
-            }
-        }
-
-        toast({
-            variant: 'destructive',
-            title: title,
-            description: description,
-        });
+      toast({
+        variant: 'destructive',
+        title: dict.errors.titles.registrationFailed,
+        description: message,
+      });
     } finally {
         setIsSubmitting(false);
     }

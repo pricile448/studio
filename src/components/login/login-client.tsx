@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -55,18 +56,13 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
       await login(values.email, values.password);
       router.push(`/${lang}/dashboard`);
     } catch (error: any) {
-      const loginDict = dict?.login;
-      let description = 'An unexpected error occurred.';
-      if (error.message === 'auth/email-not-verified') {
-        description = loginDict?.verifyEmailError || 'Please verify your email before logging in.';
-      } else if (error.message) {
-        description = error.message;
-      }
-       
+      const errorKey = error.message as keyof typeof dict.errors.messages.auth;
+      const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
+
       toast({
         variant: 'destructive',
-        title: loginDict?.loginErrorTitle || 'Login Failed',
-        description,
+        title: dict.errors.titles.loginFailed,
+        description: message,
       });
     } finally {
       setIsSubmitting(false);

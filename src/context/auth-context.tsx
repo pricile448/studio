@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
+import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { getUserFromFirestore, UserProfile, updateUserInFirestore, RegistrationData, Document, softDeleteUserMessage, deleteChatSession, PhysicalCardType, PhysicalCard, Beneficiary, addBeneficiary as addBeneficiaryToDb, deleteBeneficiary as deleteBeneficiaryFromDb, Transaction, requestTransfer as requestTransferInDb } from '@/lib/firebase/firestore';
 import { serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
@@ -27,7 +27,7 @@ type AuthContextType = {
   resendVerificationEmail: () => Promise<void>;
   checkEmailVerification: () => Promise<boolean>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
-  updateUserPassword: (password: string) => Promise<void>;
+  updateUserPassword: (currentPass: string, newPass: string) => Promise<void>;
   updateAvatar: (file: File) => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
@@ -75,21 +75,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    if (!userCredential.user.emailVerified) {
-        // Even if not verified, proceed with login but let the UI handle redirection
-        // based on the `user.emailVerified` property.
-        console.log("User email not verified, but login successful.");
-    }
-    
-    // Update last sign-in time in Firestore
-    if (userCredential.user.metadata.lastSignInTime) {
-      await updateUserInFirestore(userCredential.user.uid, { 
-          lastSignInTime: new Date(userCredential.user.metadata.lastSignInTime) 
-      });
-    }
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        if (!userCredential.user.emailVerified) {
+            throw new Error('auth.emailNotVerified');
+        }
 
-    return userCredential;
+        if (userCredential.user.metadata.lastSignInTime) {
+          await updateUserInFirestore(userCredential.user.uid, { 
+              lastSignInTime: new Date(userCredential.user.metadata.lastSignInTime) 
+          });
+        }
+        return userCredential;
+    } catch (error: any) {
+        if (error.code === 'auth/invalid-credential') {
+            throw new Error('auth.wrongCredentials');
+        }
+        throw error;
+    }
   };
 
   const signup = async (userData: RegistrationData, password: string) => {
@@ -107,11 +111,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           dob: userData.dob.toISOString(), // Pass date as ISO string
       });
       
-      if (!createUserDocResult) {
-          throw new Error("La création du profil utilisateur a échoué. Le serveur n'a pas répondu, probablement à cause d'un problème de configuration des variables d'environnement sur Vercel. Vérifiez les logs de votre fonction Vercel.");
-      }
-      if (!createUserDocResult.success) {
-          throw new Error(createUserDocResult.error || "Échec de la création du profil utilisateur dans la base de données.");
+      if (!createUserDocResult || !createUserDocResult.success) {
+          throw new Error(createUserDocResult?.error || "La création du profil utilisateur a échoué.");
       }
       
       const sendCodeResult = await sendVerificationCode({
@@ -120,18 +121,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userName: userData.firstName,
       });
 
-      if (!sendCodeResult) {
-          throw new Error("L'envoi de l'e-mail de vérification a échoué (réponse du serveur indéfinie).");
+      if (!sendCodeResult || !sendCodeResult.success) {
+        throw new Error(sendCodeResult?.error || "Échec de l'envoi de l'e-mail de vérification.");
       }
-      if (!sendCodeResult.success) {
-        throw new Error(sendCodeResult.error || "Échec de l'envoi de l'e-mail de vérification. Veuillez vérifier les logs du serveur et la configuration Mailgun.");
-      }
-    } catch (error) {
-        // If user was created in Auth but something failed after, delete the user to allow a clean retry.
+    } catch (error: any) {
         if (auth.currentUser) {
             await auth.currentUser.delete().catch(e => console.error("Failed to delete temporary auth user:", e));
         }
-        // Re-throw the error to be caught by the calling component
+
+        if (error.code === 'auth/email-already-in-use') {
+          throw new Error('auth.emailInUse');
+        }
+        if (error.code === 'auth/weak-password') {
+          throw new Error('auth.weakPassword');
+        }
         throw error;
     }
   };
@@ -168,7 +171,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) throw new Error("No user is signed in.");
     const result = await verifyEmailCode({ userId: user.uid, code });
     if (result.success) {
-      // Don't log out here. The UI will handle it based on the success state.
       await reload(user);
       setUser(auth.currentUser);
     }
@@ -200,9 +202,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshUserProfile();
   }
 
-  const updateUserPassword = async (password: string) => {
-    if (!auth.currentUser) throw new Error("No user is signed in.");
-    await updatePassword(auth.currentUser, password);
+  const updateUserPassword = async (currentPass: string, newPass: string) => {
+    if (!user || !user.email) throw new Error("api.unexpected");
+    
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPass);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, newPass);
+    } catch (error: any) {
+        if (error.code === 'auth/wrong-password') {
+            throw new Error('auth.wrongCredentials');
+        }
+        if (error.code === 'auth/requires-recent-login') {
+            throw new Error('auth.reauthRequired');
+        }
+        throw new Error('api.unexpected');
+    }
   }
 
   const updateAvatar = async (file: File) => {

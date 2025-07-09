@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +16,6 @@ import { Separator } from '../ui/separator';
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
-import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const locales: {[key: string]: typeof fr} = { fr, en, de, es, pt };
@@ -31,7 +31,7 @@ const passwordFormSchema = (dict: Dictionary['settings']['security']) => z.objec
 
 type PasswordFormValues = z.infer<ReturnType<typeof passwordFormSchema>>;
 
-function PasswordChangeForm({ dict }: { dict: Dictionary['settings']['security'] }) {
+function PasswordChangeForm({ dict, errorDict }: { dict: Dictionary['settings']['security'], errorDict: Dictionary['errors'] }) {
   const { user, updateUserPassword } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,25 +49,19 @@ function PasswordChangeForm({ dict }: { dict: Dictionary['settings']['security']
   });
 
   const onSubmit = async (data: PasswordFormValues) => {
-    if (!user || !user.email) return;
-
     setIsSubmitting(true);
     try {
-      const credential = EmailAuthProvider.credential(user.email, data.currentPassword);
-      await reauthenticateWithCredential(user, credential);
-      
-      await updateUserPassword(data.newPassword);
-
+      await updateUserPassword(data.currentPassword, data.newPassword);
       toast({ title: dict.passwordUpdateSuccess });
       form.reset();
     } catch (error: any) {
-      let description = dict.passwordUpdateError;
-      if (error.code === 'auth/wrong-password') {
-        description = dict.currentPasswordIncorrect;
-      } else if (error.code === 'auth/requires-recent-login') {
-        description = dict.reauthenticationRequired;
-      }
-      toast({ variant: 'destructive', title: dict.passwordUpdateErrorTitle, description });
+      const errorKey = error.message as keyof typeof errorDict.messages.auth;
+      const message = errorDict.messages.auth[errorKey] || errorDict.messages.api.unexpected;
+      toast({ 
+        variant: 'destructive', 
+        title: errorDict.titles.passwordUpdateFailed, 
+        description: message 
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -163,7 +157,7 @@ const inactivitySchema = z.object({
 
 type InactivityFormValues = z.infer<ReturnType<typeof inactivitySchema>>;
 
-function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['security'] }) {
+function InactivityTimeoutForm({ dict, errorDict }: { dict: Dictionary['settings']['security'], errorDict: Dictionary['errors'] }) {
     const { user, userProfile, updateUserProfileData } = useAuth();
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -188,7 +182,7 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
             await updateUserProfileData({ inactivityTimeout: Number(data.inactivityTimeout) });
             toast({ title: dict.saveSuccess });
         } catch (error) {
-            toast({ variant: 'destructive', title: "Error", description: (error as Error).message });
+            toast({ variant: 'destructive', title: errorDict.titles.unexpected, description: errorDict.messages.api.unexpected });
         } finally {
             setIsSubmitting(false);
         }
@@ -229,7 +223,7 @@ function InactivityTimeoutForm({ dict }: { dict: Dictionary['settings']['securit
     );
 }
 
-export function SecurityForm({ dict, lang }: { dict: Dictionary['settings']['security']; lang: string; }) {
+export function SecurityForm({ dict, lang, errorDict }: { dict: Dictionary['settings']['security']; lang: string; errorDict: Dictionary['errors'] }) {
     const { userProfile } = useAuth();
     
     return (
@@ -249,13 +243,13 @@ export function SecurityForm({ dict, lang }: { dict: Dictionary['settings']['sec
             </div>
             
             <Separator className="my-8" />
-            <PasswordChangeForm dict={dict} />
+            <PasswordChangeForm dict={dict} errorDict={errorDict} />
             <Separator className="my-8" />
             <div>
                 <h3 className="text-lg font-medium">{dict.inactivityTitle}</h3>
                 <p className="text-sm text-muted-foreground">{dict.inactivityDescription}</p>
             </div>
-            <InactivityTimeoutForm dict={dict} />
+            <InactivityTimeoutForm dict={dict} errorDict={errorDict} />
         </div>
     )
 }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -32,6 +33,7 @@ export function ForgotPasswordClient({ dict, lang }: ForgotPasswordClientProps) 
   const [isSuccess, setIsSuccess] = useState(false);
   
   const forgotPasswordDict = dict.forgotPassword;
+  const errorDict = dict.errors;
 
   const form = useForm<z.infer<ReturnType<typeof forgotPasswordSchema>>>({
     resolver: zodResolver(forgotPasswordSchema(forgotPasswordDict)),
@@ -46,8 +48,8 @@ export function ForgotPasswordClient({ dict, lang }: ForgotPasswordClientProps) 
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: forgotPasswordDict.errorTitle,
-        description: error.message,
+        title: errorDict.titles.unexpected,
+        description: errorDict.messages.api.unexpected,
       });
     } finally {
       setIsSubmitting(false);

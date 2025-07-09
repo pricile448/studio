@@ -13,6 +13,7 @@ import { useState, useTransition } from 'react';
 import { contactSupport } from '@/ai/flows/contact-support-flow';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import type { Dictionary } from '@/lib/dictionaries';
 
 const contactFormSchema = (dict: any) => z.object({
   name: z.string().min(2, { message: dict.nameRequired }),
@@ -21,7 +22,7 @@ const contactFormSchema = (dict: any) => z.object({
   message: z.string().min(10, { message: dict.messageRequired }),
 });
 
-export function HelpContactForm({ dict }: { dict: any }) {
+export function HelpContactForm({ dict }: { dict: Dictionary['help'] }) {
   const { userProfile } = useAuth();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -48,7 +49,7 @@ export function HelpContactForm({ dict }: { dict: any }) {
         } else {
             toast({
                 variant: 'destructive',
-                title: 'Error',
+                title: dict.contactForm.errorTitle,
                 description: result.error || dict.contactForm.errorDescription,
             });
         }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -34,6 +35,9 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const { userProfile, refreshUserProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  
+  const kycDict = dict.kyc;
+  const errorDict = dict.errors;
 
   const totalSteps = 6;
 
@@ -53,7 +57,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({ variant: 'destructive', title: dict.file_too_large, description: dict.file_too_large_desc });
+        toast({ variant: 'destructive', title: errorDict.titles.fileTooLarge, description: errorDict.messages.files.sizeExceeded });
         return;
       }
       setter(file);
@@ -73,8 +77,8 @@ export function KycClient({ dict, lang }: KycClientProps) {
     if (!idDocument || !proofOfAddress || !selfie || !userProfile) {
       toast({
         variant: 'destructive',
-        title: dict.missing_documents,
-        description: dict.missing_documents_desc,
+        title: errorDict.titles.formIncomplete,
+        description: kycDict.missing_documents_desc,
       });
       return;
     }
@@ -109,7 +113,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
       await setDoc(submissionRef, submissionData);
 
       // Step 4: Call second server flow to notify admin (no DB write)
-      const notifyResult = await notifyAdminOfKyc({
+      await notifyAdminOfKyc({
           userId: userProfile.uid,
           userName: `${userProfile.firstName} ${userProfile.lastName}`,
           userEmail: userProfile.email,
@@ -117,15 +121,6 @@ export function KycClient({ dict, lang }: KycClientProps) {
           proofOfAddressUrl,
           selfieUrl,
       });
-
-      if (!notifyResult.success) {
-        // Non-fatal error, the submission is saved, but we should inform the user
-        toast({
-          variant: 'destructive',
-          title: "Erreur de notification",
-          description: "Votre soumission a été enregistrée, mais nous n'avons pas pu notifier nos équipes. Le traitement pourrait être retardé.",
-        });
-      }
       
       // Step 5: Refresh UI and move to final step
       await refreshUserProfile();
@@ -134,8 +129,8 @@ export function KycClient({ dict, lang }: KycClientProps) {
       console.error("KYC Submission Error:", error);
       toast({
         variant: 'destructive',
-        title: dict.submission_error,
-        description: error.message || dict.submission_error_desc,
+        title: errorDict.titles.uploadFailed,
+        description: error.message || errorDict.messages.files.uploadFailed,
       });
     } finally {
       setIsSubmitting(false);
@@ -149,49 +144,49 @@ export function KycClient({ dict, lang }: KycClientProps) {
           <div className="space-y-6">
             <div className="text-center">
               <ShieldCheck className="mx-auto h-12 w-12 text-primary" />
-              <h2 className="mt-4 text-2xl font-bold font-headline">{dict.step1_title}</h2>
-              <p className="mt-2 text-muted-foreground">{dict.step1_desc}</p>
+              <h2 className="mt-4 text-2xl font-bold font-headline">{kycDict.step1_title}</h2>
+              <p className="mt-2 text-muted-foreground">{kycDict.step1_desc}</p>
             </div>
             <ul className="space-y-4">
               <li className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1"><ListChecks className="h-5 w-5 text-primary" /></div>
-                <span>{dict.step1_item1}</span>
+                <span>{kycDict.step1_item1}</span>
               </li>
                <li className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1"><FileText className="h-5 w-5 text-primary" /></div>
-                <span>{dict.step1_item3}</span>
+                <span>{kycDict.step1_item3}</span>
               </li>
               <li className="flex items-start gap-4">
                 <div className="flex-shrink-0 mt-1"><User className="h-5 w-5 text-primary" /></div>
-                <span>{dict.step1_item2}</span>
+                <span>{kycDict.step1_item2}</span>
               </li>
             </ul>
-            <Button onClick={handleNext} className="w-full">{dict.step1_button}</Button>
+            <Button onClick={handleNext} className="w-full">{kycDict.step1_button}</Button>
           </div>
         );
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold font-headline">{dict.step2_title}</h2>
-            <p className="text-muted-foreground">{dict.step2_desc}</p>
+            <h2 className="text-xl font-bold font-headline">{kycDict.step2_title}</h2>
+            <p className="text-muted-foreground">{kycDict.step2_desc}</p>
             
             <RadioGroup onValueChange={handleDocTypeChange} value={docType}>
               <Label className={cn("flex items-center space-x-2 p-4 border rounded-md cursor-pointer", docType === 'passport' && 'border-primary') }>
                 <RadioGroupItem value="passport" id="passport" />
-                <span>{dict.step2_doc_passport}</span>
+                <span>{kycDict.step2_doc_passport}</span>
               </Label>
               <Label className={cn("flex items-center space-x-2 p-4 border rounded-md cursor-pointer", docType === 'id' && 'border-primary') }>
                 <RadioGroupItem value="id" id="id" />
-                <span>{dict.step2_doc_id}</span>
+                <span>{kycDict.step2_doc_id}</span>
               </Label>
             </RadioGroup>
 
             {docType && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{dict.step2_doc_type} {docType === 'id' ? dict.step2_doc_id : dict.step2_doc_passport} {dict.selected}</AlertTitle>
+                  <AlertTitle>{kycDict.step2_doc_type} {docType === 'id' ? kycDict.step2_doc_id : kycDict.step2_doc_passport} {kycDict.selected}</AlertTitle>
                   <AlertDescription>
-                    {dict.clickNext}
+                    {kycDict.clickNext}
                   </AlertDescription>
                 </Alert>
             )}
@@ -200,21 +195,21 @@ export function KycClient({ dict, lang }: KycClientProps) {
       case 3:
         return (
           <div className="space-y-6 w-full">
-            <h2 className="text-xl font-bold font-headline">{docType === 'id' ? dict.step3_title_id : dict.step3_title_passport}</h2>
-            <p className="text-muted-foreground">{dict.step3_desc}</p>
+            <h2 className="text-xl font-bold font-headline">{docType === 'id' ? kycDict.step3_title_id : kycDict.step3_title_passport}</h2>
+            <p className="text-muted-foreground">{kycDict.step3_desc}</p>
              <Label htmlFor="id-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
-                    <p className="mb-2 text-sm text-muted-foreground">{dict.step3_upload_button}</p>
+                    <p className="mb-2 text-sm text-muted-foreground">{kycDict.step3_upload_button}</p>
                 </div>
                 <Input id="id-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, setIdDocument)} accept="image/*,.pdf" />
             </Label>
             {idDocument && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{dict.file_selected.replace('{fileName}', idDocument.name)}</AlertTitle>
+                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', idDocument.name)}</AlertTitle>
                   <AlertDescription>
-                    {dict.clickNext}
+                    {kycDict.clickNext}
                   </AlertDescription>
                 </Alert>
             )}
@@ -223,21 +218,21 @@ export function KycClient({ dict, lang }: KycClientProps) {
       case 4:
          return (
           <div className="space-y-6 w-full">
-            <h2 className="text-xl font-bold font-headline">{dict.step4_title}</h2>
-            <p className="text-muted-foreground">{dict.step4_desc}</p>
+            <h2 className="text-xl font-bold font-headline">{kycDict.step4_title}</h2>
+            <p className="text-muted-foreground">{kycDict.step4_desc}</p>
              <Label htmlFor="proof-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
-                    <p className="mb-2 text-sm text-muted-foreground">{dict.step3_upload_button}</p>
+                    <p className="mb-2 text-sm text-muted-foreground">{kycDict.step3_upload_button}</p>
                 </div>
                 <Input id="proof-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, setProofOfAddress)} accept="image/*,.pdf" />
             </Label>
             {proofOfAddress && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{dict.file_selected.replace('{fileName}', proofOfAddress.name)}</AlertTitle>
+                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', proofOfAddress.name)}</AlertTitle>
                   <AlertDescription>
-                    {dict.clickNext}
+                    {kycDict.clickNext}
                   </AlertDescription>
                 </Alert>
             )}
@@ -246,21 +241,21 @@ export function KycClient({ dict, lang }: KycClientProps) {
       case 5:
         return (
           <div className="space-y-6 w-full">
-            <h2 className="text-xl font-bold font-headline">{dict.step5_title}</h2>
-            <p className="text-muted-foreground">{dict.step5_desc}</p>
+            <h2 className="text-xl font-bold font-headline">{kycDict.step5_title}</h2>
+            <p className="text-muted-foreground">{kycDict.step5_desc}</p>
              <Label htmlFor="selfie-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Camera className="w-8 h-8 mb-4 text-muted-foreground" />
-                    <p className="mb-2 text-sm text-muted-foreground">{dict.step3_upload_button}</p>
+                    <p className="mb-2 text-sm text-muted-foreground">{kycDict.step3_upload_button}</p>
                 </div>
                 <Input id="selfie-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, setSelfie)} accept="image/*" />
             </Label>
             {selfie && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{dict.file_selected.replace('{fileName}', selfie.name)}</AlertTitle>
+                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', selfie.name)}</AlertTitle>
                    <AlertDescription>
-                    {dict.clickSubmit}
+                    {kycDict.clickSubmit}
                   </AlertDescription>
                 </Alert>
             )}
@@ -270,10 +265,10 @@ export function KycClient({ dict, lang }: KycClientProps) {
          return (
           <div className="space-y-6 text-center py-8">
             <FileCheck2 className="mx-auto h-16 w-16 text-green-500" />
-            <h2 className="mt-4 text-2xl font-bold font-headline">{dict.step6_title}</h2>
-            <p className="mt-2 text-muted-foreground max-w-md mx-auto">{dict.step6_desc}</p>
+            <h2 className="mt-4 text-2xl font-bold font-headline">{kycDict.step6_title}</h2>
+            <p className="mt-2 text-muted-foreground max-w-md mx-auto">{kycDict.step6_desc}</p>
             <Button onClick={() => router.push(`/${lang}/dashboard`)} className="w-full max-w-xs mx-auto">
-              {dict.step6_button}
+              {kycDict.step6_button}
             </Button>
           </div>
         );
@@ -286,7 +281,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
         <CardHeader>
           {step < totalSteps && (
             <>
-            <p className="text-sm font-medium text-muted-foreground">{dict.progress.replace('{step}', step).replace('{totalSteps}', totalSteps -1)}</p>
+            <p className="text-sm font-medium text-muted-foreground">{kycDict.progress.replace('{step}', step).replace('{totalSteps}', totalSteps -1)}</p>
             <Progress value={(step / (totalSteps - 1)) * 100} className="mt-2" />
             </>
           )}
@@ -298,31 +293,31 @@ export function KycClient({ dict, lang }: KycClientProps) {
           <CardFooter className="flex justify-between">
             <Button variant="outline" onClick={handleBack} disabled={isSubmitting}>
               <ArrowLeft className="mr-2" />
-              {dict.button_back}
+              {kycDict.button_back}
             </Button>
 
             {step === 2 && (
               <Button onClick={handleNext} disabled={!docType}>
-                {dict.button_next}
+                {kycDict.button_next}
               </Button>
             )}
 
             {step === 3 && (
               <Button onClick={handleNext} disabled={!idDocument}>
-                {dict.button_next}
+                {kycDict.button_next}
               </Button>
             )}
             
             {step === 4 && (
               <Button onClick={handleNext} disabled={!proofOfAddress}>
-                {dict.button_next}
+                {kycDict.button_next}
               </Button>
             )}
 
             {step === 5 && (
               <Button onClick={handleSubmission} disabled={!selfie || isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {dict.button_submit}
+                {kycDict.button_submit}
               </Button>
             )}
           </CardFooter>

@@ -16,6 +16,7 @@ import { Loader2 } from 'lucide-react';
 
 interface NotificationsFormProps {
   dict: Dictionary['settings']['notifications'];
+  errorDict: Dictionary['errors'];
 }
 
 const notificationsSchema = z.object({
@@ -26,7 +27,7 @@ const notificationsSchema = z.object({
 
 type NotificationsFormValues = z.infer<typeof notificationsSchema>;
 
-export function NotificationsForm({ dict }: NotificationsFormProps) {
+export function NotificationsForm({ dict, errorDict }: NotificationsFormProps) {
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +54,7 @@ export function NotificationsForm({ dict }: NotificationsFormProps) {
       await updateUserInFirestore(user.uid, { notificationPrefs: data });
       toast({ title: dict.saveSuccess });
     } catch (error) {
-      toast({ variant: 'destructive', title: "Error", description: (error as Error).message });
+      toast({ variant: 'destructive', title: errorDict.titles.unexpected, description: errorDict.messages.api.unexpected });
     } finally {
       setIsSubmitting(false);
     }

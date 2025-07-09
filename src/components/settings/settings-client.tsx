@@ -56,7 +56,7 @@ export function SettingsClient({ dict, lang }: SettingsClientProps) {
             <CardDescription>{settingsDict.security.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <SecurityForm dict={settingsDict.security} lang={lang} />
+            <SecurityForm dict={settingsDict.security} lang={lang} errorDict={dict.errors} />
           </CardContent>
         </Card>
       </TabsContent>
@@ -67,7 +67,7 @@ export function SettingsClient({ dict, lang }: SettingsClientProps) {
             <CardDescription>{settingsDict.notifications.description}</CardDescription>
           </CardHeader>
           <CardContent>
-            <NotificationsForm dict={settingsDict.notifications} />
+            <NotificationsForm dict={settingsDict.notifications} errorDict={dict.errors} />
           </CardContent>
         </Card>
       </TabsContent>

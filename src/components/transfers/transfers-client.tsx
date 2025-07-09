@@ -51,6 +51,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
   const transfersDict = dict.transfers;
   const kycDict = dict.kyc;
+  const errorDict = dict.errors;
   
   const form = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),
@@ -97,10 +98,14 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
       });
       setTransferData(null);
     } catch (error) {
+       let description = errorDict.messages.api.unexpected;
+       if ((error as Error).message.includes("Solde insuffisant")) {
+           description = errorDict.messages.api.insufficientFunds;
+       }
        toast({
         variant: 'destructive',
-        title: 'Erreur',
-        description: (error as Error).message || 'Une erreur est survenue lors de la demande de virement.',
+        title: errorDict.titles.transferFailed,
+        description: description,
       });
     } finally {
       setIsSubmitting(false);
@@ -117,8 +122,8 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     } catch (error) {
         toast({
             variant: 'destructive',
-            title: 'Erreur',
-            description: (error as Error).message || 'Une erreur est survenue lors de la suppression.',
+            title: errorDict.titles.unexpected,
+            description: errorDict.messages.api.unexpected,
         });
     }
   }

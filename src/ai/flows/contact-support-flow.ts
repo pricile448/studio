@@ -36,7 +36,7 @@ const contactSupportFlow = ai.defineFlow(
     if (!ADMIN_EMAIL) {
         const error = "MAILGUN_ADMIN_EMAIL is not set. Cannot send support email.";
         console.error(error);
-        return { success: false, error };
+        return { success: false, error: "Une erreur de configuration nous empêche d'envoyer l'e-mail." };
     }
 
     const emailText = `
@@ -58,7 +58,7 @@ const contactSupportFlow = ai.defineFlow(
         return { success: true };
     } catch (error: any) {
         console.error("Failed to send support email:", error);
-        return { success: false, error: error.message || 'Failed to send support email' };
+        return { success: false, error: "Impossible d'envoyer votre message pour le moment. Veuillez réessayer plus tard." };
     }
   }
 );

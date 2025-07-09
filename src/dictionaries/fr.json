@@ -121,8 +121,6 @@
       "registerPrompt": "Vous n'avez pas de compte ?",
       "registerLink": "S'inscrire",
       "backToHome": "Retour à l'accueil",
-      "loginErrorTitle": "Échec de la connexion",
-      "verifyEmailError": "Veuillez vérifier votre adresse e-mail avant de vous connecter.",
       "inactivityLogoutTitle": "Session expirée",
       "inactivityLogoutDescription": "Pour votre sécurité, vous avez été déconnecté pour cause d'inactivité."
     },
@@ -130,7 +128,6 @@
       "title": "Mot de passe oublié ?",
       "description": "Pas de souci. Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
       "submitButton": "Envoyer le lien de réinitialisation",
-      "errorTitle": "Erreur",
       "successTitle": "E-mail envoyé !",
       "successDescription": "Si un compte existe pour cette adresse, un e-mail de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.",
       "resetTitle": "Réinitialiser votre mot de passe",
@@ -166,13 +163,7 @@
       "addressLabel": "Adresse de résidence",
       "professionLabel": "Profession",
       "salaryLabel": "Revenu mensuel (approximatif en €)",
-      "dobPlaceholder": "Sélectionnez une date",
-      "registerErrorTitle": "Échec de l'inscription",
-      "registerErrorDescription": "Une erreur inattendue est survenue lors de l'inscription.",
-      "emailInUseError": "Cette adresse e-mail est déjà utilisée par un autre compte.",
-      "permissionDeniedError": "Permissions manquantes ou insuffisantes. Veuillez vérifier vos règles de sécurité Firestore.",
-      "mailgunSandboxErrorTitle": "Erreur de configuration e-mail",
-      "mailgunSandboxErrorDescription": "Votre compte Mailgun est en mode 'sandbox' et ne peut envoyer des e-mails qu'aux adresses autorisées. Veuillez ajouter l'adresse e-mail de destination à vos 'Authorized Recipients' dans Mailgun ou configurer un domaine d'envoi personnalisé."
+      "dobPlaceholder": "Sélectionnez une date"
     },
     "verifyEmail": {
         "title": "Vérifiez votre adresse e-mail",
@@ -544,8 +535,7 @@
         "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
         "saveButton": "Mettre à jour le mot de passe",
         "passwordUpdateSuccess": "Mot de passe mis à jour avec succès !",
-        "passwordUpdateErrorTitle": "Erreur de mise à jour",
-        "passwordUpdateError": "Une erreur est survenue.",
+        "passwordUpdateErrorTitle": "Échec de la mise à jour",
         "reauthenticationRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter avant de réessayer.",
         "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
         "passwordMismatchError": "Les mots de passe ne correspondent pas.",
@@ -626,6 +616,7 @@
         "submitButton": "Envoyer le message",
         "successTitle": "Message envoyé !",
         "successDescription": "Merci de nous avoir contactés. Nous vous répondrons dès que possible.",
+        "errorTitle": "Erreur",
         "errorDescription": "Échec de l'envoi du message. Veuillez réessayer plus tard."
       },
       "contactCta": {
@@ -687,16 +678,46 @@
       "readyToProceed": "Prêt à continuer ?",
       "clickSubmit": "Cliquez sur 'Soumettre' pour finaliser votre demande de vérification.",
       "file_selected": "Fichier sélectionné : {fileName}",
-      "file_too_large": "Fichier trop volumineux",
-      "file_too_large_desc": "Veuillez sélectionner un fichier de moins de 5 Mo.",
-      "missing_documents": "Documents manquants",
       "missing_documents_desc": "Veuillez télécharger tous les documents requis avant de soumettre.",
-      "submission_error": "Erreur de soumission",
-      "submission_error_desc": "Impossible de soumettre vos documents. Veuillez réessayer."
+      "submission_error_desc": "Vos documents n'ont pas pu être soumis. Veuillez vérifier votre connexion et réessayer."
     },
     "notFound": {
       "title": "Oups! Page introuvable.",
       "description": "La page que vous recherchez a peut-être été supprimée, a changé de nom ou est temporairement indisponible.",
       "button": "Retour à l'accueil"
+    },
+    "errors": {
+        "titles": {
+            "loginFailed": "Échec de la connexion",
+            "registrationFailed": "Inscription impossible",
+            "formIncomplete": "Formulaire incomplet",
+            "uploadFailed": "Échec de la soumission",
+            "fileTooLarge": "Fichier trop volumineux",
+            "transferFailed": "Virement échoué",
+            "networkError": "Erreur de connexion",
+            "unexpected": "Une erreur est survenue",
+            "passwordUpdateFailed": "Échec de la mise à jour"
+        },
+        "messages": {
+            "auth": {
+                "wrongCredentials": "L'adresse e-mail ou le mot de passe est incorrect. Veuillez vérifier vos informations et réessayer.",
+                "emailInUse": "Cette adresse e-mail est déjà utilisée. Veuillez vous connecter ou utiliser une autre adresse.",
+                "emailNotVerified": "Veuillez consulter votre boîte de réception et cliquer sur le lien de vérification avant de vous connecter.",
+                "weakPassword": "Pour votre sécurité, votre mot de passe doit contenir au moins 6 caractères.",
+                "reauthRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter et réessayer."
+            },
+            "forms": {
+                "incomplete": "Veuillez remplir tous les champs obligatoires et corriger les erreurs avant de continuer."
+            },
+            "files": {
+                "uploadFailed": "Vos documents n'ont pas pu être envoyés. Veuillez vérifier votre connexion et réessayer.",
+                "sizeExceeded": "Le fichier dépasse la taille maximale autorisée. Veuillez choisir un fichier plus petit."
+            },
+            "api": {
+                "insufficientFunds": "Votre solde est insuffisant pour effectuer cette opération.",
+                "networkError": "Impossible de joindre nos serveurs. Veuillez vérifier votre connexion internet et réessayer.",
+                "unexpected": "Une erreur technique s'est produite. Notre équipe a été prévenue. Veuillez réessayer dans quelques instants."
+            }
+        }
     }
 }

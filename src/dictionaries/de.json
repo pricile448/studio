@@ -121,8 +121,6 @@
       "registerPrompt": "Haben Sie noch kein Konto?",
       "registerLink": "Registrieren",
       "backToHome": "Zurück zur Startseite",
-      "loginErrorTitle": "Anmeldung fehlgeschlagen",
-      "verifyEmailError": "Bitte bestätigen Sie Ihre E-Mail-Adresse, bevor Sie sich anmelden.",
       "inactivityLogoutTitle": "Sitzung abgelaufen",
       "inactivityLogoutDescription": "Zu Ihrer Sicherheit wurden Sie aufgrund von Inaktivität abgemeldet."
     },
@@ -130,7 +128,6 @@
       "title": "Passwort vergessen?",
       "description": "Keine Sorge. Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, um Ihr Passwort zurückzusetzen.",
       "submitButton": "Link zum Zurücksetzen senden",
-      "errorTitle": "Fehler",
       "successTitle": "E-Mail gesendet!",
       "successDescription": "Wenn für diese Adresse ein Konto existiert, wurde eine E-Mail zum Zurücksetzen des Passworts gesendet. Bitte überprüfen Sie Ihren Posteingang.",
       "resetTitle": "Passwort zurücksetzen",
@@ -166,13 +163,7 @@
       "addressLabel": "Wohnadresse",
       "professionLabel": "Beruf",
       "salaryLabel": "Monatliches Einkommen (ca. in €)",
-      "dobPlaceholder": "Datum auswählen",
-      "registerErrorTitle": "Registrierung fehlgeschlagen",
-      "registerErrorDescription": "Bei der Registrierung ist ein unerwarteter Fehler aufgetreten.",
-      "emailInUseError": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet.",
-      "permissionDeniedError": "Fehlende oder unzureichende Berechtigungen. Bitte überprüfen Sie Ihre Firestore-Sicherheitsregeln.",
-      "mailgunSandboxErrorTitle": "E-Mail Konfigurationsfehler",
-      "mailgunSandboxErrorDescription": "Ihr Mailgun-Konto befindet sich im Sandbox-Modus und kann nur an autorisierte Empfänger senden. Bitte fügen Sie die E-Mail des Empfängers zu Ihrer Liste der 'autorisierten Empfänger' in Mailgun hinzu oder konfigurieren Sie eine benutzerdefinierte Sendedomäne."
+      "dobPlaceholder": "Datum auswählen"
     },
     "verifyEmail": {
         "title": "Bestätigen Sie Ihre E-Mail-Adresse",
@@ -542,7 +533,6 @@
         "saveButton": "Passwort aktualisieren",
         "passwordUpdateSuccess": "Passwort erfolgreich aktualisiert!",
         "passwordUpdateErrorTitle": "Update-Fehler",
-        "passwordUpdateError": "Ein Fehler ist aufgetreten.",
         "reauthenticationRequired": "Dieser Vorgang ist sensibel und erfordert eine kürzliche Authentifizierung. Bitte melden Sie sich erneut an, bevor Sie es erneut versuchen.",
         "passwordLengthError": "Das Passwort muss mindestens 6 Zeichen lang sein.",
         "passwordMismatchError": "Die Passwörter stimmen nicht überein.",
@@ -623,6 +613,7 @@
         "submitButton": "Nachricht senden",
         "successTitle": "Nachricht gesendet!",
         "successDescription": "Vielen Dank, dass Sie uns kontaktiert haben. Wir werden uns so schnell wie möglich bei Ihnen melden.",
+        "errorTitle": "Fehler",
         "errorDescription": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut."
       },
       "contactCta": {
@@ -684,16 +675,46 @@
       "readyToProceed": "Bereit zum Fortfahren?",
       "clickSubmit": "Klicken Sie auf 'Senden', um Ihre Verifizierungsanfrage abzuschließen.",
       "file_selected": "Datei ausgewählt: {fileName}",
-      "file_too_large": "Datei zu groß",
-      "file_too_large_desc": "Bitte wählen Sie eine Datei kleiner als 5 MB.",
-      "missing_documents": "Fehlende Dokumente",
       "missing_documents_desc": "Bitte laden Sie alle erforderlichen Dokumente hoch, bevor Sie sie einreichen.",
-      "submission_error": "Fehler beim Einreichen",
-      "submission_error_desc": "Ihre Dokumente konnten nicht eingereicht werden. Bitte versuchen Sie es erneut."
+      "submission_error_desc": "Ihre Dokumente konnten nicht eingereicht werden. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
     },
     "notFound": {
       "title": "Hoppla! Seite nicht gefunden.",
       "description": "Die von Ihnen gesuchte Seite wurde möglicherweise entfernt, umbenannt oder ist vorübergehend nicht verfügbar.",
       "button": "Zur Startseite"
+    },
+    "errors": {
+        "titles": {
+            "loginFailed": "Anmeldung fehlgeschlagen",
+            "registrationFailed": "Registrierung fehlgeschlagen",
+            "formIncomplete": "Unvollständiges Formular",
+            "uploadFailed": "Einreichung fehlgeschlagen",
+            "fileTooLarge": "Datei zu groß",
+            "transferFailed": "Überweisung fehlgeschlagen",
+            "networkError": "Verbindungsfehler",
+            "unexpected": "Ein Fehler ist aufgetreten",
+            "passwordUpdateFailed": "Update fehlgeschlagen"
+        },
+        "messages": {
+            "auth": {
+                "wrongCredentials": "Die eingegebene E-Mail-Adresse oder das Passwort ist falsch. Bitte überprüfen Sie Ihre Informationen und versuchen Sie es erneut.",
+                "emailInUse": "Diese E-Mail-Adresse wird bereits verwendet. Bitte melden Sie sich an oder verwenden Sie eine andere Adresse.",
+                "emailNotVerified": "Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Bestätigungslink, bevor Sie sich anmelden.",
+                "weakPassword": "Zu Ihrer Sicherheit muss Ihr Passwort mindestens 6 Zeichen lang sein.",
+                "reauthRequired": "Dies ist ein sensibler Vorgang und erfordert eine kürzliche Authentifizierung. Bitte melden Sie sich erneut an und versuchen Sie es erneut."
+            },
+            "forms": {
+                "incomplete": "Bitte füllen Sie alle Pflichtfelder aus und korrigieren Sie eventuelle Fehler, bevor Sie fortfahren."
+            },
+            "files": {
+                "uploadFailed": "Ihre Dokumente konnten nicht gesendet werden. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+                "sizeExceeded": "Die Datei überschreitet die maximal zulässige Größe. Bitte wählen Sie eine kleinere Datei."
+            },
+            "api": {
+                "insufficientFunds": "Ihr Guthaben reicht für diesen Vorgang nicht aus.",
+                "networkError": "Unsere Server konnten nicht erreicht werden. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+                "unexpected": "Ein technischer Fehler ist aufgetreten. Unser Team wurde benachrichtigt. Bitte versuchen Sie es in einigen Augenblicken erneut."
+            }
+        }
     }
 }

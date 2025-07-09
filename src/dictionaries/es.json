@@ -121,8 +121,6 @@
       "registerPrompt": "¿No tiene una cuenta?",
       "registerLink": "Regístrese",
       "backToHome": "Volver al inicio",
-      "loginErrorTitle": "Error de inicio de sesión",
-      "verifyEmailError": "Por favor, verifique su correo electrónico antes de iniciar sesión.",
       "inactivityLogoutTitle": "Sesión expirada",
       "inactivityLogoutDescription": "Por su seguridad, se ha cerrado la sesión por inactividad."
     },
@@ -130,7 +128,6 @@
       "title": "¿Ha olvidado su contraseña?",
       "description": "No se preocupe. Introduzca su dirección de correo electrónico y le enviaremos un enlace para restablecer su contraseña.",
       "submitButton": "Enviar enlace de restablecimiento",
-      "errorTitle": "Error",
       "successTitle": "¡Correo electrónico enviado!",
       "successDescription": "Si existe una cuenta para esta dirección, se ha enviado un correo electrónico para restablecer la contraseña. Por favor, revise su bandeja de entrada.",
       "resetTitle": "Restablecer su contraseña",
@@ -166,13 +163,7 @@
       "addressLabel": "Dirección de residencia",
       "professionLabel": "Profesión",
       "salaryLabel": "Ingresos mensuales (aprox. en €)",
-      "dobPlaceholder": "Seleccione una fecha",
-      "registerErrorTitle": "Error de registro",
-      "registerErrorDescription": "Ocurrió un error inesperado durante el registro.",
-      "emailInUseError": "Esta dirección de correo electrónico ya está en uso por otra cuenta.",
-      "permissionDeniedError": "Permisos faltantes o insuficientes. Por favor, revise sus reglas de seguridad de Firestore.",
-      "mailgunSandboxErrorTitle": "Error de configuración de correo electrónico",
-      "mailgunSandboxErrorDescription": "Su cuenta de Mailgun está en modo sandbox y solo puede enviar a destinatarios autorizados. Agregue el correo electrónico del destinatario a su lista de 'destinatarios autorizados' de Mailgun o configure un dominio de envío personalizado."
+      "dobPlaceholder": "Seleccione una fecha"
     },
      "verifyEmail": {
         "title": "Verifique su dirección de correo electrónico",
@@ -542,7 +533,6 @@
         "saveButton": "Actualizar contraseña",
         "passwordUpdateSuccess": "¡Contraseña actualizada con éxito!",
         "passwordUpdateErrorTitle": "Error de Actualización",
-        "passwordUpdateError": "Ocurrió un error.",
         "reauthenticationRequired": "Esta es una operación sensible y requiere autenticación reciente. Por favor, inicie sesión de nuevo antes de volver a intentarlo.",
         "passwordLengthError": "La contraseña debe tener al menos 6 caracteres.",
         "passwordMismatchError": "Las contraseñas no coinciden.",
@@ -623,6 +613,7 @@
         "submitButton": "Enviar mensaje",
         "successTitle": "¡Mensaje enviado!",
         "successDescription": "Gracias por contactarnos. Nos pondremos en contacto con usted lo antes posible.",
+        "errorTitle": "Error",
         "errorDescription": "No se pudo enviar el mensaje. Por favor, inténtelo de nuevo más tarde."
       },
       "contactCta": {
@@ -684,16 +675,46 @@
       "readyToProceed": "¿Listo para proceder?",
       "clickSubmit": "Haga clic en 'Enviar' para finalizar su solicitud de verificación.",
       "file_selected": "Archivo seleccionado: {fileName}",
-      "file_too_large": "Archivo demasiado grande",
-      "file_too_large_desc": "Por favor, seleccione un archivo de menos de 5MB.",
-      "missing_documents": "Documentos faltantes",
       "missing_documents_desc": "Por favor, cargue todos los documentos requeridos antes de enviar.",
-      "submission_error": "Error de envío",
-      "submission_error_desc": "No se pudieron enviar sus documentos. Por favor, inténtelo de nuevo."
+      "submission_error_desc": "No se pudieron enviar sus documentos. Por favor, verifique su conexión e intente nuevamente."
     },
     "notFound": {
       "title": "¡Vaya! Página no encontrada.",
       "description": "La página que busca podría haber sido eliminada, haber cambiado de nombre o no estar disponible temporalmente.",
       "button": "Ir a la Página de Inicio"
+    },
+    "errors": {
+        "titles": {
+            "loginFailed": "Error de inicio de sesión",
+            "registrationFailed": "Error de registro",
+            "formIncomplete": "Formulario incompleto",
+            "uploadFailed": "Error de envío",
+            "fileTooLarge": "Archivo demasiado grande",
+            "transferFailed": "Error de transferencia",
+            "networkError": "Error de conexión",
+            "unexpected": "Ocurrió un error",
+            "passwordUpdateFailed": "Error de actualización"
+        },
+        "messages": {
+            "auth": {
+                "wrongCredentials": "El correo electrónico o la contraseña que ingresó son incorrectos. Verifique su información y vuelva a intentarlo.",
+                "emailInUse": "Esta dirección de correo electrónico ya está en uso. Inicie sesión o use una dirección diferente.",
+                "emailNotVerified": "Consulte su bandeja de entrada y haga clic en el enlace de verificación antes de iniciar sesión.",
+                "weakPassword": "Por su seguridad, su contraseña debe tener al menos 6 caracteres.",
+                "reauthRequired": "Esta es una operación sensible y requiere autenticación reciente. Vuelva a iniciar sesión e inténtelo de nuevo."
+            },
+            "forms": {
+                "incomplete": "Complete todos los campos obligatorios y corrija cualquier error antes de continuar."
+            },
+            "files": {
+                "uploadFailed": "No se pudieron enviar sus documentos. Verifique su conexión y vuelva a intentarlo.",
+                "sizeExceeded": "El archivo excede el tamaño máximo permitido. Elija un archivo más pequeño."
+            },
+            "api": {
+                "insufficientFunds": "Su saldo es insuficiente para realizar esta operación.",
+                "networkError": "No se pudo conectar con nuestros servidores. Verifique su conexión a Internet y vuelva a intentarlo.",
+                "unexpected": "Ocurrió un error técnico. Nuestro equipo ha sido notificado. Vuelva a intentarlo en unos momentos."
+            }
+        }
     }
 }

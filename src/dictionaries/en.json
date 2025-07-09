@@ -121,8 +121,6 @@
       "registerPrompt": "Don't have an account?",
       "registerLink": "Sign up",
       "backToHome": "Back to Home",
-      "loginErrorTitle": "Login Failed",
-      "verifyEmailError": "Please verify your email before logging in.",
       "inactivityLogoutTitle": "Session Expired",
       "inactivityLogoutDescription": "For your security, you have been logged out due to inactivity."
     },
@@ -130,7 +128,6 @@
       "title": "Forgot Password?",
       "description": "No worries. Enter your email address and we'll send you a link to reset your password.",
       "submitButton": "Send Reset Link",
-      "errorTitle": "Error",
       "successTitle": "Email Sent!",
       "successDescription": "If an account exists for this address, a password reset email has been sent. Please check your inbox.",
       "resetTitle": "Reset Your Password",
@@ -166,13 +163,7 @@
       "addressLabel": "Residential Address",
       "professionLabel": "Profession",
       "salaryLabel": "Monthly Income (approx. in €)",
-      "dobPlaceholder": "Select a date",
-      "registerErrorTitle": "Registration Failed",
-      "registerErrorDescription": "An unexpected error occurred during registration.",
-      "emailInUseError": "This email address is already in use by another account.",
-      "permissionDeniedError": "Missing or insufficient permissions. Please check your Firestore security rules.",
-      "mailgunSandboxErrorTitle": "Email Configuration Error",
-      "mailgunSandboxErrorDescription": "Your Mailgun account is in sandbox mode and can only send to authorized recipients. Please add the recipient's email to your Mailgun 'Authorized Recipients' list or configure a custom sending domain."
+      "dobPlaceholder": "Select a date"
     },
     "verifyEmail": {
         "title": "Verify Your Email Address",
@@ -542,7 +533,6 @@
         "saveButton": "Update Password",
         "passwordUpdateSuccess": "Password updated successfully!",
         "passwordUpdateErrorTitle": "Update Error",
-        "passwordUpdateError": "An error occurred.",
         "reauthenticationRequired": "This is a sensitive operation and requires recent authentication. Please log in again before retrying.",
         "passwordLengthError": "Password must be at least 6 characters.",
         "passwordMismatchError": "Passwords do not match.",
@@ -623,6 +613,7 @@
         "submitButton": "Send Message",
         "successTitle": "Message Sent!",
         "successDescription": "Thanks for contacting us. We'll get back to you as soon as possible.",
+        "errorTitle": "Error",
         "errorDescription": "Failed to send message. Please try again later."
       },
        "contactCta": {
@@ -684,16 +675,46 @@
       "readyToProceed": "Ready to proceed?",
       "clickSubmit": "Click 'Submit' to finalize your verification request.",
       "file_selected": "File selected: {fileName}",
-      "file_too_large": "File too large",
-      "file_too_large_desc": "Please select a file smaller than 5MB.",
-      "missing_documents": "Missing documents",
       "missing_documents_desc": "Please upload all required documents before submitting.",
-      "submission_error": "Submission Error",
-      "submission_error_desc": "Could not submit your documents. Please try again."
+      "submission_error_desc": "Could not submit your documents. Please check your connection and try again."
     },
     "notFound": {
       "title": "Oops! Page not found.",
       "description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
       "button": "Go to Homepage"
+    },
+     "errors": {
+        "titles": {
+            "loginFailed": "Login Failed",
+            "registrationFailed": "Registration Failed",
+            "formIncomplete": "Incomplete Form",
+            "uploadFailed": "Submission Failed",
+            "fileTooLarge": "File Too Large",
+            "transferFailed": "Transfer Failed",
+            "networkError": "Connection Error",
+            "unexpected": "An Error Occurred",
+            "passwordUpdateFailed": "Update Failed"
+        },
+        "messages": {
+            "auth": {
+                "wrongCredentials": "The email or password you entered is incorrect. Please check your information and try again.",
+                "emailInUse": "This email address is already in use. Please log in or use a different address.",
+                "emailNotVerified": "Please check your inbox and click the verification link before logging in.",
+                "weakPassword": "For your security, your password must be at least 6 characters long.",
+                "reauthRequired": "This is a sensitive operation and requires recent authentication. Please log in again and retry."
+            },
+            "forms": {
+                "incomplete": "Please fill out all required fields and correct any errors before continuing."
+            },
+            "files": {
+                "uploadFailed": "Your documents could not be sent. Please check your connection and try again.",
+                "sizeExceeded": "The file exceeds the maximum allowed size. Please choose a smaller file."
+            },
+            "api": {
+                "insufficientFunds": "Your balance is insufficient to perform this operation.",
+                "networkError": "Could not reach our servers. Please check your internet connection and try again.",
+                "unexpected": "A technical error occurred. Our team has been notified. Please try again in a few moments."
+            }
+        }
     }
 }
