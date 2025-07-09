@@ -67,8 +67,6 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   }
 
   const handleProceedToLogin = async () => {
-    // No need to logout, user state is not fully "logged in" yet from UI perspective.
-    // AuthProvider will handle the state change on login page.
     router.push(`/${lang}/login`);
   }
   
@@ -171,10 +169,8 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
             <AlertDialogTitle>{verifyDict.verificationSuccessTitle}</AlertDialogTitle>
             <AlertDialogDescription>
               {verifyDict.verificationSuccessDescription}
-              <p className="mt-4 text-sm text-muted-foreground">
-                {verifyDict.spamNote}
-              </p>
             </AlertDialogDescription>
+            <p className="pt-2 text-sm text-muted-foreground">{verifyDict.spamNote}</p>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={handleProceedToLogin}>
