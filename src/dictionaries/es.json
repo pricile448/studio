@@ -716,5 +716,11 @@
                 "unexpected": "Ocurrió un error técnico. Nuestro equipo ha sido notificado. Vuelva a intentarlo en unos momentos."
             }
         }
+    },
+    "errorPage": {
+        "title": "¡Vaya! Algo salió mal.",
+        "description": "Actualmente estamos experimentando dificultades técnicas. Nuestro equipo ha sido notificado y está trabajando para resolver el problema. Disculpe las molestias.",
+        "retryButton": "Intentar de nuevo",
+        "homeButton": "Volver al inicio"
     }
 }

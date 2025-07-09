@@ -560,7 +560,7 @@
         },
         "promotions": {
           "title": "E-mails de marketing",
-          "description": "Receba e-mails sobre novos produtos, recursos e promoções."
+          "description": "Receba e-mails sobre new products, features, and promotions."
         },
         "security": {
           "title": "Alertas de segurança",
@@ -716,5 +716,11 @@
                 "unexpected": "Ocorreu um erro técnico. Nossa equipe foi notificada. Tente novamente em alguns instantes."
             }
         }
+    },
+    "errorPage": {
+        "title": "Ups! Algo correu mal.",
+        "description": "Estamos a experienciar dificuldades técnicas. A nossa equipa foi notificada e está a trabalhar para resolver o problema. Pedimos desculpa pelo inconveniente.",
+        "retryButton": "Tentar Novamente",
+        "homeButton": "Voltar à Página Inicial"
     }
 }

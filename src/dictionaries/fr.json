@@ -187,7 +187,7 @@
         "codeInvalidError": "Le code doit comporter 6 chiffres.",
         "verifyButton": "Vérifier",
         "noCodePrompt": "Vous n'avez pas reçu de code ?",
-        "spamNote": "NB : En raison du grand nombre de demandes, il est possible que notre e-mail de bienvenue arrive dans votre dossier de courrier indésirable (spam). Pensez à vérifier."
+        "spamNote": "NB : Parfois, en raison d'une forte demande, notre e-mail de bienvenue peut se retrouver dans votre dossier de spam. Pensez à y jeter un œil."
     },
     "sidebar": {
       "dashboard": "Mon Espace Client",
@@ -536,7 +536,7 @@
         "saveButton": "Mettre à jour le mot de passe",
         "passwordUpdateSuccess": "Mot de passe mis à jour avec succès !",
         "passwordUpdateErrorTitle": "Échec de la mise à jour",
-        "reauthenticationRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter avant de réessayer.",
+        "reauthenticationRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter et réessayer.",
         "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
         "passwordMismatchError": "Les mots de passe ne correspondent pas.",
         "currentPasswordIncorrect": "Le mot de passe actuel est incorrect.",
@@ -719,5 +719,11 @@
                 "unexpected": "Une erreur technique s'est produite. Notre équipe a été prévenue. Veuillez réessayer dans quelques instants."
             }
         }
+    },
+    "errorPage": {
+        "title": "Oups ! Une erreur est survenue.",
+        "description": "Nous rencontrons actuellement des difficultés techniques. Notre équipe a été informée et travaille à la résolution du problème. Veuillez nous excuser pour la gêne occasionnée.",
+        "retryButton": "Réessayer",
+        "homeButton": "Retour à l'accueil"
     }
 }

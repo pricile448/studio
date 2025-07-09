@@ -533,7 +533,7 @@
         "saveButton": "Update Password",
         "passwordUpdateSuccess": "Password updated successfully!",
         "passwordUpdateErrorTitle": "Update Error",
-        "reauthenticationRequired": "This is a sensitive operation and requires recent authentication. Please log in again before retrying.",
+        "reauthenticationRequired": "This is a sensitive operation and requires recent authentication. Please log in again and retry.",
         "passwordLengthError": "Password must be at least 6 characters.",
         "passwordMismatchError": "Passwords do not match.",
         "currentPasswordIncorrect": "The current password is incorrect.",
@@ -716,5 +716,11 @@
                 "unexpected": "A technical error occurred. Our team has been notified. Please try again in a few moments."
             }
         }
+    },
+    "errorPage": {
+        "title": "Oops! Something went wrong.",
+        "description": "We are currently experiencing technical difficulties. Our team has been notified and is working to resolve the issue. We apologize for the inconvenience.",
+        "retryButton": "Try Again",
+        "homeButton": "Back to Home"
     }
 }

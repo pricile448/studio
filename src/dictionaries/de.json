@@ -716,5 +716,11 @@
                 "unexpected": "Ein technischer Fehler ist aufgetreten. Unser Team wurde benachrichtigt. Bitte versuchen Sie es in einigen Augenblicken erneut."
             }
         }
+    },
+    "errorPage": {
+      "title": "Hoppla! Etwas ist schief gelaufen.",
+      "description": "Wir haben derzeit technische Schwierigkeiten. Unser Team wurde benachrichtigt und arbeitet daran, das Problem zu beheben. Wir entschuldigen uns für die Unannehmlichkeiten.",
+      "retryButton": "Erneut versuchen",
+      "homeButton": "Zurück zur Startseite"
     }
 }
