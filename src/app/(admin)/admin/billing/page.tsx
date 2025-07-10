@@ -1,16 +1,6 @@
-
-import { BillingAdminClient } from '@/components/admin/billing-admin-client';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
-export default function AdminBillingPage() {
-    return (
-        <div className="h-full flex flex-col">
-            <h1 className="text-2xl md:text-3xl font-bold font-headline shrink-0 mb-6">Gestion de la Facturation</h1>
-            <div className="flex-1 min-h-0">
-                 <ScrollArea className="h-full">
-                    <BillingAdminClient />
-                </ScrollArea>
-            </div>
-        </div>
-    );
+// This page is deprecated. Billing management is now done on a per-user basis.
+// The logic has been moved to the user detail page in the admin panel.
+// This file is intentionally left empty to remove the route.
+export default function DeprecatedAdminBillingPage() {
+    return null;
 }

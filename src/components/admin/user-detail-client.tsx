@@ -6,7 +6,7 @@ import { type UserProfile, type Account, type Transaction, type Budget, addFunds
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff, Smartphone } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff, Smartphone, Receipt } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -45,7 +45,7 @@ const personalInfoSchema = z.object({
   phone: z.string().min(1, 'Téléphone requis'),
   dob: z.coerce.date({ required_error: 'Date de naissance requise' }),
   pob: z.string().min(1, 'Lieu de naissance requis'),
-  nationality: z.string().min(1, 'Nationalité requise'),
+  nationality: z.string().min(1, 'Nationalité requis'),
   residenceCountry: z.string().min(1, 'Pays de résidence requis'),
   address: z.string().min(1, 'Adresse requise'),
   city: z.string().min(1, 'Ville requise'),
@@ -1256,6 +1256,7 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                         <TabsTrigger value="budgets">Budgets</TabsTrigger>
                         <TabsTrigger value="iban">RIB</TabsTrigger>
                         <TabsTrigger value="cards">Cartes</TabsTrigger>
+                        <TabsTrigger value="billing">Facturation</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview">
                         <PersonalInformation user={user} onUpdate={handleUpdate} />
@@ -1276,6 +1277,9 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                     <TabsContent value="cards" className="space-y-6">
                         <PhysicalCardManagement user={user} onUpdate={handleUpdate} />
                         <VirtualCardManagement user={user} onUpdate={handleUpdate} />
+                    </TabsContent>
+                    <TabsContent value="billing">
+                        <IbanManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                 </Tabs>
             </div>
