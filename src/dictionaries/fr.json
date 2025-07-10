@@ -338,7 +338,19 @@
       "beneficiaryAddedDescription": "a été ajouté avec succès à votre liste de bénéficiaires.",
       "cancelButton": "Annuler",
       "unverified_title": "Effectuer un Virement",
-      "unverified_description": "Complétez votre vérification d'identité pour envoyer et recevoir de l'argent."
+      "unverified_description": "Complétez votre vérification d'identité pour envoyer et recevoir de l'argent.",
+      "validation": {
+          "title": "Confirmer le virement ?",
+          "description": "Pour des raisons de sécurité, votre virement sera soumis à une validation par nos équipes avant d'être exécuté. Le montant ne sera pas débité immédiatement. Voulez-vous continuer ?",
+          "confirmButton": "Confirmer et envoyer pour validation"
+      },
+      "beneficiaryListTitle": "Liste des bénéficiaires",
+      "noBeneficiaries": "Aucun bénéficiaire enregistré.",
+      "deleteBeneficiaryTitle": "Supprimer",
+      "deleteBeneficiaryDescription": "Êtes-vous sûr de vouloir supprimer ce bénéficiaire ? Cette action est définitive.",
+      "deleteButton": "Supprimer",
+      "beneficiaryDeleted": "Bénéficiaire supprimé",
+      "beneficiaryDeletedDescription": "Le bénéficiaire a été supprimé avec succès."
     },
     "cards": {
         "title": "Mes Cartes",

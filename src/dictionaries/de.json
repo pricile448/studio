@@ -339,7 +339,19 @@
       "beneficiaryAddedDescription": "wurde erfolgreich zu Ihrer Empfängerliste hinzugefügt.",
       "cancelButton": "Abbrechen",
       "unverified_title": "Eine Überweisung tätigen",
-      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um Geld zu senden und zu empfangen."
+      "unverified_description": "Schließen Sie Ihre Identitätsprüfung ab, um Geld zu senden und zu empfangen.",
+      "validation": {
+          "title": "Überweisung bestätigen?",
+          "description": "Aus Sicherheitsgründen wird Ihre Überweisung vor der Ausführung von unseren Teams validiert. Der Betrag wird nicht sofort abgebucht. Möchten Sie fortfahren?",
+          "confirmButton": "Bestätigen und zur Validierung senden"
+      },
+      "beneficiaryListTitle": "Liste der Begünstigten",
+      "noBeneficiaries": "Keine Begünstigten registriert.",
+      "deleteBeneficiaryTitle": "Löschen",
+      "deleteBeneficiaryDescription": "Sind Sie sicher, dass Sie diesen Begünstigten löschen möchten? Diese Aktion ist endgültig.",
+      "deleteButton": "Löschen",
+      "beneficiaryDeleted": "Begünstigter gelöscht",
+      "beneficiaryDeletedDescription": "Der Begünstigte wurde erfolgreich gelöscht."
     },
     "cards": {
         "title": "Meine Karten",

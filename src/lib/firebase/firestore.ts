@@ -678,8 +678,21 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
     throw new Error("Le compte de départ est introuvable.");
   }
 
-  if (fromAccount.balance < transferData.amount) {
-      throw new Error("Solde insuffisant pour effectuer cette opération.");
+  const pendingOutgoingTransfers = (userData.transactions || []).filter(
+    (tx: any) =>
+      tx.type === 'outgoing_transfer' &&
+      ['pending', 'in_progress', 'in_review'].includes(tx.status)
+  );
+
+  const pendingAmount = pendingOutgoingTransfers.reduce(
+    (sum: number, tx: any) => sum + Math.abs(tx.amount),
+    0
+  );
+
+  const availableBalance = fromAccount.balance - pendingAmount;
+
+  if (availableBalance < transferData.amount) {
+      throw new Error("Solde insuffisant pour effectuer cette opération, en tenant compte des virements déjà en cours.");
   }
 
   const newTransaction: Omit<Transaction, 'id'> & { date: Timestamp } = {

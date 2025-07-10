@@ -339,7 +339,19 @@
       "beneficiaryAddedDescription": "foi adicionado com sucesso à sua lista de beneficiários.",
       "cancelButton": "Cancelar",
       "unverified_title": "Fazer uma Transferência",
-      "unverified_description": "Complete a sua verificação de identidade para enviar e receber dinheiro."
+      "unverified_description": "Complete a sua verificação de identidade para enviar e receber dinheiro.",
+      "validation": {
+          "title": "Confirmar a transferência?",
+          "description": "Por razões de segurança, a sua transferência será submetida a uma validação pelas nossas equipas antes de ser executada. O montante não será debitado imediatamente. Deseja continuar?",
+          "confirmButton": "Confirmar e enviar para validação"
+      },
+      "beneficiaryListTitle": "Lista de Beneficiários",
+      "noBeneficiaries": "Nenhum beneficiário registado.",
+      "deleteBeneficiaryTitle": "Eliminar",
+      "deleteBeneficiaryDescription": "Tem a certeza que deseja eliminar este beneficiário? Esta ação é definitiva.",
+      "deleteButton": "Eliminar",
+      "beneficiaryDeleted": "Beneficiário eliminado",
+      "beneficiaryDeletedDescription": "O beneficiário foi eliminado com sucesso."
     },
     "cards": {
         "title": "Meus Cartões",

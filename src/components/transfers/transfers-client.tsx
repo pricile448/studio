@@ -87,8 +87,8 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         beneficiaryName: selectedBeneficiary?.name || 'N/A'
       });
       toast({
-        title: "Demande de virement envoyée",
-        description: 'Votre demande de virement a été envoyée et est en attente de validation.',
+        title: transfersDict.validation.title,
+        description: transfersDict.validation.description,
       });
       form.reset({
           fromAccountId: '',
@@ -116,8 +116,8 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
     try {
         await deleteBeneficiary(beneficiaryId);
         toast({
-            title: "Bénéficiaire supprimé",
-            description: "Le bénéficiaire a été supprimé avec succès."
+            title: transfersDict.beneficiaryDeleted,
+            description: transfersDict.beneficiaryDeletedDescription,
         });
     } catch (error) {
         toast({
@@ -261,7 +261,7 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
 
             <Card>
                 <CardHeader className="flex flex-col items-stretch gap-4 md:flex-row md:items-center md:justify-between pb-2">
-                    <CardTitle className="text-lg">Liste des bénéficiaires</CardTitle>
+                    <CardTitle className="text-lg">{transfersDict.beneficiaryListTitle}</CardTitle>
                     <AddBeneficiaryDialog dict={transfersDict} onBeneficiaryAdded={refreshUserProfile} />
                 </CardHeader>
                 <CardContent>
@@ -280,20 +280,20 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                   <AlertDialogHeader>
-                                      <AlertDialogTitle>Supprimer {b.name} ?</AlertDialogTitle>
+                                      <AlertDialogTitle>{transfersDict.deleteBeneficiaryTitle} {b.name} ?</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Êtes-vous sûr de vouloir supprimer ce bénéficiaire ? Cette action est définitive.
+                                        {transfersDict.deleteBeneficiaryDescription}
                                       </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleDeleteBeneficiary(b.id)} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                                      <AlertDialogCancel>{transfersDict.cancelButton}</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteBeneficiary(b.id)} className="bg-destructive hover:bg-destructive/90">{transfersDict.deleteButton}</AlertDialogAction>
                                   </AlertDialogFooter>
                               </AlertDialogContent>
                           </AlertDialog>
                         </div>
                       )) : (
-                        <p className="text-muted-foreground text-center py-8">Aucun bénéficiaire enregistré.</p>
+                        <p className="text-muted-foreground text-center py-8">{transfersDict.noBeneficiaries}</p>
                       )}
                     </div>
                 </CardContent>
@@ -359,15 +359,15 @@ export function TransfersClient({ dict, lang }: TransfersClientProps) {
         <AlertDialog open={isConfirming} onOpenChange={setIsConfirming}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Confirmer le virement ?</AlertDialogTitle>
+                    <AlertDialogTitle>{transfersDict.validation.title}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Pour des raisons de sécurité, votre virement sera soumis à une validation par nos équipes avant d'être exécuté. Le montant ne sera pas débité immédiatement. Voulez-vous continuer ?
+                        {transfersDict.validation.description}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setTransferData(null)}>Annuler</AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => setTransferData(null)}>{transfersDict.cancelButton}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleTransfer} disabled={isSubmitting}>
-                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : "Confirmer et envoyer pour validation"}
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : transfersDict.validation.confirmButton}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
