@@ -17,7 +17,8 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggleButton } from '@/components/home/theme-toggle-button';
-import { AnimatedFeatures } from '@/components/home/animated-features';
+import { AnimatedFeaturesLoader } from '@/components/home/animated-features-loader';
+
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
