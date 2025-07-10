@@ -152,6 +152,7 @@ export type UserProfile = {
   virtualCardRequestedAt?: Date;
   iban?: string;
   bic?: string;
+  billingText?: string;
   accounts: Account[];
   transactions: Transaction[];
   beneficiaries: Beneficiary[];

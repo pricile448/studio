@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -31,6 +32,7 @@ import { Timestamp, serverTimestamp, deleteField } from 'firebase/firestore';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 
 
 const { db: adminDb } = getFirebaseServices('admin');
@@ -175,6 +177,7 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
 const ibanSchema = z.object({
   iban: z.string().min(1, 'IBAN est requis'),
   bic: z.string().min(1, 'BIC est requis'),
+  billingText: z.string().optional(),
 });
 type IbanFormValues = z.infer<typeof ibanSchema>;
 
@@ -183,7 +186,11 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
     const [isSubmitting, setIsSubmitting] = useState(false);
     const form = useForm<IbanFormValues>({
         resolver: zodResolver(ibanSchema),
-        defaultValues: { iban: user.iban || '', bic: user.bic || '' }
+        defaultValues: { 
+            iban: user.iban || '', 
+            bic: user.bic || '',
+            billingText: user.billingText || '',
+        }
     });
 
     const handleSubmit = async (data: IbanFormValues) => {
@@ -203,13 +210,14 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
         <Card>
             <CardHeader>
                 <CardTitle>Gestion du RIB / IBAN</CardTitle>
-                <CardDescription>Gérer les informations bancaires de l'utilisateur.</CardDescription>
+                <CardDescription>Gérer les informations bancaires de l'utilisateur pour la facturation.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                         <FormField control={form.control} name="iban" render={({ field }) => (<FormItem><FormLabel>IBAN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="bic" render={({ field }) => (<FormItem><FormLabel>BIC</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="billingText" render={({ field }) => (<FormItem><FormLabel>Texte d'accompagnement</FormLabel><FormControl><Textarea placeholder="Instructions de paiement, référence client, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer le RIB</Button>
                     </form>
                 </Form>
