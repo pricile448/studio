@@ -25,44 +25,88 @@ function PendingTable({ submissions, onAction, actionInProgressId }: { submissio
         return <p className="p-6 text-center text-muted-foreground">Aucune demande de vérification en attente.</p>;
     }
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Date de soumission</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {submissions.map(submission => (
-                    <TableRow key={submission.uid}>
-                        <TableCell>{submission.userName}</TableCell>
-                        <TableCell>{submission.userEmail}</TableCell>
-                        <TableCell>{format(submission.submittedAt, 'dd MMMM yyyy', { locale: fr })}</TableCell>
-                        <TableCell className="text-right space-x-2">
-                           {actionInProgressId === submission.uid ? (
-                                <Button variant="outline" size="sm" disabled>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                </Button>
-                            ) : (
-                                <>
-                                    <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => onAction(submission, 'approved')}>
-                                        <CheckCircle className="h-5 w-5" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700 hover:bg-red-100" onClick={() => onAction(submission, 'rejected')}>
-                                        <XCircle className="h-5 w-5" />
-                                    </Button>
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={`/admin/users/${submission.uid}`}>Voir</Link>
-                                    </Button>
-                                </>
-                            )}
-                        </TableCell>
+      <>
+        {/* Desktop View */}
+        <div className="hidden md:block">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Nom</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Date de soumission</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {submissions.map(submission => (
+                        <TableRow key={submission.uid}>
+                            <TableCell>{submission.userName}</TableCell>
+                            <TableCell>{submission.userEmail}</TableCell>
+                            <TableCell>{format(submission.submittedAt, 'dd MMMM yyyy', { locale: fr })}</TableCell>
+                            <TableCell className="text-right space-x-2">
+                            {actionInProgressId === submission.uid ? (
+                                    <Button variant="outline" size="sm" disabled>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => onAction(submission, 'approved')}>
+                                            <CheckCircle className="h-5 w-5" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700 hover:bg-red-100" onClick={() => onAction(submission, 'rejected')}>
+                                            <XCircle className="h-5 w-5" />
+                                        </Button>
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href={`/admin/users/${submission.uid}`}>Voir</Link>
+                                        </Button>
+                                    </>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+        
+        {/* Mobile View */}
+        <div className="md:hidden">
+          <div className="space-y-4">
+            {submissions.map(submission => (
+              <div key={submission.uid} className="border rounded-lg p-4 space-y-3">
+                <div>
+                  <p className="font-semibold">{submission.userName}</p>
+                  <p className="text-sm text-muted-foreground">{submission.userEmail}</p>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Soumis le {format(submission.submittedAt, "dd MMM yyyy", { locale: fr })}
+                </div>
+                <div className="flex justify-between items-center text-sm pt-2 border-t">
+                  <p className="text-muted-foreground">Actions</p>
+                   <div className="text-right space-x-2">
+                      {actionInProgressId === submission.uid ? (
+                          <Button variant="outline" size="sm" disabled>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                          </Button>
+                      ) : (
+                          <>
+                              <Button variant="ghost" size="icon" className="text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => onAction(submission, 'approved')}>
+                                  <CheckCircle className="h-5 w-5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="text-red-600 hover:text-red-700 hover:bg-red-100" onClick={() => onAction(submission, 'rejected')}>
+                                  <XCircle className="h-5 w-5" />
+                              </Button>
+                              <Button asChild variant="outline" size="sm">
+                                  <Link href={`/admin/users/${submission.uid}`}>Voir</Link>
+                              </Button>
+                          </>
+                      )}
+                    </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
     )
 }
 
@@ -80,28 +124,54 @@ function HistoryTable({ submissions }: { submissions: KycSubmission[] }) {
     }
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Date de soumission</TableHead>
-                    <TableHead>Date de traitement</TableHead>
-                    <TableHead className="text-right">Statut</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {submissions.map(submission => (
-                    <TableRow key={submission.uid}>
-                        <TableCell>{submission.userName}</TableCell>
-                        <TableCell>{submission.userEmail}</TableCell>
-                        <TableCell>{format(submission.submittedAt, 'dd MMMM yyyy', { locale: fr })}</TableCell>
-                        <TableCell>{submission.processedAt ? format(submission.processedAt, 'dd MMMM yyyy', { locale: fr }) : '-'}</TableCell>
-                        <TableCell className="text-right">{getStatusBadge(submission.status)}</TableCell>
+      <>
+        {/* Desktop View */}
+        <div className="hidden md:block">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Nom</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Date de soumission</TableHead>
+                        <TableHead>Date de traitement</TableHead>
+                        <TableHead className="text-right">Statut</TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {submissions.map(submission => (
+                        <TableRow key={submission.uid}>
+                            <TableCell>{submission.userName}</TableCell>
+                            <TableCell>{submission.userEmail}</TableCell>
+                            <TableCell>{format(submission.submittedAt, 'dd MMMM yyyy', { locale: fr })}</TableCell>
+                            <TableCell>{submission.processedAt ? format(submission.processedAt, 'dd MMMM yyyy', { locale: fr }) : '-'}</TableCell>
+                            <TableCell className="text-right">{getStatusBadge(submission.status)}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+
+         {/* Mobile View */}
+        <div className="md:hidden">
+          <div className="space-y-4">
+            {submissions.map(submission => (
+              <div key={submission.uid} className="border rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold">{submission.userName}</p>
+                    <p className="text-sm text-muted-foreground">{submission.userEmail}</p>
+                  </div>
+                   {getStatusBadge(submission.status)}
+                </div>
+                <div className="text-sm text-muted-foreground pt-2 border-t">
+                  <p>Soumis le: {format(submission.submittedAt, "dd MMM yyyy", { locale: fr })}</p>
+                   {submission.processedAt && <p>Traité le: {format(submission.processedAt, "dd MMM yyyy", { locale: fr })}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
     )
 }
 
@@ -179,13 +249,13 @@ export function KycAdminClient() {
                         <TabsTrigger value="history_approved"><CheckCircle className="mr-2 h-4 w-4 text-green-600"/>Approuvées</TabsTrigger>
                         <TabsTrigger value="history_rejected"><XCircle className="mr-2 h-4 w-4 text-red-600"/>Rejetées</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="pending">
+                    <TabsContent value="pending" className="pt-4">
                         <PendingTable submissions={pendingSubmissions} onAction={handleKycAction} actionInProgressId={updatingId} />
                     </TabsContent>
-                    <TabsContent value="history_approved">
+                    <TabsContent value="history_approved" className="pt-4">
                         <HistoryTable submissions={approvedSubmissions} />
                     </TabsContent>
-                     <TabsContent value="history_rejected">
+                     <TabsContent value="history_rejected" className="pt-4">
                         <HistoryTable submissions={rejectedSubmissions} />
                     </TabsContent>
                 </Tabs>
