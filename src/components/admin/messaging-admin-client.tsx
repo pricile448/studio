@@ -203,19 +203,19 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                 </DialogContent>
             </Dialog>
 
-            <CardHeader>
+            <div className="flex-shrink-0 border-b p-4">
                 <div className="flex items-center gap-2">
                     {isMobile && onBack && (
                          <Button variant="ghost" size="icon" className="-ml-2 h-8 w-8 shrink-0" onClick={onBack}>
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                     )}
-                    <CardTitle className="truncate">Conversation avec {chatSession.otherParticipant.name}</CardTitle>
+                    <h3 className="text-lg font-semibold truncate">Conversation avec {chatSession.otherParticipant.name}</h3>
                 </div>
-            </CardHeader>
-            <Separator />
-            <ScrollArea className="flex-1 min-h-0 p-4">
-                <div className="space-y-4">
+            </div>
+
+            <ScrollArea className="flex-1 min-h-0">
+                <div className="p-4 space-y-4">
                     {messages.map((msg) => {
                         const isAdmin = msg.senderId === adminId;
 
@@ -280,7 +280,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                 </div>
                 <div ref={scrollAreaEndRef} />
             </ScrollArea>
-            <div className="p-4 border-t bg-background">
+            <div className="p-4 border-t bg-background flex-shrink-0">
                 <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                     <Input
                         value={newMessage}
