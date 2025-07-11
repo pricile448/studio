@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useTransition } from 'react';
 import { collection, query, onSnapshot, Timestamp, orderBy } from 'firebase/firestore';
 import type { ChatMessage, UserProfile } from '@/lib/firebase/firestore';
 import { addMessageToChat, getUserFromFirestore, getAllUsers, getOrCreateChatId } from '@/lib/firebase/firestore';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -431,11 +431,9 @@ export function MessagingAdminClient() {
                 <div className="flex items-center justify-between">
                     <CardTitle>Conversations</CardTitle>
                     <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={handleOpenNewChatDialog}>
+                      <DialogTrigger className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))} onClick={handleOpenNewChatDialog}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Nouvelle
-                        </Button>
                       </DialogTrigger>
                       <DialogContent>
                           <DialogHeader>
@@ -488,11 +486,12 @@ export function MessagingAdminClient() {
                             <AlertDialog>
                                 <AlertDialogTrigger
                                     onClick={(e) => e.stopPropagation()}
-                                    className="group-hover:opacity-100 transition-opacity opacity-0"
+                                    className={cn(
+                                        buttonVariants({ variant: 'ghost', size: 'icon'}),
+                                        "group-hover:opacity-100 transition-opacity opacity-0 h-8 w-8 shrink-0"
+                                    )}
                                 >
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                                        <RefreshCw className="h-4 w-4 text-destructive" />
-                                    </Button>
+                                    <RefreshCw className="h-4 w-4 text-destructive" />
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
