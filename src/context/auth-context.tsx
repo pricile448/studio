@@ -5,7 +5,6 @@ import * as React from 'react';
 import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut, reload, updatePassword, UserCredential, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { updateUserInFirestore } from '@/lib/firebase/firestore';
-import { verifyEmailCode } from '@/ai/flows/verify-email-code-flow';
 
 
 // Initialize default (client-side) Firebase services
@@ -17,7 +16,6 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateUserPassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
-  verifyCode: (code: string) => Promise<{ success: boolean; error?: string }>;
 };
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -52,17 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: 'api.unexpected' };
     }
   };
-  
-  const verifyCode = async (code: string) => {
-    if (!auth.currentUser) throw new Error("No user is signed in.");
-    const result = await verifyEmailCode({ userId: auth.currentUser.uid, code });
-    if (result.success) {
-      await reload(auth.currentUser);
-      // Create a new user object to ensure state update, as reload mutates the existing one.
-      setUser({ ...auth.currentUser });
-    }
-    return result;
-  };
 
   const logout = async () => {
     await signOut(auth);
@@ -88,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const value = { user, loading, login, logout, updateUserPassword, verifyCode };
+  const value = { user, loading, login, logout, updateUserPassword };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

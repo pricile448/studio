@@ -25,6 +25,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
+import { verifyEmailCode } from '@/ai/flows/verify-email-code-flow';
+import { reload } from 'firebase/auth';
 
 const verifyCodeSchema = (dict: any) => z.object({
   code: z.string().min(6, { message: dict.codeInvalidError }),
@@ -36,7 +38,7 @@ interface VerifyEmailClientProps {
 }
 
 export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
-  const { user, loading, verifyCode } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,18 +78,26 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   }
   
   const onSubmit = async (data: z.infer<ReturnType<typeof verifyCodeSchema>>) => {
+    if (!user) return;
     setIsSubmitting(true);
-    const result = await verifyCode(data.code);
-    setIsSubmitting(false);
 
-    if (result.success) {
-      setShowSuccessDialog(true);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: "La vérification a échoué",
-        description: result.error || "Une erreur inconnue est survenue.",
-      });
+    try {
+        const result = await verifyEmailCode({ userId: user.uid, code: data.code });
+        
+        if (result.success) {
+            await reload(user);
+            setShowSuccessDialog(true);
+        } else {
+            throw new Error(result.error || "Une erreur inconnue est survenue.");
+        }
+    } catch (error: any) {
+         toast({
+            variant: 'destructive',
+            title: "La vérification a échoué",
+            description: error.message,
+        });
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
