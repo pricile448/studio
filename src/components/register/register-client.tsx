@@ -21,6 +21,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+import { createUserDocument } from '@/ai/flows/create-user-document-flow';
+import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
 
 const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -52,7 +56,6 @@ interface RegisterClientProps {
 }
 
 export function RegisterClient({ dict, lang }: RegisterClientProps) {
-  const { signup } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -84,20 +87,57 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsSubmitting(true);
     const { password, confirmPassword, terms, ...userData } = data;
-    const result = await signup(userData, password);
+    
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
+      const { user } = userCredential;
 
-    if (result.success) {
-      router.push(`/${lang}/verify-email`);
-    } else {
-      const errorKey = result.error as keyof typeof dict.errors.messages.auth;
-      const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
-      toast({
-        variant: 'destructive',
-        title: dict.errors.titles.registrationFailed,
-        description: message,
+      await updateProfile(user, {
+        displayName: `${userData.firstName} ${userData.lastName}`
       });
+
+      const createUserDocResult = await createUserDocument({
+          ...userData,
+          uid: user.uid,
+          dob: userData.dob.toISOString(), // Pass date as ISO string
+      });
+      
+      if (!createUserDocResult || !createUserDocResult.success) {
+          throw new Error(createUserDocResult?.error || "La création du profil utilisateur a échoué.");
+      }
+      
+      const sendCodeResult = await sendVerificationCode({
+          userId: user.uid,
+          email: user.email!,
+          userName: userData.firstName,
+      });
+
+      if (!sendCodeResult || !sendCodeResult.success) {
+        throw new Error(sendCodeResult?.error || "Échec de l'envoi de l'e-mail de vérification.");
+      }
+      router.push(`/${lang}/verify-email`);
+
+    } catch (error: any) {
+        if (auth.currentUser) {
+            await auth.currentUser.delete().catch(e => console.error("Failed to delete temporary auth user:", e));
+        }
+        
+        const errorKey = (
+            error.code === 'auth/email-already-in-use' ? 'emailInUse' :
+            error.code === 'auth/weak-password' ? 'weakPassword' :
+            'api.unexpected'
+        ) as keyof typeof dict.errors.messages.auth;
+
+        const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
+        
+        toast({
+            variant: 'destructive',
+            title: dict.errors.titles.registrationFailed,
+            description: message,
+        });
+    } finally {
+        setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   if (!dict) {

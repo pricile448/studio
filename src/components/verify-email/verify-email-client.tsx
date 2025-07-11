@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
 
 const verifyCodeSchema = (dict: any) => z.object({
   code: z.string().min(6, { message: dict.codeInvalidError }),
@@ -35,7 +36,7 @@ interface VerifyEmailClientProps {
 }
 
 export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
-  const { user, loading, resendVerificationEmail, logout, verifyCode } = useAuth();
+  const { user, loading, verifyCode } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,9 +49,10 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   });
 
   const handleResendEmail = async () => {
+    if (!user?.email || !user?.displayName) return;
     setIsResending(true);
     try {
-        await resendVerificationEmail();
+        await sendVerificationCode({ userId: user.uid, email: user.email, userName: user.displayName.split(' ')[0] });
         toast({
             title: dict?.verifyEmail.emailSent || 'E-mail envoyé !',
             description: dict?.verifyEmail.emailSentDescription || 'Un nouvel e-mail de vérification a été envoyé à votre adresse.',
@@ -67,7 +69,7 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   }
 
   const handleProceedToLogin = async () => {
-    router.push(`/${lang}/login`);
+    router.push(`/${lang}/dashboard`);
   }
   
   const onSubmit = async (data: z.infer<ReturnType<typeof verifyCodeSchema>>) => {

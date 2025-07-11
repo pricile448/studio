@@ -16,9 +16,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (userData: RegistrationData, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  resendVerificationEmail: () => Promise<void>;
   updateUserPassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   verifyCode: (code: string) => Promise<{ success: boolean; error?: string }>;
 };
@@ -42,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
         if (!userCredential.user.emailVerified) {
-             return { success: false, error: 'emailNotVerified' };
+             // This case is now handled in the verify-email logic directly
         }
 
         if (userCredential.user.metadata.lastSignInTime) {
@@ -59,60 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: 'api.unexpected' };
     }
   };
-
-  const signup = async (userData: RegistrationData, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
-      const { user } = userCredential;
-
-      await updateProfile(user, {
-        displayName: `${userData.firstName} ${userData.lastName}`
-      });
-
-      const createUserDocResult = await createUserDocument({
-          ...userData,
-          uid: user.uid,
-          dob: userData.dob.toISOString(), // Pass date as ISO string
-      });
-      
-      if (!createUserDocResult || !createUserDocResult.success) {
-          throw new Error(createUserDocResult?.error || "La création du profil utilisateur a échoué.");
-      }
-      
-      const sendCodeResult = await sendVerificationCode({
-          userId: user.uid,
-          email: user.email!,
-          userName: userData.firstName,
-      });
-
-      if (!sendCodeResult || !sendCodeResult.success) {
-        throw new Error(sendCodeResult?.error || "Échec de l'envoi de l'e-mail de vérification.");
-      }
-      return { success: true };
-    } catch (error: any) {
-        if (auth.currentUser) {
-            await auth.currentUser.delete().catch(e => console.error("Failed to delete temporary auth user:", e));
-        }
-        
-        if (error.code === 'auth/email-already-in-use') {
-          return { success: false, error: 'emailInUse' };
-        }
-        if (error.code === 'auth/weak-password') {
-          return { success: false, error: 'weakPassword' };
-        }
-
-        console.error("Unexpected Firebase Signup Error:", error);
-        return { success: false, error: 'api.unexpected' };
-    }
-  };
-  
-  const resendVerificationEmail = async () => {
-    if (auth.currentUser) {
-      await sendEmailVerification(auth.currentUser);
-    } else {
-        throw new Error("No user is signed in to resend verification email.");
-    }
-  }
   
   const verifyCode = async (code: string) => {
     if (!auth.currentUser) throw new Error("No user is signed in.");
@@ -148,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const value = { user, loading, login, signup, logout, resendVerificationEmail, updateUserPassword, verifyCode };
+  const value = { user, loading, login, logout, updateUserPassword, verifyCode };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
