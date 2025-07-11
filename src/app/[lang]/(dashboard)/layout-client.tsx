@@ -1,10 +1,12 @@
+
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import type { Locale, Dictionary } from '@/lib/dictionaries';
+import { UserProfileProvider } from '@/context/user-profile-context';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { useUserProfile } from '@/context/user-profile-context';
-import type { Locale, Dictionary } from '@/lib/dictionaries';
 import {
   SidebarProvider,
   Sidebar,
@@ -53,7 +55,8 @@ import {
 } from '@/components/ui/sheet';
 import { BalanceToggle } from '@/components/ui/balance-toggle';
 
-export function DashboardLayoutClient({
+
+function DashboardContent({
   children,
   dict,
   lang,
@@ -299,5 +302,23 @@ export function DashboardLayoutClient({
           </AlertDialogContent>
         </AlertDialog>
     </SidebarProvider>
+  );
+}
+
+export function DashboardLayoutClient({
+  children,
+  dict,
+  lang,
+}: {
+  children: React.ReactNode;
+  dict: Dictionary;
+  lang: Locale;
+}) {
+  return (
+    <UserProfileProvider>
+      <DashboardContent dict={dict} lang={lang}>
+        {children}
+      </DashboardContent>
+    </UserProfileProvider>
   );
 }
