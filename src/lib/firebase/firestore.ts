@@ -150,10 +150,14 @@ export type UserProfile = {
   };
   hasPendingVirtualCardRequest?: boolean;
   virtualCardRequestedAt?: Date;
+  // User's own IBAN details
   iban?: string;
   bic?: string;
+  // Bank's billing details to show to the user
   billingText?: string;
   billingHolder?: string;
+  billingIban?: string;
+  billingBic?: string;
   accounts: Account[];
   transactions: Transaction[];
   beneficiaries: Beneficiary[];
@@ -793,3 +797,4 @@ export async function updateBillingConfig(config: BillingConfig, db: Firestore =
   const configRef = doc(db, "config", "billing");
   await setDoc(configRef, config, { merge: true });
 }
+

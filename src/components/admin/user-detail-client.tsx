@@ -7,7 +7,7 @@ import { type UserProfile, type Account, type Transaction, type Budget, addFunds
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff, Smartphone, Receipt } from 'lucide-react';
+import { ArrowLeft, Banknote, Landmark, CreditCard, Loader2, MoreVertical, Edit, Ban, RefreshCw, Trash2, Eye, History, PieChart, FileText, Link as LinkIcon, AlertTriangle, PlusCircle, CheckCircle, Info, EyeOff, Smartphone, Receipt, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
@@ -174,28 +174,30 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
     );
 }
 
-const ibanSchema = z.object({
+// User's own IBAN for receiving payments
+const userIbanSchema = z.object({
   iban: z.string().min(1, 'IBAN est requis'),
   bic: z.string().min(1, 'BIC est requis'),
-  billingText: z.string().optional(),
-  billingHolder: z.string().optional(),
 });
-type IbanFormValues = z.infer<typeof ibanSchema>;
+type UserIbanFormValues = z.infer<typeof userIbanSchema>;
 
-function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+function UserIbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const form = useForm<IbanFormValues>({
-        resolver: zodResolver(ibanSchema),
+    
+    const form = useForm<UserIbanFormValues>({
+        resolver: zodResolver(userIbanSchema),
         defaultValues: { 
             iban: user.iban || '', 
             bic: user.bic || '',
-            billingText: user.billingText || '',
-            billingHolder: user.billingHolder || '',
         }
     });
 
-    const handleSubmit = async (data: IbanFormValues) => {
+    useEffect(() => {
+        form.reset({ iban: user.iban || '', bic: user.bic || '' });
+    }, [user, form]);
+    
+    const handleSubmit = async (data: UserIbanFormValues) => {
         setIsSubmitting(true);
         try {
             await updateUserInFirestore(user.uid, data, adminDb);
@@ -207,21 +209,150 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
             setIsSubmitting(false);
         }
     };
+    
+    const handleReset = async () => {
+        setIsSubmitting(true);
+        try {
+            const resetData = { iban: deleteField(), bic: deleteField() };
+            await updateUserInFirestore(user.uid, resetData as any, adminDb);
+            const updatedUser = { ...user, iban: undefined, bic: undefined };
+            onUpdate(updatedUser);
+            form.reset({ iban: '', bic: '' });
+            toast({ title: 'Réinitialisé', description: 'Les informations RIB de l\'utilisateur ont été effacées.' });
+        } catch (error) {
+             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Gestion du RIB / IBAN</CardTitle>
-                <CardDescription>Gérer les informations bancaires de l'utilisateur pour la facturation.</CardDescription>
+                <CardTitle>RIB de l'utilisateur</CardTitle>
+                <CardDescription>Gérer le RIB de l'utilisateur, qui sera utilisé pour qu'il reçoive des virements.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                        <FormField control={form.control} name="iban" render={({ field }) => (<FormItem><FormLabel>IBAN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="bic" render={({ field }) => (<FormItem><FormLabel>BIC</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <div className="flex flex-wrap gap-2">
+                            <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer le RIB</Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button type="button" variant="outline" disabled={!user.iban && !user.bic}><RotateCcw className="mr-2 h-4 w-4" /> Réinitialiser</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader><AlertDialogTitle>Réinitialiser le RIB ?</AlertDialogTitle><AlertDialogDescription>Cette action effacera l'IBAN et le BIC enregistrés pour cet utilisateur.</AlertDialogDescription></AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleReset}>Confirmer</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
+    );
+}
+
+// Bank's billing info to be shown to the user
+const billingInfoSchema = z.object({
+  billingHolder: z.string().min(1, 'Nom du titulaire requis'),
+  billingIban: z.string().min(1, 'IBAN est requis'),
+  billingBic: z.string().min(1, 'BIC est requis'),
+  billingText: z.string().optional(),
+});
+type BillingInfoFormValues = z.infer<typeof billingInfoSchema>;
+
+function BillingInfoManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
+    const { toast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const form = useForm<BillingInfoFormValues>({
+        resolver: zodResolver(billingInfoSchema),
+        defaultValues: { 
+            billingHolder: user.billingHolder || '',
+            billingIban: user.billingIban || '', 
+            billingBic: user.billingBic || '',
+            billingText: user.billingText || '',
+        }
+    });
+
+    useEffect(() => {
+        form.reset({ 
+            billingHolder: user.billingHolder || '',
+            billingIban: user.billingIban || '', 
+            billingBic: user.billingBic || '',
+            billingText: user.billingText || '',
+        });
+    }, [user, form]);
+    
+    const handleSubmit = async (data: BillingInfoFormValues) => {
+        setIsSubmitting(true);
+        try {
+            await updateUserInFirestore(user.uid, data, adminDb);
+            onUpdate({ ...user, ...data });
+            toast({ title: "Succès", description: "Informations de facturation mises à jour." });
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    
+    const handleReset = async () => {
+        setIsSubmitting(true);
+        try {
+            const resetData = {
+                billingHolder: deleteField(),
+                billingIban: deleteField(),
+                billingBic: deleteField(),
+                billingText: deleteField(),
+            };
+            await updateUserInFirestore(user.uid, resetData as any, adminDb);
+            const updatedUser = { ...user, billingHolder: undefined, billingIban: undefined, billingBic: undefined, billingText: undefined };
+            onUpdate(updatedUser);
+            form.reset({ billingHolder: '', billingIban: '', billingBic: '', billingText: '' });
+            toast({ title: 'Réinitialisé', description: 'Les informations de facturation ont été effacées.' });
+        } catch (error) {
+             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Informations de Facturation</CardTitle>
+                <CardDescription>Gérer les informations bancaires de la banque à afficher à l'utilisateur pour le paiement des factures.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                         <FormField control={form.control} name="billingHolder" render={({ field }) => (<FormItem><FormLabel>Nom du titulaire</FormLabel><FormControl><Input placeholder="Nom complet du titulaire du compte" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="iban" render={({ field }) => (<FormItem><FormLabel>IBAN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="bic" render={({ field }) => (<FormItem><FormLabel>BIC</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="billingIban" render={({ field }) => (<FormItem><FormLabel>IBAN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="billingBic" render={({ field }) => (<FormItem><FormLabel>BIC</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="billingText" render={({ field }) => (<FormItem><FormLabel>Texte d'accompagnement</FormLabel><FormControl><Textarea placeholder="Instructions de paiement, référence client, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer le RIB</Button>
+                        <div className="flex flex-wrap gap-2">
+                          <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Enregistrer les informations</Button>
+                           <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button type="button" variant="outline" disabled={!user.billingIban && !user.billingHolder}><RotateCcw className="mr-2 h-4 w-4" /> Réinitialiser</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader><AlertDialogTitle>Réinitialiser les informations ?</AlertDialogTitle><AlertDialogDescription>Cette action effacera toutes les informations de facturation pour cet utilisateur.</AlertDialogDescription></AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleReset}>Confirmer</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
                     </form>
                 </Form>
             </CardContent>
@@ -1283,17 +1414,18 @@ export function UserDetailClient({ userProfile }: UserDetailClientProps) {
                         <BudgetsManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="iban">
-                        <IbanManagement user={user} onUpdate={handleUpdate} />
+                        <UserIbanManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="cards" className="space-y-6">
                         <PhysicalCardManagement user={user} onUpdate={handleUpdate} />
                         <VirtualCardManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                     <TabsContent value="billing">
-                        <IbanManagement user={user} onUpdate={handleUpdate} />
+                        <BillingInfoManagement user={user} onUpdate={handleUpdate} />
                     </TabsContent>
                 </Tabs>
             </div>
         </div>
     );
 }
+
