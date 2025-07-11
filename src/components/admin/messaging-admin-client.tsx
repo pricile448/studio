@@ -100,7 +100,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
     }, [chatSession.id, adminDb]);
 
     useEffect(() => {
-        setTimeout(() => scrollAreaEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        setTimeout(() => scrollAreaEndRef.current?.scrollIntoView({ behavior: 'auto' }), 100);
     }, [messages]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
