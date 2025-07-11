@@ -153,6 +153,7 @@ export type UserProfile = {
   iban?: string;
   bic?: string;
   billingText?: string;
+  billingHolder?: string;
   accounts: Account[];
   transactions: Transaction[];
   beneficiaries: Beneficiary[];

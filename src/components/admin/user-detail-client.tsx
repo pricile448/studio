@@ -178,6 +178,7 @@ const ibanSchema = z.object({
   iban: z.string().min(1, 'IBAN est requis'),
   bic: z.string().min(1, 'BIC est requis'),
   billingText: z.string().optional(),
+  billingHolder: z.string().optional(),
 });
 type IbanFormValues = z.infer<typeof ibanSchema>;
 
@@ -190,6 +191,7 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
             iban: user.iban || '', 
             bic: user.bic || '',
             billingText: user.billingText || '',
+            billingHolder: user.billingHolder || '',
         }
     });
 
@@ -215,6 +217,7 @@ function IbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (upda
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                        <FormField control={form.control} name="billingHolder" render={({ field }) => (<FormItem><FormLabel>Nom du titulaire</FormLabel><FormControl><Input placeholder="Nom complet du titulaire du compte" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="iban" render={({ field }) => (<FormItem><FormLabel>IBAN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="bic" render={({ field }) => (<FormItem><FormLabel>BIC</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="billingText" render={({ field }) => (<FormItem><FormLabel>Texte d'accompagnement</FormLabel><FormControl><Textarea placeholder="Instructions de paiement, référence client, etc." {...field} /></FormControl><FormMessage /></FormItem>)} />

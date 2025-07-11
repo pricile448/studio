@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -87,7 +88,7 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
   
   const userDetails = {
     ...details,
-    holder: `${userProfile.firstName} ${userProfile.lastName}`,
+    holder: userProfile.billingHolder || `${userProfile.firstName} ${userProfile.lastName}`,
     clientAddress: userProfile.address,
     iban: userProfile.iban || details.iban,
     bic: userProfile.bic || details.bic,
@@ -151,7 +152,7 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
       <Card className="max-w-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">{ibanDict.accountDetails}</CardTitle>
-          <CardDescription>{ibanDict.description}</CardDescription>
+          <CardDescription>{userProfile.billingText || ibanDict.description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
