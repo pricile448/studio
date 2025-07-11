@@ -1,0 +1,22 @@
+
+{
+  "name": "AmCbunq",
+  "short_name": "AmCbunq",
+  "start_url": "/fr",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#013A81",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dxvbuhadg/image/upload/v1751655892/favicon-192x192_lcz5bt.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://res.cloudinary.com/dxvbuhadg/image/upload/v1751655892/favicon-512x512_lcz5bt.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

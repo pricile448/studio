@@ -12,6 +12,7 @@ const siteDescription = 'Votre avenir financier, simplifié et sécurisé.';
 export const metadata: Metadata = {
   title: siteTitle,
   description: siteDescription,
+  manifest: '/manifest.json',
   icons: {
     icon: 'https://res.cloudinary.com/dxvbuhadg/image/upload/v1751655892/favicon-32x32_lcz5bt.png',
   },
