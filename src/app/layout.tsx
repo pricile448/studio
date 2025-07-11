@@ -4,6 +4,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/dictionaries';
 import { Providers } from './providers';
+import { Toaster } from '@/components/ui/toaster';
 
 const siteTitle = 'AmCbunq - Modern Banking';
 const siteDescription = 'Votre avenir financier, simplifié et sécurisé.';
@@ -55,6 +56,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Toaster />
       </body>
     </html>
   );
