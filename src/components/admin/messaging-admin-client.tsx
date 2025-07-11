@@ -253,7 +253,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
                                             </button>
                                         ) : msg.fileUrl ? (
                                             <a
-                                                href={msg.fileUrl}
+                                                href={getCloudinaryDownloadUrl(msg.fileUrl)}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className={cn(
@@ -428,10 +428,10 @@ export function MessagingAdminClient() {
     const conversationList = (
         <Card className="h-full flex flex-col">
             <CardHeader className="flex-shrink-0 space-y-4">
-                <CardTitle>Conversations</CardTitle>
+                 <CardTitle>Conversations</CardTitle>
                 <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
-                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full" onClick={handleOpenNewChatDialog}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full" onClick={handleOpenNewChatDialog}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Nouvelle
                         </Button>
@@ -469,7 +469,7 @@ export function MessagingAdminClient() {
                             key={chat.id}
                             onClick={() => setSelectedChatId(chat.id)}
                             className={cn(
-                                "group w-full text-left flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50 cursor-pointer", 
+                                "group w-full flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50 cursor-pointer", 
                                 selectedChatId === chat.id && "bg-muted"
                             )}
                         >
@@ -485,7 +485,10 @@ export function MessagingAdminClient() {
                             </div>
                             <AlertDialog>
                                 <AlertDialogTrigger
-                                    onClick={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }}
                                     className={cn(
                                         buttonVariants({ variant: 'ghost', size: 'icon'}),
                                         "group-hover:opacity-100 transition-opacity opacity-0 h-8 w-8 shrink-0"
