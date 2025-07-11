@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -45,7 +45,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const kycDict = dict.kyc;
   const errorDict = dict.errors;
 
-  const totalSteps = 3; // Reduced to 3 steps
+  const totalSteps = 3; 
 
   const handleNext = () => setStep(prev => prev + 1);
   const handleBack = () => setStep(prev => prev - 1);
