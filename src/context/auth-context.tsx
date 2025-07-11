@@ -2,12 +2,11 @@
 'use client';
 
 import * as React from 'react';
-import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, reload, updateProfile, updatePassword, UserCredential, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut, reload, updatePassword, UserCredential, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { RegistrationData, updateUserInFirestore } from '@/lib/firebase/firestore';
-import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
+import { updateUserInFirestore } from '@/lib/firebase/firestore';
 import { verifyEmailCode } from '@/ai/flows/verify-email-code-flow';
-import { createUserDocument } from '@/ai/flows/create-user-document-flow';
+
 
 // Initialize default (client-side) Firebase services
 const { auth } = getFirebaseServices();
@@ -39,10 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
-        if (!userCredential.user.emailVerified) {
-             // This case is now handled in the verify-email logic directly
-        }
-
         if (userCredential.user.metadata.lastSignInTime) {
           await updateUserInFirestore(userCredential.user.uid, { 
               lastSignInTime: new Date(userCredential.user.metadata.lastSignInTime) 
@@ -63,7 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const result = await verifyEmailCode({ userId: auth.currentUser.uid, code });
     if (result.success) {
       await reload(auth.currentUser);
-      setUser(auth.currentUser);
+      // Create a new user object to ensure state update, as reload mutates the existing one.
+      setUser({ ...auth.currentUser });
     }
     return result;
   };

@@ -52,7 +52,10 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     if (!user?.email || !user?.displayName) return;
     setIsResending(true);
     try {
-        await sendVerificationCode({ userId: user.uid, email: user.email, userName: user.displayName.split(' ')[0] });
+        const result = await sendVerificationCode({ userId: user.uid, email: user.email, userName: user.displayName.split(' ')[0] });
+        if (!result.success) {
+            throw new Error(result.error || dict.verifyEmail.emailSentError);
+        }
         toast({
             title: dict?.verifyEmail.emailSent || 'E-mail envoyé !',
             description: dict?.verifyEmail.emailSentDescription || 'Un nouvel e-mail de vérification a été envoyé à votre adresse.',
