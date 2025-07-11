@@ -427,37 +427,37 @@ export function MessagingAdminClient() {
     
     const conversationList = (
         <Card className="h-full flex flex-col">
-            <CardHeader className="flex-shrink-0">
-                <div className="flex items-center justify-between">
-                    <CardTitle>Conversations</CardTitle>
-                    <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
-                      <DialogTrigger className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))} onClick={handleOpenNewChatDialog}>
+            <CardHeader className="flex-shrink-0 space-y-4">
+                <CardTitle>Conversations</CardTitle>
+                <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full" onClick={handleOpenNewChatDialog}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Nouvelle
-                      </DialogTrigger>
-                      <DialogContent>
-                          <DialogHeader>
-                              <DialogTitle>Démarrer une nouvelle conversation</DialogTitle>
-                          </DialogHeader>
-                          <div className="mt-4">
-                              <ScrollArea className="h-72">
-                                {isLoadingUsers ? <div className="flex justify-center items-center h-full"><Loader2 className="h-6 w-6 animate-spin"/></div> : (
-                                  <ul className="space-y-1">
-                                    {allUsers.length > 0 ? allUsers.map(u => (
-                                      <li key={u.uid}>
-                                        <button onClick={() => handleSelectUserForNewChat(u)} className="w-full text-left p-2 hover:bg-muted rounded-md transition-colors">
-                                          <p className="font-medium">{u.firstName} {u.lastName}</p>
-                                          <p className="text-sm text-muted-foreground">{u.email}</p>
-                                        </button>
-                                      </li>
-                                    )) : <p className="text-muted-foreground text-center p-4">Aucun utilisateur à qui envoyer un message.</p>}
-                                  </ul>
-                                )}
-                              </ScrollArea>
-                          </div>
-                      </DialogContent>
-                    </Dialog>
-                </div>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Démarrer une nouvelle conversation</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4">
+                            <ScrollArea className="h-72">
+                            {isLoadingUsers ? <div className="flex justify-center items-center h-full"><Loader2 className="h-6 w-6 animate-spin"/></div> : (
+                                <ul className="space-y-1">
+                                {allUsers.length > 0 ? allUsers.map(u => (
+                                    <li key={u.uid}>
+                                    <button onClick={() => handleSelectUserForNewChat(u)} className="w-full text-left p-2 hover:bg-muted rounded-md transition-colors">
+                                        <p className="font-medium">{u.firstName} {u.lastName}</p>
+                                        <p className="text-sm text-muted-foreground">{u.email}</p>
+                                    </button>
+                                    </li>
+                                )) : <p className="text-muted-foreground text-center p-4">Aucun utilisateur à qui envoyer un message.</p>}
+                                </ul>
+                            )}
+                            </ScrollArea>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </CardHeader>
             <Separator />
             <ScrollArea className="flex-1 min-h-0">
