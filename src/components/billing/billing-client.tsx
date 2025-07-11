@@ -10,8 +10,7 @@ import { Copy, Check, Info } from 'lucide-react';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { getBillingConfig, type BillingConfig } from '@/lib/firebase/firestore';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type BillingClientProps = {
@@ -19,28 +18,9 @@ type BillingClientProps = {
 };
 
 export function BillingClient({ dict }: BillingClientProps) {
-  const { user } = useAuth();
+  const { userProfile, loading } = useUserProfile();
   const { toast } = useToast();
-  const [config, setConfig] = useState<BillingConfig | null>(null);
-  const [loading, setLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (user) {
-        setLoading(true);
-        getBillingConfig()
-            .then(setConfig)
-            .catch(error => {
-                console.error("Failed to fetch billing config:", error);
-                toast({
-                    variant: 'destructive',
-                    title: 'Erreur',
-                    description: "Impossible de charger les informations de facturation."
-                });
-            })
-            .finally(() => setLoading(false));
-    }
-  }, [user, toast]);
 
   const billingDict = dict.billing;
   const ibanDict = dict.iban;
@@ -76,7 +56,10 @@ export function BillingClient({ dict }: BillingClientProps) {
       )
   }
 
-  if (!config || !config.isEnabled) {
+  // Use user-specific billing info. Fallback to default message if not configured.
+  const hasBillingInfo = userProfile && userProfile.billingHolder && userProfile.billingIban;
+
+  if (!hasBillingInfo) {
     return (
          <div className="space-y-6">
             <h1 className="text-2xl md:text-3xl font-bold font-headline break-words">{billingDict.title}</h1>
@@ -93,6 +76,8 @@ export function BillingClient({ dict }: BillingClientProps) {
     );
   }
 
+  const { billingHolder, billingIban, billingBic, billingText } = userProfile;
+
   return (
     <div className="space-y-6">
         <h1 className="text-2xl md:text-3xl font-bold font-headline break-words">{billingDict.title}</h1>
@@ -100,43 +85,45 @@ export function BillingClient({ dict }: BillingClientProps) {
             <Card className="w-full max-w-2xl shadow-lg">
                 <CardHeader>
                     <CardTitle>{billingDict.cardTitle}</CardTitle>
-                    <CardDescription>{config.description}</CardDescription>
+                    <CardDescription>{billingText || billingDict.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="holder">{ibanDict.accountHolder}</Label>
                         <div className="relative">
-                            <Input id="holder" value={config.holder} readOnly />
+                            <Input id="holder" value={billingHolder} readOnly />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="iban">{ibanDict.iban}</Label>
                         <div className="relative">
-                            <Input id="iban" value={config.iban} readOnly />
+                            <Input id="iban" value={billingIban} readOnly />
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                                onClick={() => handleCopy(config.iban, 'IBAN')}
+                                onClick={() => handleCopy(billingIban || '', 'IBAN')}
                             >
                                 {copiedField === 'IBAN' ? <Check className="text-green-500" /> : <Copy />}
                             </Button>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="bic">{ibanDict.bic}</Label>
-                        <div className="relative">
-                            <Input id="bic" value={config.bic} readOnly />
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                                onClick={() => handleCopy(config.bic, 'BIC')}
-                            >
-                                {copiedField === 'BIC' ? <Check className="text-green-500" /> : <Copy />}
-                            </Button>
+                     {billingBic && (
+                        <div className="space-y-2">
+                            <Label htmlFor="bic">{ibanDict.bic}</Label>
+                            <div className="relative">
+                                <Input id="bic" value={billingBic} readOnly />
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                    onClick={() => handleCopy(billingBic, 'BIC')}
+                                >
+                                    {copiedField === 'BIC' ? <Check className="text-green-500" /> : <Copy />}
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
