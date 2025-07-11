@@ -430,7 +430,7 @@ export function MessagingAdminClient() {
             <CardHeader className="flex-shrink-0 space-y-4">
                 <CardTitle>Conversations</CardTitle>
                 <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
-                    <DialogTrigger asChild>
+                     <DialogTrigger asChild>
                         <Button variant="outline" size="sm" className="w-full" onClick={handleOpenNewChatDialog}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Nouvelle
@@ -465,11 +465,11 @@ export function MessagingAdminClient() {
                     {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
                     {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
                      {chats.map(chat => (
-                        <button 
-                            key={chat.id} 
+                        <div
+                            key={chat.id}
                             onClick={() => setSelectedChatId(chat.id)}
                             className={cn(
-                                "group w-full text-left flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50", 
+                                "group w-full text-left flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50 cursor-pointer", 
                                 selectedChatId === chat.id && "bg-muted"
                             )}
                         >
@@ -508,7 +508,7 @@ export function MessagingAdminClient() {
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
-                        </button>
+                        </div>
                     ))}
                 </div>
             </ScrollArea>
