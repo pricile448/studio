@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState } from 'react';
@@ -11,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Copy, Check, FileDown } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
 import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,7 +28,7 @@ type IbanClientProps = {
 export function IbanClient({ dict, lang, details }: IbanClientProps) {
   const { toast } = useToast();
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading } = useUserProfile();
 
   const ibanDict = dict.iban;
   const kycDict = dict.kyc;
