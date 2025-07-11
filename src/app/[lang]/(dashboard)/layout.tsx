@@ -2,7 +2,6 @@
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { DashboardLayoutClient } from './layout-client';
-import { UserProfileProvider } from '@/context/user-profile-context';
 
 export default async function DashboardLayout({
   children,
