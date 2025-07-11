@@ -315,7 +315,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
             )}
 
             {step === 5 && (
-              <Button onClick={handleSubmission} disabled={!selfie || isSubmitting}>
+              <Button onClick={handleSubmission} disabled={!idDocument || !proofOfAddress || !selfie || isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {kycDict.button_submit}
               </Button>

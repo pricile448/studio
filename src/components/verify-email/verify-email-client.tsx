@@ -38,7 +38,7 @@ interface VerifyEmailClientProps {
 }
 
 export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,7 +74,8 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   }
 
   const handleProceedToLogin = async () => {
-    router.push(`/${lang}/dashboard`);
+    await logout();
+    router.push(`/${lang}/login`);
   }
   
   const onSubmit = async (data: z.infer<ReturnType<typeof verifyCodeSchema>>) => {
