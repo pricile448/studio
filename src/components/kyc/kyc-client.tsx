@@ -24,12 +24,20 @@ interface KycClientProps {
   lang: Locale;
 }
 
+interface KycFilesState {
+    idDocument: File | null;
+    proofOfAddress: File | null;
+    selfie: File | null;
+}
+
 export function KycClient({ dict, lang }: KycClientProps) {
   const [step, setStep] = useState(1);
   const [docType, setDocType] = useState('');
-  const [idDocument, setIdDocument] = useState<File | null>(null);
-  const [proofOfAddress, setProofOfAddress] = useState<File | null>(null);
-  const [selfie, setSelfie] = useState<File | null>(null);
+  const [files, setFiles] = useState<KycFilesState>({
+    idDocument: null,
+    proofOfAddress: null,
+    selfie: null
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { userProfile, refreshUserProfile } = useAuth();
@@ -53,14 +61,14 @@ export function KycClient({ dict, lang }: KycClientProps) {
     setDocType(value);
   };
   
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<File | null>>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, fileType: keyof KycFilesState) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
         toast({ variant: 'destructive', title: errorDict.titles.fileTooLarge, description: errorDict.messages.files.sizeExceeded });
         return;
       }
-      setter(file);
+      setFiles(prev => ({ ...prev, [fileType]: file }));
     }
   };
 
@@ -74,6 +82,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
   };
 
   const handleSubmission = async () => {
+    const { idDocument, proofOfAddress, selfie } = files;
     if (!idDocument || !proofOfAddress || !selfie || !userProfile) {
       toast({
         variant: 'destructive',
@@ -202,12 +211,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
                     <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
                     <p className="mb-2 text-sm text-muted-foreground">{kycDict.step3_upload_button}</p>
                 </div>
-                <Input id="id-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, setIdDocument)} accept="image/*,.pdf" />
+                <Input id="id-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, 'idDocument')} accept="image/*,.pdf" />
             </Label>
-            {idDocument && (
+            {files.idDocument && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', idDocument.name)}</AlertTitle>
+                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', files.idDocument.name)}</AlertTitle>
                   <AlertDescription>
                     {kycDict.clickNext}
                   </AlertDescription>
@@ -225,12 +234,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
                     <FileUp className="w-8 h-8 mb-4 text-muted-foreground" />
                     <p className="mb-2 text-sm text-muted-foreground">{kycDict.step3_upload_button}</p>
                 </div>
-                <Input id="proof-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, setProofOfAddress)} accept="image/*,.pdf" />
+                <Input id="proof-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, 'proofOfAddress')} accept="image/*,.pdf" />
             </Label>
-            {proofOfAddress && (
+            {files.proofOfAddress && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', proofOfAddress.name)}</AlertTitle>
+                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', files.proofOfAddress.name)}</AlertTitle>
                   <AlertDescription>
                     {kycDict.clickNext}
                   </AlertDescription>
@@ -248,12 +257,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
                     <Camera className="w-8 h-8 mb-4 text-muted-foreground" />
                     <p className="mb-2 text-sm text-muted-foreground">{kycDict.step3_upload_button}</p>
                 </div>
-                <Input id="selfie-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, setSelfie)} accept="image/*" />
+                <Input id="selfie-upload" type="file" className="hidden" onChange={(e) => handleFileSelect(e, 'selfie')} accept="image/*" />
             </Label>
-            {selfie && (
+            {files.selfie && (
                <Alert variant="default" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', selfie.name)}</AlertTitle>
+                  <AlertTitle>{kycDict.file_selected.replace('{fileName}', files.selfie.name)}</AlertTitle>
                    <AlertDescription>
                     {kycDict.clickSubmit}
                   </AlertDescription>
@@ -303,19 +312,19 @@ export function KycClient({ dict, lang }: KycClientProps) {
             )}
 
             {step === 3 && (
-              <Button onClick={handleNext} disabled={!idDocument}>
+              <Button onClick={handleNext} disabled={!files.idDocument}>
                 {kycDict.button_next}
               </Button>
             )}
             
             {step === 4 && (
-              <Button onClick={handleNext} disabled={!proofOfAddress}>
+              <Button onClick={handleNext} disabled={!files.proofOfAddress}>
                 {kycDict.button_next}
               </Button>
             )}
 
             {step === 5 && (
-              <Button onClick={handleSubmission} disabled={!idDocument || !proofOfAddress || !selfie || isSubmitting}>
+              <Button onClick={handleSubmission} disabled={!files.idDocument || !files.proofOfAddress || !files.selfie || isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {kycDict.button_submit}
               </Button>
