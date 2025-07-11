@@ -422,7 +422,7 @@ export function MessagingAdminClient() {
     const adminName = `${userProfile.firstName} ${userProfile.lastName}`;
     
     const conversationList = (
-        <>
+        <Card className="h-full flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Conversations</CardTitle>
                 <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
@@ -491,34 +491,33 @@ export function MessagingAdminClient() {
                     ))}
                 </CardContent>
             </ScrollArea>
-        </>
+        </Card>
     );
     
     const chatView = selectedChat ? (
-        <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} onBack={() => setSelectedChatId(null)} />
+        <Card className="h-full flex flex-col">
+            <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} onBack={() => setSelectedChatId(null)} />
+        </Card>
     ) : (
-        <div className="hidden md:flex flex-col items-center justify-center h-full text-center p-8">
+        <Card className="hidden md:flex flex-col items-center justify-center h-full text-center p-8">
             <MessageSquare className="h-16 w-16 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">Sélectionnez une conversation</h3>
             <p className="text-muted-foreground">Choisissez une conversation dans la liste de gauche pour afficher les messages ou créez-en une nouvelle.</p>
-        </div>
+        </Card>
     );
 
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-            <Card className={cn(
-                "md:col-span-1 h-full flex-col",
-                isMobile && selectedChatId ? "hidden" : "flex"
-            )}>
-                {conversationList}
-            </Card>
+    if (isMobile) {
+        return selectedChat ? chatView : conversationList;
+    }
 
-            <Card className={cn(
-                "md:col-span-2 h-full flex-col",
-                isMobile && !selectedChatId ? "hidden" : "flex"
-            )}>
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4 h-full">
+            <div className="md:col-span-1 xl:col-span-1 h-full">
+                {conversationList}
+            </div>
+            <div className="md:col-span-2 xl:col-span-3 h-full">
                 {chatView}
-            </Card>
+            </div>
         </div>
     );
 }
