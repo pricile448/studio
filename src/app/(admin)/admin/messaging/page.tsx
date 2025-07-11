@@ -1,6 +1,5 @@
 
 import { MessagingAdminClient } from '@/components/admin/messaging-admin-client';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function AdminMessagingPage() {
     return (
