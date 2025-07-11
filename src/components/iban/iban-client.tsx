@@ -21,12 +21,8 @@ type IbanClientProps = {
   dict: Dictionary;
   lang: Locale;
   details: {
-    holder: string;
-    iban: string;
-    bic: string;
     bankName: string;
     bankAddress: string;
-    clientAddress: string;
   };
 };
 
@@ -90,8 +86,9 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
     ...details,
     holder: userProfile.billingHolder || `${userProfile.firstName} ${userProfile.lastName}`,
     clientAddress: userProfile.address,
-    iban: userProfile.iban || details.iban,
-    bic: userProfile.bic || details.bic,
+    iban: userProfile.iban || '',
+    bic: userProfile.bic || '',
+    billingText: userProfile.billingText || ibanDict.description,
   };
 
   const handleCopy = (text: string, fieldName: string) => {
@@ -152,7 +149,7 @@ export function IbanClient({ dict, lang, details }: IbanClientProps) {
       <Card className="max-w-2xl shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">{ibanDict.accountDetails}</CardTitle>
-          <CardDescription>{userProfile.billingText || ibanDict.description}</CardDescription>
+          <CardDescription>{userDetails.billingText}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

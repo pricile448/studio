@@ -6,13 +6,11 @@ export default async function IbanPage({ params }: { params: { lang: Locale } })
   const { lang } = params;
   const dict = await getDictionary(lang);
   
+  // The details will now be fully managed by the client component
+  // based on the authenticated user's profile.
   const ibanDetails = {
-    holder: '', // This will be replaced by userProfile data in the client component
-    iban: '', // This will be replaced by userProfile data in the client component
-    bic: '', // This will be replaced by userProfile data in the client component
     bankName: dict.cards.cardBankName,
     bankAddress: '8-12 Avenue de la Grande Armée, 75017 Paris',
-    clientAddress: '', // This will be replaced by userProfile data in the client component
   }
 
   return (
