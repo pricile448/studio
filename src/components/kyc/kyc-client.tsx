@@ -304,13 +304,13 @@ export function KycClient({ dict, lang }: KycClientProps) {
               <ArrowLeft className="mr-2" />
               {kycDict.button_back}
             </Button>
-
+            
             {step === 2 && (
               <Button onClick={handleNext} disabled={!docType}>
                 {kycDict.button_next}
               </Button>
             )}
-
+            
             {step === 3 && (
               <Button onClick={handleNext} disabled={!files.idDocument}>
                 {kycDict.button_next}
@@ -322,7 +322,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                 {kycDict.button_next}
               </Button>
             )}
-
+            
             {step === 5 && (
               <Button onClick={handleSubmission} disabled={!files.idDocument || !files.proofOfAddress || !files.selfie || isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
