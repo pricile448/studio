@@ -18,7 +18,6 @@ import {
 } from '@/lib/firebase/firestore';
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { serverTimestamp, deleteField } from 'firebase/firestore';
-import { getCloudinaryUrl } from '@/app/actions';
 
 const { db } = getFirebaseServices();
 
@@ -29,7 +28,6 @@ type UserProfileContextType = {
   toggleBalanceVisibility: () => void;
   refreshUserProfile: () => Promise<void>;
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
-  updateAvatar: (file: File) => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
   deleteConversation: (chatId: string) => Promise<void>;
@@ -101,25 +99,6 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         
         await refreshUserProfile();
     }
-
-    const updateAvatar = async (file: File) => {
-        if (!user) throw new Error("User not authenticated");
-
-        const reader = new FileReader();
-        const dataUri = await new Promise<string>((resolve, reject) => {
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-
-        const result = await getCloudinaryUrl(user.uid, dataUri, 'avatars', file.name);
-
-        if (result.success && result.url) {
-            await updateUserProfileData({ photoURL: result.url });
-        } else {
-            throw new Error(result.error || 'Avatar upload failed');
-        }
-    };
     
     const requestCard = async (cardType: PhysicalCardType) => {
         if (!user) throw new Error("No user is signed in.");
@@ -177,7 +156,6 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         toggleBalanceVisibility,
         refreshUserProfile,
         updateUserProfileData,
-        updateAvatar,
         requestCard,
         requestVirtualCard,
         deleteConversation,

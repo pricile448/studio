@@ -14,10 +14,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Input } from '@/components/ui/input';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
+import { getCloudinaryUrl } from '@/app/actions';
 
 interface ProfileFormProps {
   dict: Dictionary['settings']['profile'];
@@ -40,7 +42,8 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm({ dict }: ProfileFormProps) {
-  const { user, userProfile, updateUserProfileData, updateAvatar } = useAuth();
+  const { user } = useAuth();
+  const { userProfile, updateUserProfileData } = useUserProfile();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = React.useState(false);
@@ -106,10 +109,23 @@ export function ProfileForm({ dict }: ProfileFormProps) {
 
     setIsUploadingAvatar(true);
     try {
-        await updateAvatar(file);
-        toast({
-            title: dict.avatarUpdateSuccess,
+        const reader = new FileReader();
+        const dataUri = await new Promise<string>((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
         });
+
+        const result = await getCloudinaryUrl(user.uid, dataUri, 'avatars', file.name);
+
+        if (result.success && result.url) {
+            await updateUserProfileData({ photoURL: result.url });
+             toast({
+                title: dict.avatarUpdateSuccess,
+            });
+        } else {
+            throw new Error(result.error || 'Avatar upload failed');
+        }
     } catch (error) {
         toast({
             variant: 'destructive',
