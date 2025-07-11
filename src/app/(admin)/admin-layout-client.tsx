@@ -151,7 +151,7 @@ export function AdminLayoutClient({ children }: { children: ReactNode }) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </header>
-                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-muted/40">
+                <main className="flex-1 p-4 md:p-6 bg-muted/40">
                     {children}
                 </main>
             </div>
