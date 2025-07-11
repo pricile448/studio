@@ -1,9 +1,9 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import {
   SidebarProvider,
@@ -62,7 +62,10 @@ export function DashboardLayoutClient({
   dict: Dictionary;
   lang: Locale;
 }) {
-  const { user, userProfile, loading, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
+  const { userProfile, loading: profileLoading } = useUserProfile();
+  const loading = authLoading || profileLoading;
+
   const router = useRouter();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);

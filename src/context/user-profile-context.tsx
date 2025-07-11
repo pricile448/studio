@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -53,16 +52,24 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     };
     
     const fetchUserProfile = React.useCallback(async (uid: string) => {
-        const profile = await getUserFromFirestore(uid);
-        setUserProfile(profile);
-        setProfileLoading(false);
+        // Always start loading when a fetch is initiated
+        setProfileLoading(true);
+        try {
+            const profile = await getUserFromFirestore(uid);
+            setUserProfile(profile);
+        } catch (error) {
+            console.error("Failed to fetch user profile:", error);
+            setUserProfile(null); // Ensure profile is null on error
+        } finally {
+            setProfileLoading(false);
+        }
     }, []);
 
     React.useEffect(() => {
         if (user) {
-            setProfileLoading(true);
             fetchUserProfile(user.uid);
         } else if (!authLoading) {
+            // If there's no user and auth is not loading, we are done.
             setUserProfile(null);
             setProfileLoading(false);
         }
@@ -88,8 +95,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
             authProfileUpdate.photoURL = data.photoURL;
         }
 
-        if (Object.keys(authProfileUpdate).length > 0) {
-            await updateProfile(user, authProfileUpdate);
+        if (Object.keys(authProfileUpdate).length > 0 && auth.currentUser) {
+            await updateProfile(auth.currentUser, authProfileUpdate);
         }
         
         await refreshUserProfile();
