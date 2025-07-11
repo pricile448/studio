@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { VerificationBanner } from './verification-banner';
-import { useUserProfile } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { Skeleton } from '../ui/skeleton';
 import { format } from 'date-fns';
 import dynamic from 'next/dynamic';
