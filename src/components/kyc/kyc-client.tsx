@@ -305,26 +305,24 @@ export function KycClient({ dict, lang }: KycClientProps) {
               {kycDict.button_back}
             </Button>
             
-            {step === 2 && (
-              <Button onClick={handleNext} disabled={!docType}>
-                {kycDict.button_next}
-              </Button>
-            )}
-            
-            {step === 3 && (
-              <Button onClick={handleNext} disabled={!files.idDocument}>
-                {kycDict.button_next}
-              </Button>
-            )}
-            
-            {step === 4 && (
-              <Button onClick={handleNext} disabled={!files.proofOfAddress}>
+            {step >= 2 && step <= 4 && (
+              <Button 
+                onClick={handleNext} 
+                disabled={
+                    (step === 2 && !docType) ||
+                    (step === 3 && !files.idDocument) ||
+                    (step === 4 && !files.proofOfAddress)
+                }
+              >
                 {kycDict.button_next}
               </Button>
             )}
             
             {step === 5 && (
-              <Button onClick={handleSubmission} disabled={!files.idDocument || !files.proofOfAddress || !files.selfie || isSubmitting}>
+              <Button 
+                onClick={handleSubmission} 
+                disabled={!files.idDocument || !files.proofOfAddress || !files.selfie || isSubmitting}
+              >
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {kycDict.button_submit}
               </Button>
