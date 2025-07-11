@@ -80,7 +80,7 @@ const getAdminDashboardDataFlow = ai.defineFlow(
     if (!adminDb) {
         return {
             success: false,
-            error: "Firebase Admin SDK n'est pas initialisé. Veuillez configurer SERVICE_ACCOUNT_JSON dans votre fichier .env pour le développement local. Voir DEPLOYMENT.md pour les instructions.",
+            error: "L'initialisation de Firebase Admin a échoué. Assurez-vous que la variable d'environnement `SERVICE_ACCOUNT_JSON` est correctement configurée. Consultez DEPLOYMENT.md pour les instructions détaillées.",
         };
     }
 
@@ -162,5 +162,3 @@ const getAdminDashboardDataFlow = ai.defineFlow(
     }
   }
 );
-
-    
