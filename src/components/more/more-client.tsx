@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { FileDown, FileText } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddDocumentDialog } from './add-document-dialog';
 import { useState } from 'react';
@@ -28,7 +28,7 @@ const getCloudinaryDownloadUrl = (url: string): string => {
 };
 
 export function MoreClient({ dict, lang }: MoreClientProps) {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading } = useUserProfile();
   // We add a state to force a re-render when a new document is uploaded
   const [, setRefresh] = useState(0);
 

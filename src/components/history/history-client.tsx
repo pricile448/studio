@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -34,7 +34,7 @@ const dateLocales: Record<Locale, typeof enUS> = {
 };
 
 export function HistoryClient({ dict, lang }: HistoryClientProps) {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading } = useUserProfile();
   
   const defaultDateRange = {
     from: startOfMonth(new Date()),
@@ -181,7 +181,7 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
                 <TableBody>
                   {filteredTransactions.length > 0 ? filteredTransactions.map((tx) => (
                     <TableRow key={tx.id}>
-                       <TableCell>{formatDate(tx.date)}</TableCell>
+                       <TableCell>{formatDate(new Date(tx.date))}</TableCell>
                       <TableCell>{tx.description}</TableCell>
                       <TableCell>{tx.category}</TableCell>
                        <TableCell>
@@ -211,7 +211,7 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <p className="font-medium">{tx.description}</p>
-                        <p className="text-sm text-muted-foreground">{formatDate(tx.date)} - {tx.category}</p>
+                        <p className="text-sm text-muted-foreground">{formatDate(new Date(tx.date))} - {tx.category}</p>
                       </div>
                       <div className="text-right">
                          <p className={`font-semibold ${tx.amount > 0 ? 'text-accent' : ''}`}>

@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { ArrowRightLeft, Loader2, Trash2 } from 'lucide-react';
 import { AddBeneficiaryDialog } from './add-beneficiary-dialog';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { KycPrompt } from '../ui/kyc-prompt';
 import { KycPendingPrompt } from '../ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
@@ -43,7 +43,7 @@ type TransferFormValues = z.infer<typeof transferSchema>;
 
 
 export function TransfersClient({ dict, lang }: TransfersClientProps) {
-  const { userProfile, loading, requestTransfer, refreshUserProfile, deleteBeneficiary } = useAuth();
+  const { userProfile, loading, requestTransfer, refreshUserProfile, deleteBeneficiary } = useUserProfile();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);

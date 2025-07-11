@@ -32,7 +32,7 @@ import type { Dictionary, Locale } from '@/lib/dictionaries';
 import type { VirtualCard, PhysicalCard, PhysicalCardType, UserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
 import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
@@ -137,7 +137,7 @@ function VirtualCardDisplay({ card, dict, userProfile, onToggleFreeze, onFlip, i
 
 
 export function CardsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, requestCard, requestVirtualCard, updateUserProfileData } = useAuth();
+  const { userProfile, loading, requestCard, requestVirtualCard, updateUserProfileData } = useUserProfile();
   const [limit, setLimit] = useState(userProfile?.cardLimits?.monthly || 2000);
   const [newLimit, setNewLimit] = useState(limit);
   const [showPin, setShowPin] = useState(false);
