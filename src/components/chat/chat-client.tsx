@@ -15,7 +15,7 @@ import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Down
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
-import { useUserProfile } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Shield, Hourglass } from 'lucide-react';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
-import { useUserProfile } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 
 interface VerificationBannerProps {
   dict: Dictionary['dashboard']['verificationBanner'];

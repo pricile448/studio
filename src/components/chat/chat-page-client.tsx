@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useAuth, useUserProfile } from '@/context/auth-context';
+import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { ChatClient } from '@/components/chat/chat-client';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Dictionary } from '@/lib/dictionaries';

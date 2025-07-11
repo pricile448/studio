@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useUserProfile } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { Button } from './button';
 import { Eye, EyeOff } from 'lucide-react';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';

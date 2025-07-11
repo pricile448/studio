@@ -3,7 +3,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUserProfile } from '@/context/auth-context';
+import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
 import {
   SidebarProvider,

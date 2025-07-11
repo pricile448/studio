@@ -27,7 +27,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { useUserProfile } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 
 interface SidebarNavProps {
   lang: Locale;
