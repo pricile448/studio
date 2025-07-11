@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Loader2, Send, MessageSquare, RefreshCw, Paperclip, File as FileIcon, ArrowLeft, Download, PlusCircle, FileText } from 'lucide-react';
 import { useAdminAuth } from '@/context/admin-auth-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -170,7 +172,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
         });
     };
 
-    const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('') || 'A';
+    const getInitials = (name: string) => (name || '').split(' ').map(n => n[0]).join('') || 'U';
 
     return (
         <div className="flex flex-col h-full">
@@ -316,6 +318,8 @@ export function MessagingAdminClient() {
     const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
     const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
+    const getInitials = (name: string) => (name || '').split(' ').map(n => n[0]).join('') || 'U';
+
 
     useEffect(() => {
         if (!user) return;
@@ -423,52 +427,67 @@ export function MessagingAdminClient() {
     
     const conversationList = (
         <Card className="h-full flex flex-col">
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Conversations</CardTitle>
-                <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={handleOpenNewChatDialog}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Nouvelle
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                      <DialogHeader>
-                          <DialogTitle>Démarrer une nouvelle conversation</DialogTitle>
-                      </DialogHeader>
-                      <div className="mt-4">
-                          <ScrollArea className="h-72">
-                            {isLoadingUsers ? <div className="flex justify-center items-center h-full"><Loader2 className="h-6 w-6 animate-spin"/></div> : (
-                              <ul className="space-y-1">
-                                {allUsers.length > 0 ? allUsers.map(u => (
-                                  <li key={u.uid}>
-                                    <button onClick={() => handleSelectUserForNewChat(u)} className="w-full text-left p-2 hover:bg-muted rounded-md transition-colors">
-                                      <p className="font-medium">{u.firstName} {u.lastName}</p>
-                                      <p className="text-sm text-muted-foreground">{u.email}</p>
-                                    </button>
-                                  </li>
-                                )) : <p className="text-muted-foreground text-center p-4">Aucun utilisateur à qui envoyer un message.</p>}
-                              </ul>
-                            )}
-                          </ScrollArea>
-                      </div>
-                  </DialogContent>
-                </Dialog>
+            <CardHeader className="flex-shrink-0">
+                <div className="flex items-center justify-between">
+                    <CardTitle>Conversations</CardTitle>
+                    <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={handleOpenNewChatDialog}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Nouvelle
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                          <DialogHeader>
+                              <DialogTitle>Démarrer une nouvelle conversation</DialogTitle>
+                          </DialogHeader>
+                          <div className="mt-4">
+                              <ScrollArea className="h-72">
+                                {isLoadingUsers ? <div className="flex justify-center items-center h-full"><Loader2 className="h-6 w-6 animate-spin"/></div> : (
+                                  <ul className="space-y-1">
+                                    {allUsers.length > 0 ? allUsers.map(u => (
+                                      <li key={u.uid}>
+                                        <button onClick={() => handleSelectUserForNewChat(u)} className="w-full text-left p-2 hover:bg-muted rounded-md transition-colors">
+                                          <p className="font-medium">{u.firstName} {u.lastName}</p>
+                                          <p className="text-sm text-muted-foreground">{u.email}</p>
+                                        </button>
+                                      </li>
+                                    )) : <p className="text-muted-foreground text-center p-4">Aucun utilisateur à qui envoyer un message.</p>}
+                                  </ul>
+                                )}
+                              </ScrollArea>
+                          </div>
+                      </DialogContent>
+                    </Dialog>
+                </div>
             </CardHeader>
             <Separator />
             <ScrollArea className="flex-1 min-h-0">
-                <CardContent className="p-0">
+                <div className="p-2">
                     {isLoading && <div className="p-6 space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
                     {!isLoading && chats.length === 0 && <p className="p-6 text-muted-foreground">Aucune conversation.</p>}
-                    {chats.map(chat => (
-                        <div key={chat.id} className={cn("group flex items-center justify-between p-4 border-b hover:bg-muted/50", selectedChatId === chat.id && "bg-muted")}>
-                            <div onClick={() => setSelectedChatId(chat.id)} className="flex-1 cursor-pointer overflow-hidden pr-2">
+                     {chats.map(chat => (
+                        <button 
+                            key={chat.id} 
+                            onClick={() => setSelectedChatId(chat.id)}
+                            className={cn(
+                                "group w-full text-left flex items-center gap-3 p-2 rounded-lg transition-colors hover:bg-muted/50", 
+                                selectedChatId === chat.id && "bg-muted"
+                            )}
+                        >
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={chat.otherParticipant?.avatar} alt={chat.otherParticipant?.name} />
+                                <AvatarFallback>{getInitials(chat.otherParticipant?.name)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 overflow-hidden">
                                 <p className="font-semibold truncate">{chat.otherParticipant?.name || 'Utilisateur'}</p>
-                                <p className="text-sm text-muted-foreground truncate">{chat.lastMessageText || 'Aucun message'}</p>
+                                <p className="text-sm text-muted-foreground truncate">
+                                    {chat.lastMessageTimestamp ? formatDistanceToNow(chat.lastMessageTimestamp.toDate(), { addSuffix: true, locale: fr }) : 'Aucun message'}
+                                </p>
                             </div>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-50 hover:opacity-100 transition-opacity">
+                                    <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <RefreshCw className="h-4 w-4 text-destructive" />
                                     </Button>
                                 </AlertDialogTrigger>
@@ -487,9 +506,9 @@ export function MessagingAdminClient() {
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
-                        </div>
+                        </button>
                     ))}
-                </CardContent>
+                </div>
             </ScrollArea>
         </Card>
     );
@@ -499,10 +518,12 @@ export function MessagingAdminClient() {
             <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} onBack={() => setSelectedChatId(null)} />
         </Card>
     ) : (
-        <Card className="hidden md:flex flex-col items-center justify-center h-full text-center p-8">
+        <Card className="hidden md:flex flex-col items-center justify-center h-full text-center p-8 border-dashed">
             <MessageSquare className="h-16 w-16 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">Sélectionnez une conversation</h3>
-            <p className="text-muted-foreground">Choisissez une conversation dans la liste de gauche pour afficher les messages ou créez-en une nouvelle.</p>
+            <CardDescription className="mt-1">
+                Choisissez une conversation dans la liste de gauche pour afficher les messages ou créez-en une nouvelle.
+            </CardDescription>
         </Card>
     );
 
