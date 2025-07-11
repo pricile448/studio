@@ -282,7 +282,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                 </DialogContent>
             </Dialog>
 
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 min-h-0">
                 <div className="p-4 space-y-4">
                     {messages.length === 0 && (
                         <div className="text-center text-muted-foreground p-8">
