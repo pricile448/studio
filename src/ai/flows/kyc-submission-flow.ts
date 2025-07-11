@@ -1,64 +1,19 @@
+
 'use server';
 /**
  * @fileOverview Flows for processing KYC documents.
- * This file contains two separate flows to handle file uploads and admin notifications,
- * resolving previous permission issues by separating concerns.
+ * This file contains a flow for admin notifications. The upload logic is now handled
+ * by a direct server action for better reliability.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { sendEmail } from '@/services/mailgun-service';
-import { uploadKycDocumentsAction } from '@/app/actions';
 
-// --- Flow 1: Upload Files ---
-const UploadKycFilesInputSchema = z.object({
-  userId: z.string(),
-  idDocumentDataUri: z.string().describe(
-    "The identity document as a data URI."
-  ),
-  proofOfAddressDataUri: z.string().describe(
-    "The proof of address as a data URI."
-  ),
-  selfieDataUri: z.string().describe(
-    "The user's selfie as a data URI."
-  ),
-});
-export type UploadKycFilesInput = z.infer<typeof UploadKycFilesInputSchema>;
+// The file upload flow has been removed from here.
+// The client now calls the `uploadKycDocumentsAction` server action directly.
 
-const UploadKycFilesOutputSchema = z.object({
-  idDocumentUrl: z.string().url(),
-  proofOfAddressUrl: z.string().url(),
-  selfieUrl: z.string().url(),
-});
-export type UploadKycFilesOutput = z.infer<typeof UploadKycFilesOutputSchema>;
-
-export async function uploadKycFiles(input: UploadKycFilesInput): Promise<UploadKycFilesOutput> {
-  return uploadKycFilesFlow(input);
-}
-
-const uploadKycFilesFlow = ai.defineFlow(
-  {
-    name: 'uploadKycFilesFlow',
-    inputSchema: UploadKycFilesInputSchema,
-    outputSchema: UploadKycFilesOutputSchema,
-  },
-  async (input) => {
-    const result = await uploadKycDocumentsAction(input);
-
-    if (result.success && result.idDocumentUrl && result.proofOfAddressUrl && result.selfieUrl) {
-        return {
-            idDocumentUrl: result.idDocumentUrl,
-            proofOfAddressUrl: result.proofOfAddressUrl,
-            selfieUrl: result.selfieUrl,
-        };
-    } else {
-        throw new Error(result.error || 'An unknown error occurred during file upload.');
-    }
-  }
-);
-
-
-// --- Flow 2: Notify Admin ---
+// --- Flow: Notify Admin ---
 const NotifyAdminInputSchema = z.object({
     userId: z.string(),
     userName: z.string(),

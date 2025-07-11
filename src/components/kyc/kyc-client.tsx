@@ -14,7 +14,8 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { uploadKycFiles, notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
+import { uploadKycDocumentsAction } from '@/app/actions';
+import { notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
@@ -88,13 +89,20 @@ export function KycClient({ dict, lang }: KycClientProps) {
           convertFileToDataUri(proofOfAddress),
           convertFileToDataUri(selfie),
       ]);
-
-      const { idDocumentUrl, proofOfAddressUrl, selfieUrl } = await uploadKycFiles({
+      
+      // Call the server action directly
+      const uploadResult = await uploadKycDocumentsAction({
           userId: userProfile.uid,
           idDocumentDataUri,
           proofOfAddressDataUri,
           selfieDataUri,
       });
+
+      if (!uploadResult.success || !uploadResult.idDocumentUrl || !uploadResult.proofOfAddressUrl || !uploadResult.selfieUrl) {
+          throw new Error(uploadResult.error || "An unknown error occurred during file upload.");
+      }
+
+      const { idDocumentUrl, proofOfAddressUrl, selfieUrl } = uploadResult;
 
       const submissionRef = doc(db, 'kycSubmissions', userProfile.uid);
       const submissionData = {
