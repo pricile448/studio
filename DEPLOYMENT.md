@@ -209,3 +209,5 @@ C'est un problème courant. Voici les étapes à suivre pour le résoudre :
     *   Si cela ne fonctionne pas, videz manuellement le cache de votre navigateur pour ce site.
 
 En suivant ces étapes, vous devriez pouvoir identifier et résoudre le problème. Le plus souvent, le problème vient du cache de Vercel (étape 3) ou du cache du navigateur (étape 4).
+
+    
