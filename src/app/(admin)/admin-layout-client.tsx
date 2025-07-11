@@ -122,7 +122,7 @@ export function AdminLayoutClient({ children }: { children: ReactNode }) {
                     </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>
-            <div className="flex-1 flex flex-col h-screen">
+            <div className="flex-1 flex flex-col">
                 <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-4 border-b bg-card/50 backdrop-blur-sm px-4 md:px-6">
                     <SidebarTrigger className="md:hidden" />
                     <div className="flex-1" />
