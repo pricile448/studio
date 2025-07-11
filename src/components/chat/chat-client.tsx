@@ -15,7 +15,7 @@ import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Down
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -76,7 +76,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
-    const { deleteMessage } = useAuth();
+    const { deleteMessage } = useUserProfile();
     const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
     
     const advisorId = userProfile?.advisorId || 'advisor_123';

@@ -1,7 +1,7 @@
 
 import type { Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
-import { AuthActionClient } from '@/components/auth/action-client';
+import { AuthActionClientContent } from './action-client-content';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export default async function AuthActionPage({ params }: { params: { lang: Local
   const dict = await getDictionary(params.lang);
   return (
     <Suspense fallback={<AuthActionLoading />}>
-      <AuthActionClient dict={dict} lang={params.lang} />
+      <AuthActionClientContent dict={dict} lang={params.lang} />
     </Suspense>
   );
 }

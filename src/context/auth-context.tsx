@@ -16,26 +16,12 @@ const { auth, db } = getFirebaseServices();
 
 type AuthContextType = {
   user: User | null;
-  userProfile: UserProfile | null;
   loading: boolean;
-  isBalanceVisible: boolean;
-  toggleBalanceVisibility: () => void;
-  refreshUserProfile: () => Promise<void>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (userData: RegistrationData, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
-  checkEmailVerification: () => Promise<boolean>;
-  updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   updateUserPassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
-  updateAvatar: (file: File) => Promise<void>;
-  requestCard: (cardType: PhysicalCardType) => Promise<void>;
-  requestVirtualCard: () => Promise<void>;
-  deleteConversation: (chatId: string) => Promise<void>;
-  deleteMessage: (chatId: string, messageId: string) => Promise<void>;
-  addBeneficiary: (beneficiaryData: Omit<Beneficiary, 'id'>) => Promise<void>;
-  deleteBeneficiary: (beneficiaryId: string) => Promise<void>;
-  requestTransfer: (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => Promise<void>;
   verifyCode: (code: string) => Promise<{ success: boolean; error?: string }>;
 };
 
@@ -43,37 +29,16 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null);
-  const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
   const [loading, setLoading] = React.useState(true);
-  const [isBalanceVisible, setIsBalanceVisible] = React.useState(true);
-
-  const toggleBalanceVisibility = () => {
-    setIsBalanceVisible(prev => !prev);
-  };
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      if (user) {
-        const profile = await getUserFromFirestore(user.uid);
-        setUserProfile(profile);
-      } else {
-        setUserProfile(null);
-      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
   
-  const refreshUserProfile = async () => {
-    if (user) {
-        // Do not set global loading to true for a background refresh
-        // to avoid a full-screen loader flash.
-        const profile = await getUserFromFirestore(user.uid);
-        setUserProfile(profile);
-    }
-  };
-
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -144,38 +109,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
   const resendVerificationEmail = async () => {
-    if (auth.currentUser && userProfile) {
+    if (auth.currentUser) {
+      // We need a user profile to get the name for the email template
+      const tempProfile = await getUserFromFirestore(auth.currentUser.uid);
+      if (tempProfile) {
         const result = await sendVerificationCode({
             userId: auth.currentUser.uid,
             email: auth.currentUser.email!,
-            userName: userProfile.firstName,
+            userName: tempProfile.firstName,
         });
         
         if (!result || !result.success) {
           throw new Error(result?.error || "Failed to resend verification email.");
         }
+      } else {
+         throw new Error("User profile not found, cannot send email.");
+      }
     } else {
         throw new Error("No user is signed in to resend verification email.");
     }
   }
-
-  const checkEmailVerification = async () => {
-    if (!auth.currentUser) {
-      return false;
-    }
-    await reload(auth.currentUser);
-    if (auth.currentUser.emailVerified) {
-      setUser(auth.currentUser);
-      return true;
-    }
-    return false;
-  };
   
   const verifyCode = async (code: string) => {
-    if (!user) throw new Error("No user is signed in.");
-    const result = await verifyEmailCode({ userId: user.uid, code });
+    if (!auth.currentUser) throw new Error("No user is signed in.");
+    const result = await verifyEmailCode({ userId: auth.currentUser.uid, code });
     if (result.success) {
-      await reload(user);
+      await reload(auth.currentUser);
       setUser(auth.currentUser);
     }
     return result;
@@ -185,34 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut(auth);
   };
 
-  const updateUserProfileData = async (data: Partial<UserProfile>) => {
-    if (!user) throw new Error("No user is signed in.");
-    
-    await updateUserInFirestore(user.uid, data);
-    
-    const authProfileUpdate: { displayName?: string; photoURL?: string } = {};
-
-    if (data.firstName || data.lastName) {
-       authProfileUpdate.displayName = `${data.firstName || userProfile?.firstName} ${data.lastName || userProfile?.lastName}`;
-    }
-    if (data.photoURL) {
-        authProfileUpdate.photoURL = data.photoURL;
-    }
-
-    if (Object.keys(authProfileUpdate).length > 0) {
-        await updateProfile(user, authProfileUpdate);
-    }
-    
-    await refreshUserProfile();
-  }
-
   const updateUserPassword = async (currentPass: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
-    if (!user || !user.email) return { success: false, error: 'api.unexpected' };
+    if (!auth.currentUser || !auth.currentUser.email) return { success: false, error: 'api.unexpected' };
     
     try {
-      const credential = EmailAuthProvider.credential(user.email, currentPass);
-      await reauthenticateWithCredential(user, credential);
-      await updatePassword(user, newPass);
+      const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPass);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, newPass);
       return { success: true };
     } catch (error: any) {
         if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
@@ -226,74 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const updateAvatar = async (file: File) => {
-    if (!user) throw new Error("User not authenticated");
-
-    const reader = new FileReader();
-    const dataUri = await new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-
-    const result = await getCloudinaryUrl(user.uid, dataUri, 'avatars', file.name);
-
-    if (result.success && result.url) {
-      await updateUserProfileData({ photoURL: result.url });
-    } else {
-      throw new Error(result.error || 'Avatar upload failed');
-    }
-  };
-  
-  const requestCard = async (cardType: PhysicalCardType) => {
-    if (!user) throw new Error("No user is signed in.");
-
-    const requestData: Partial<UserProfile> = {
-      cardStatus: 'requested',
-      cardRequestedAt: serverTimestamp(),
-      cardType,
-    };
-    
-    await updateUserInFirestore(user.uid, requestData);
-    await refreshUserProfile();
-  };
-
-  const requestVirtualCard = async () => {
-    if (!user) throw new Error("No user is signed in.");
-    await updateUserInFirestore(user.uid, { 
-        hasPendingVirtualCardRequest: true,
-        virtualCardRequestedAt: serverTimestamp(),
-    });
-    await refreshUserProfile();
-  }
-
-  const deleteConversation = async (chatId: string) => {
-    await deleteChatSession(chatId, db);
-  };
-
-  const deleteMessage = async (chatId: string, messageId: string) => {
-    await softDeleteUserMessage(chatId, messageId);
-  };
-  
-  const addBeneficiary = async (beneficiaryData: Omit<Beneficiary, 'id'>) => {
-    if (!user) throw new Error("User not authenticated");
-    await addBeneficiaryToDb(user.uid, beneficiaryData, db);
-    await refreshUserProfile();
-  };
-
-  const deleteBeneficiary = async (beneficiaryId: string) => {
-    if (!user) throw new Error("User not authenticated");
-    await deleteBeneficiaryFromDb(user.uid, beneficiaryId, db);
-    await refreshUserProfile();
-  }
-  
-  const requestTransfer = async (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => {
-    if (!user) throw new Error("User not authenticated");
-    await requestTransferInDb(user.uid, transferData, db);
-    await refreshUserProfile();
-  };
-
-  const value = { user, userProfile, loading, refreshUserProfile, login, signup, logout, resendVerificationEmail, checkEmailVerification, updateUserProfileData, updateUserPassword, updateAvatar, requestCard, requestVirtualCard, deleteConversation, deleteMessage, addBeneficiary, deleteBeneficiary, requestTransfer, isBalanceVisible, toggleBalanceVisibility, verifyCode };
+  const value = { user, loading, login, signup, logout, resendVerificationEmail, updateUserPassword, verifyCode };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -302,6 +173,175 @@ export function useAuth() {
   const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+// User Profile Context
+type UserProfileContextType = {
+  userProfile: UserProfile | null;
+  loading: boolean;
+  isBalanceVisible: boolean;
+  toggleBalanceVisibility: () => void;
+  refreshUserProfile: () => Promise<void>;
+  updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
+  updateAvatar: (file: File) => Promise<void>;
+  requestCard: (cardType: PhysicalCardType) => Promise<void>;
+  requestVirtualCard: () => Promise<void>;
+  deleteConversation: (chatId: string) => Promise<void>;
+  deleteMessage: (chatId: string, messageId: string) => Promise<void>;
+  addBeneficiary: (beneficiaryData: Omit<Beneficiary, 'id'>) => Promise<void>;
+  deleteBeneficiary: (beneficiaryId: string) => Promise<void>;
+  requestTransfer: (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => Promise<void>;
+};
+
+const UserProfileContext = React.createContext<UserProfileContextType | undefined>(undefined);
+
+export function UserProfileProvider({ children }: { children: React.ReactNode }) {
+    const { user, loading: authLoading } = useAuth();
+    const [userProfile, setUserProfile] = React.useState<UserProfile | null>(null);
+    const [profileLoading, setProfileLoading] = React.useState(true);
+    const [isBalanceVisible, setIsBalanceVisible] = React.useState(true);
+
+    const toggleBalanceVisibility = () => {
+        setIsBalanceVisible(prev => !prev);
+    };
+    
+    const fetchUserProfile = React.useCallback(async (uid: string) => {
+        const profile = await getUserFromFirestore(uid);
+        setUserProfile(profile);
+        setProfileLoading(false);
+    }, []);
+
+    React.useEffect(() => {
+        if (user) {
+            setProfileLoading(true);
+            fetchUserProfile(user.uid);
+        } else if (!authLoading) {
+            setUserProfile(null);
+            setProfileLoading(false);
+        }
+    }, [user, authLoading, fetchUserProfile]);
+
+    const refreshUserProfile = React.useCallback(async () => {
+        if (user) {
+            await fetchUserProfile(user.uid);
+        }
+    }, [user, fetchUserProfile]);
+
+    const updateUserProfileData = async (data: Partial<UserProfile>) => {
+        if (!user) throw new Error("No user is signed in.");
+        
+        await updateUserInFirestore(user.uid, data);
+        
+        const authProfileUpdate: { displayName?: string; photoURL?: string } = {};
+
+        if (data.firstName || data.lastName) {
+            authProfileUpdate.displayName = `${data.firstName || userProfile?.firstName} ${data.lastName || userProfile?.lastName}`;
+        }
+        if (data.photoURL) {
+            authProfileUpdate.photoURL = data.photoURL;
+        }
+
+        if (Object.keys(authProfileUpdate).length > 0) {
+            await updateProfile(user, authProfileUpdate);
+        }
+        
+        await refreshUserProfile();
+    }
+
+    const updateAvatar = async (file: File) => {
+        if (!user) throw new Error("User not authenticated");
+
+        const reader = new FileReader();
+        const dataUri = await new Promise<string>((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        const result = await getCloudinaryUrl(user.uid, dataUri, 'avatars', file.name);
+
+        if (result.success && result.url) {
+            await updateUserProfileData({ photoURL: result.url });
+        } else {
+            throw new Error(result.error || 'Avatar upload failed');
+        }
+    };
+    
+    const requestCard = async (cardType: PhysicalCardType) => {
+        if (!user) throw new Error("No user is signed in.");
+
+        const requestData: Partial<UserProfile> = {
+            cardStatus: 'requested',
+            cardRequestedAt: serverTimestamp(),
+            cardType,
+        };
+        
+        await updateUserInFirestore(user.uid, requestData);
+        await refreshUserProfile();
+    };
+
+    const requestVirtualCard = async () => {
+        if (!user) throw new Error("No user is signed in.");
+        await updateUserInFirestore(user.uid, { 
+            hasPendingVirtualCardRequest: true,
+            virtualCardRequestedAt: serverTimestamp(),
+        });
+        await refreshUserProfile();
+    }
+
+    const deleteConversation = async (chatId: string) => {
+        await deleteChatSession(chatId, db);
+    };
+
+    const deleteMessage = async (chatId: string, messageId: string) => {
+        await softDeleteUserMessage(chatId, messageId);
+    };
+    
+    const addBeneficiary = async (beneficiaryData: Omit<Beneficiary, 'id'>) => {
+        if (!user) throw new Error("User not authenticated");
+        await addBeneficiaryToDb(user.uid, beneficiaryData, db);
+        await refreshUserProfile();
+    };
+
+    const deleteBeneficiary = async (beneficiaryId: string) => {
+        if (!user) throw new Error("User not authenticated");
+        await deleteBeneficiaryFromDb(user.uid, beneficiaryId, db);
+        await refreshUserProfile();
+    }
+  
+    const requestTransfer = async (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => {
+        if (!user) throw new Error("User not authenticated");
+        await requestTransferInDb(user.uid, transferData, db);
+        await refreshUserProfile();
+    };
+
+
+    const value = {
+        userProfile,
+        loading: authLoading || profileLoading,
+        isBalanceVisible,
+        toggleBalanceVisibility,
+        refreshUserProfile,
+        updateUserProfileData,
+        updateAvatar,
+        requestCard,
+        requestVirtualCard,
+        deleteConversation,
+        deleteMessage,
+        addBeneficiary,
+        deleteBeneficiary,
+        requestTransfer,
+    };
+
+    return <UserProfileContext.Provider value={value}>{children}</UserProfileContext.Provider>
+}
+
+export function useUserProfile() {
+  const context = React.useContext(UserProfileContext);
+  if (context === undefined) {
+    throw new Error('useUserProfile must be used within a UserProfileProvider');
   }
   return context;
 }

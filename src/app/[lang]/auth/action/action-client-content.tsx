@@ -41,7 +41,7 @@ interface AuthActionClientProps {
   lang: Locale;
 }
 
-export function AuthActionClient({ dict, lang }: AuthActionClientProps) {
+export function AuthActionClientContent({ dict, lang }: AuthActionClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { logout } = useAuth();
