@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -62,7 +63,14 @@ export function KycClient({ dict, lang }: KycClientProps) {
   };
 
   const handleSubmit = async () => {
-    if (!userProfile || !files.idDocument || !files.proofOfAddress || !files.selfie) {
+    if (!userProfile) {
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Utilisateur non trouvé.' });
+        return;
+    }
+    
+    // The button's disabled state already ensures this condition is met,
+    // but we double-check here as a safeguard.
+    if (!files.idDocument || !files.proofOfAddress || !files.selfie) {
       toast({
         variant: 'destructive',
         title: errorDict.titles.formIncomplete,
