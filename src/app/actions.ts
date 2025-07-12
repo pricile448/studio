@@ -93,6 +93,18 @@ interface KycUploadOutput {
 
 export async function uploadKycDocumentsAction(input: KycUploadInput): Promise<KycUploadOutput> {
     const { userId, idDocumentDataUri, proofOfAddressDataUri, selfieDataUri } = input;
+    
+    if (!adminDb) {
+      return { success: false, error: "La connexion à la base de données a échoué. L'action ne peut pas continuer." };
+    }
+
+    // Security check: ensure the user exists before proceeding
+    const userRef = doc(adminDb, "users", userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+        return { success: false, error: "Utilisateur non authentifié ou introuvable. Le téléversement est annulé." };
+    }
+    
     const uploadFolder = `kyc_documents/${userId}`;
     
     try {

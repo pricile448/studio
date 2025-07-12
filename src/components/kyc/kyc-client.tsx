@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, FileText, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -17,29 +16,17 @@ import { uploadKycDocumentsAction } from '@/app/actions';
 import { notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface KycClientProps {
   dict: Dictionary;
   lang: Locale;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-const ACCEPTED_FILE_TYPES = [...ACCEPTED_IMAGE_TYPES, "application/pdf"];
-
-// Schema for other fields if any, files are handled separately
-const kycFormSchema = z.object({});
-
-
 export function KycClient({ dict, lang }: KycClientProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // State to manage files directly
   const [files, setFiles] = useState<{
     idDocument?: File,
     proofOfAddress?: File,
@@ -53,10 +40,6 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const kycDict = dict.kyc;
   const errorDict = dict.errors;
   
-  const form = useForm({
-    resolver: zodResolver(kycFormSchema),
-  });
-
   const totalSteps = 3;
 
   const handleNext = () => setStep(prev => prev + 1);
@@ -78,12 +61,12 @@ export function KycClient({ dict, lang }: KycClientProps) {
     });
   };
 
-  const handleSubmission = async () => {
+  const handleSubmit = async () => {
     if (!userProfile || !files.idDocument || !files.proofOfAddress || !files.selfie) {
       toast({
         variant: 'destructive',
         title: errorDict.titles.formIncomplete,
-        description: errorDict.messages.forms.incomplete,
+        description: kycDict.missing_documents_desc,
       });
       return;
     }
@@ -106,7 +89,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
       });
 
       if (!uploadResult.success || !uploadResult.idDocumentUrl || !uploadResult.proofOfAddressUrl || !uploadResult.selfieUrl) {
-          throw new Error(uploadResult.error || "An unknown error occurred during file upload.");
+          throw new Error(uploadResult.error || "Une erreur inconnue est survenue pendant le téléversement des fichiers.");
       }
 
       const { idDocumentUrl, proofOfAddressUrl, selfieUrl } = uploadResult;
@@ -197,7 +180,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                       <p className="text-sm text-muted-foreground mb-2">{kycDict.step4_desc}</p>
                         <Label htmlFor="proof-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", files.proofOfAddress && "border-primary")}>
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              {files.proofOfAddress ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileUp className="w-8 h-8 text-muted-foreground" />}
+                              {files.proofOfAddress ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileText className="w-8 h-8 text-muted-foreground" />}
                               <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{files.proofOfAddress?.name || kycDict.step3_upload_button}</p>
                           </div>
                           <Input id="proof-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => handleFileChange(e, 'proofOfAddress')} />
@@ -221,7 +204,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                     <ArrowLeft className="mr-2" />
                     {kycDict.button_back}
                   </Button>
-                  <Button type="button" onClick={handleSubmission} disabled={!isStepTwoFormComplete || isSubmitting}>
+                  <Button type="button" onClick={handleSubmit} disabled={!isStepTwoFormComplete || isSubmitting}>
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {kycDict.button_submit}
                   </Button>
