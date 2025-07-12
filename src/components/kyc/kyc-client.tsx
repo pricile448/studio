@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -31,10 +31,11 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_FILE_TYPES = [...ACCEPTED_IMAGE_TYPES, "application/pdf"];
 
+// Schema to validate the form using react-hook-form
 const kycFormSchema = (dict: Dictionary['errors']) => z.object({
   idDocument: z
     .any()
-    .refine((files) => files?.length === 1, dict.titles.formIncomplete)
+    .refine((files) => files?.length === 1, dict.messages.forms.incomplete)
     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, dict.messages.files.sizeExceeded)
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
@@ -42,7 +43,7 @@ const kycFormSchema = (dict: Dictionary['errors']) => z.object({
     ),
   proofOfAddress: z
     .any()
-    .refine((files) => files?.length === 1, dict.titles.formIncomplete)
+    .refine((files) => files?.length === 1, dict.messages.forms.incomplete)
     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, dict.messages.files.sizeExceeded)
     .refine(
       (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
@@ -50,7 +51,7 @@ const kycFormSchema = (dict: Dictionary['errors']) => z.object({
     ),
   selfie: z
     .any()
-    .refine((files) => files?.length === 1, dict.titles.formIncomplete)
+    .refine((files) => files?.length === 1, dict.messages.forms.incomplete)
     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, dict.messages.files.sizeExceeded)
     .refine(
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
@@ -72,7 +73,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
   
   const form = useForm<z.infer<ReturnType<typeof kycFormSchema>>>({
     resolver: zodResolver(kycFormSchema(errorDict)),
-    mode: 'onChange', // Validate on change to enable/disable button
+    mode: 'onChange', // This will re-validate the form on every change
   });
   
   const totalSteps = 3;
@@ -89,6 +90,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
     });
   };
 
+  // This function is now correctly triggered by react-hook-form's handleSubmit
   const handleSubmission = async (data: z.infer<ReturnType<typeof kycFormSchema>>) => {
     if (!userProfile) return;
     
@@ -175,7 +177,6 @@ export function KycClient({ dict, lang }: KycClientProps) {
                 <span>{kycDict.step1_item2}</span>
               </li>
             </ul>
-            <Button onClick={handleNext} className="w-full">{kycDict.step1_button}</Button>
           </div>
         );
       case 2:
@@ -185,6 +186,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
 
         return (
           <Form {...form}>
+            {/* The onSubmit now correctly uses react-hook-form's handler */}
             <form onSubmit={form.handleSubmit(handleSubmission)} className="space-y-6 w-full">
               <h2 className="text-xl font-bold font-headline">{kycDict.step2_title}</h2>
               <p className="text-muted-foreground">{kycDict.step2_desc}</p>
@@ -254,10 +256,11 @@ export function KycClient({ dict, lang }: KycClientProps) {
                   />
               </div>
                <CardFooter className="flex justify-between p-0 pt-6">
-                  <Button variant="outline" onClick={handleBack} disabled={isSubmitting}>
+                  <Button type="button" variant="outline" onClick={handleBack} disabled={isSubmitting}>
                     <ArrowLeft className="mr-2" />
                     {kycDict.button_back}
                   </Button>
+                  {/* The button is now correctly disabled based on the form's validity state */}
                   <Button type="submit" disabled={!form.formState.isValid || isSubmitting}>
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {kycDict.button_submit}
