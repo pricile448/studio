@@ -63,8 +63,9 @@ export function KycClient({ dict, lang }: KycClientProps) {
   };
 
   const handleSubmit = async () => {
+    // Re-check for userProfile at the time of submission
     if (!userProfile) {
-        toast({ variant: 'destructive', title: 'Erreur', description: 'Utilisateur non trouvé.' });
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Session utilisateur invalide. Veuillez vous reconnecter.' });
         return;
     }
     
@@ -207,16 +208,6 @@ export function KycClient({ dict, lang }: KycClientProps) {
                         </Label>
                   </div>
               </div>
-               <CardFooter className="flex justify-between p-0 pt-6">
-                  <Button type="button" variant="outline" onClick={handleBack} disabled={isSubmitting}>
-                    <ArrowLeft className="mr-2" />
-                    {kycDict.button_back}
-                  </Button>
-                  <Button type="button" onClick={handleSubmit} disabled={!isStepTwoFormComplete || isSubmitting}>
-                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {kycDict.button_submit}
-                  </Button>
-               </CardFooter>
             </div>
         );
       case 3:
@@ -247,13 +238,27 @@ export function KycClient({ dict, lang }: KycClientProps) {
         <CardContent className="min-h-[400px] w-full flex items-center justify-center p-4 md:p-6">
           {renderStep()}
         </CardContent>
-        {step === 1 && (
-          <CardFooter className="flex justify-end">
-            <Button onClick={handleNext}>
-              {kycDict.button_next}
+        <CardFooter className="flex justify-between">
+          {step > 1 && step < 3 && (
+            <Button type="button" variant="outline" onClick={handleBack} disabled={isSubmitting}>
+                <ArrowLeft className="mr-2" />
+                {kycDict.button_back}
             </Button>
-          </CardFooter>
-        )}
+          )}
+           {step === 1 && (
+              <div className="flex justify-end w-full">
+                <Button onClick={handleNext}>
+                  {kycDict.button_next}
+                </Button>
+              </div>
+          )}
+          {step === 2 && (
+             <Button type="button" onClick={handleSubmit} disabled={!isStepTwoFormComplete || isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {kycDict.button_submit}
+            </Button>
+          )}
+        </CardFooter>
       </Card>
     </div>
   );
