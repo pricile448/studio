@@ -31,39 +31,21 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_FILE_TYPES = [...ACCEPTED_IMAGE_TYPES, "application/pdf"];
 
-// Schema to validate the form using react-hook-form
-const kycFormSchema = (dict: Dictionary['errors']) => z.object({
-  idDocument: z
-    .any()
-    .refine((files) => files?.length === 1, dict.messages.forms.incomplete)
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, dict.messages.files.sizeExceeded)
-    .refine(
-      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-      ".jpg, .jpeg, .png, .webp and .pdf files are accepted."
-    ),
-  proofOfAddress: z
-    .any()
-    .refine((files) => files?.length === 1, dict.messages.forms.incomplete)
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, dict.messages.files.sizeExceeded)
-    .refine(
-      (files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type),
-      ".jpg, .jpeg, .png, .webp and .pdf files are accepted."
-    ),
-  selfie: z
-    .any()
-    .refine((files) => files?.length === 1, dict.messages.forms.incomplete)
-    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, dict.messages.files.sizeExceeded)
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      ".jpg, .jpeg, .png and .webp files are accepted."
-    ),
-});
+// Schema for other fields if any, files are handled separately
+const kycFormSchema = z.object({});
 
 
 export function KycClient({ dict, lang }: KycClientProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // State to manage files directly
+  const [files, setFiles] = useState<{
+    idDocument?: File,
+    proofOfAddress?: File,
+    selfie?: File
+  }>({});
+
   const { userProfile, refreshUserProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -71,16 +53,22 @@ export function KycClient({ dict, lang }: KycClientProps) {
   const kycDict = dict.kyc;
   const errorDict = dict.errors;
   
-  const form = useForm<z.infer<ReturnType<typeof kycFormSchema>>>({
-    resolver: zodResolver(kycFormSchema(errorDict)),
-    mode: 'onChange', // This will re-validate the form on every change
+  const form = useForm({
+    resolver: zodResolver(kycFormSchema),
   });
-  
+
   const totalSteps = 3;
 
   const handleNext = () => setStep(prev => prev + 1);
   const handleBack = () => setStep(prev => prev - 1);
   
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'idDocument' | 'proofOfAddress' | 'selfie') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFiles(prev => ({ ...prev, [field]: file }));
+    }
+  };
+
   const convertFileToDataUri = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -90,15 +78,19 @@ export function KycClient({ dict, lang }: KycClientProps) {
     });
   };
 
-  // This function is now correctly triggered by react-hook-form's handleSubmit
-  const handleSubmission = async (data: z.infer<ReturnType<typeof kycFormSchema>>) => {
-    if (!userProfile) return;
+  const handleSubmission = async () => {
+    if (!userProfile || !files.idDocument || !files.proofOfAddress || !files.selfie) {
+      toast({
+        variant: 'destructive',
+        title: errorDict.titles.formIncomplete,
+        description: errorDict.messages.forms.incomplete,
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     try {
-      const idDocument = data.idDocument[0];
-      const proofOfAddress = data.proofOfAddress[0];
-      const selfie = data.selfie[0];
+      const { idDocument, proofOfAddress, selfie } = files;
 
       const [idDocumentDataUri, proofOfAddressDataUri, selfieDataUri] = await Promise.all([
           convertFileToDataUri(idDocument),
@@ -153,6 +145,8 @@ export function KycClient({ dict, lang }: KycClientProps) {
     }
   };
 
+  const isStepTwoFormComplete = !!files.idDocument && !!files.proofOfAddress && !!files.selfie;
+
   const renderStep = () => {
     switch(step) {
       case 1:
@@ -180,94 +174,59 @@ export function KycClient({ dict, lang }: KycClientProps) {
           </div>
         );
       case 2:
-        const idDocFile = form.watch('idDocument');
-        const proofFile = form.watch('proofOfAddress');
-        const selfieFile = form.watch('selfie');
-
         return (
-          <Form {...form}>
-            {/* The onSubmit now correctly uses react-hook-form's handler */}
-            <form onSubmit={form.handleSubmit(handleSubmission)} className="space-y-6 w-full">
+            <div className="space-y-6 w-full">
               <h2 className="text-xl font-bold font-headline">{kycDict.step2_title}</h2>
               <p className="text-muted-foreground">{kycDict.step2_desc}</p>
             
               <div className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="idDocument"
-                    render={({ field }) => (
-                      <FormItem>
-                          <Label htmlFor="id-upload" className="font-medium">{kycDict.step3_title_id}</Label>
-                          <p className="text-sm text-muted-foreground mb-2">{kycDict.step3_desc}</p>
-                          <FormControl>
-                            <Label htmlFor="id-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", idDocFile?.[0] && "border-primary")}>
-                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  {idDocFile?.[0] ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileUp className="w-8 h-8 text-muted-foreground" />}
-                                  <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{idDocFile?.[0]?.name || kycDict.step3_upload_button}</p>
-                              </div>
-                              <Input id="id-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => field.onChange(e.target.files)} />
-                            </Label>
-                          </FormControl>
-                          <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div>
+                      <Label htmlFor="id-upload" className="font-medium">{kycDict.step3_title_id}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">{kycDict.step3_desc}</p>
+                        <Label htmlFor="id-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", files.idDocument && "border-primary")}>
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              {files.idDocument ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileUp className="w-8 h-8 text-muted-foreground" />}
+                              <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{files.idDocument?.name || kycDict.step3_upload_button}</p>
+                          </div>
+                          <Input id="id-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => handleFileChange(e, 'idDocument')} />
+                        </Label>
+                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="proofOfAddress"
-                    render={({ field }) => (
-                      <FormItem>
-                          <Label htmlFor="proof-upload" className="font-medium">{kycDict.step4_title}</Label>
-                          <p className="text-sm text-muted-foreground mb-2">{kycDict.step4_desc}</p>
-                          <FormControl>
-                            <Label htmlFor="proof-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", proofFile?.[0] && "border-primary")}>
-                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  {proofFile?.[0] ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileUp className="w-8 h-8 text-muted-foreground" />}
-                                  <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{proofFile?.[0]?.name || kycDict.step3_upload_button}</p>
-                              </div>
-                              <Input id="proof-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => field.onChange(e.target.files)} />
-                            </Label>
-                          </FormControl>
-                          <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div>
+                      <Label htmlFor="proof-upload" className="font-medium">{kycDict.step4_title}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">{kycDict.step4_desc}</p>
+                        <Label htmlFor="proof-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", files.proofOfAddress && "border-primary")}>
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              {files.proofOfAddress ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileUp className="w-8 h-8 text-muted-foreground" />}
+                              <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{files.proofOfAddress?.name || kycDict.step3_upload_button}</p>
+                          </div>
+                          <Input id="proof-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => handleFileChange(e, 'proofOfAddress')} />
+                        </Label>
+                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="selfie"
-                    render={({ field }) => (
-                      <FormItem>
-                          <Label htmlFor="selfie-upload" className="font-medium">{kycDict.step5_title}</Label>
-                          <p className="text-sm text-muted-foreground mb-2">{kycDict.step5_desc}</p>
-                          <FormControl>
-                            <Label htmlFor="selfie-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", selfieFile?.[0] && "border-primary")}>
-                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                {selfieFile?.[0] ? <CheckCircle className="w-8 h-8 text-primary" /> : <Camera className="w-8 h-8 text-muted-foreground" />}
-                                <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{selfieFile?.[0]?.name || kycDict.step3_upload_button}</p>
-                              </div>
-                              <Input id="selfie-upload" type="file" className="hidden" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                            </Label>
-                          </FormControl>
-                          <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div>
+                      <Label htmlFor="selfie-upload" className="font-medium">{kycDict.step5_title}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">{kycDict.step5_desc}</p>
+                        <Label htmlFor="selfie-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", files.selfie && "border-primary")}>
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            {files.selfie ? <CheckCircle className="w-8 h-8 text-primary" /> : <Camera className="w-8 h-8 text-muted-foreground" />}
+                            <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{files.selfie?.name || kycDict.step3_upload_button}</p>
+                          </div>
+                          <Input id="selfie-upload" type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'selfie')} />
+                        </Label>
+                  </div>
               </div>
                <CardFooter className="flex justify-between p-0 pt-6">
                   <Button type="button" variant="outline" onClick={handleBack} disabled={isSubmitting}>
                     <ArrowLeft className="mr-2" />
                     {kycDict.button_back}
                   </Button>
-                  {/* The button is now correctly disabled based on the form's validity state */}
-                  <Button type="submit" disabled={!form.formState.isValid || isSubmitting}>
+                  <Button type="button" onClick={handleSubmission} disabled={!isStepTwoFormComplete || isSubmitting}>
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {kycDict.button_submit}
                   </Button>
                </CardFooter>
-            </form>
-          </Form>
+            </div>
         );
       case 3:
          return (
