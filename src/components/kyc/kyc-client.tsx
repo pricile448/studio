@@ -12,12 +12,11 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, AlertTriangle, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/auth-context';
+import { useUserProfile } from '@/context/user-profile-context';
 import { uploadKycDocumentsAction } from '@/app/actions';
 import { notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface KycClientProps {
   dict: Dictionary;
@@ -34,7 +33,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
     selfie?: File
   }>({});
 
-  const { userProfile, refreshUserProfile } = useAuth();
+  const { userProfile, refreshUserProfile } = useUserProfile();
   const router = useRouter();
   const { toast } = useToast();
   
@@ -262,4 +261,3 @@ export function KycClient({ dict, lang }: KycClientProps) {
     </div>
   );
 }
-
