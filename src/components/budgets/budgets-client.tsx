@@ -25,7 +25,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { KycPrompt } from '@/components/ui/kyc-prompt';
 import { KycPendingPrompt } from '@/components/ui/kyc-pending-prompt';
 import { Skeleton } from '../ui/skeleton';
@@ -47,7 +47,7 @@ const categoryIcons: { [key: string]: React.ElementType } = {
 };
 
 export function BudgetsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, updateUserProfileData } = useUserProfile();
+  const { userProfile, loading, updateUserProfileData } = useAuth();
   const budgetsDict = dict.budgets;
   const kycDict = dict.kyc;
   

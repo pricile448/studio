@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
@@ -26,7 +26,7 @@ interface AccountDetailsClientProps {
 }
 
 export function AccountDetailsClient({ dict, lang, accountId }: AccountDetailsClientProps) {
-  const { userProfile, loading, isBalanceVisible } = useUserProfile();
+  const { userProfile, loading, isBalanceVisible } = useAuth();
 
   if (loading || !userProfile || !dict) {
     return (

@@ -27,7 +27,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 
 interface SidebarNavProps {
   lang: Locale;
@@ -87,7 +87,7 @@ export function SidebarNav({ lang, dict }: SidebarNavProps) {
   const pathname = usePathname();
   const sidebarDict = dict.sidebar;
   const sidebarGroupsDict = dict.sidebarGroups;
-  const { userProfile } = useUserProfile();
+  const { userProfile } = useAuth();
 
   return (
     <div className="flex flex-col">

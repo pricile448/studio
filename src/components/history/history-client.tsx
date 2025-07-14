@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import type { Dictionary, Locale } from '@/lib/dictionaries';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -34,7 +34,7 @@ const dateLocales: Record<Locale, typeof enUS> = {
 };
 
 export function HistoryClient({ dict, lang }: HistoryClientProps) {
-  const { userProfile, loading } = useUserProfile();
+  const { userProfile, loading } = useAuth();
   
   const defaultDateRange = {
     from: startOfMonth(new Date()),

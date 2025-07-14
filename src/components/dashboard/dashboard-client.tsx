@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { VerificationBanner } from './verification-banner';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '../ui/skeleton';
 import { format } from 'date-fns';
 import dynamic from 'next/dynamic';
@@ -34,7 +34,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 };
 
 export function DashboardClient({ dict, accountsDict, lang }: DashboardClientProps) {
-  const { userProfile, loading, isBalanceVisible } = useUserProfile();
+  const { userProfile, loading, isBalanceVisible } = useAuth();
 
   if (loading || !userProfile) {
     return (

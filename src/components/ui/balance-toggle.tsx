@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { Button } from './button';
 import { Eye, EyeOff } from 'lucide-react';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function BalanceToggle({ dict }: { dict: any }) {
-  const { isBalanceVisible, toggleBalanceVisibility } = useUserProfile();
+  const { isBalanceVisible, toggleBalanceVisibility } = useAuth();
 
   return (
     <TooltipProvider>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Shield, Hourglass } from 'lucide-react';
 import type { Locale, Dictionary } from '@/lib/dictionaries';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 
 interface VerificationBannerProps {
   dict: Dictionary['dashboard']['verificationBanner'];
@@ -13,7 +13,7 @@ interface VerificationBannerProps {
 }
 
 export function VerificationBanner({ dict, lang }: VerificationBannerProps) {
-  const { userProfile } = useUserProfile();
+  const { userProfile } = useAuth();
   
   if (!userProfile || userProfile.kycStatus === 'verified') {
     return null;

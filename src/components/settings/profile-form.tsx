@@ -14,7 +14,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Input } from '@/components/ui/input';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useAuth } from '@/context/auth-context';
-import { useUserProfile } from '@/context/user-profile-context';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Skeleton } from '../ui/skeleton';
@@ -42,8 +41,7 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm({ dict }: ProfileFormProps) {
-  const { user } = useAuth();
-  const { userProfile, updateUserProfileData } = useUserProfile();
+  const { user, userProfile, updateUserProfileData } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = React.useState(false);

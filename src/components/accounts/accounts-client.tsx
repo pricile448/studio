@@ -14,7 +14,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
-import { useUserProfile } from '@/context/user-profile-context';
 import { format } from 'date-fns';
 import type { Account } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -28,8 +27,7 @@ const accountIcons: { [key: string]: React.ElementType } = {
 };
 
 function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { accounts: Account[], dict: Dictionary['accounts'], lang: Locale, onTransferSuccess: () => void }) {
-  const { user } = useAuth();
-  const { isBalanceVisible } = useUserProfile();
+  const { user, isBalanceVisible } = useAuth();
   const { toast } = useToast();
   const [fromAccountId, setFromAccountId] = useState<string>('');
   const [toAccountId, setToAccountId] = useState<string>('');
@@ -186,7 +184,7 @@ function InternalTransfer({ accounts, dict, lang, onTransferSuccess }: { account
 }
 
 export function AccountsClient({ dict, lang }: { dict: Dictionary, lang: Locale }) {
-  const { userProfile, loading, refreshUserProfile, isBalanceVisible } = useUserProfile();
+  const { userProfile, loading, refreshUserProfile, isBalanceVisible } = useAuth();
 
   if (loading || !userProfile || !dict) {
     return (

@@ -10,7 +10,7 @@ import { Copy, Check, Info } from 'lucide-react';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type BillingClientProps = {
@@ -18,7 +18,7 @@ type BillingClientProps = {
 };
 
 export function BillingClient({ dict }: BillingClientProps) {
-  const { userProfile, loading } = useUserProfile();
+  const { userProfile, loading } = useAuth();
   const { toast } = useToast();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
