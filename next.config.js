@@ -1,7 +1,5 @@
-
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -30,22 +28,22 @@ const nextConfig: NextConfig = {
     // It prevents webpack from trying to bundle server-side packages for the client.
     if (!isServer) {
         config.resolve.fallback = {
-            ...config.resolve.fallback,
+            ...(config.resolve.fallback || {}),
             fs: false,
             module: false,
             path: false,
             net: false,
             tls: false,
             http2: false,
-            child_process: false, // Added this line to fix the build error
+            child_process: false,
         };
     }
     
     // Enable WebAssembly support, required by some dependencies.
-    config.experiments = { ...config.experiments, asyncWebAssembly: true };
+    config.experiments = { ...(config.experiments || {}), asyncWebAssembly: true };
 
     return config;
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
