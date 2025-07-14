@@ -102,7 +102,7 @@ export async function uploadKycDocumentsAction(input: KycUploadInput): Promise<K
     const userRef = doc(adminDb, "users", userId);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) {
-        return { success: false, error: "Utilisateur non authentifié ou introuvable. Le téléversement est annulé." };
+        return { success: false, error: "Utilisateur non trouvé. Le téléversement est annulé." };
     }
     
     const uploadFolder = `kyc_documents/${userId}`;
@@ -171,3 +171,4 @@ export async function addDocumentToProfile(userId: string, documentName: string,
         return { success: false, error: error.message };
     }
 }
+

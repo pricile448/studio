@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, FileText, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, AlertTriangle, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
@@ -63,14 +63,11 @@ export function KycClient({ dict, lang }: KycClientProps) {
   };
 
   const handleSubmit = async () => {
-    // Re-check for userProfile at the time of submission
     if (!userProfile) {
         toast({ variant: 'destructive', title: 'Erreur', description: 'Session utilisateur invalide. Veuillez vous reconnecter.' });
         return;
     }
     
-    // The button's disabled state already ensures this condition is met,
-    // but we double-check here as a safeguard.
     if (!files.idDocument || !files.proofOfAddress || !files.selfie) {
       toast({
         variant: 'destructive',
@@ -124,7 +121,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
       });
       
       await refreshUserProfile();
-      setStep(3); // Go to final confirmation step
+      setStep(4);
     } catch (error: any) {
       console.error("KYC Submission Error:", error);
       toast({
@@ -210,7 +207,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
               </div>
             </div>
         );
-      case 3:
+      case 4:
          return (
           <div className="space-y-6 text-center py-8">
             <FileCheck2 className="mx-auto h-16 w-16 text-green-500" />
@@ -221,6 +218,8 @@ export function KycClient({ dict, lang }: KycClientProps) {
             </Button>
           </div>
         );
+      default:
+        return null;
     }
   };
 
@@ -239,7 +238,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
           {renderStep()}
         </CardContent>
         <CardFooter className="flex justify-between">
-          {step > 1 && step < 3 && (
+          {step > 1 && step < 4 && (
             <Button type="button" variant="outline" onClick={handleBack} disabled={isSubmitting}>
                 <ArrowLeft className="mr-2" />
                 {kycDict.button_back}
@@ -263,3 +262,4 @@ export function KycClient({ dict, lang }: KycClientProps) {
     </div>
   );
 }
+
