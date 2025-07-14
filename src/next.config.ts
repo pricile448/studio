@@ -1,4 +1,3 @@
-
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -39,7 +38,7 @@ const nextConfig: NextConfig = {
         };
     }
     
-    // Enable WebAssembly support, required by some dependencies.
+    // Enable WebAssembly support
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
 
     return config;
