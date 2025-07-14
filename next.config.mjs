@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
@@ -36,7 +37,8 @@ const nextConfig = {
             tls: false,
             http2: false,
             child_process: false,
-            events: require.resolve('events/'),
+            // events needs to be polyfilled for the browser
+            events: (await import('path')).resolve('events/'),
         };
     }
     
@@ -47,4 +49,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
