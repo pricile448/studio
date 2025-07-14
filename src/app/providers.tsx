@@ -1,2 +1,8 @@
-// This file is no longer needed and is being removed.
-// The AuthProvider is now directly included in the root layout.
+'use client';
+
+import { AuthProvider } from '@/context/auth-context';
+import { ReactNode } from 'react';
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <AuthProvider>{children}</AuthProvider>;
+}
