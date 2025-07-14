@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -35,6 +36,7 @@ const nextConfig: NextConfig = {
             path: false,
             net: false,
             tls: false,
+            events: require.resolve('events/'),
         };
     }
     
