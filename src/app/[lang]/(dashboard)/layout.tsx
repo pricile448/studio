@@ -13,8 +13,6 @@ export default async function DashboardLayout({
   const { lang } = params;
   const dict = await getDictionary(lang);
   return (
-    // The UserProfileProvider is now applied inside the client component
-    // to avoid Server/Client component boundary issues causing ChunkLoadErrors.
     <DashboardLayoutClient dict={dict} lang={lang}>
         {children}
     </DashboardLayoutClient>

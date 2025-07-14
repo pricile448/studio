@@ -2,11 +2,9 @@
 'use client';
 
 import type { Locale, Dictionary } from '@/lib/dictionaries';
-import { UserProfileProvider } from '@/context/user-profile-context';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
-import { useUserProfile } from '@/context/user-profile-context';
 import {
   SidebarProvider,
   Sidebar,
@@ -56,7 +54,7 @@ import {
 import { BalanceToggle } from '@/components/ui/balance-toggle';
 
 
-function DashboardContent({
+export function DashboardLayoutClient({
   children,
   dict,
   lang,
@@ -65,10 +63,7 @@ function DashboardContent({
   dict: Dictionary;
   lang: Locale;
 }) {
-  const { user, loading: authLoading, logout } = useAuth();
-  const { userProfile, loading: profileLoading } = useUserProfile();
-  const loading = authLoading || profileLoading;
-
+  const { user, userProfile, loading, logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -103,18 +98,14 @@ function DashboardContent({
       redirectPath = `/${lang}/login?reason=inactivity`;
     }
     
-    // Redirect first to prevent a race condition with the auth state listener.
-    // This ensures this component unmounts before the user state becomes null.
     router.push(redirectPath);
     await logout();
 
   }, [isLoggingOut, logout, router, lang, toast, dict]);
 
-  // Read timeout from user profile, with a default of 15 minutes.
   const timeoutMinutes = userProfile?.inactivityTimeout ?? 15;
   const timeoutMs = timeoutMinutes * 60 * 1000;
 
-  // The hook is now called unconditionally. The internal logic of the hook handles the `timeout > 0` case.
   useInactivityLogout(timeoutMs, () => handleLogout(true));
 
 
@@ -196,7 +187,6 @@ function DashboardContent({
         <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
           <SidebarTrigger className="md:hidden" />
           <div className="w-full flex-1">
-            {/* Future search bar could go here */}
           </div>
           <div className="flex items-center gap-2">
                <BalanceToggle dict={dict.sidebar} />
@@ -302,23 +292,5 @@ function DashboardContent({
           </AlertDialogContent>
         </AlertDialog>
     </SidebarProvider>
-  );
-}
-
-export function DashboardLayoutClient({
-  children,
-  dict,
-  lang,
-}: {
-  children: React.ReactNode;
-  dict: Dictionary;
-  lang: Locale;
-}) {
-  return (
-    <UserProfileProvider>
-      <DashboardContent dict={dict} lang={lang}>
-        {children}
-      </DashboardContent>
-    </UserProfileProvider>
   );
 }

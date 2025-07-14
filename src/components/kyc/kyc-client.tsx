@@ -9,10 +9,10 @@ import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2, AlertTriangle, FileText } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, FileUp, Camera, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { uploadKycDocumentsAction } from '@/app/actions';
 import { notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
@@ -33,7 +33,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
     selfie?: File
   }>({});
 
-  const { userProfile, refreshUserProfile } = useUserProfile();
+  const { user, userProfile, refreshUserProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   
@@ -62,7 +62,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
   };
 
   const handleSubmit = async () => {
-    if (!userProfile) {
+    if (!user || !userProfile) {
         toast({ variant: 'destructive', title: 'Erreur', description: 'Session utilisateur invalide. Veuillez vous reconnecter.' });
         return;
     }
@@ -185,7 +185,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
                       <p className="text-sm text-muted-foreground mb-2">{kycDict.step4_desc}</p>
                         <Label htmlFor="proof-upload" className={cn("flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted", files.proofOfAddress && "border-primary")}>
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              {files.proofOfAddress ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileText className="w-8 h-8 text-muted-foreground" />}
+                              {files.proofOfAddress ? <CheckCircle className="w-8 h-8 text-primary" /> : <FileUp className="w-8 h-8 text-muted-foreground" />}
                               <p className="mt-2 text-sm text-muted-foreground truncate max-w-[90%]">{files.proofOfAddress?.name || kycDict.step3_upload_button}</p>
                           </div>
                           <Input id="proof-upload" type="file" className="hidden" accept="image/*,.pdf" onChange={(e) => handleFileChange(e, 'proofOfAddress')} />

@@ -15,7 +15,7 @@ import { Loader2, Send, AlertTriangle, Trash2, Paperclip, File as FileIcon, Down
 import type { User } from 'firebase/auth';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
-import { useUserProfile } from '@/context/user-profile-context';
+import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -56,10 +56,9 @@ const convertFileToDataUri = (file: File): Promise<string> => {
 
 const getCloudinaryDownloadUrl = (url: string): string => {
     if (!url) return '';
-    // This logic works for both 'image/upload/' and 'raw/upload/' URLs
     const urlParts = url.split('/upload/');
     if (urlParts.length !== 2) {
-        return url; // return original if format is unexpected
+        return url;
     }
     const [baseUrl, assetPath] = urlParts;
     return `${baseUrl}/upload/fl_attachment/${assetPath}`;
@@ -76,13 +75,12 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isDeleting, startDeleteTransition] = useTransition();
     const { toast } = useToast();
-    const { deleteMessage } = useUserProfile();
+    const { deleteMessage } = useAuth();
     const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
     
     const advisorId = userProfile?.advisorId || 'advisor_123';
     const chatDict = dict.chat;
 
-    // Effect to get or create the chat session
     useEffect(() => {
         if (!chatId && user.uid && advisorId) {
             setIsLoading(true);
@@ -99,7 +97,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         }
     }, [chatId, user.uid, advisorId, chatDict.connectionErrorText]);
 
-    // Combined effect to manage listeners and prevent race conditions
     useEffect(() => {
         if (!chatId) {
             setMessages([]);
@@ -111,7 +108,6 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
         const unsubscribeDoc = onSnapshot(doc(db, 'chats', chatId),
             (docSnap) => {
                 if (docSnap.exists()) {
-                    // Chat exists, safe to listen for messages.
                     const messagesQuery = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'));
                     unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
                         const msgs: ChatMessage[] = [];
@@ -129,28 +125,25 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
                             });
                         });
                         setMessages(msgs);
-                        setError(null); // Clear previous errors on success
+                        setError(null);
                     }, (err) => {
                         console.error('Error listening to messages subcollection:', err);
                         setError(chatDict.connectionErrorText);
                     });
                 } else {
-                    // Chat was deleted. This is the key part of the fix.
-                    // We immediately stop listening to messages and reset the chat state.
                     console.warn("Chat document was deleted. Resetting chat state.");
-                    unsubscribeMessages(); // Stop listening to the old message path first.
-                    setChatId(null);       // Then, trigger the re-initialization flow.
+                    unsubscribeMessages();
+                    setChatId(null);
                 }
             },
             (err) => {
                 console.error("Error listening to chat document:", err);
-                unsubscribeMessages(); // Also clean up on error
+                unsubscribeMessages();
                 setChatId(null);
                 setError(chatDict.connectionErrorText);
             }
         );
 
-        // Main cleanup for the entire effect
         return () => {
             unsubscribeDoc();
             unsubscribeMessages();
@@ -227,7 +220,7 @@ export function ChatClient({ dict, user, userProfile }: ChatClientProps) {
             });
         } finally {
             setIsSending(false);
-            if(fileInputRef.current) fileInputRef.current.value = ""; // Reset file input
+            if(fileInputRef.current) fileInputRef.current.value = "";
         }
     };
 
