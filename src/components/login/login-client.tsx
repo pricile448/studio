@@ -57,8 +57,17 @@ export function LoginClient({ dict, lang }: LoginClientProps) {
     if (result.success) {
       router.push(`/${lang}/dashboard`);
     } else {
-      const errorKey = result.error as keyof typeof dict.errors.messages.auth;
-      const message = dict.errors.messages.auth[errorKey] || dict.errors.messages.api.unexpected;
+      const errorKey = result.error as keyof typeof dict.errors.messages.auth | keyof typeof dict.errors.messages.api;
+      let message;
+
+      if (errorKey in dict.errors.messages.auth) {
+          message = dict.errors.messages.auth[errorKey as keyof typeof dict.errors.messages.auth];
+      } else if (errorKey in dict.errors.messages.api) {
+          message = dict.errors.messages.api[errorKey as keyof typeof dict.errors.messages.api];
+      } else {
+          message = dict.errors.messages.api.unexpected;
+      }
+      
       toast({
         variant: 'destructive',
         title: dict.errors.titles.loginFailed,

@@ -25,6 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
+    if (!auth) {
+        console.error("Firebase Auth is not initialized. Authentication will not work.");
+        setLoading(false);
+        return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
@@ -33,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    if (!auth) return { success: false, error: 'api.unexpected' };
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
@@ -46,17 +52,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error.code === 'auth/invalid-credential') {
             return { success: false, error: 'wrongCredentials' };
         }
+         if (error.code === 'auth/network-request-failed') {
+            return { success: false, error: 'networkError' };
+        }
         console.error("Unexpected Firebase Login Error:", error);
         return { success: false, error: 'api.unexpected' };
     }
   };
 
   const logout = async () => {
+    if (!auth) return;
     await signOut(auth);
   };
 
   const updateUserPassword = async (currentPass: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
-    if (!auth.currentUser || !auth.currentUser.email) return { success: false, error: 'api.unexpected' };
+    if (!auth || !auth.currentUser || !auth.currentUser.email) return { success: false, error: 'api.unexpected' };
     
     try {
       const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPass);

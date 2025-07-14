@@ -13,24 +13,45 @@ const firebaseConfig = {
 };
 
 // Singleton map to store initialized app instances
-const appInstances = new Map<string, FirebaseApp>();
+const appInstances = new Map<string, FirebaseApp | null>();
 
 interface FirebaseServices {
-    app: FirebaseApp;
-    auth: Auth;
-    db: Firestore;
-    storage: FirebaseStorage;
+    app: FirebaseApp | null;
+    auth: Auth | null;
+    db: Firestore | null;
+    storage: FirebaseStorage | null;
 }
+
+// Function to check if all necessary config values are present
+function isFirebaseConfigValid(config: typeof firebaseConfig): boolean {
+    return !!(config.apiKey && config.authDomain && config.projectId);
+}
+
 
 export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServices {
     if (appInstances.has(appName)) {
         const app = appInstances.get(appName)!;
+        if (!app) {
+            return { app: null, auth: null, db: null, storage: null };
+        }
         return {
             app,
             auth: getAuth(app),
             db: getFirestore(app),
             storage: getStorage(app),
         };
+    }
+    
+    if (!isFirebaseConfigValid(firebaseConfig)) {
+        console.error(
+            `\n**************************************************\n` +
+            `ERROR: Firebase client configuration is missing or incomplete.\n` +
+            `Please ensure all NEXT_PUBLIC_FIREBASE_* environment variables are set correctly in your .env file.\n` +
+            `Client-side Firebase features will be disabled.\n` +
+            `**************************************************\n`
+        );
+        appInstances.set(appName, null);
+        return { app: null, auth: null, db: null, storage: null };
     }
 
     const app = getApps().find(app => app.name === appName) || initializeApp(firebaseConfig, appName);
@@ -47,4 +68,9 @@ export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServ
 // Default export for convenience where only one instance is needed (client-side)
 const { app, auth, db, storage } = getFirebaseServices();
 
-export { app, auth, db, storage };
+// Handle the case where initialization might fail
+const authInstance = auth as Auth;
+const dbInstance = db as Firestore;
+const storageInstance = storage as FirebaseStorage;
+
+export { app, authInstance as auth, dbInstance as db, storageInstance as storage };
