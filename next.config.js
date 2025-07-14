@@ -36,6 +36,7 @@ const nextConfig = {
             tls: false,
             http2: false,
             child_process: false,
+            events: require.resolve('events/'),
         };
     }
     
