@@ -1,5 +1,7 @@
 import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch, deleteField } from "firebase/firestore";
 import { db as defaultDb } from "./config";
+import { adminDb } from './admin';
+
 
 export type Account = {
   id: string;
@@ -717,7 +719,10 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
   });
 }
 
-export async function getAllTransfers(db: Firestore = defaultDb): Promise<Array<Transaction & { userId: string, userName: string }>> {
+export async function getAllTransfers(db: Firestore | null = adminDb): Promise<Array<Transaction & { userId: string, userName: string }>> {
+    if (!db) {
+        throw new Error("La base de données administrateur n'est pas initialisée.");
+    }
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const allTransfers: Array<Transaction & { userId: string, userName: string }> = [];
 
@@ -797,4 +802,5 @@ export async function updateBillingConfig(config: BillingConfig, db: Firestore =
   const configRef = doc(db, "config", "billing");
   await setDoc(configRef, config, { merge: true });
 }
+
 
