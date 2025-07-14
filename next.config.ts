@@ -36,6 +36,7 @@ const nextConfig: NextConfig = {
             path: false,
             net: false,
             tls: false,
+            http2: false, // Added this line to fix the build error
         };
     }
     
