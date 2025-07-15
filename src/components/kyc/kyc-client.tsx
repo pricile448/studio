@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,10 +13,11 @@ import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, File
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
-import { uploadKycDocumentsAction } from '@/app/actions';
-import { notifyAdminOfKyc } from '@/ai/flows/kyc-submission-flow';
+import { submitKycAndNotifyAdmin } from '@/ai/flows/kyc-submission-flow';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { updateUserInFirestore } from '@/lib/firebase/firestore';
+
 
 interface KycClientProps {
   dict: Dictionary;
@@ -85,19 +87,6 @@ export function KycClient({ dict, lang }: KycClientProps) {
           convertFileToDataUri(selfie),
       ]);
       
-      const uploadResult = await uploadKycDocumentsAction({
-          userId: userProfile.uid,
-          idDocumentDataUri,
-          proofOfAddressDataUri,
-          selfieDataUri,
-      });
-
-      if (!uploadResult.success || !uploadResult.idDocumentUrl || !uploadResult.proofOfAddressUrl || !uploadResult.selfieUrl) {
-          throw new Error(uploadResult.error || "Une erreur inconnue est survenue pendant le téléversement des fichiers.");
-      }
-
-      const { idDocumentUrl, proofOfAddressUrl, selfieUrl } = uploadResult;
-
       const submissionRef = doc(db, 'kycSubmissions', userProfile.uid);
       const submissionData = {
           userId: userProfile.uid,
@@ -105,21 +94,30 @@ export function KycClient({ dict, lang }: KycClientProps) {
           userEmail: userProfile.email,
           status: 'pending' as const,
           submittedAt: Timestamp.now(),
-          documents: { idDocumentUrl, proofOfAddressUrl, selfieUrl }
       };
-      await setDoc(submissionRef, submissionData);
+      await setDoc(submissionRef, submissionData, { merge: true });
 
-      await notifyAdminOfKyc({
+      await updateUserInFirestore(user.uid, {
+          kycStatus: 'pending',
+          kycSubmittedAt: new Date(),
+      });
+
+      const emailResult = await submitKycAndNotifyAdmin({
           userId: userProfile.uid,
           userName: `${userProfile.firstName} ${userProfile.lastName}`,
           userEmail: userProfile.email,
-          idDocumentUrl,
-          proofOfAddressUrl,
-          selfieUrl,
+          idDocument: { filename: idDocument.name, data: idDocumentDataUri },
+          proofOfAddress: { filename: proofOfAddress.name, data: proofOfAddressDataUri },
+          selfie: { filename: selfie.name, data: selfieDataUri },
       });
-      
+
+      if (!emailResult.success) {
+          throw new Error(emailResult.error || "Une erreur inconnue est survenue pendant l'envoi de la notification.");
+      }
+
       await refreshUserProfile();
       setStep(4);
+
     } catch (error: any) {
       console.error("KYC Submission Error:", error);
       toast({

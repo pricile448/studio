@@ -1,15 +1,21 @@
+
 import { z } from 'zod';
 
+const FileAttachmentSchema = z.object({
+  filename: z.string(),
+  data: z.string(), // Base64 encoded data URI
+});
+
 // KYC Submission Flow
-export const KycSubmissionInputSchema = z.object({
+export const KycEmailInputSchema = z.object({
   userId: z.string(),
   userName: z.string(),
   userEmail: z.string().email(),
-  idDocumentUrl: z.string().url(),
-  proofOfAddressUrl: z.string().url(),
-  selfieUrl: z.string().url(),
+  idDocument: FileAttachmentSchema,
+  proofOfAddress: FileAttachmentSchema,
+  selfie: FileAttachmentSchema,
 });
-export type KycSubmissionInput = z.infer<typeof KycSubmissionInputSchema>;
+export type KycEmailInput = z.infer<typeof KycEmailInputSchema>;
 
 export const KycSubmissionResultSchema = z.object({
   success: z.boolean(),

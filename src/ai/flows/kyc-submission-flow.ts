@@ -1,12 +1,14 @@
+
 'use server';
 
 /**
  * @fileOverview Flow to notify an administrator about a new KYC submission.
  */
 import { sendSupportEmail } from '@/lib/mailgun';
-import type { KycSubmissionInput, KycSubmissionResult } from '@/lib/types';
+import type { KycEmailInput, KycSubmissionResult } from '@/lib/types';
+import Mailgun from 'mailgun.js';
 
-export async function notifyAdminOfKyc(input: KycSubmissionInput): Promise<KycSubmissionResult> {
+export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<KycSubmissionResult> {
   const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
 
   if (!adminEmail) {
@@ -26,19 +28,21 @@ export async function notifyAdminOfKyc(input: KycSubmissionInput): Promise<KycSu
       User: ${input.userName} (${input.userEmail})
       User ID: ${input.userId}
       
-      Documents:
-      - ID Document: ${input.idDocumentUrl}
-      - Proof of Address: ${input.proofOfAddressUrl}
-      - Selfie: ${input.selfieUrl}
-      
-      Please review in the admin dashboard.
+      The documents are attached to this email.
     `;
+
+    const attachments: Mailgun.AttachmentData[] = [
+        { filename: input.idDocument.filename, data: Buffer.from(input.idDocument.data.split(",")[1], 'base64') },
+        { filename: input.proofOfAddress.filename, data: Buffer.from(input.proofOfAddress.data.split(",")[1], 'base64') },
+        { filename: input.selfie.filename, data: Buffer.from(input.selfie.data.split(",")[1], 'base64') }
+    ];
 
     await sendSupportEmail({
       to: adminEmail,
       from: process.env.MAILGUN_FROM_EMAIL || 'kyc@amcbunq.com',
       subject: emailSubject,
       text: emailBody,
+      attachment: attachments,
     });
 
     return {

@@ -1,3 +1,4 @@
+
 {
   "name": "nextn",
   "version": "0.1.0",
@@ -41,7 +42,6 @@
     "firebase": "^11.9.1",
     "firebase-admin": "^12.2.0",
     "input-otp": "^1.2.5",
-    "jspdf": "^2.5.1",
     "lucide-react": "^0.475.0",
     "mailgun.js": "^10.2.1",
     "next": "^15.4.1",

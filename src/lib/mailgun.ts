@@ -1,3 +1,4 @@
+
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
 
@@ -7,6 +8,7 @@ interface EmailOptions {
   subject: string;
   text: string;
   html?: string;
+  attachment?: Mailgun.AttachmentData[];
 }
 
 const mailgun = new Mailgun(formData);
