@@ -4,11 +4,16 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { updateUserInFirestore } from '@/lib/firebase/firestore';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const isCloudinaryConfigured = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+
+if (isCloudinaryConfigured) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+}
+
 
 export async function uploadChatAttachment(
   chatId: string,
@@ -34,6 +39,11 @@ export async function uploadKycDocumentsAction(data: {
     proofOfAddressDataUri: string,
     selfieDataUri: string,
 }) {
+    if (!isCloudinaryConfigured) {
+        console.error("Cloudinary is not configured. Please check your environment variables.");
+        return { success: false, error: "La configuration du service de fichiers est manquante. Veuillez contacter le support." };
+    }
+
     const { userId, idDocumentDataUri, proofOfAddressDataUri, selfieDataUri } = data;
 
     try {
