@@ -63,16 +63,10 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
         status: 'pending' as const,
         submittedAt: Timestamp.now(),
     };
+    // This operation is allowed by the security rules for the authenticated user
     await setDoc(submissionRef, submissionData, { merge: true });
 
-    // 2. Update the user's KYC status
-    const userRef = doc(db, 'users', input.userId);
-    await updateDoc(userRef, {
-        kycStatus: 'pending',
-        kycSubmittedAt: Timestamp.now(),
-    });
-
-    // 3. Send notification email with attachments
+    // 2. Send notification email with attachments
     const emailSubject = `Nouvelle soumission KYC : ${input.userName}`;
     const emailBody = `
       Une nouvelle soumission KYC est prête pour examen.
