@@ -43,7 +43,7 @@ import { Bell, LogOut, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInactivityLogout } from '@/hooks/use-inactivity-logout';
 import { useToast } from '@/hooks/use-toast';
-import { ChatPageClient } from '@/components/chat/chat-page-client';
+import dynamic from 'next/dynamic';
 import {
   Sheet,
   SheetContent,
@@ -52,6 +52,14 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { BalanceToggle } from '@/components/ui/balance-toggle';
+
+const ChatPageClient = dynamic(
+  () => import('@/components/chat/chat-page-client').then(mod => mod.ChatPageClient),
+  {
+    loading: () => <div className="flex items-center justify-center h-full"><Skeleton className="h-full w-full" /></div>,
+    ssr: false
+  }
+);
 
 
 export function DashboardLayoutClient({
