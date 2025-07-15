@@ -1,3 +1,4 @@
+
 import type { Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { LoginClient } from '@/components/login/login-client';
