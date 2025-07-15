@@ -14,9 +14,6 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { submitKycAndNotifyAdmin } from '@/ai/flows/kyc-submission-flow';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
-import { updateUserInFirestore } from '@/lib/firebase/firestore';
 
 
 interface KycClientProps {
@@ -87,22 +84,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
           convertFileToDataUri(selfie),
       ]);
       
-      const submissionRef = doc(db, 'kycSubmissions', userProfile.uid);
-      const submissionData = {
-          userId: userProfile.uid,
-          userName: `${userProfile.firstName} ${userProfile.lastName}`,
-          userEmail: userProfile.email,
-          status: 'pending' as const,
-          submittedAt: Timestamp.now(),
-      };
-      await setDoc(submissionRef, submissionData, { merge: true });
-
-      await updateUserInFirestore(user.uid, {
-          kycStatus: 'pending',
-          kycSubmittedAt: new Date(),
-      });
-
-      const emailResult = await submitKycAndNotifyAdmin({
+      const result = await submitKycAndNotifyAdmin({
           userId: userProfile.uid,
           userName: `${userProfile.firstName} ${userProfile.lastName}`,
           userEmail: userProfile.email,
@@ -111,8 +93,8 @@ export function KycClient({ dict, lang }: KycClientProps) {
           selfie: { filename: selfie.name, data: selfieDataUri },
       });
 
-      if (!emailResult.success) {
-          throw new Error(emailResult.error || "Une erreur inconnue est survenue pendant l'envoi de la notification.");
+      if (!result.success) {
+          throw new Error(result.error || "Une erreur inconnue est survenue pendant la soumission.");
       }
 
       await refreshUserProfile();
