@@ -1,6 +1,5 @@
 import { doc, setDoc, serverTimestamp, getDoc, updateDoc, Timestamp, collection, addDoc, query, orderBy, onSnapshot, where, getDocs, limit, deleteDoc, Firestore, writeBatch, deleteField } from "firebase/firestore";
 import { db as defaultDb } from "./config";
-import { adminDb } from './admin';
 
 
 export type Account = {
@@ -310,12 +309,12 @@ export async function softDeleteUserMessage(chatId: string, messageId: string, d
     await updateDoc(messageRef, { deletedForUser: true });
 }
 
-export async function hardDeleteMessage(chatId: string, messageId: string, db: Firestore = defaultDb) {
+export async function hardDeleteMessage(chatId: string, messageId: string, db: Firestore) {
     const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
     await deleteDoc(messageRef);
 }
 
-export async function deleteChatSession(chatId: string, dbInstance: Firestore = defaultDb) {
+export async function deleteChatSession(chatId: string, dbInstance: Firestore) {
     const chatRef = doc(dbInstance, 'chats', chatId);
     const messagesRef = collection(dbInstance, 'chats', chatId, 'messages');
     
@@ -335,7 +334,7 @@ export async function deleteChatSession(chatId: string, dbInstance: Firestore = 
 }
 
 
-export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfile[]> {
+export async function getAllUsers(db: Firestore): Promise<UserProfile[]> {
     const usersCollection = collection(db, 'users');
     const usersSnapshot = await getDocs(usersCollection);
     const usersList = usersSnapshot.docs.map(doc => {
@@ -368,7 +367,7 @@ export async function getAllUsers(db: Firestore = defaultDb): Promise<UserProfil
     return usersList;
 }
 
-export async function getAdmins(db: Firestore = defaultDb): Promise<UserProfile[]> {
+export async function getAdmins(db: Firestore): Promise<UserProfile[]> {
     const adminsCol = collection(db, 'admins');
     const adminSnap = await getDocs(adminsCol);
     const adminIds = adminSnap.docs.map(doc => doc.id);
@@ -383,7 +382,7 @@ export async function getAdmins(db: Firestore = defaultDb): Promise<UserProfile[
     return adminProfiles;
 }
 
-export async function getAllKycSubmissions(db: Firestore = defaultDb): Promise<KycSubmission[]> {
+export async function getAllKycSubmissions(db: Firestore): Promise<KycSubmission[]> {
     const submissionsCollection = collection(db, 'kycSubmissions');
     const q = query(submissionsCollection, orderBy('submittedAt', 'desc'));
     
@@ -404,7 +403,7 @@ export async function getAllKycSubmissions(db: Firestore = defaultDb): Promise<K
 }
 
 
-export async function addFundsToAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore = defaultDb): Promise<void> {
+export async function addFundsToAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
@@ -442,7 +441,7 @@ export async function addFundsToAccount(userId: string, accountId: string, amoun
   });
 }
 
-export async function debitFundsFromAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore = defaultDb): Promise<void> {
+export async function debitFundsFromAccount(userId: string, accountId: string, amount: number, description: string, db: Firestore): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
@@ -481,7 +480,7 @@ export async function debitFundsFromAccount(userId: string, accountId: string, a
   });
 }
 
-export async function updateUserAccountDetails(userId: string, accountId: string, details: Partial<Account>, db: Firestore = defaultDb): Promise<void> {
+export async function updateUserAccountDetails(userId: string, accountId: string, details: Partial<Account>, db: Firestore): Promise<void> {
     const userRef = doc(db, "users", userId);
     const userSnap = await getDoc(userRef);
 
@@ -504,7 +503,7 @@ export async function updateUserAccountDetails(userId: string, accountId: string
     });
 }
 
-export async function resetAccountBalance(userId: string, accountId: string, db: Firestore = defaultDb): Promise<void> {
+export async function resetAccountBalance(userId: string, accountId: string, db: Firestore): Promise<void> {
     const userRef = doc(db, "users", userId);
     const userSnap = await getDoc(userRef);
 
@@ -527,7 +526,7 @@ export async function resetAccountBalance(userId: string, accountId: string, db:
     });
 }
 
-export async function deleteTransaction(userId: string, transactionId: string, db: Firestore = defaultDb): Promise<void> {
+export async function deleteTransaction(userId: string, transactionId: string, db: Firestore): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
@@ -561,7 +560,7 @@ export async function deleteTransaction(userId: string, transactionId: string, d
   });
 }
 
-export async function deleteSelectedTransactions(userId: string, transactionIds: string[], db: Firestore = defaultDb): Promise<void> {
+export async function deleteSelectedTransactions(userId: string, transactionIds: string[], db: Firestore): Promise<void> {
   if (transactionIds.length === 0) return;
 
   const userRef = doc(db, "users", userId);
@@ -592,7 +591,7 @@ export async function deleteSelectedTransactions(userId: string, transactionIds:
   });
 }
 
-export async function deleteAllTransactions(userId: string, db: Firestore = defaultDb): Promise<void> {
+export async function deleteAllTransactions(userId: string, db: Firestore): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
@@ -612,7 +611,7 @@ export async function deleteAllTransactions(userId: string, db: Firestore = defa
 }
 
 
-export async function deleteBudget(userId: string, budgetId: string, db: Firestore = defaultDb): Promise<void> {
+export async function deleteBudget(userId: string, budgetId: string, db: Firestore): Promise<void> {
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
@@ -719,10 +718,7 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
   });
 }
 
-export async function getAllTransfers(db: Firestore | null = adminDb): Promise<Array<Transaction & { userId: string, userName: string }>> {
-    if (!db) {
-        throw new Error("La base de données administrateur n'est pas initialisée.");
-    }
+export async function getAllTransfers(db: Firestore): Promise<Array<Transaction & { userId: string, userName: string }>> {
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const allTransfers: Array<Transaction & { userId: string, userName: string }> = [];
 
@@ -744,7 +740,7 @@ export async function getAllTransfers(db: Firestore | null = adminDb): Promise<A
     return allTransfers;
 }
 
-export async function updateTransferStatus(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed' | 'in_review', db: Firestore = defaultDb): Promise<void> {
+export async function updateTransferStatus(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed' | 'in_review', db: Firestore): Promise<void> {
     const userRef = doc(db, "users", userId);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) throw new Error("Utilisateur non trouvé.");
@@ -761,7 +757,7 @@ export async function updateTransferStatus(userId: string, transactionId: string
     await updateDoc(userRef, { transactions });
 }
 
-export async function executeTransfer(userId: string, transactionId: string, db: Firestore = defaultDb): Promise<void> {
+export async function executeTransfer(userId: string, transactionId: string, db: Firestore): Promise<void> {
     const userRef = doc(db, "users", userId);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) throw new Error("Utilisateur non trouvé.");
@@ -789,7 +785,7 @@ export async function executeTransfer(userId: string, transactionId: string, db:
     await updateDoc(userRef, { accounts, transactions });
 }
 
-export async function getBillingConfig(db: Firestore = defaultDb): Promise<BillingConfig | null> {
+export async function getBillingConfig(db: Firestore): Promise<BillingConfig | null> {
   const configRef = doc(db, "config", "billing");
   const docSnap = await getDoc(configRef);
   if (docSnap.exists()) {
@@ -798,9 +794,10 @@ export async function getBillingConfig(db: Firestore = defaultDb): Promise<Billi
   return null;
 }
 
-export async function updateBillingConfig(config: BillingConfig, db: Firestore = defaultDb): Promise<void> {
+export async function updateBillingConfig(config: BillingConfig, db: Firestore): Promise<void> {
   const configRef = doc(db, "config", "billing");
   await setDoc(configRef, config, { merge: true });
 }
+
 
 

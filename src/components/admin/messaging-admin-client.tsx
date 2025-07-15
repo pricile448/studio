@@ -38,14 +38,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
-import { getFirebaseServices } from '@/lib/firebase/config';
 import type { Firestore } from 'firebase/firestore';
 import { uploadChatAttachment } from '@/app/actions';
 import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { adminDb } from '@/lib/firebase/admin';
 
 
-const { db: adminDb } = getFirebaseServices('admin');
 const ADVISOR_ID = 'advisor_123';
 
 interface ChatSession {
@@ -80,7 +79,7 @@ const getCloudinaryDownloadUrl = (url: string): string => {
     return `${baseUrl}/upload/fl_attachment/${assetPath}`;
 };
 
-function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, adminDb: Firestore, onBack?: () => void }) {
+function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSession: ChatSession, adminId: string, adminName: string, onBack?: () => void }) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -99,7 +98,7 @@ function ChatInterface({ chatSession, adminId, adminName, adminDb, onBack }: { c
             setMessages(msgs);
         });
         return () => unsubscribe();
-    }, [chatSession.id, adminDb]);
+    }, [chatSession.id]);
 
     useEffect(() => {
         setTimeout(() => scrollAreaEndRef.current?.scrollIntoView({ behavior: 'auto' }), 100);
@@ -520,7 +519,7 @@ export function MessagingAdminClient() {
     
     const chatView = selectedChat ? (
         <Card className="h-full flex flex-col">
-            <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} adminDb={adminDb} onBack={() => setSelectedChatId(null)} />
+            <ChatInterface chatSession={selectedChat} adminId={user.uid} adminName={adminName} onBack={() => setSelectedChatId(null)} />
         </Card>
     ) : (
         <Card className="hidden md:flex flex-col items-center justify-center h-full text-center p-8 border-dashed">

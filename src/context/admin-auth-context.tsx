@@ -6,9 +6,7 @@ import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEma
 import { getFirebaseServices } from '@/lib/firebase/config';
 import { getUserFromFirestore, UserProfile, deleteChatSession, hardDeleteMessage } from '@/lib/firebase/firestore';
 import { doc, getDoc } from "firebase/firestore";
-
-// Initialize admin-specific Firebase services
-const { auth: adminAuth, db: adminDb } = getFirebaseServices('admin');
+import { adminDb } from '@/lib/firebase/admin';
 
 type AdminAuthContextType = {
   user: User | null;
@@ -28,8 +26,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { auth: adminAuth } = getFirebaseServices('admin');
+
 
   useEffect(() => {
+    if (!adminAuth) {
+        setLoading(false);
+        return;
+    }
     const unsubscribe = onAuthStateChanged(adminAuth, async (user) => {
       setLoading(true); // Set loading to true whenever auth state might change
       setUser(user);
@@ -59,9 +63,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [adminAuth]);
 
   const login = async (email: string, password: string) => {
+    if (!adminAuth) throw new Error("Admin Auth not initialized");
     const userCredential = await signInWithEmailAndPassword(adminAuth, email, password);
     
     // Check if the user is an admin after login
@@ -77,6 +82,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    if (!adminAuth) return;
     await signOut(adminAuth);
   };
   

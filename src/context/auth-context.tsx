@@ -34,7 +34,6 @@ type AuthContextType = {
   updateUserProfileData: (data: Partial<UserProfile>) => Promise<void>;
   requestCard: (cardType: PhysicalCardType) => Promise<void>;
   requestVirtualCard: () => Promise<void>;
-  deleteConversation: (chatId: string) => Promise<void>;
   deleteMessage: (chatId: string, messageId: string) => Promise<void>;
   addBeneficiary: (beneficiaryData: Omit<Beneficiary, 'id'>) => Promise<void>;
   deleteBeneficiary: (beneficiaryId: string) => Promise<void>;
@@ -56,7 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserProfile = React.useCallback(async (uid: string) => {
     setLoading(true);
     try {
-        const profile = await getUserFromFirestore(uid);
+        if (!db) throw new Error("Firestore not initialized");
+        const profile = await getUserFromFirestore(uid, db);
         setUserProfile(profile);
     } catch (error) {
         console.error("Failed to fetch user profile:", error);
@@ -89,10 +89,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
-        if (userCredential.user.metadata.lastSignInTime) {
+        if (userCredential.user.metadata.lastSignInTime && db) {
           await updateUserInFirestore(userCredential.user.uid, { 
               lastSignInTime: new Date(userCredential.user.metadata.lastSignInTime) 
-          });
+          }, db);
         }
         return { success: true };
     } catch (error: any) {
@@ -139,9 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, fetchUserProfile]);
 
   const updateUserProfileData = async (data: Partial<UserProfile>) => {
-    if (!user) throw new Error("No user is signed in.");
+    if (!user || !db) throw new Error("No user is signed in or DB is not available.");
     
-    await updateUserInFirestore(user.uid, data);
+    await updateUserInFirestore(user.uid, data, db);
     
     const authProfileUpdate: { displayName?: string; photoURL?: string } = {};
 
@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const requestCard = async (cardType: PhysicalCardType) => {
-    if (!user) throw new Error("No user is signed in.");
+    if (!user || !db) throw new Error("User or DB not available");
 
     const requestData: Partial<UserProfile> = {
         cardStatus: 'requested',
@@ -168,42 +168,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         cardType,
     };
     
-    await updateUserInFirestore(user.uid, requestData);
+    await updateUserInFirestore(user.uid, requestData, db);
     await refreshUserProfile();
   };
 
   const requestVirtualCard = async () => {
-    if (!user) throw new Error("No user is signed in.");
+    if (!user || !db) throw new Error("User or DB not available");
     await updateUserInFirestore(user.uid, { 
         hasPendingVirtualCardRequest: true,
         virtualCardRequestedAt: serverTimestamp() as any,
-    });
+    }, db);
     await refreshUserProfile();
   }
 
-  const deleteConversation = async (chatId: string) => {
-    if (!db) return;
-    await deleteChatSession(chatId, db);
-  };
-
   const deleteMessage = async (chatId: string, messageId: string) => {
-    await softDeleteUserMessage(chatId, messageId);
+    if (!db) throw new Error("DB not available");
+    await softDeleteUserMessage(chatId, messageId, db);
   };
   
   const addBeneficiary = async (beneficiaryData: Omit<Beneficiary, 'id'>) => {
-    if (!user || !db) throw new Error("User not authenticated");
+    if (!user || !db) throw new Error("User not authenticated or DB not available");
     await addBeneficiaryToDb(user.uid, beneficiaryData, db);
     await refreshUserProfile();
   };
 
   const deleteBeneficiary = async (beneficiaryId: string) => {
-    if (!user || !db) throw new Error("User not authenticated");
+    if (!user || !db) throw new Error("User not authenticated or DB not available");
     await deleteBeneficiaryFromDb(user.uid, beneficiaryId, db);
     await refreshUserProfile();
   }
 
   const requestTransfer = async (transferData: Omit<Transaction, 'id' | 'status' | 'type' | 'date'>) => {
-    if (!user || !db) throw new Error("User not authenticated");
+    if (!user || !db) throw new Error("User not authenticated or DB not available");
     await requestTransferInDb(user.uid, transferData, db);
     await refreshUserProfile();
   };
@@ -221,7 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUserProfileData,
     requestCard,
     requestVirtualCard,
-    deleteConversation,
+    // deleteConversation is admin only now
     deleteMessage,
     addBeneficiary,
     deleteBeneficiary,

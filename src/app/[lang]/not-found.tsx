@@ -5,7 +5,7 @@ import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 
 // This is now an async Server Component for stability
-export default async function NotFound({ params }: { params: { lang?: Locale } }) {
+export default async function NotFound({ params }: { params?: { lang?: Locale } }) {
   // The 'params' object here can be empty if the route is completely unmatched,
   // so we provide a default fallback language.
   const lang = params?.lang ?? 'fr';

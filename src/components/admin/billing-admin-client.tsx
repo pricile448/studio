@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { getBillingConfig, updateBillingConfig, type BillingConfig } from '@/lib/firebase/firestore';
-import { getFirebaseServices } from '@/lib/firebase/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -16,8 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const { db: adminDb } = getFirebaseServices('admin');
+import { adminDb } from '@/lib/firebase/admin';
 
 const billingSchema = z.object({
   isEnabled: z.boolean(),
