@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -21,10 +20,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
-import { createUserDocument } from '@/ai/flows/create-user-document-flow';
-import { sendVerificationCode } from '@/ai/flows/send-verification-code-flow';
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
+import { auth, db } from '@/lib/firebase/config';
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -95,26 +93,27 @@ export function RegisterClient({ dict, lang }: RegisterClientProps) {
       await updateProfile(user, {
         displayName: `${userData.firstName} ${userData.lastName}`
       });
-
-      const createUserDocResult = await createUserDocument({
-          ...userData,
-          uid: user.uid,
-          dob: userData.dob.toISOString(), // Pass date as ISO string
+      
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, {
+        ...userData,
+        uid: user.uid,
+        createdAt: serverTimestamp(),
+        kycStatus: 'unverified',
+        cardStatus: 'none',
+        accounts: [
+          { id: `checking_${user.uid}`, name: 'checking', balance: 0, currency: 'EUR', accountNumber: `FR76 ... ${user.uid.slice(-4)}`, status: 'active' },
+          { id: `savings_${user.uid}`, name: 'savings', balance: 0, currency: 'EUR', accountNumber: `FR76 ... ${user.uid.slice(-3)}`, status: 'active' },
+        ],
+        transactions: [],
+        beneficiaries: [],
+        budgets: [],
+        documents: [],
+        virtualCards: [],
       });
       
-      if (!createUserDocResult || !createUserDocResult.success) {
-          throw new Error(createUserDocResult?.error || "La création du profil utilisateur a échoué.");
-      }
-      
-      const sendCodeResult = await sendVerificationCode({
-          userId: user.uid,
-          email: user.email!,
-          userName: userData.firstName,
-      });
+      await sendEmailVerification(user);
 
-      if (!sendCodeResult || !sendCodeResult.success) {
-        throw new Error(sendCodeResult?.error || "Échec de l'envoi de l'e-mail de vérification.");
-      }
       router.push(`/${lang}/verify-email`);
 
     } catch (error: any) {

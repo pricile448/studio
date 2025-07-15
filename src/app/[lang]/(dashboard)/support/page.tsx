@@ -1,21 +1,10 @@
 import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
-import { AiAssistant } from '@/components/dashboard/ai-assistant';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HelpContactForm } from '@/components/help/help-contact-form';
 import { Lightbulb, Mail, MessageSquareQuote } from 'lucide-react';
-
-const mockFinancialDataForAI = {
-  transactionHistory: [
-    { date: '2024-07-27', description: 'Groceries', amount: -124.32, category: 'Food' },
-    { date: '2024-07-26', description: 'Salary', amount: 2500, category: 'Income' },
-    { date: '2024-07-25', description: 'Gasoline', amount: -55.60, category: 'Transportation' },
-  ],
-  income: 5000,
-  expenses: 3200,
-};
 
 export default async function SupportPage({ params }: { params: { lang: Locale } }) {
   const { lang } = params;
@@ -29,7 +18,6 @@ export default async function SupportPage({ params }: { params: { lang: Locale }
         <TabsList className="h-auto flex-wrap gap-1">
           <TabsTrigger value="faq"><MessageSquareQuote className="mr-2 h-4 w-4" />{helpDict.faqTitle}</TabsTrigger>
           <TabsTrigger value="contact"><Mail className="mr-2 h-4 w-4" />{helpDict.contactTitle}</TabsTrigger>
-          <TabsTrigger value="ai"><Lightbulb className="mr-2 h-4 w-4" />{dict.dashboard.aiAssistant.title}</TabsTrigger>
         </TabsList>
         <TabsContent value="faq">
           <Card>
@@ -59,9 +47,6 @@ export default async function SupportPage({ params }: { params: { lang: Locale }
               <HelpContactForm dict={helpDict} />
             </CardContent>
           </Card>
-        </TabsContent>
-        <TabsContent value="ai">
-            <AiAssistant dict={dict.dashboard.aiAssistant} financialData={mockFinancialDataForAI} />
         </TabsContent>
       </Tabs>
     </div>
