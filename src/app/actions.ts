@@ -2,7 +2,7 @@
 
 import { v2 as cloudinary } from 'cloudinary';
 import { getAdminDb } from '@/lib/firebase/admin';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { KycEmailInput } from '@/lib/types';
 import { sendSupportEmail } from '@/lib/mailgun';
 import type Mailgun from 'mailgun.js';
@@ -44,13 +44,18 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
   try {
     // Utiliser le SDK client car cette action est initiée par l'utilisateur.
     // Cela garantit que les règles de sécurité Firestore sont respectées.
-    const { db } = getFirebaseServices();
-    if (!db) {
-        throw new Error('La base de données Firebase n\'est pas initialisée côté client.');
+    const { db, auth } = getFirebaseServices();
+    if (!db || !auth || !auth.currentUser) {
+        throw new Error('Utilisateur non authentifié ou base de données non initialisée.');
     }
     
-    // 1. Create the KYC submission document in Firestore
-    const submissionRef = doc(db, 'kycSubmissions', input.userId);
+    // Vérifier que l'utilisateur qui soumet la demande est bien celui qui est connecté.
+    if (auth.currentUser.uid !== input.userId) {
+        throw new Error('Opération non autorisée : tentative de soumission pour un autre utilisateur.');
+    }
+
+    // 1. Create the KYC submission document in Firestore using addDoc for an auto-generated ID
+    const submissionsCollectionRef = collection(db, 'kycSubmissions');
     const submissionData = {
         userId: input.userId,
         userName: input.userName,
@@ -59,7 +64,7 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
         submittedAt: Timestamp.now(),
     };
 
-    await setDoc(submissionRef, submissionData, { merge: true });
+    await addDoc(submissionsCollectionRef, submissionData);
 
     // 2. Send notification email with attachments
     const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
