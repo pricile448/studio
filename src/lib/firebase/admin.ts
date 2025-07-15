@@ -2,31 +2,58 @@
 import admin from 'firebase-admin';
 import type { ServiceAccount } from 'firebase-admin';
 
-let adminApp: admin.app.App;
+let adminApp: admin.app.App | null = null;
 
-if (admin.apps.length > 0) {
-  adminApp = admin.app();
-} else {
-  const serviceAccountString = process.env.SERVICE_ACCOUNT_JSON;
-
-  if (!serviceAccountString) {
-    console.error('La variable d\'environnement SERVICE_ACCOUNT_JSON est manquante. L\'initialisation de Firebase Admin a échoué.');
-    throw new Error('SERVICE_ACCOUNT_JSON environment variable is not set.');
+function initializeAdminApp() {
+  if (admin.apps.length > 0) {
+    adminApp = admin.app('[DEFAULT]');
+    return;
   }
-
+  
+  const serviceAccountString = process.env.SERVICE_ACCOUNT_JSON;
+  if (!serviceAccountString) {
+    console.error("SERVICE_ACCOUNT_JSON is missing. Firebase Admin SDK initialization failed.");
+    return;
+  }
+  
   try {
     const serviceAccount: ServiceAccount = JSON.parse(serviceAccountString);
-    
     adminApp = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
   } catch (error) {
-    console.error('Erreur lors de l\'analyse de SERVICE_ACCOUNT_JSON ou de l\'initialisation de Firebase Admin:', error);
-    throw new Error('Failed to initialize Firebase Admin SDK.');
+    console.error("Error parsing SERVICE_ACCOUNT_JSON or initializing Firebase Admin:", error);
+    adminApp = null;
   }
 }
 
-const adminAuth = admin.auth(adminApp);
-const adminDb = admin.firestore(adminApp);
+// Initialize on first load
+initializeAdminApp();
 
-export { adminApp, adminAuth, adminDb };
+function getAdminDb() {
+  if (!adminApp) {
+    console.log("Admin App not initialized, attempting re-initialization...");
+    initializeAdminApp();
+    if (!adminApp) {
+      throw new Error('Failed to initialize Firebase Admin SDK. Check server logs for details.');
+    }
+  }
+  return admin.firestore(adminApp);
+}
+
+function getAdminAuth() {
+    if (!adminApp) {
+        console.log("Admin App not initialized, attempting re-initialization...");
+        initializeAdminApp();
+        if (!adminApp) {
+            throw new Error('Failed to initialize Firebase Admin SDK. Check server logs for details.');
+        }
+    }
+    return admin.auth(adminApp);
+}
+
+
+// Export getters instead of raw instances to ensure initialization
+export const adminDb = getAdminDb();
+export const adminAuth = getAdminAuth();
+export { adminApp };
