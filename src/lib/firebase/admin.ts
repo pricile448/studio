@@ -12,7 +12,9 @@ function initializeAdminApp() {
   
   const serviceAccountString = process.env.SERVICE_ACCOUNT_JSON;
   if (!serviceAccountString) {
-    console.error("SERVICE_ACCOUNT_JSON is missing. Firebase Admin SDK initialization failed.");
+    // Return early but don't throw, so the app can build.
+    // Functions using adminDb will throw a more specific error.
+    console.error("SERVICE_ACCOUNT_JSON is missing. Firebase Admin SDK initialization skipped.");
     return;
   }
   
@@ -30,30 +32,15 @@ function initializeAdminApp() {
 // Initialize on first load
 initializeAdminApp();
 
-function getAdminDb() {
+function getAdminSdk() {
   if (!adminApp) {
-    console.log("Admin App not initialized, attempting re-initialization...");
-    initializeAdminApp();
-    if (!adminApp) {
-      throw new Error('Failed to initialize Firebase Admin SDK. Check server logs for details.');
-    }
+    // This provides a specific, actionable error when admin features are used without proper setup.
+    throw new Error('Firebase Admin SDK has not been initialized. Please ensure the SERVICE_ACCOUNT_JSON environment variable is set correctly in your deployment environment.');
   }
-  return admin.firestore(adminApp);
+  return adminApp;
 }
 
-function getAdminAuth() {
-    if (!adminApp) {
-        console.log("Admin App not initialized, attempting re-initialization...");
-        initializeAdminApp();
-        if (!adminApp) {
-            throw new Error('Failed to initialize Firebase Admin SDK. Check server logs for details.');
-        }
-    }
-    return admin.auth(adminApp);
-}
-
-
-// Export getters instead of raw instances to ensure initialization
-export const adminDb = getAdminDb();
-export const adminAuth = getAdminAuth();
+// Export getters that enforce initialization before use.
+export const adminDb = getAdminSdk().firestore();
+export const adminAuth = getAdminSdk().auth();
 export { adminApp };
