@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getFirebaseServices } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
@@ -33,9 +33,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-
-
-const { db: adminDb } = getFirebaseServices('admin');
 
 interface UserDetailClientProps {
     userProfile: UserProfile;
@@ -99,6 +96,7 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
     const handleSubmit = async (data: PersonalInfoFormValues) => {
         setIsSubmitting(true);
         try {
+            const adminDb = getAdminDb();
             await updateUserInFirestore(user.uid, data, adminDb);
             onUpdate({ ...user, ...data });
             toast({ title: "Succès", description: "Informations de l'utilisateur mises à jour." });
@@ -200,6 +198,7 @@ function UserIbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (
     const handleSubmit = async (data: UserIbanFormValues) => {
         setIsSubmitting(true);
         try {
+            const adminDb = getAdminDb();
             await updateUserInFirestore(user.uid, data, adminDb);
             onUpdate({ ...user, ...data });
             toast({ title: "Succès", description: "RIB de l'utilisateur mis à jour." });
@@ -213,6 +212,7 @@ function UserIbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (
     const handleReset = async () => {
         setIsSubmitting(true);
         try {
+            const adminDb = getAdminDb();
             const resetData = { iban: deleteField(), bic: deleteField() };
             await updateUserInFirestore(user.uid, resetData as any, adminDb);
             const updatedUser = { ...user, iban: undefined, bic: undefined };
@@ -294,6 +294,7 @@ function BillingInfoManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     const handleSubmit = async (data: BillingInfoFormValues) => {
         setIsSubmitting(true);
         try {
+            const adminDb = getAdminDb();
             await updateUserInFirestore(user.uid, data, adminDb);
             onUpdate({ ...user, ...data });
             toast({ title: "Succès", description: "Informations de facturation mises à jour." });
@@ -307,6 +308,7 @@ function BillingInfoManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     const handleReset = async () => {
         setIsSubmitting(true);
         try {
+            const adminDb = getAdminDb();
             const resetData = {
                 billingHolder: deleteField(),
                 billingIban: deleteField(),
@@ -407,6 +409,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
     const handleAction = async (updateData: Partial<UserProfile>, successMessage: string) => {
         setIsLoading(true);
         try {
+            const adminDb = getAdminDb();
             await updateUserInFirestore(user.uid, updateData, adminDb);
             
             const updatedUser = { ...user };
@@ -700,6 +703,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     const handleGenerateVirtualCard = async () => {
         await handleAction(
             async () => {
+                const adminDb = getAdminDb();
                 const newCard: VirtualCard = {
                     id: `vc_${Date.now()}`,
                     type: 'virtual',
@@ -747,6 +751,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         
         await handleAction(
             async () => {
+                const adminDb = getAdminDb();
                 await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
                 onUpdate({ ...user, virtualCards: updatedCards });
             },
@@ -765,6 +770,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         
         await handleAction(
             async () => {
+                const adminDb = getAdminDb();
                 await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
                 onUpdate({ ...user, virtualCards: updatedCards });
             },
@@ -784,6 +790,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
 
         await handleAction(
             async () => {
+                const adminDb = getAdminDb();
                 await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
                 onUpdate({ ...user, virtualCards: updatedCards });
             },
@@ -797,6 +804,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
 
         await handleAction(
             async () => {
+                const adminDb = getAdminDb();
                 await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
                 onUpdate({ ...user, virtualCards: updatedCards });
             },
@@ -920,512 +928,3 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         </Card>
     );
 }
-
-function AccountManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
-    const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState(false);
-    const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-
-    // For Edit Dialog
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [newAccountNumber, setNewAccountNumber] = useState('');
-
-    const getAccountName = (name: string) => name === 'checking' ? 'Compte Courant' : (name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit');
-    
-    const handleAction = async (action: () => Promise<any>, successMsg: string, errorMsg: string) => {
-        setIsLoading(true);
-        try {
-            await action();
-            // The onUpdate will be called in the specific handlers to pass the correct updated state
-            toast({ title: 'Succès', description: successMsg });
-        } catch (error) {
-            console.error(errorMsg, error);
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || errorMsg });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    const handleEditSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!selectedAccount) return;
-        await handleAction(
-            () => updateUserAccountDetails(user.uid, selectedAccount.id, { accountNumber: newAccountNumber }, adminDb),
-            'Numéro de compte mis à jour.',
-            'Erreur lors de la mise à jour du numéro de compte.'
-        );
-        const updatedAccounts = user.accounts.map(acc => acc.id === selectedAccount.id ? { ...acc, accountNumber: newAccountNumber } : acc);
-        onUpdate({ ...user, accounts: updatedAccounts });
-        setIsEditOpen(false);
-    }
-    
-    const handleToggleStatus = async (account: Account) => {
-        const newStatus = account.status === 'active' ? 'suspended' : 'active';
-        await handleAction(
-            () => updateUserAccountDetails(user.uid, account.id, { status: newStatus }, adminDb),
-            `Compte ${newStatus === 'active' ? 'réactivé' : 'suspendu'}.`,
-            'Erreur lors du changement de statut du compte.'
-        );
-        const updatedAccounts = user.accounts.map(acc => acc.id === account.id ? { ...acc, status: newStatus } : acc);
-        onUpdate({ ...user, accounts: updatedAccounts });
-    };
-
-    const handleResetBalance = async (accountId: string) => {
-        await handleAction(
-            () => resetAccountBalance(user.uid, accountId, adminDb),
-            'Le solde du compte a été remis à zéro.',
-            'Erreur lors de la remise à zéro du solde.'
-        );
-        const updatedAccounts = user.accounts.map(acc => acc.id === accountId ? { ...acc, balance: 0 } : acc);
-        onUpdate({ ...user, accounts: updatedAccounts });
-    };
-    
-    const getStatusVariant = (status: 'active' | 'suspended') => {
-        return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-    }
-
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Comptes de l'utilisateur</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {user.accounts.map(account => (
-                    <div key={account.id} className="p-4 border rounded-lg flex justify-between items-center">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                <p className="font-semibold">{getAccountName(account.name)}</p>
-                                <Badge variant="outline" className={cn("text-xs", getStatusVariant(account.status))}>
-                                  {account.status === 'active' ? 'Actif' : 'Suspendu'}
-                                </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground font-mono tracking-wider">{account.accountNumber}</p>
-                            <p className="text-xl font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(account.balance)}</p>
-                        </div>
-                        <Dialog open={isEditOpen && selectedAccount?.id === account.id} onOpenChange={(open) => { if (!open) setIsEditOpen(false); }}>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" disabled={isLoading}>
-                                        <MoreVertical />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSelectedAccount(account); setNewAccountNumber(account.accountNumber); setIsEditOpen(true);}}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            <span>Modifier</span>
-                                    </DropdownMenuItem>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className={cn(
-                                                "focus:cursor-pointer",
-                                                account.status === 'active' 
-                                                    ? "text-destructive focus:text-destructive" 
-                                                    : "text-green-600 focus:text-green-700"
-                                            )}>
-                                                {account.status === 'active' ? <Ban className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                                                <span>{account.status === 'active' ? 'Suspendre' : 'Réactiver'}</span>
-                                            </DropdownMenuItem>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader><AlertDialogTitle>Confirmer l'action</AlertDialogTitle></AlertDialogHeader>
-                                            <AlertDialogDescription>Êtes-vous sûr de vouloir {account.status === 'active' ? 'suspendre' : 'réactiver'} ce compte ?</AlertDialogDescription>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                                <AlertDialogAction 
-                                                    onClick={() => handleToggleStatus(account)}
-                                                    variant={account.status === 'active' ? 'destructive' : 'success'}
-                                                >
-                                                    Confirmer
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={(e) => e.preventDefault()}><Trash2 className="mr-2 h-4 w-4" /><span>Remettre à zéro</span></DropdownMenuItem>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader><AlertDialogTitle>Confirmer la remise à zéro</AlertDialogTitle></AlertDialogHeader>
-                                            <AlertDialogDescription>Cette action est irréversible et mettra le solde du compte à 0.</AlertDialogDescription>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                                <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleResetBalance(account.id)}>Confirmer la remise à zéro</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Modifier le compte</DialogTitle>
-                                    <DialogDescription>Mettre à jour le numéro de compte pour {getAccountName(account.name)}.</DialogDescription>
-                                </DialogHeader>
-                                <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
-                                     <div className="space-y-2">
-                                        <Label htmlFor="accountNumber">Numéro de compte</Label>
-                                        <Input id="accountNumber" value={newAccountNumber} onChange={(e) => setNewAccountNumber(e.target.value)} />
-                                    </div>
-                                    <DialogFooter>
-                                        <DialogClose asChild><Button type="button" variant="ghost">Annuler</Button></DialogClose>
-                                        <Button type="submit" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}Enregistrer</Button>
-                                    </DialogFooter>
-                                </form>
-                            </DialogContent>
-                        </Dialog>
-
-                    </div>
-                ))}
-            </CardContent>
-        </Card>
-    );
-}
-
-function FundsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
-    const [selectedAccountId, setSelectedAccountId] = useState<string>('');
-    const [amount, setAmount] = useState<string>('');
-    const [reason, setReason] = useState<string>('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { toast } = useToast();
-    
-    const handleFundsAction = async (actionType: 'credit' | 'debit') => {
-        if (!selectedAccountId || !amount || !reason) {
-            toast({ variant: 'destructive', title: 'Erreur', description: 'Veuillez remplir tous les champs.' });
-            return;
-        }
-
-        setIsSubmitting(true);
-        const parsedAmount = parseFloat(amount);
-        
-        try {
-            if (actionType === 'credit') {
-                await addFundsToAccount(user.uid, selectedAccountId, parsedAmount, reason, adminDb);
-                toast({ title: 'Dépôt réussi', description: `${parsedAmount}€ ont été ajoutés au compte.` });
-            } else {
-                await debitFundsFromAccount(user.uid, selectedAccountId, parsedAmount, reason, adminDb);
-                toast({ title: 'Prélèvement réussi', description: `${parsedAmount}€ ont été déduits du compte.` });
-            }
-
-            const adjustment = actionType === 'credit' ? parsedAmount : -parsedAmount;
-            const updatedAccounts = user.accounts.map(acc => 
-                acc.id === selectedAccountId ? { ...acc, balance: acc.balance + adjustment } : acc
-            );
-            onUpdate({ ...user, accounts: updatedAccounts });
-
-            setSelectedAccountId('');
-            setAmount('');
-            setReason('');
-        } catch (error) {
-            console.error(`Failed to ${actionType} funds:`, error);
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
-        } finally {
-            setIsSubmitting(false);
-        }
-    }
-
-    return (
-        <Card>
-            <CardHeader><CardTitle>Gestion des fonds</CardTitle></CardHeader>
-            <CardContent>
-                 <Tabs defaultValue="credit">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="credit">Créditer</TabsTrigger>
-                        <TabsTrigger value="debit">Débiter</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="credit">
-                        <form onSubmit={(e) => { e.preventDefault(); handleFundsAction('credit'); }} className="w-full space-y-4 pt-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="credit-account">Compte à créditer</Label>
-                                <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                                    <SelectTrigger id="credit-account"><SelectValue placeholder="Sélectionner un compte" /></SelectTrigger>
-                                    <SelectContent>{user.accounts.map(acc => (<SelectItem key={acc.id} value={acc.id}>{acc.name === 'checking' ? 'Compte Courant' : (acc.name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit')}</SelectItem>))}</SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2"><Label htmlFor="credit-amount">Montant (€)</Label><Input id="credit-amount" type="number" placeholder="100.00" value={amount} onChange={e => setAmount(e.target.value)} /></div>
-                            <div className="space-y-2"><Label htmlFor="credit-reason">Raison</Label><Input id="credit-reason" placeholder="Ex: Compensation commerciale" value={reason} onChange={e => setReason(e.target.value)} /></div>
-                            <Button type="submit" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Créditer le compte</Button>
-                        </form>
-                    </TabsContent>
-                    <TabsContent value="debit">
-                         <form onSubmit={(e) => { e.preventDefault(); handleFundsAction('debit'); }} className="w-full space-y-4 pt-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="debit-account">Compte à débiter</Label>
-                                <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                                    <SelectTrigger id="debit-account"><SelectValue placeholder="Sélectionner un compte" /></SelectTrigger>
-                                    <SelectContent>{user.accounts.map(acc => (<SelectItem key={acc.id} value={acc.id}>{acc.name === 'checking' ? 'Compte Courant' : (acc.name === 'savings' ? 'Compte Épargne' : 'Carte de Crédit')}</SelectItem>))}</SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2"><Label htmlFor="debit-amount">Montant (€)</Label><Input id="debit-amount" type="number" placeholder="50.00" value={amount} onChange={e => setAmount(e.target.value)} /></div>
-                            <div className="space-y-2"><Label htmlFor="debit-reason">Raison</Label><Input id="debit-reason" placeholder="Ex: Frais de service" value={reason} onChange={e => setReason(e.target.value)} /></div>
-                            <Button type="submit" variant="destructive" disabled={isSubmitting}>{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Débiter le compte</Button>
-                        </form>
-                    </TabsContent>
-                </Tabs>
-            </CardContent>
-        </Card>
-    );
-}
-
-function TransactionsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
-    const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    
-    const transactions = [...user.transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const isAllSelected = transactions.length > 0 && selectedIds.length === transactions.length;
-
-    const handleSelect = (id: string, checked: boolean) => {
-        setSelectedIds(prev => checked ? [...prev, id] : prev.filter(selectedId => selectedId !== id));
-    };
-    
-    const handleSelectAll = (checked: boolean) => {
-        setSelectedIds(checked ? transactions.map(tx => tx.id) : []);
-    };
-    
-    const handleDeleteSelected = async () => {
-        if (selectedIds.length === 0) return;
-        setIsLoading(true);
-        try {
-            await deleteSelectedTransactions(user.uid, selectedIds, adminDb);
-            
-            // Recalculate state locally
-            const transactionsToDelete = user.transactions.filter(tx => selectedIds.includes(tx.id));
-            let updatedAccounts = JSON.parse(JSON.stringify(user.accounts));
-
-            for (const tx of transactionsToDelete) {
-                const accountIndex = updatedAccounts.findIndex((acc: Account) => acc.id === tx.accountId);
-                if (accountIndex !== -1) {
-                    updatedAccounts[accountIndex].balance -= tx.amount;
-                }
-            }
-            const updatedTransactions = user.transactions.filter(tx => !selectedIds.includes(tx.id));
-            
-            onUpdate({ ...user, transactions: updatedTransactions, accounts: updatedAccounts });
-            toast({ title: 'Succès', description: `${selectedIds.length} transaction(s) supprimée(s).` });
-            setSelectedIds([]);
-        } catch (error) {
-            console.error('Erreur lors de la suppression des transactions.', error);
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression des transactions.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    const handleDeleteAll = async () => {
-        setIsLoading(true);
-        try {
-            await deleteAllTransactions(user.uid, adminDb);
-            const updatedAccounts = user.accounts.map(acc => ({...acc, balance: 0}));
-            onUpdate({ ...user, transactions: [], accounts: updatedAccounts });
-            toast({ title: 'Succès', description: 'Toutes les transactions ont été supprimées.' });
-            setSelectedIds([]);
-        } catch (error) {
-            console.error('Erreur lors de la suppression de toutes les transactions.', error);
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression de toutes les transactions.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Historique des transactions</CardTitle>
-                <CardDescription>Gérer toutes les transactions de l'utilisateur.</CardDescription>
-                <div className="flex flex-wrap gap-2 pt-4">
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" disabled={selectedIds.length === 0 || isLoading}>Supprimer la sélection ({selectedIds.length})</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Cette action est irréversible. Elle supprimera les {selectedIds.length} transactions sélectionnées et ajustera les soldes des comptes associés.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeleteSelected} disabled={isLoading}>
-                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Confirmer"}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" disabled={transactions.length === 0 || isLoading}>Supprimer tout</Button>
-                        </AlertDialogTrigger>
-                         <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Confirmer la suppression totale</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Cette action est irréversible. Elle supprimera TOUTES les transactions et réinitialisera les soldes de TOUS les comptes à zéro.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeleteAll} disabled={isLoading}>
-                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Tout supprimer"}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px]">
-                                <Checkbox checked={isAllSelected} onCheckedChange={(checked) => handleSelectAll(!!checked)} aria-label="Tout sélectionner" />
-                            </TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Montant</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {transactions.map(tx => (
-                            <TableRow key={tx.id} data-state={selectedIds.includes(tx.id) && "selected"}>
-                                <TableCell>
-                                    <Checkbox checked={selectedIds.includes(tx.id)} onCheckedChange={(checked) => handleSelect(tx.id, !!checked)} aria-label="Sélectionner la transaction"/>
-                                </TableCell>
-                                <TableCell>{format(new Date(tx.date), 'dd/MM/yyyy', { locale: fr })}</TableCell>
-                                <TableCell>{tx.description}</TableCell>
-                                <TableCell className={cn('font-medium', tx.amount > 0 ? 'text-green-600' : 'text-red-600')}>
-                                    {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(tx.amount)}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                 {transactions.length === 0 && <p className="text-center text-muted-foreground p-4">Aucune transaction.</p>}
-            </CardContent>
-        </Card>
-    );
-}
-
-
-function BudgetsManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (updatedUser: UserProfile) => void }) {
-    const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState(false);
-    const [budgetToDelete, setBudgetToDelete] = useState<Budget | null>(null);
-
-    const handleDelete = async () => {
-        if (!budgetToDelete) return;
-        setIsLoading(true);
-        try {
-            await deleteBudget(user.uid, budgetToDelete.id, adminDb);
-            const updatedBudgets = user.budgets.filter(b => b.id !== budgetToDelete.id);
-            onUpdate({ ...user, budgets: updatedBudgets });
-            toast({ title: 'Succès', description: 'Budget supprimé.' });
-        } catch (error) {
-            console.error('Erreur lors de la suppression du budget.', error);
-            toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message || 'Erreur lors de la suppression du budget.' });
-        } finally {
-            setIsLoading(false);
-            setBudgetToDelete(null);
-        }
-    };
-
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Budgets de l'utilisateur</CardTitle>
-                <CardDescription>Gérer les budgets créés par l'utilisateur.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {user.budgets.map(budget => (
-                    <div key={budget.id} className="p-4 border rounded-lg flex justify-between items-center">
-                        <div>
-                            <p className="font-semibold">{budget.name}</p>
-                            <p className="text-sm text-muted-foreground">Catégorie: {budget.category}</p>
-                            <p className="text-lg font-bold">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(budget.total)}</p>
-                        </div>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" onClick={() => setBudgetToDelete(budget)}>Supprimer</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                                    <AlertDialogDescription>Êtes-vous sûr de vouloir supprimer ce budget ? Cette action est irréversible.</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel onClick={() => setBudgetToDelete(null)}>Annuler</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
-                                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : "Confirmer"}
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                ))}
-                {user.budgets.length === 0 && <p className="text-center text-muted-foreground p-4">Aucun budget défini.</p>}
-            </CardContent>
-        </Card>
-    );
-}
-
-export function UserDetailClient({ userProfile }: UserDetailClientProps) {
-    const router = useRouter();
-    const [user, setUser] = useState(userProfile);
-
-    const handleUpdate = (updatedUser: UserProfile) => {
-        setUser(updatedUser);
-    }
-    
-    return (
-        <div className="h-full flex flex-col">
-            <div className="flex items-center gap-4 shrink-0">
-                <Button variant="outline" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft />
-                </Button>
-                <div>
-                    <h1 className="text-2xl font-bold font-headline">{user.firstName} {user.lastName}</h1>
-                    <p className="text-muted-foreground">{user.email}</p>
-                </div>
-            </div>
-
-            <div className="flex-1 min-h-0 overflow-y-auto pt-6 space-y-6">
-                <Tabs defaultValue="overview">
-                    <TabsList className="h-auto flex-wrap gap-1">
-                        <TabsTrigger value="overview">Aperçu</TabsTrigger>
-                        <TabsTrigger value="accounts">Comptes</TabsTrigger>
-                        <TabsTrigger value="transactions">Transactions</TabsTrigger>
-                        <TabsTrigger value="budgets">Budgets</TabsTrigger>
-                        <TabsTrigger value="iban">RIB</TabsTrigger>
-                        <TabsTrigger value="cards">Cartes</TabsTrigger>
-                        <TabsTrigger value="billing">Facturation</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="overview">
-                        <PersonalInformation user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                    <TabsContent value="accounts" className="space-y-6">
-                        <AccountManagement user={user} onUpdate={handleUpdate} />
-                        <FundsManagement user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                     <TabsContent value="transactions">
-                        <TransactionsManagement user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                    <TabsContent value="budgets">
-                        <BudgetsManagement user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                    <TabsContent value="iban">
-                        <UserIbanManagement user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                    <TabsContent value="cards" className="space-y-6">
-                        <PhysicalCardManagement user={user} onUpdate={handleUpdate} />
-                        <VirtualCardManagement user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                    <TabsContent value="billing">
-                        <BillingInfoManagement user={user} onUpdate={handleUpdate} />
-                    </TabsContent>
-                </Tabs>
-            </div>
-        </div>
-    );
-}
-

@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw, History, PauseCircle, PlayCircle } from 'lucide-react';
-import { getFirebaseServices } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -26,8 +26,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
-const { db: adminDb } = getFirebaseServices('admin');
 
 type TransferWithUser = Transaction & { userId: string; userName: string };
 
@@ -279,6 +277,7 @@ export function TransfersAdminClient() {
     const fetchTransfers = async () => {
         setLoading(true);
         try {
+            const adminDb = getAdminDb();
             const transfersList = await getAllTransfers(adminDb);
             setAllTransfers(transfersList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         } catch (error) {
@@ -303,6 +302,7 @@ export function TransfersAdminClient() {
     const handleAction = async (action: 'validate' | 'execute' | 'cancel' | 'pause' | 'resume', transfer: TransferWithUser) => {
         setActionInProgressId(transfer.id);
         try {
+            const adminDb = getAdminDb();
             if (action === 'validate') {
                 await updateTransferStatus(transfer.userId, transfer.id, 'in_progress', adminDb);
                 toast({ title: 'Succès', description: 'Le virement a été validé et est prêt à être exécuté.' });

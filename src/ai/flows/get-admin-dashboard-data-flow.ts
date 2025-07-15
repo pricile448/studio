@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -6,12 +7,13 @@
  */
 
 import { getAdmins, getAllUsers, getAllKycSubmissions } from '@/lib/firebase/firestore';
-import { adminDb } from '@/lib/firebase/admin';
+import { getAdminDb } from '@/lib/firebase/admin';
 import type { AdminDashboardDataResult } from '@/lib/types';
 
 
 export async function getAdminDashboardData(): Promise<AdminDashboardDataResult> {
     try {
+        const adminDb = getAdminDb();
         const [users, kycSubmissions, admins] = await Promise.all([
             getAllUsers(adminDb),
             getAllKycSubmissions(adminDb),

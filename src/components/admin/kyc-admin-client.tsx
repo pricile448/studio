@@ -13,12 +13,9 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2, Hourglass } from 'lucide-react';
-import { getFirebaseServices } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
 import Link from 'next/link';
 import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
-
-
-const { db: adminDb } = getFirebaseServices('admin');
 
 function PendingTable({ submissions, onAction, actionInProgressId }: { submissions: KycSubmission[], onAction: (submission: KycSubmission, status: 'approved' | 'rejected') => void, actionInProgressId: string | null }) {
     if (submissions.length === 0) {
@@ -184,6 +181,7 @@ export function KycAdminClient() {
     const fetchSubmissions = async () => {
         setLoading(true);
         try {
+            const adminDb = getAdminDb();
             const submissionList = await getAllKycSubmissions(adminDb);
             setSubmissions(submissionList);
         } catch (error) {
@@ -209,6 +207,7 @@ export function KycAdminClient() {
     const handleKycAction = async (submission: KycSubmission, status: 'approved' | 'rejected') => {
         setUpdatingId(submission.uid);
         try {
+            const adminDb = getAdminDb();
             const submissionRef = doc(adminDb, 'kycSubmissions', submission.uid);
             await updateDoc(submissionRef, { status, processedAt: serverTimestamp() });
 

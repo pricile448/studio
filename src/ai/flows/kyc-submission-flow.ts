@@ -8,7 +8,7 @@
 import { sendSupportEmail } from '@/lib/mailgun';
 import type { KycEmailInput, KycSubmissionResult } from '@/lib/types';
 import Mailgun from 'mailgun.js';
-import { adminDb } from '@/lib/firebase/admin';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { doc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
 
 
@@ -25,6 +25,8 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<Kyc
   }
 
   try {
+    const adminDb = getAdminDb();
+    
     // 1. Create the KYC submission document in Firestore
     const submissionRef = doc(adminDb, 'kycSubmissions', input.userId);
     const submissionData = {

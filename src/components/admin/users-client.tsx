@@ -12,9 +12,7 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { getFirebaseServices } from '@/lib/firebase/config';
-
-const { db: adminDb } = getFirebaseServices('admin');
+import { getAdminDb } from '@/lib/firebase/admin';
 
 export function UsersClient() {
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -23,6 +21,7 @@ export function UsersClient() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
+                const adminDb = getAdminDb();
                 const userList = await getAllUsers(adminDb);
                 setUsers(userList);
             } catch (error) {
