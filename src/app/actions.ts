@@ -1,11 +1,12 @@
 'use server';
 
 import { v2 as cloudinary } from 'cloudinary';
-import { db } from '@/lib/firebase/config';
-import { doc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import type { KycEmailInput } from '@/lib/types';
 import { sendSupportEmail } from '@/lib/mailgun';
 import type Mailgun from 'mailgun.js';
+import { getAuth } from 'firebase-admin/auth';
 
 export async function uploadChatAttachment(
   chatId: string,
@@ -38,24 +39,12 @@ export async function uploadChatAttachment(
   }
 }
 
-
 export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ success: boolean; error?: string }> {
-  if (!db) {
-    const errorMsg = "La connexion à la base de données n'est pas initialisée côté serveur.";
-    console.error(errorMsg);
-    return { success: false, error: errorMsg };
-  }
-  
-  const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
-  if (!adminEmail) {
-    const errorMsg = 'La variable d\'environnement MAILGUN_ADMIN_EMAIL n\'est pas définie.';
-    console.error(errorMsg);
-    return { success: false, error: 'Erreur de configuration du serveur.' };
-  }
-  
   try {
+    const adminDb = getAdminDb();
+    
     // 1. Create the KYC submission document in Firestore
-    const submissionRef = doc(db, 'kycSubmissions', input.userId);
+    const submissionRef = doc(adminDb, 'kycSubmissions', input.userId);
     const submissionData = {
         userId: input.userId,
         userName: input.userName,
@@ -63,10 +52,17 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
         status: 'pending' as const,
         submittedAt: Timestamp.now(),
     };
-    // This operation is allowed by the security rules for the authenticated user
+
     await setDoc(submissionRef, submissionData, { merge: true });
 
     // 2. Send notification email with attachments
+    const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
+    if (!adminEmail) {
+        const errorMsg = 'La variable d\'environnement MAILGUN_ADMIN_EMAIL n\'est pas définie.';
+        console.error(errorMsg);
+        return { success: false, error: 'Erreur de configuration du serveur.' };
+    }
+  
     const emailSubject = `Nouvelle soumission KYC : ${input.userName}`;
     const emailBody = `
       Une nouvelle soumission KYC est prête pour examen.
