@@ -6,8 +6,6 @@ import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import type { KycEmailInput } from '@/lib/types';
 import { sendSupportEmail } from '@/lib/mailgun';
 import type Mailgun from 'mailgun.js';
-import { getFirebaseServices } from '@/lib/firebase/config';
-import { getAuth as getClientAuth } from 'firebase/auth';
 
 export async function uploadChatAttachment(
   chatId: string,
@@ -42,20 +40,12 @@ export async function uploadChatAttachment(
 
 export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ success: boolean; error?: string }> {
   try {
-    // Utiliser le SDK client car cette action est initiée par l'utilisateur.
-    // Cela garantit que les règles de sécurité Firestore sont respectées.
-    const { db, auth } = getFirebaseServices();
-    if (!db || !auth || !auth.currentUser) {
-        throw new Error('Utilisateur non authentifié ou base de données non initialisée.');
-    }
-    
-    // Vérifier que l'utilisateur qui soumet la demande est bien celui qui est connecté.
-    if (auth.currentUser.uid !== input.userId) {
-        throw new Error('Opération non autorisée : tentative de soumission pour un autre utilisateur.');
-    }
+    // Utiliser le SDK Admin car cette action est exécutée côté serveur.
+    // Cela garantit les permissions nécessaires, indépendantes de la session client.
+    const adminDb = getAdminDb();
 
     // 1. Create the KYC submission document in Firestore using addDoc for an auto-generated ID
-    const submissionsCollectionRef = collection(db, 'kycSubmissions');
+    const submissionsCollectionRef = collection(adminDb, 'kycSubmissions');
     const submissionData = {
         userId: input.userId,
         userName: input.userName,
