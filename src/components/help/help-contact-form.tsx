@@ -1,9 +1,7 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,21 +12,17 @@ import { contactSupport } from '@/ai/flows/contact-support-flow';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import type { Dictionary } from '@/lib/dictionaries';
+import type { ContactSupportInput } from '@/lib/types';
+import { ContactSupportInputSchema } from '@/lib/types';
 
-const contactFormSchema = (dict: any) => z.object({
-  name: z.string().min(2, { message: dict.nameRequired }),
-  email: z.string().email({ message: dict.emailInvalid }),
-  subject: z.string().min(5, { message: dict.subjectRequired }),
-  message: z.string().min(10, { message: dict.messageRequired }),
-});
 
 export function HelpContactForm({ dict }: { dict: Dictionary['help'] }) {
   const { userProfile } = useAuth();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<ReturnType<typeof contactFormSchema>>>({
-    resolver: zodResolver(contactFormSchema(dict.contactForm)),
+  const form = useForm<ContactSupportInput>({
+    resolver: zodResolver(ContactSupportInputSchema),
     defaultValues: {
       name: userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : '',
       email: userProfile?.email || '',
@@ -37,7 +31,7 @@ export function HelpContactForm({ dict }: { dict: Dictionary['help'] }) {
     },
   });
 
-  async function onSubmit(data: z.infer<ReturnType<typeof contactFormSchema>>) {
+  async function onSubmit(data: ContactSupportInput) {
     startTransition(async () => {
         const result = await contactSupport(data);
         if (result.success) {

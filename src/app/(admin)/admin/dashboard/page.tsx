@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAdminDashboardData, type AdminDashboardDataResult } from '@/ai/flows/get-admin-dashboard-data-flow';
+import { getAdminDashboardData } from '@/ai/flows/get-admin-dashboard-data-flow';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, ShieldCheck, MessageSquare, Loader2, ShieldX, ShieldQuestion, UserPlus, FileCheck2, AlertTriangle } from "lucide-react";
 import type { UserProfile } from '@/lib/firebase/firestore';
@@ -10,6 +9,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { AdminDashboardDataResult } from '@/lib/types';
+
 
 interface ActivityItem {
     id: string;

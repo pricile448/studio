@@ -3,25 +3,8 @@
 /**
  * @fileOverview Flow to notify an administrator about a new KYC submission.
  */
-import { z } from 'zod';
 import { sendSupportEmail } from '@/lib/mailgun';
-
-export const KycSubmissionInputSchema = z.object({
-  userId: z.string(),
-  userName: z.string(),
-  userEmail: z.string().email(),
-  idDocumentUrl: z.string().url(),
-  proofOfAddressUrl: z.string().url(),
-  selfieUrl: z.string().url(),
-});
-export type KycSubmissionInput = z.infer<typeof KycSubmissionInputSchema>;
-
-export const KycSubmissionResultSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  error: z.string().optional(),
-});
-export type KycSubmissionResult = z.infer<typeof KycSubmissionResultSchema>;
+import type { KycSubmissionInput, KycSubmissionResult } from '@/lib/types';
 
 export async function notifyAdminOfKyc(input: KycSubmissionInput): Promise<KycSubmissionResult> {
   const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;

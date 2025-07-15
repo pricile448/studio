@@ -5,33 +5,10 @@
  * - getAdminDashboardData - Fetches stats and recent activity.
  */
 
-import { z } from 'zod';
 import { getAdmins, getAllUsers, getAllKycSubmissions } from '@/lib/firebase/firestore';
 import { adminDb } from '@/lib/firebase/admin';
+import type { AdminDashboardDataResult } from '@/lib/types';
 
-export const AdminDashboardDataSchema = z.object({
-    stats: z.object({
-        totalUsers: z.number(),
-        pendingKyc: z.number(),
-        approvedKyc: z.number(),
-        rejectedKyc: z.number(),
-    }),
-    recentActivity: z.array(z.object({
-        id: z.string(),
-        type: z.enum(['user', 'kyc']),
-        timestamp: z.string(), // ISO 8601 string
-        data: z.any(),
-    })),
-    admins: z.array(z.any()),
-});
-export type AdminDashboardData = z.infer<typeof AdminDashboardDataSchema>;
-
-export const AdminDashboardDataResultSchema = z.object({
-    success: z.boolean(),
-    data: AdminDashboardData.optional(),
-    error: z.string().optional(),
-});
-export type AdminDashboardDataResult = z.infer<typeof AdminDashboardDataResultSchema>;
 
 export async function getAdminDashboardData(): Promise<AdminDashboardDataResult> {
     try {

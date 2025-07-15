@@ -3,24 +3,9 @@
 /**
  * @fileOverview Flow to handle a support contact request from a user.
  */
-
-import { z } from 'zod';
 import { sendSupportEmail } from '@/lib/mailgun';
+import type { ContactSupportInput, ContactSupportResult } from '@/lib/types';
 
-export const ContactSupportInputSchema = z.object({
-  name: z.string().describe('The name of the user.'),
-  email: z.string().email().describe('The email address of the user.'),
-  subject: z.string().describe('The subject of the support request.'),
-  message: z.string().describe('The content of the support message.'),
-});
-export type ContactSupportInput = z.infer<typeof ContactSupportInputSchema>;
-
-export const ContactSupportResultSchema = z.object({
-  success: z.boolean(),
-  message: z.string(),
-  error: z.string().optional(),
-});
-export type ContactSupportResult = z.infer<typeof ContactSupportResultSchema>;
 
 export async function contactSupport(input: ContactSupportInput): Promise<ContactSupportResult> {
   const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
