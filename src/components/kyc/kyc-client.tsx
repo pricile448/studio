@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +12,7 @@ import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, File
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
-import { submitKycAndNotifyAdmin } from '@/ai/flows/kyc-submission-flow';
+import { submitKycAndNotifyAdmin } from '@/app/actions';
 
 
 interface KycClientProps {
