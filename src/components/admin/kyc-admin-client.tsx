@@ -1,8 +1,8 @@
-
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { getAllKycSubmissions, updateUserInFirestore, type KycSubmission } from '@/lib/firebase/firestore';
+import { type KycSubmission } from '@/lib/firebase/firestore';
+import { fetchKycSubmissions, updateKycStatus } from '@/app/(admin)/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2, Hourglass } from 'lucide-react';
-import { getAdminDb } from '@/lib/firebase/admin';
 import Link from 'next/link';
-import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 
 function PendingTable({ submissions, onAction, actionInProgressId }: { submissions: KycSubmission[], onAction: (submission: KycSubmission, status: 'approved' | 'rejected') => void, actionInProgressId: string | null }) {
     if (submissions.length === 0) {
@@ -39,7 +37,7 @@ function PendingTable({ submissions, onAction, actionInProgressId }: { submissio
                         <TableRow key={submission.uid}>
                             <TableCell>{submission.userName}</TableCell>
                             <TableCell>{submission.userEmail}</TableCell>
-                            <TableCell>{format(submission.submittedAt, 'dd MMMM yyyy', { locale: fr })}</TableCell>
+                            <TableCell>{format(new Date(submission.submittedAt), 'dd MMMM yyyy', { locale: fr })}</TableCell>
                             <TableCell className="text-right space-x-2">
                             {actionInProgressId === submission.uid ? (
                                     <Button variant="outline" size="sm" disabled>
@@ -75,7 +73,7 @@ function PendingTable({ submissions, onAction, actionInProgressId }: { submissio
                   <p className="text-sm text-muted-foreground">{submission.userEmail}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Soumis le {format(submission.submittedAt, "dd MMM yyyy", { locale: fr })}
+                  Soumis le {format(new Date(submission.submittedAt), "dd MMM yyyy", { locale: fr })}
                 </div>
                 <div className="flex justify-between items-center text-sm pt-2 border-t">
                   <p className="text-muted-foreground">Actions</p>
@@ -139,8 +137,8 @@ function HistoryTable({ submissions }: { submissions: KycSubmission[] }) {
                         <TableRow key={submission.uid}>
                             <TableCell>{submission.userName}</TableCell>
                             <TableCell>{submission.userEmail}</TableCell>
-                            <TableCell>{format(submission.submittedAt, 'dd MMMM yyyy', { locale: fr })}</TableCell>
-                            <TableCell>{submission.processedAt ? format(submission.processedAt, 'dd MMMM yyyy', { locale: fr }) : '-'}</TableCell>
+                            <TableCell>{format(new Date(submission.submittedAt), 'dd MMMM yyyy', { locale: fr })}</TableCell>
+                            <TableCell>{submission.processedAt ? format(new Date(submission.processedAt), 'dd MMMM yyyy', { locale: fr }) : '-'}</TableCell>
                             <TableCell className="text-right">{getStatusBadge(submission.status)}</TableCell>
                         </TableRow>
                     ))}
@@ -161,8 +159,8 @@ function HistoryTable({ submissions }: { submissions: KycSubmission[] }) {
                    {getStatusBadge(submission.status)}
                 </div>
                 <div className="text-sm text-muted-foreground pt-2 border-t">
-                  <p>Soumis le: {format(submission.submittedAt, "dd MMM yyyy", { locale: fr })}</p>
-                   {submission.processedAt && <p>Traité le: {format(submission.processedAt, "dd MMM yyyy", { locale: fr })}</p>}
+                  <p>Soumis le: {format(new Date(submission.submittedAt), "dd MMM yyyy", { locale: fr })}</p>
+                   {submission.processedAt && <p>Traité le: {format(new Date(submission.processedAt), "dd MMM yyyy", { locale: fr })}</p>}
                 </div>
               </div>
             ))}
@@ -178,22 +176,20 @@ export function KycAdminClient() {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const { toast } = useToast();
 
-    const fetchSubmissions = async () => {
+    const loadSubmissions = async () => {
         setLoading(true);
-        try {
-            const adminDb = getAdminDb();
-            const submissionList = await getAllKycSubmissions(adminDb);
-            setSubmissions(submissionList);
-        } catch (error) {
-            console.error("Erreur lors de la récupération des demandes KYC:", error);
+        const result = await fetchKycSubmissions();
+        if (result.success && result.data) {
+            setSubmissions(result.data);
+        } else {
+            console.error("Erreur lors de la récupération des demandes KYC:", result.error);
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les demandes KYC.' });
-        } finally {
-            setLoading(false);
         }
+        setLoading(false);
     };
 
     useEffect(() => {
-        fetchSubmissions();
+        loadSubmissions();
     }, []);
 
     const { pendingSubmissions, approvedSubmissions, rejectedSubmissions } = useMemo(() => {
@@ -206,24 +202,20 @@ export function KycAdminClient() {
 
     const handleKycAction = async (submission: KycSubmission, status: 'approved' | 'rejected') => {
         setUpdatingId(submission.uid);
-        try {
-            const adminDb = getAdminDb();
-            const submissionRef = doc(adminDb, 'kycSubmissions', submission.uid);
-            await updateDoc(submissionRef, { status, processedAt: serverTimestamp() });
-
+        const result = await updateKycStatus(submission.uid, submission.uid, status);
+        
+        if (result.success) {
             if (status === 'approved') {
-                await updateUserInFirestore(submission.uid, { kycStatus: 'verified' }, adminDb);
                 toast({ title: 'Utilisateur approuvé', description: `Le statut KYC de l'utilisateur a été mis à jour.` });
             } else { // 'rejected'
                 toast({ variant: 'default', title: 'Demande rejetée', description: 'La soumission KYC a été marquée comme rejetée.' });
             }
-            fetchSubmissions();
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour du statut KYC:", error);
+            loadSubmissions();
+        } else {
+             console.error("Erreur lors de la mise à jour du statut KYC:", result.error);
             toast({ variant: 'destructive', title: 'Erreur', description: 'La mise à jour du statut a échoué.' });
-        } finally {
-            setUpdatingId(null);
         }
+        setUpdatingId(null);
     }
 
     if (loading) {
