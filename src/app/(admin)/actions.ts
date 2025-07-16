@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -5,7 +6,7 @@
  * These functions use the Admin SDK and are safe to be called from client components.
  */
 import { getAdminDb } from '@/lib/firebase/admin';
-import { deleteChatSession, hardDeleteMessage, getAllKycSubmissions as getAllKycSubmissionsFromDb, updateUserInFirestore } from '@/lib/firebase/firestore';
+import { deleteChatSession, hardDeleteMessage, getAllKycSubmissions as getAllKycSubmissionsFromDb, updateUserInFirestore, getAllTransfers, executeTransfer, updateTransferStatus } from '@/lib/firebase/firestore';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 export async function resetConversation(chatId: string): Promise<{ success: boolean; error?: string }> {
@@ -58,3 +59,37 @@ export async function updateKycStatus(userId: string, submissionId: string, newS
         return { success: false, error: error.message };
     }
 }
+
+export async function fetchAllTransfers() {
+    try {
+        const adminDb = getAdminDb();
+        const transfers = await getAllTransfers(adminDb);
+        return { success: true, data: JSON.parse(JSON.stringify(transfers)) };
+    } catch (error: any) {
+        console.error("Error fetching transfers:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateTransferStatusAction(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed' | 'in_review') {
+    try {
+        const adminDb = getAdminDb();
+        await updateTransferStatus(userId, transactionId, newStatus, adminDb);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating transfer status:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function executeTransferAction(userId: string, transactionId: string) {
+    try {
+        const adminDb = getAdminDb();
+        await executeTransfer(userId, transactionId, adminDb);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error executing transfer:", error);
+        return { success: false, error: error.message };
+    }
+}
+

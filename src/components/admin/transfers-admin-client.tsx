@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getAllTransfers, updateTransferStatus, executeTransfer, type Transaction } from '@/lib/firebase/firestore';
+import { type Transaction } from '@/lib/firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Loader2, Hourglass, RefreshCw, History, PauseCircle, PlayCircle } from 'lucide-react';
-import { getAdminDb } from '@/lib/firebase/admin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -26,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { fetchAllTransfers, executeTransferAction, updateTransferStatusAction } from '@/app/(admin)/actions';
 
 type TransferWithUser = Transaction & { userId: string; userName: string };
 
@@ -274,52 +274,49 @@ export function TransfersAdminClient() {
     const [isRefreshing, startRefreshTransition] = useTransition();
     const { toast } = useToast();
 
-    const fetchTransfers = async () => {
+    const loadTransfers = async () => {
         setLoading(true);
-        try {
-            const adminDb = getAdminDb();
-            const transfersList = await getAllTransfers(adminDb);
-            setAllTransfers(transfersList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-        } catch (error) {
-            console.error("Erreur lors de la récupération des virements:", error);
+        const result = await fetchAllTransfers();
+        if (result.success && result.data) {
+            setAllTransfers(result.data as TransferWithUser[]);
+        } else {
+            console.error("Erreur lors de la récupération des virements:", result.error);
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les virements.' });
-        } finally {
-            setLoading(false);
         }
+        setLoading(false);
     };
     
     const handleRefresh = () => {
         startRefreshTransition(async () => {
-            await fetchTransfers();
+            await loadTransfers();
             toast({ title: 'Liste des virements actualisée.' });
         })
     }
 
     useEffect(() => {
-        fetchTransfers();
+        loadTransfers();
     }, []);
 
     const handleAction = async (action: 'validate' | 'execute' | 'cancel' | 'pause' | 'resume', transfer: TransferWithUser) => {
         setActionInProgressId(transfer.id);
+        let result;
         try {
-            const adminDb = getAdminDb();
-            if (action === 'validate') {
-                await updateTransferStatus(transfer.userId, transfer.id, 'in_progress', adminDb);
-                toast({ title: 'Succès', description: 'Le virement a été validé et est prêt à être exécuté.' });
-            } else if (action === 'execute') {
-                await executeTransfer(transfer.userId, transfer.id, adminDb);
-                toast({ title: 'Succès', description: 'Le virement a été exécuté et le solde du client a été mis à jour.' });
-            } else if (action === 'cancel') {
-                await updateTransferStatus(transfer.userId, transfer.id, 'failed', adminDb);
-                toast({ variant: 'destructive', title: 'Action effectuée', description: 'Le virement a été interrompu.' });
-            } else if (action === 'pause') {
-                await updateTransferStatus(transfer.userId, transfer.id, 'in_review', adminDb);
-                toast({ title: 'Succès', description: 'Le virement a été mis en pause pour examen.' });
-            } else if (action === 'resume') {
-                await updateTransferStatus(transfer.userId, transfer.id, 'in_progress', adminDb);
-                toast({ title: 'Succès', description: 'Le virement a été relancé et est de nouveau en cours.' });
+            if (action === 'execute') {
+                result = await executeTransferAction(transfer.userId, transfer.id);
+            } else {
+                const newStatus = action === 'validate' ? 'in_progress'
+                                : action === 'cancel' ? 'failed'
+                                : action === 'pause' ? 'in_review'
+                                : 'in_progress'; // for resume
+                result = await updateTransferStatusAction(transfer.userId, transfer.id, newStatus);
             }
-            fetchTransfers();
+
+            if (result.success) {
+                toast({ title: 'Succès', description: 'Action sur le virement effectuée.' });
+                loadTransfers();
+            } else {
+                throw new Error(result.error);
+            }
         } catch (error) {
              toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
         } finally {
@@ -393,3 +390,4 @@ export function TransfersAdminClient() {
        </Card>
     );
 }
+
