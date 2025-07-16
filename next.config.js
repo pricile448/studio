@@ -29,6 +29,15 @@ const nextConfig = {
       };
     }
 
+    // Ajout d'alias pour corriger les erreurs de build liées aux imports "node:*"
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'node:events': 'events',
+      'node:process': 'process',
+      'node:stream': 'stream',
+      'node:util': 'util',
+    };
+
     return config;
   },
 };

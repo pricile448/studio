@@ -1,14 +1,9 @@
-
 import { UserDetailClient } from '@/components/admin/user-detail-client';
 import { getUserFromFirestore } from '@/lib/firebase/firestore';
 import { getAdminDb } from '@/lib/firebase/admin';
 import { notFound } from 'next/navigation';
 
-type PageProps = {
-  params: { userId: string };
-};
-
-export default async function AdminUserDetailPage({ params }: PageProps) {
+export default async function AdminUserDetailPage({ params }: { params: { userId: string } }) {
     const { userId } = params;
     
     // Fetch data on the server

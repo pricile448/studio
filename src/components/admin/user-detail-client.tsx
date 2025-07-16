@@ -32,9 +32,10 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { updateUserInFirestore, getUserFromFirestore } from '@/app/(admin)/actions';
+import { Skeleton } from '../ui/skeleton';
 
 interface UserDetailClientProps {
-    initialUserProfile: UserProfile;
+    userId: string;
 }
 
 const personalInfoSchema = z.object({
@@ -415,7 +416,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
             const refreshedUserResult = await getUserFromFirestore(user.uid);
             if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(refreshedUserResult.data);
+            onUpdate(refreshedUserResult.data as UserProfile);
             toast({ title: "Succès", description: successMessage });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
@@ -649,7 +650,7 @@ const virtualCardEditSchema = z.object({
     name: z.string().min(3, "Le nom doit comporter au moins 3 caractères."),
     number: z.string().min(16, "Doit comporter 16 chiffres").max(19, "Doit comporter au maximum 19 chiffres").regex(/^[\d\s]+$/, "Ne doit contenir que des chiffres et des espaces"),
     expiry: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/, "Format MM/AA ou MM/AAAA"),
-    cvv: z.string().min(3, "Doit comporter 3 chiffres").max(4, "Doit comporter au maximum 4 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
+    cvv: z.string().min(3, "Doit comporter au maximum 4 chiffres").max(4, "Doit comporter au maximum 4 chiffres").regex(/^\d+$/, "Ne doit contenir que des chiffres"),
     limit: z.coerce.number().positive("Le plafond doit être un nombre positif."),
 });
 
@@ -684,7 +685,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             const refreshedUserResult = await getUserFromFirestore(user.uid);
             if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(refreshedUserResult.data);
+            onUpdate(refreshedUserResult.data as UserProfile);
             toast({ title: 'Succès', description: successMsg });
         } catch (error) {
             console.error(errorMsg, error);
@@ -901,8 +902,9 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     );
 }
 
-export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) {
-    const [user, setUser] = useState<UserProfile>(initialUserProfile);
+export function UserDetailClient({ userId }: UserDetailClientProps) {
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
     const [isRefreshing, startRefreshTransition] = useTransition();
     const router = useRouter();
     const { toast } = useToast();
@@ -910,7 +912,7 @@ export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) 
     const refreshUserData = async () => {
         startRefreshTransition(async () => {
             try {
-                const result = await getUserFromFirestore(user.uid);
+                const result = await getUserFromFirestore(userId);
                 if (result.success && result.data) {
                     const refreshedUser = result.data;
                      // Manually parse dates again after serialization
@@ -934,6 +936,32 @@ export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) 
         });
     };
     
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            const result = await getUserFromFirestore(userId);
+            if (result.success && result.data) {
+                const refreshedUser = result.data;
+                const parsedUser = {
+                    ...refreshedUser,
+                    dob: refreshedUser.dob ? new Date(refreshedUser.dob) : new Date(),
+                    createdAt: refreshedUser.createdAt ? new Date(refreshedUser.createdAt) : new Date(),
+                    lastSignInTime: refreshedUser.lastSignInTime ? new Date(refreshedUser.lastSignInTime) : undefined,
+                    cardRequestedAt: refreshedUser.cardRequestedAt ? new Date(refreshedUser.cardRequestedAt) : undefined,
+                    kycSubmittedAt: refreshedUser.kycSubmittedAt ? new Date(refreshedUser.kycSubmittedAt) : undefined,
+                    virtualCardRequestedAt: refreshedUser.virtualCardRequestedAt ? new Date(refreshedUser.virtualCardRequestedAt) : undefined,
+                };
+                setUser(parsedUser as UserProfile);
+            } else {
+                toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de retrouver l\'utilisateur.' });
+                setUser(null);
+            }
+            setLoading(false);
+        };
+
+        fetchUser();
+    }, [userId, toast]);
+
     const handleUpdate = (updatedUser: UserProfile) => {
         setUser(updatedUser);
     }
@@ -951,6 +979,35 @@ export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) 
             case 'pending': return 'En attente';
             case 'unverified': default: return 'Non vérifié';
         }
+    }
+    
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <Skeleton className="h-10 w-48" />
+                <Skeleton className="h-8 w-64" />
+                <div className="mt-6 grid gap-6">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                </div>
+            </div>
+        )
+    }
+
+    if (!user) {
+        return (
+             <div className="space-y-6">
+                 <Button variant="outline" size="sm" onClick={() => router.back()} className="mb-4">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Retour aux utilisateurs
+                </Button>
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Utilisateur non trouvé</AlertTitle>
+                    <AlertDescription>Impossible de charger les détails de cet utilisateur.</AlertDescription>
+                </Alert>
+            </div>
+        )
     }
 
     return (
