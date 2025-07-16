@@ -1,12 +1,12 @@
 'use server';
 
 import { v2 as cloudinary } from 'cloudinary';
-import { getAdminDb } from '@/lib/firebase/admin';
-import { collection, addDoc, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import type { KycEmailInput } from '@/lib/types';
 import { sendSupportEmail } from '@/lib/mailgun';
 import type Mailgun from 'mailgun.js';
 import { db } from '@/lib/firebase/config';
+import { collection, addDoc, Timestamp, doc, updateDoc } from 'firebase/firestore';
+
 
 export async function uploadChatAttachment(
   chatId: string,
@@ -54,24 +54,14 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
         userEmail: input.userEmail,
         status: 'pending' as const,
         submittedAt: Timestamp.now(),
-        // Note: We are not storing document URLs here anymore for simplicity,
-        // as they are sent directly by email.
     };
     await addDoc(submissionsCollectionRef, submissionData);
 
-    // 2. Set the user's KYC status to 'pending' in their profile.
-    const userDocRef = doc(db, 'users', input.userId);
-    await updateDoc(userDocRef, {
-        kycStatus: 'pending'
-    });
-
-    // 3. Send notification email with attachments to the admin.
+    // 2. Send notification email with attachments to the admin.
     const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
     if (!adminEmail) {
         const errorMsg = 'La variable d\'environnement MAILGUN_ADMIN_EMAIL n\'est pas définie.';
         console.error(errorMsg);
-        // Even if email fails, the submission is saved. This is a configuration issue.
-        // We return success for the user, but log the error for the admin.
         return { success: true };
     }
   
@@ -102,7 +92,6 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
     return { success: true };
   } catch (error: any) {
     console.error('Erreur lors du traitement de la soumission KYC:', error);
-    // Provide a more generic error to the user for security.
     return { success: false, error: 'Une erreur est survenue lors de la soumission. Veuillez réessayer.' };
   }
 }
