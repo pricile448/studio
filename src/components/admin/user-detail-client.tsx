@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { type UserProfile, type Account, type Transaction, type Budget, addFundsToAccount, debitFundsFromAccount, updateUserAccountDetails, resetAccountBalance, deleteTransaction, deleteSelectedTransactions, deleteAllTransactions, deleteBudget, updateUserInFirestore, VirtualCard, PhysicalCardType, type PhysicalCard } from '@/lib/firebase/firestore';
+import { type UserProfile, type Account, type Transaction, type Budget, VirtualCard, PhysicalCardType, type PhysicalCard } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getAdminDb } from '@/lib/firebase/admin';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
@@ -33,6 +31,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { updateUserInFirestore, getUserFromFirestore } from '@/app/(admin)/actions';
 
 interface UserDetailClientProps {
     initialUserProfile: UserProfile;
@@ -96,8 +95,8 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
     const handleSubmit = async (data: PersonalInfoFormValues) => {
         setIsSubmitting(true);
         try {
-            const adminDb = getAdminDb();
-            await updateUserInFirestore(user.uid, data, adminDb);
+            const result = await updateUserInFirestore(user.uid, data);
+            if (!result.success) throw new Error(result.error);
             onUpdate({ ...user, ...data });
             toast({ title: "Succès", description: "Informations de l'utilisateur mises à jour." });
         } catch (error) {
@@ -198,8 +197,8 @@ function UserIbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (
     const handleSubmit = async (data: UserIbanFormValues) => {
         setIsSubmitting(true);
         try {
-            const adminDb = getAdminDb();
-            await updateUserInFirestore(user.uid, data, adminDb);
+            const result = await updateUserInFirestore(user.uid, data);
+            if (!result.success) throw new Error(result.error);
             onUpdate({ ...user, ...data });
             toast({ title: "Succès", description: "RIB de l'utilisateur mis à jour." });
         } catch (error) {
@@ -212,9 +211,9 @@ function UserIbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (
     const handleReset = async () => {
         setIsSubmitting(true);
         try {
-            const adminDb = getAdminDb();
             const resetData = { iban: deleteField(), bic: deleteField() };
-            await updateUserInFirestore(user.uid, resetData as any, adminDb);
+            const result = await updateUserInFirestore(user.uid, resetData);
+            if (!result.success) throw new Error(result.error);
             const updatedUser = { ...user, iban: undefined, bic: undefined };
             onUpdate(updatedUser);
             form.reset({ iban: '', bic: '' });
@@ -294,8 +293,8 @@ function BillingInfoManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     const handleSubmit = async (data: BillingInfoFormValues) => {
         setIsSubmitting(true);
         try {
-            const adminDb = getAdminDb();
-            await updateUserInFirestore(user.uid, data, adminDb);
+            const result = await updateUserInFirestore(user.uid, data);
+            if (!result.success) throw new Error(result.error);
             onUpdate({ ...user, ...data });
             toast({ title: "Succès", description: "Informations de facturation mises à jour." });
         } catch (error) {
@@ -308,14 +307,15 @@ function BillingInfoManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     const handleReset = async () => {
         setIsSubmitting(true);
         try {
-            const adminDb = getAdminDb();
             const resetData = {
                 billingHolder: deleteField(),
                 billingIban: deleteField(),
                 billingBic: deleteField(),
                 billingText: deleteField(),
             };
-            await updateUserInFirestore(user.uid, resetData as any, adminDb);
+            const result = await updateUserInFirestore(user.uid, resetData);
+            if (!result.success) throw new Error(result.error);
+            
             const updatedUser = { ...user, billingHolder: undefined, billingIban: undefined, billingBic: undefined, billingText: undefined };
             onUpdate(updatedUser);
             form.reset({ billingHolder: '', billingIban: '', billingBic: '', billingText: '' });
@@ -406,28 +406,16 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
     }, [user.physicalCard, form, isEditOpen]);
 
 
-    const handleAction = async (updateData: Partial<UserProfile>, successMessage: string) => {
+    const handleAction = async (updateData: any, successMessage: string) => {
         setIsLoading(true);
         try {
-            const adminDb = getAdminDb();
-            await updateUserInFirestore(user.uid, updateData, adminDb);
+            const result = await updateUserInFirestore(user.uid, updateData);
+            if (!result.success) throw new Error(result.error);
             
-            const updatedUser = { ...user };
-            
-            for (const key in updateData) {
-                const typedKey = key as keyof UserProfile;
-                const value = updateData[typedKey];
-                
-                if (typeof value === 'object' && value !== null && (value as any)._methodName === 'delete') {
-                    delete (updatedUser as any)[typedKey];
-                } else if (key === 'physicalCard' && updatedUser.physicalCard && typeof value === 'object' && value !== null) {
-                    updatedUser.physicalCard = { ...updatedUser.physicalCard, ...(value as Partial<PhysicalCard>) };
-                } else {
-                    (updatedUser as any)[typedKey] = value;
-                }
-            }
+            const refreshedUserResult = await getUserFromFirestore(user.uid);
+            if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(updatedUser);
+            onUpdate(refreshedUserResult.data);
             toast({ title: "Succès", description: successMessage });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
@@ -474,9 +462,9 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
     const handleCancelCard = () => {
         handleAction({ 
             cardStatus: 'none', 
-            physicalCard: deleteField() as any,
-            cardType: deleteField() as any,
-            cardRequestedAt: deleteField() as any
+            physicalCard: deleteField(),
+            cardType: deleteField(),
+            cardRequestedAt: deleteField()
         }, "Carte réinitialisée. L'utilisateur peut en commander une nouvelle.");
     }
     
@@ -597,7 +585,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
                     ) : user.cardStatus === 'requested' ? (
                         <>
                             <Button onClick={handleActivateCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Activer la carte</Button>
-                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField() as any, cardType: deleteField() as any }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
+                            <Button variant="destructive" onClick={() => handleAction({ cardStatus: 'none', cardRequestedAt: deleteField(), cardType: deleteField() }, "Demande de carte annulée.")} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Annuler la demande</Button>
                         </>
                     ) : user.cardStatus === 'active' ? (
                         <Button variant="destructive" onClick={handleSuspendCard} disabled={isLoading}>{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Suspendre la carte</Button>
@@ -687,10 +675,16 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         }
     }, [editingCard, form]);
 
-    const handleAction = async (action: () => Promise<any>, successMsg: string, errorMsg: string) => {
+    const handleAction = async (updateData: any, successMsg: string, errorMsg: string) => {
         setIsLoading(true);
         try {
-            await action();
+            const result = await updateUserInFirestore(user.uid, updateData);
+            if (!result.success) throw new Error(result.error);
+
+            const refreshedUserResult = await getUserFromFirestore(user.uid);
+            if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
+
+            onUpdate(refreshedUserResult.data);
             toast({ title: 'Succès', description: successMsg });
         } catch (error) {
             console.error(errorMsg, error);
@@ -701,31 +695,25 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     };
 
     const handleGenerateVirtualCard = async () => {
-        await handleAction(
-            async () => {
-                const adminDb = getAdminDb();
-                const newCard: VirtualCard = {
-                    id: `vc_${Date.now()}`,
-                    type: 'virtual',
-                    name: 'Carte virtuelle',
-                    number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
-                    expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
-                    cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
-                    limit: 1000,
-                    isFrozen: false,
-                    frozenBy: null,
-                    isDetailsVisibleToUser: true,
-                    createdAt: Timestamp.now(),
-                };
-                
-                const updatedVirtualCards = [...(user.virtualCards || []), newCard];
-                await updateUserInFirestore(user.uid, { 
-                    virtualCards: updatedVirtualCards,
-                    hasPendingVirtualCardRequest: deleteField(),
-                    virtualCardRequestedAt: deleteField()
-                 }, adminDb);
-
-                onUpdate({ ...user, virtualCards: updatedVirtualCards, hasPendingVirtualCardRequest: false, virtualCardRequestedAt: undefined });
+        const newCard: VirtualCard = {
+            id: `vc_${Date.now()}`,
+            type: 'virtual',
+            name: 'Carte virtuelle',
+            number: '4000 1234 5678 ' + Math.floor(1000 + Math.random() * 9000),
+            expiry: `0${Math.floor(Math.random() * 9) + 1}/${new Date().getFullYear() % 100 + 5}`,
+            cvv: String(Math.floor(100 + Math.random() * 900)).padStart(3, '0'),
+            limit: 1000,
+            isFrozen: false,
+            frozenBy: null,
+            isDetailsVisibleToUser: true,
+            createdAt: Timestamp.now(),
+        };
+        
+        const updatedVirtualCards = [...(user.virtualCards || []), newCard];
+        await handleAction({ 
+            virtualCards: updatedVirtualCards,
+            hasPendingVirtualCardRequest: deleteField(),
+            virtualCardRequestedAt: deleteField()
             },
             "Nouvelle carte virtuelle générée pour l'utilisateur.",
             "Erreur lors de la génération de la carte."
@@ -750,11 +738,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         updatedCards[cardIndex] = cardToUpdate;
         
         await handleAction(
-            async () => {
-                const adminDb = getAdminDb();
-                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
-                onUpdate({ ...user, virtualCards: updatedCards });
-            },
+            { virtualCards: updatedCards },
             "Carte virtuelle mise à jour.",
             "Erreur lors de la mise à jour."
         );
@@ -769,11 +753,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         updatedCards[cardIndex].isDetailsVisibleToUser = checked;
         
         await handleAction(
-            async () => {
-                const adminDb = getAdminDb();
-                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
-                onUpdate({ ...user, virtualCards: updatedCards });
-            },
+            { virtualCards: updatedCards },
             `Visibilité des détails de la carte mise à jour.`,
             'Erreur lors du changement de visibilité.'
         );
@@ -789,11 +769,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         updatedCards[cardIndex].frozenBy = newStatus ? 'admin' : null;
 
         await handleAction(
-            async () => {
-                const adminDb = getAdminDb();
-                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
-                onUpdate({ ...user, virtualCards: updatedCards });
-            },
+            { virtualCards: updatedCards },
             `Carte ${newStatus ? 'suspendue' : 'réactivée'}.`,
             'Erreur lors du changement de statut de la carte.'
         );
@@ -803,11 +779,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
         const updatedCards = user.virtualCards.filter(c => c.id !== cardId);
 
         await handleAction(
-            async () => {
-                const adminDb = getAdminDb();
-                await updateUserInFirestore(user.uid, { virtualCards: updatedCards }, adminDb);
-                onUpdate({ ...user, virtualCards: updatedCards });
-            },
+            { virtualCards: updatedCards },
             `Carte virtuelle supprimée.`,
             'Erreur lors de la suppression de la carte.'
         );
@@ -938,13 +910,23 @@ export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) 
     const refreshUserData = async () => {
         startRefreshTransition(async () => {
             try {
-                const adminDb = getAdminDb();
-                const refreshedUser = await getUserFromFirestore(user.uid, adminDb);
-                if (refreshedUser) {
-                    setUser(refreshedUser);
+                const result = await getUserFromFirestore(user.uid);
+                if (result.success && result.data) {
+                    const refreshedUser = result.data;
+                     // Manually parse dates again after serialization
+                    const parsedUser = {
+                        ...refreshedUser,
+                        dob: new Date(refreshedUser.dob),
+                        createdAt: new Date(refreshedUser.createdAt),
+                        lastSignInTime: refreshedUser.lastSignInTime ? new Date(refreshedUser.lastSignInTime) : undefined,
+                        cardRequestedAt: refreshedUser.cardRequestedAt ? new Date(refreshedUser.cardRequestedAt) : undefined,
+                        kycSubmittedAt: refreshedUser.kycSubmittedAt ? new Date(refreshedUser.kycSubmittedAt) : undefined,
+                        virtualCardRequestedAt: refreshedUser.virtualCardRequestedAt ? new Date(refreshedUser.virtualCardRequestedAt) : undefined,
+                    }
+                    setUser(parsedUser as UserProfile);
                     toast({ title: 'Données actualisées', description: 'Les informations de l\'utilisateur ont été rechargées.' });
                 } else {
-                    toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de retrouver l\'utilisateur.' });
+                    toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de retrouver l\'utilisateur.' });
                 }
             } catch (error) {
                 toast({ variant: 'destructive', title: 'Erreur', description: 'Échec de l\'actualisation des données.' });

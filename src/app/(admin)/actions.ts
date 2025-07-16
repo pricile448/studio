@@ -6,7 +6,17 @@
  * These functions use the Admin SDK and are safe to be called from client components.
  */
 import { getAdminDb } from '@/lib/firebase/admin';
-import { deleteChatSession, hardDeleteMessage, getAllKycSubmissions as getAllKycSubmissionsFromDb, updateUserInFirestore, getAllTransfers, executeTransfer, updateTransferStatus, getAllUsers } from '@/lib/firebase/firestore';
+import { 
+    deleteChatSession, 
+    hardDeleteMessage, 
+    getAllKycSubmissions as getAllKycSubmissionsFromDb, 
+    updateUserInFirestore as updateUserInFirestoreDb, 
+    getAllTransfers as getAllTransfersFromDb, 
+    executeTransfer as executeTransferInDb, 
+    updateTransferStatus as updateTransferStatusInDb, 
+    getAllUsers as getAllUsersFromDb,
+    getUserFromFirestore as getUserFromFirestoreDb
+} from '@/lib/firebase/firestore';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 export async function resetConversation(chatId: string): Promise<{ success: boolean; error?: string }> {
@@ -46,7 +56,7 @@ export async function fetchKycSubmissions() {
 export async function fetchAllUsers() {
     try {
         const adminDb = getAdminDb();
-        const users = await getAllUsers(adminDb);
+        const users = await getAllUsersFromDb(adminDb);
         return { success: true, data: JSON.parse(JSON.stringify(users)) };
     } catch (error: any) {
         console.error("Error fetching users:", error);
@@ -61,7 +71,7 @@ export async function updateKycStatus(userId: string, submissionId: string, newS
         await updateDoc(submissionRef, { status: newStatus, processedAt: serverTimestamp() });
 
         if (newStatus === 'approved') {
-            await updateUserInFirestore(userId, { kycStatus: 'verified' }, adminDb);
+            await updateUserInFirestoreDb(userId, { kycStatus: 'verified' }, adminDb);
         }
         
         return { success: true };
@@ -74,7 +84,7 @@ export async function updateKycStatus(userId: string, submissionId: string, newS
 export async function fetchAllTransfers() {
     try {
         const adminDb = getAdminDb();
-        const transfers = await getAllTransfers(adminDb);
+        const transfers = await getAllTransfersFromDb(adminDb);
         return { success: true, data: JSON.parse(JSON.stringify(transfers)) };
     } catch (error: any) {
         console.error("Error fetching transfers:", error);
@@ -85,7 +95,7 @@ export async function fetchAllTransfers() {
 export async function updateTransferStatusAction(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed' | 'in_review') {
     try {
         const adminDb = getAdminDb();
-        await updateTransferStatus(userId, transactionId, newStatus, adminDb);
+        await updateTransferStatusInDb(userId, transactionId, newStatus, adminDb);
         return { success: true };
     } catch (error: any) {
         console.error("Error updating transfer status:", error);
@@ -96,10 +106,32 @@ export async function updateTransferStatusAction(userId: string, transactionId: 
 export async function executeTransferAction(userId: string, transactionId: string) {
     try {
         const adminDb = getAdminDb();
-        await executeTransfer(userId, transactionId, adminDb);
+        await executeTransferInDb(userId, transactionId, adminDb);
         return { success: true };
     } catch (error: any) {
         console.error("Error executing transfer:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function updateUserInFirestore(userId: string, data: any) {
+    try {
+        const adminDb = getAdminDb();
+        await updateUserInFirestoreDb(userId, data, adminDb);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating user in Firestore:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function getUserFromFirestore(userId: string) {
+     try {
+        const adminDb = getAdminDb();
+        const user = await getUserFromFirestoreDb(userId, adminDb);
+        return { success: true, data: JSON.parse(JSON.stringify(user)) };
+    } catch (error: any) {
+        console.error("Error fetching user from Firestore:", error);
         return { success: false, error: error.message };
     }
 }
