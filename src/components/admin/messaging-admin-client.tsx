@@ -42,7 +42,8 @@ import type { Firestore } from 'firebase/firestore';
 import { uploadChatAttachment } from '@/app/actions';
 import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { adminDb } from '@/lib/firebase/admin';
+import { getFirebaseServices } from '@/lib/firebase/config';
+import { resetConversation as resetConversationAction, deleteAdminMessage as deleteAdminMessageAction } from '@/app/(admin)/actions';
 
 
 const ADVISOR_ID = 'advisor_123';
@@ -86,19 +87,21 @@ function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSessio
     const scrollAreaEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
-    const { deleteConversation: resetConversation } = useAdminAuth();
     const [isDeleting, startDeleteTransition] = useTransition();
     const isMobile = useIsMobile();
     const [previewImage, setPreviewImage] = useState<{url: string; name: string} | null>(null);
+    const { db: adminDb } = getFirebaseServices('admin');
+
 
     useEffect(() => {
+        if (!adminDb) return;
         const q = query(collection(adminDb, 'chats', chatSession.id, 'messages'), orderBy('timestamp', 'asc'));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const msgs: ChatMessage[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ChatMessage));
             setMessages(msgs);
         });
         return () => unsubscribe();
-    }, [chatSession.id]);
+    }, [chatSession.id, adminDb]);
 
     useEffect(() => {
         setTimeout(() => scrollAreaEndRef.current?.scrollIntoView({ behavior: 'auto' }), 100);
@@ -106,7 +109,7 @@ function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSessio
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
+        if (!newMessage.trim() || !adminDb) return;
         
         setIsSending(true);
         try {
@@ -125,7 +128,7 @@ function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSessio
     
     const handleSendFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file) return;
+        if (!file || !adminDb) return;
 
         setIsSending(true);
         try {
@@ -157,16 +160,14 @@ function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSessio
         }
     };
 
-    const handleResetMessage = (messageId?: string) => {
+    const handleDeleteMessage = (messageId?: string) => {
         if (!messageId) return;
         startDeleteTransition(async () => {
-            try {
-                // This function is now for resetting individual messages if needed,
-                // for now we only reset the whole conversation.
-                // await deleteAdminMessage(chatSession.id, messageId);
-                toast({ title: "Action non implémentée." });
-            } catch (error) {
-                toast({ variant: 'destructive', title: 'Erreur', description: "Impossible de réinitialiser le message." });
+            const result = await deleteAdminMessageAction(chatSession.id, messageId);
+            if (result.success) {
+                 toast({ title: "Message supprimé." });
+            } else {
+                toast({ variant: 'destructive', title: 'Erreur', description: result.error || "Impossible de supprimer le message." });
             }
         });
     };
@@ -305,7 +306,7 @@ function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSessio
 }
 
 export function MessagingAdminClient() {
-    const { user, userProfile, deleteConversation } = useAdminAuth();
+    const { user, userProfile } = useAdminAuth();
     const [chats, setChats] = useState<ChatSession[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -316,18 +317,18 @@ export function MessagingAdminClient() {
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
     const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
     const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+    const { db: adminDb } = getFirebaseServices('admin');
 
     const getInitials = (name: string) => (name || '').split(' ').map(n => n[0]).join('') || 'U';
 
 
     useEffect(() => {
-        if (!user) return;
+        if (!user || !adminDb) return;
         
         const q = query(collection(adminDb, 'chats'));
         const unsubscribe = onSnapshot(q, async (querySnapshot) => {
             const chatSessionsPromises = querySnapshot.docs.map(async (doc) => {
                 const data = doc.data();
-                // Find the participant who is not the generic advisor
                 const clientParticipantId = data.participants.find((p: string) => p !== ADVISOR_ID);
                 
                 let participantDetails = {
@@ -372,25 +373,25 @@ export function MessagingAdminClient() {
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, adminDb]);
 
     const handleResetConversation = (chatId: string) => {
         startResetTransition(async () => {
-            try {
-                await deleteConversation(chatId);
+            const result = await resetConversationAction(chatId);
+            if (result.success) {
                 toast({ title: 'Conversation réinitialisée', description: 'La conversation a été vidée de ses messages.' });
                 if(selectedChatId === chatId) {
                     setSelectedChatId(null);
                 }
-            } catch (error) {
-                toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de réinitialiser la conversation.' });
+            } else {
+                 toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de réinitialiser la conversation.' });
             }
         });
     }
 
     const handleOpenNewChatDialog = async () => {
         setIsNewChatDialogOpen(true);
-        if (allUsers.length > 0) return;
+        if (allUsers.length > 0 || !adminDb) return;
 
         setIsLoadingUsers(true);
         try {
@@ -405,9 +406,8 @@ export function MessagingAdminClient() {
     };
     
     const handleSelectUserForNewChat = async (selectedUser: UserProfile) => {
-        if (!user) return;
+        if (!user || !adminDb) return;
         try {
-            // Use the generic advisor ID to create the chat session
             const newChatId = await getOrCreateChatId(selectedUser.uid, ADVISOR_ID, adminDb);
             setSelectedChatId(newChatId);
             setIsNewChatDialogOpen(false);

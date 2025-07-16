@@ -43,13 +43,16 @@ export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServ
     }
     
     if (!isFirebaseConfigValid(firebaseConfig)) {
-        console.error(
-            `\n**************************************************\n` +
-            `ERROR: Firebase client configuration is missing or incomplete.\n` +
-            `Please ensure all NEXT_PUBLIC_FIREBASE_* environment variables are set correctly in your .env file.\n` +
-            `Client-side Firebase features will be disabled.\n` +
-            `**************************************************\n`
-        );
+        // Avoid logging this error for the admin app on the client-side
+        if (appName !== 'admin') {
+            console.error(
+                `\n**************************************************\n` +
+                `ERROR: Firebase client configuration is missing or incomplete.\n` +
+                `Please ensure all NEXT_PUBLIC_FIREBASE_* environment variables are set correctly in your .env file.\n` +
+                `Client-side Firebase features will be disabled.\n` +
+                `**************************************************\n`
+            );
+        }
         appInstances.set(appName, null);
         return { app: null, auth: null, db: null, storage: null };
     }

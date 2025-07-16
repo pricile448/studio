@@ -4,8 +4,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, reload, updateProfile, updatePassword, UserCredential } from 'firebase/auth';
 import { getFirebaseServices } from '@/lib/firebase/config';
-import { getUserFromFirestore, UserProfile, deleteChatSession, hardDeleteMessage } from '@/lib/firebase/firestore';
-import { getAdminDb, getAdminAuth } from '@/lib/firebase/admin';
+import { getUserFromFirestore, UserProfile } from '@/lib/firebase/firestore';
 import { doc, getDoc } from "firebase/firestore";
 
 type AdminAuthContextType = {
@@ -15,8 +14,6 @@ type AdminAuthContextType = {
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
-  deleteConversation: (chatId: string) => Promise<void>;
-  deleteAdminMessage: (chatId: string, messageId: string) => Promise<void>;
 };
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
@@ -27,7 +24,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   
-  const adminAuth = getAdminAuth();
+  const { auth: adminAuth, db: adminDb } = getFirebaseServices('admin');
 
   useEffect(() => {
     if (!adminAuth) {
@@ -35,11 +32,10 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         return;
     }
     const unsubscribe = onAuthStateChanged(adminAuth, async (user) => {
-      setLoading(true); // Set loading to true whenever auth state might change
+      setLoading(true); 
       setUser(user);
-      if (user) {
+      if (user && adminDb) {
         try {
-          const adminDb = getAdminDb();
           // Check for admin privileges
           const adminRef = doc(adminDb, 'admins', user.uid);
           const adminSnap = await getDoc(adminRef);
@@ -51,17 +47,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
           } else {
             setIsAdmin(false);
             setUserProfile(null);
-            // Log out non-admin users immediately to prevent access
             await signOut(adminAuth);
-            // After sign out, onAuthStateChanged will fire again with user=null
-            // which will correctly set loading to false. We can return here to avoid a redundant setLoading(false).
             return;
           }
         } catch (error) {
             console.error("Error during admin auth check:", error);
             setIsAdmin(false);
             setUserProfile(null);
-            await signOut(adminAuth);
+            if(adminAuth) await signOut(adminAuth);
         }
 
       } else {
@@ -71,15 +64,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [adminAuth]);
+  }, [adminAuth, adminDb]);
 
   const login = async (email: string, password: string) => {
     if (!adminAuth) throw new Error("Admin Auth not initialized");
     const userCredential = await signInWithEmailAndPassword(adminAuth, email, password);
     
     try {
-        const adminDb = getAdminDb();
-        // Check if the user is an admin after login
+        if (!adminDb) throw new Error("Admin DB not initialized");
         const adminRef = doc(adminDb, 'admins', userCredential.user.uid);
         const adminSnap = await getDoc(adminRef);
 
@@ -88,7 +80,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
             throw new Error("Vous n'avez pas les autorisations nécessaires pour accéder à cette section.");
         }
     } catch(error) {
-        await signOut(adminAuth);
+        if (adminAuth) await signOut(adminAuth);
         throw error;
     }
     
@@ -99,18 +91,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     if (!adminAuth) return;
     await signOut(adminAuth);
   };
-  
-  const deleteConversation = async (chatId: string) => {
-    const adminDb = getAdminDb();
-    await deleteChatSession(chatId, adminDb);
-  };
 
-  const deleteAdminMessage = async (chatId: string, messageId: string) => {
-      const adminDb = getAdminDb();
-      await hardDeleteMessage(chatId, messageId, adminDb);
-  };
-
-  const value = { user, userProfile, loading, isAdmin, login, logout, deleteConversation, deleteAdminMessage };
+  const value = { user, userProfile, loading, isAdmin, login, logout };
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }
