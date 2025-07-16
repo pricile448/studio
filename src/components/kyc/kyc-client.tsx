@@ -12,7 +12,7 @@ import { ArrowLeft, ShieldCheck, ListChecks, User, FileCheck2, CheckCircle, File
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
-import { submitKycAndNotifyAdmin } from '@/app/actions';
+import { submitKyc } from '@/ai/flows/kyc-submission-flow';
 
 
 interface KycClientProps {
@@ -83,7 +83,7 @@ export function KycClient({ dict, lang }: KycClientProps) {
           convertFileToDataUri(selfie),
       ]);
       
-      const result = await submitKycAndNotifyAdmin({
+      const result = await submitKyc({
           userId: userProfile.uid,
           userName: `${userProfile.firstName} ${userProfile.lastName}`,
           userEmail: userProfile.email,
