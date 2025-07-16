@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { fr, en, de, es, pt } from 'date-fns/locale';
+import { fr, enUS, de, es, pt } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const locales: {[key: string]: typeof fr} = { fr, en, de, es, pt };
+const locales: {[key: string]: typeof fr} = { fr, en: enUS, de, es, pt };
 
 const passwordFormSchema = (dict: Dictionary['settings']['security']) => z.object({
   currentPassword: z.string().min(1, { message: dict.passwordRequiredError }),
