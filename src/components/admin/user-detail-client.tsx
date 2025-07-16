@@ -33,10 +33,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { updateUserInFirestore, getUserFromFirestore as getUserAction } from '@/app/(admin)/actions';
 import { Skeleton } from '../ui/skeleton';
 
-interface UserDetailClientProps {
-    userId: string;
-}
-
+// Helper function to re-hydrate dates from serialized data
 const parseUserDates = (profile: any): UserProfile | null => {
     if (!profile) return null;
     const parsed = { ...profile };
@@ -72,6 +69,12 @@ const parseUserDates = (profile: any): UserProfile | null => {
 };
 
 
+interface UserDetailClientProps {
+    userId: string;
+}
+
+// All sub-components remain the same as they operate on the `user` state object.
+// They are included here for completeness as they were in the original single file.
 const personalInfoSchema = z.object({
   firstName: z.string().min(1, 'Prénom requis'),
   lastName: z.string().min(1, 'Nom requis'),
@@ -206,7 +209,6 @@ function PersonalInformation({ user, onUpdate }: { user: UserProfile, onUpdate: 
     );
 }
 
-// User's own IBAN for receiving payments
 const userIbanSchema = z.object({
   iban: z.string().min(1, 'IBAN est requis'),
   bic: z.string().min(1, 'BIC est requis'),
@@ -293,7 +295,6 @@ function UserIbanManagement({ user, onUpdate }: { user: UserProfile, onUpdate: (
     );
 }
 
-// Bank's billing info to be shown to the user
 const billingInfoSchema = z.object({
   billingHolder: z.string().min(1, 'Nom du titulaire requis'),
   billingIban: z.string().min(1, 'IBAN est requis'),
