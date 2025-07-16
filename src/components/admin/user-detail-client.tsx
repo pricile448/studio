@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
@@ -31,12 +30,47 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { updateUserInFirestore, getUserFromFirestore } from '@/app/(admin)/actions';
+import { updateUserInFirestore, getUserFromFirestore as getUserAction } from '@/app/(admin)/actions';
 import { Skeleton } from '../ui/skeleton';
 
 interface UserDetailClientProps {
-    userId: string;
+    initialUserProfile: any;
 }
+
+const parseUserDates = (profile: any) => {
+    if (!profile) return null;
+    const parsed = { ...profile };
+    const dateFields = ['dob', 'createdAt', 'lastSignInTime', 'cardRequestedAt', 'kycSubmittedAt', 'virtualCardRequestedAt'];
+    dateFields.forEach(field => {
+        if (parsed[field] && typeof parsed[field] === 'string') {
+            parsed[field] = new Date(parsed[field]);
+        }
+    });
+    
+    if (parsed.transactions) {
+        parsed.transactions = parsed.transactions.map((tx: any) => ({
+            ...tx,
+            date: tx.date ? new Date(tx.date) : new Date()
+        }));
+    }
+    
+    if (parsed.documents) {
+        parsed.documents = parsed.documents.map((doc: any) => ({
+            ...doc,
+            createdAt: doc.createdAt ? new Date(doc.createdAt) : new Date()
+        }));
+    }
+
+    if (parsed.virtualCards) {
+        parsed.virtualCards = parsed.virtualCards.map((vc: any) => ({
+            ...vc,
+            createdAt: vc.createdAt ? new Date(vc.createdAt) : new Date()
+        }));
+    }
+
+    return parsed as UserProfile;
+};
+
 
 const personalInfoSchema = z.object({
   firstName: z.string().min(1, 'Prénom requis'),
@@ -413,10 +447,10 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
             const result = await updateUserInFirestore(user.uid, updateData);
             if (!result.success) throw new Error(result.error);
             
-            const refreshedUserResult = await getUserFromFirestore(user.uid);
+            const refreshedUserResult = await getUserAction(user.uid);
             if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(refreshedUserResult.data as UserProfile);
+            onUpdate(parseUserDates(refreshedUserResult.data));
             toast({ title: "Succès", description: successMessage });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
@@ -682,10 +716,10 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             const result = await updateUserInFirestore(user.uid, updateData);
             if (!result.success) throw new Error(result.error);
 
-            const refreshedUserResult = await getUserFromFirestore(user.uid);
+            const refreshedUserResult = await getUserAction(user.uid);
             if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(refreshedUserResult.data as UserProfile);
+            onUpdate(parseUserDates(refreshedUserResult.data));
             toast({ title: 'Succès', description: successMsg });
         } catch (error) {
             console.error(errorMsg, error);
@@ -899,35 +933,34 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                 </Dialog>
             </CardContent>
         </Card>
-    );
+    )
 }
 
-export function UserDetailClient({ userId }: UserDetailClientProps) {
-    const [user, setUser] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) {
+    const [user, setUser] = useState<UserProfile | null>(() => parseUserDates(initialUserProfile));
+    const [loading, setLoading] = useState(!initialUserProfile);
     const [isRefreshing, startRefreshTransition] = useTransition();
     const router = useRouter();
     const { toast } = useToast();
 
-    const parseUserDates = (profile: any) => {
-        if (!profile) return null;
-        const parsed = { ...profile };
-        const dateFields = ['dob', 'createdAt', 'lastSignInTime', 'cardRequestedAt', 'kycSubmittedAt', 'virtualCardRequestedAt'];
-        dateFields.forEach(field => {
-            if (parsed[field] && typeof parsed[field] === 'string') {
-                parsed[field] = new Date(parsed[field]);
-            }
-        });
-        return parsed as UserProfile;
-    };
+    useEffect(() => {
+        if (!initialUserProfile) {
+            setLoading(true);
+            // This case should ideally not be hit if the page component handles notFound()
+            // but it's a good fallback.
+        } else {
+            setUser(parseUserDates(initialUserProfile));
+            setLoading(false);
+        }
+    }, [initialUserProfile]);
 
     const refreshUserData = async () => {
+        if (!user) return;
         startRefreshTransition(async () => {
             try {
-                const result = await getUserFromFirestore(userId);
+                const result = await getUserAction(user.uid);
                 if (result.success && result.data) {
-                    const parsedUser = parseUserDates(result.data);
-                    setUser(parsedUser);
+                    setUser(parseUserDates(result.data));
                     toast({ title: 'Données actualisées', description: 'Les informations de l\'utilisateur ont été rechargées.' });
                 } else {
                     toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de retrouver l\'utilisateur.' });
@@ -938,23 +971,6 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
         });
     };
     
-    useEffect(() => {
-        const fetchUser = async () => {
-            setLoading(true);
-            const result = await getUserFromFirestore(userId);
-            if (result.success && result.data) {
-                const parsedUser = parseUserDates(result.data);
-                setUser(parsedUser);
-            } else {
-                toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de retrouver l\'utilisateur.' });
-                setUser(null);
-            }
-            setLoading(false);
-        };
-
-        fetchUser();
-    }, [userId, toast]);
-
     const handleUpdate = (updatedUser: UserProfile) => {
         setUser(updatedUser);
     }
