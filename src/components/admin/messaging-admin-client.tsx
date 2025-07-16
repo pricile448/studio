@@ -152,7 +152,7 @@ function ChatInterface({ chatSession, adminId, adminName, onBack }: { chatSessio
             toast({
                 variant: 'destructive',
                 title: 'Erreur',
-                description: (error as Error).message || 'Impossible d\'envoyer le fichier.',
+                description: (error as Error).message || 'Impossible d\\'envoyer le fichier.',
             });
         } finally {
             setIsSending(false);
