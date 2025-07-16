@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -18,50 +18,10 @@ interface AppearanceFormProps {
 }
 
 export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
-  const [theme, setTheme] = useState<string | null>(null);
+  const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    // This effect runs only on the client, after the initial render.
-    const storedTheme = localStorage.getItem('theme') || 'system';
-    setTheme(storedTheme);
-  }, []);
-
-  useEffect(() => {
-    if (!theme) return;
-
-    localStorage.setItem('theme', theme);
-
-    const applyTheme = () => {
-      if (
-        theme === 'dark' ||
-        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    };
-    
-    applyTheme();
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    if (theme === 'system') {
-      mediaQuery.addEventListener('change', applyTheme);
-    }
-    
-    return () => {
-      // No need to check for theme === 'system' here, as the listener is only added if it was.
-      mediaQuery.removeEventListener('change', applyTheme);
-    };
-  }, [theme]);
-
-
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-  };
-  
   const getNewPath = (newLang: Locale) => {
     const pathParts = pathname.split('/');
     pathParts[1] = newLang;
@@ -80,7 +40,7 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
     if (isMobile) {
       return (
         <div className="pt-2">
-            <Select value={theme} onValueChange={handleThemeChange}>
+            <Select value={theme} onValueChange={setTheme}>
             <SelectTrigger className="max-w-sm">
                 <SelectValue placeholder={dict.theme} />
             </SelectTrigger>
@@ -97,7 +57,7 @@ export function AppearanceForm({ dict, lang }: AppearanceFormProps) {
     return (
         <RadioGroup
           value={theme}
-          onValueChange={handleThemeChange}
+          onValueChange={setTheme}
           className="grid max-w-md grid-cols-3 gap-8 pt-2"
         >
           <Label className="[&:has([data-state=checked])>div]:border-primary">
