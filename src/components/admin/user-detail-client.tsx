@@ -34,7 +34,7 @@ import { updateUserInFirestore, getUserFromFirestore as getUserAction } from '@/
 import { Skeleton } from '../ui/skeleton';
 
 interface UserDetailClientProps {
-    initialUserProfile: any;
+    userId: string;
 }
 
 const parseUserDates = (profile: any) => {
@@ -936,24 +936,36 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
     )
 }
 
-export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) {
-    const [user, setUser] = useState<UserProfile | null>(() => parseUserDates(initialUserProfile));
-    const [loading, setLoading] = useState(!initialUserProfile);
+export function UserDetailClient({ userId }: UserDetailClientProps) {
+    const [user, setUser] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
     const [isRefreshing, startRefreshTransition] = useTransition();
     const router = useRouter();
     const { toast } = useToast();
 
     useEffect(() => {
-        if (!initialUserProfile) {
+        const fetchUser = async () => {
+            if (!userId) {
+                setLoading(false);
+                return;
+            }
             setLoading(true);
-            // This case should ideally not be hit if the page component handles notFound()
-            // but it's a good fallback.
-        } else {
-            setUser(parseUserDates(initialUserProfile));
+            const result = await getUserAction(userId);
+            if (result.success && result.data) {
+                setUser(parseUserDates(result.data));
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: 'Erreur',
+                    description: result.error || "Impossible de charger les données de l'utilisateur."
+                });
+                setUser(null);
+            }
             setLoading(false);
-        }
-    }, [initialUserProfile]);
-
+        };
+        fetchUser();
+    }, [userId, toast]);
+    
     const refreshUserData = async () => {
         if (!user) return;
         startRefreshTransition(async () => {
