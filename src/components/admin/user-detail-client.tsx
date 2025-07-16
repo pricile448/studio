@@ -35,7 +35,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
 interface UserDetailClientProps {
-    userProfile: UserProfile;
+    initialUserProfile: UserProfile;
 }
 
 const personalInfoSchema = z.object({
@@ -926,5 +926,90 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
                 </Dialog>
             </CardContent>
         </Card>
+    );
+}
+
+export function UserDetailClient({ initialUserProfile }: UserDetailClientProps) {
+    const [user, setUser] = useState<UserProfile>(initialUserProfile);
+    const [isRefreshing, startRefreshTransition] = useTransition();
+    const router = useRouter();
+    const { toast } = useToast();
+
+    const refreshUserData = async () => {
+        startRefreshTransition(async () => {
+            try {
+                const adminDb = getAdminDb();
+                const refreshedUser = await getUserFromFirestore(user.uid, adminDb);
+                if (refreshedUser) {
+                    setUser(refreshedUser);
+                    toast({ title: 'Données actualisées', description: 'Les informations de l\'utilisateur ont été rechargées.' });
+                } else {
+                    toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de retrouver l\'utilisateur.' });
+                }
+            } catch (error) {
+                toast({ variant: 'destructive', title: 'Erreur', description: 'Échec de l\'actualisation des données.' });
+            }
+        });
+    };
+    
+    const handleUpdate = (updatedUser: UserProfile) => {
+        setUser(updatedUser);
+    }
+    
+     const getKycStatusVariant = (status: UserProfile['kycStatus']) => {
+        switch (status) {
+            case 'verified': return 'bg-green-100 text-green-800';
+            case 'pending': return 'bg-blue-100 text-blue-800';
+            default: return 'bg-amber-100 text-amber-800';
+        }
+    }
+     const translateKycStatus = (status: UserProfile['kycStatus']) => {
+         switch (status) {
+            case 'verified': return 'Vérifié';
+            case 'pending': return 'En attente';
+            case 'unverified': default: return 'Non vérifié';
+        }
+    }
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                    <Button variant="outline" size="sm" onClick={() => router.back()} className="mb-4">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Retour aux utilisateurs
+                    </Button>
+                    <h1 className="text-2xl md:text-3xl font-bold font-headline">{user.firstName} {user.lastName}</h1>
+                    <p className="text-muted-foreground">{user.email}</p>
+                    <Badge variant="outline" className={cn("mt-2", getKycStatusVariant(user.kycStatus))}>{translateKycStatus(user.kycStatus)}</Badge>
+                </div>
+                <Button variant="secondary" onClick={refreshUserData} disabled={isRefreshing}>
+                    <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
+                    Actualiser les données
+                </Button>
+            </div>
+            
+            <Tabs defaultValue="info">
+                <TabsList className="h-auto flex-wrap gap-1">
+                    <TabsTrigger value="info"><Info className="mr-2" />Infos</TabsTrigger>
+                    <TabsTrigger value="accounts"><Landmark className="mr-2" />Comptes</TabsTrigger>
+                    <TabsTrigger value="cards"><CreditCard className="mr-2" />Cartes</TabsTrigger>
+                    <TabsTrigger value="billing"><Receipt className="mr-2" />Facturation</TabsTrigger>
+                </TabsList>
+                <TabsContent value="info" className="mt-4">
+                    <PersonalInformation user={user} onUpdate={handleUpdate} />
+                </TabsContent>
+                 <TabsContent value="accounts" className="mt-4">
+                     <UserIbanManagement user={user} onUpdate={handleUpdate} />
+                </TabsContent>
+                <TabsContent value="cards" className="mt-4 space-y-6">
+                    <PhysicalCardManagement user={user} onUpdate={handleUpdate} />
+                    <VirtualCardManagement user={user} onUpdate={handleUpdate} />
+                </TabsContent>
+                <TabsContent value="billing" className="mt-4">
+                    <BillingInfoManagement user={user} onUpdate={handleUpdate} />
+                </TabsContent>
+            </Tabs>
+        </div>
     );
 }
