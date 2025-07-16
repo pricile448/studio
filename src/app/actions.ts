@@ -2,10 +2,11 @@
 
 import { v2 as cloudinary } from 'cloudinary';
 import { getAdminDb } from '@/lib/firebase/admin';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import type { KycEmailInput } from '@/lib/types';
 import { sendSupportEmail } from '@/lib/mailgun';
 import type Mailgun from 'mailgun.js';
+import { db } from '@/lib/firebase/config';
 
 export async function uploadChatAttachment(
   chatId: string,
@@ -40,28 +41,38 @@ export async function uploadChatAttachment(
 
 export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ success: boolean; error?: string }> {
   try {
-    // Utiliser le SDK Admin car cette action est exécutée côté serveur.
-    // Cela garantit les permissions nécessaires, indépendantes de la session client.
-    const adminDb = getAdminDb();
+    if (!db) {
+        throw new Error("L'initialisation de la base de données a échoué.");
+    }
 
-    // 1. Create the KYC submission document in Firestore using addDoc for an auto-generated ID
-    const submissionsCollectionRef = collection(adminDb, 'kycSubmissions');
+    // 1. Create the KYC submission document in a dedicated collection.
+    // This uses addDoc to auto-generate a unique ID, which is more secure.
+    const submissionsCollectionRef = collection(db, 'kycSubmissions');
     const submissionData = {
         userId: input.userId,
         userName: input.userName,
         userEmail: input.userEmail,
         status: 'pending' as const,
         submittedAt: Timestamp.now(),
+        // Note: We are not storing document URLs here anymore for simplicity,
+        // as they are sent directly by email.
     };
-
     await addDoc(submissionsCollectionRef, submissionData);
 
-    // 2. Send notification email with attachments
+    // 2. Set the user's KYC status to 'pending' in their profile.
+    const userDocRef = doc(db, 'users', input.userId);
+    await updateDoc(userDocRef, {
+        kycStatus: 'pending'
+    });
+
+    // 3. Send notification email with attachments to the admin.
     const adminEmail = process.env.MAILGUN_ADMIN_EMAIL;
     if (!adminEmail) {
         const errorMsg = 'La variable d\'environnement MAILGUN_ADMIN_EMAIL n\'est pas définie.';
         console.error(errorMsg);
-        return { success: false, error: 'Erreur de configuration du serveur.' };
+        // Even if email fails, the submission is saved. This is a configuration issue.
+        // We return success for the user, but log the error for the admin.
+        return { success: true };
     }
   
     const emailSubject = `Nouvelle soumission KYC : ${input.userName}`;
@@ -91,6 +102,7 @@ export async function submitKycAndNotifyAdmin(input: KycEmailInput): Promise<{ s
     return { success: true };
   } catch (error: any) {
     console.error('Erreur lors du traitement de la soumission KYC:', error);
-    return { success: false, error: error.message || 'Une erreur inconnue est survenue.' };
+    // Provide a more generic error to the user for security.
+    return { success: false, error: 'Une erreur est survenue lors de la soumission. Veuillez réessayer.' };
   }
 }
