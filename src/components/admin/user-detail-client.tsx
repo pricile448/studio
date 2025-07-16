@@ -909,23 +909,25 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
     const router = useRouter();
     const { toast } = useToast();
 
+    const parseUserDates = (profile: any) => {
+        if (!profile) return null;
+        const parsed = { ...profile };
+        const dateFields = ['dob', 'createdAt', 'lastSignInTime', 'cardRequestedAt', 'kycSubmittedAt', 'virtualCardRequestedAt'];
+        dateFields.forEach(field => {
+            if (parsed[field] && typeof parsed[field] === 'string') {
+                parsed[field] = new Date(parsed[field]);
+            }
+        });
+        return parsed as UserProfile;
+    };
+
     const refreshUserData = async () => {
         startRefreshTransition(async () => {
             try {
                 const result = await getUserFromFirestore(userId);
                 if (result.success && result.data) {
-                    const refreshedUser = result.data;
-                     // Manually parse dates again after serialization
-                    const parsedUser = {
-                        ...refreshedUser,
-                        dob: new Date(refreshedUser.dob),
-                        createdAt: new Date(refreshedUser.createdAt),
-                        lastSignInTime: refreshedUser.lastSignInTime ? new Date(refreshedUser.lastSignInTime) : undefined,
-                        cardRequestedAt: refreshedUser.cardRequestedAt ? new Date(refreshedUser.cardRequestedAt) : undefined,
-                        kycSubmittedAt: refreshedUser.kycSubmittedAt ? new Date(refreshedUser.kycSubmittedAt) : undefined,
-                        virtualCardRequestedAt: refreshedUser.virtualCardRequestedAt ? new Date(refreshedUser.virtualCardRequestedAt) : undefined,
-                    }
-                    setUser(parsedUser as UserProfile);
+                    const parsedUser = parseUserDates(result.data);
+                    setUser(parsedUser);
                     toast({ title: 'Données actualisées', description: 'Les informations de l\'utilisateur ont été rechargées.' });
                 } else {
                     toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de retrouver l\'utilisateur.' });
@@ -941,17 +943,8 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
             setLoading(true);
             const result = await getUserFromFirestore(userId);
             if (result.success && result.data) {
-                const refreshedUser = result.data;
-                const parsedUser = {
-                    ...refreshedUser,
-                    dob: refreshedUser.dob ? new Date(refreshedUser.dob) : new Date(),
-                    createdAt: refreshedUser.createdAt ? new Date(refreshedUser.createdAt) : new Date(),
-                    lastSignInTime: refreshedUser.lastSignInTime ? new Date(refreshedUser.lastSignInTime) : undefined,
-                    cardRequestedAt: refreshedUser.cardRequestedAt ? new Date(refreshedUser.cardRequestedAt) : undefined,
-                    kycSubmittedAt: refreshedUser.kycSubmittedAt ? new Date(refreshedUser.kycSubmittedAt) : undefined,
-                    virtualCardRequestedAt: refreshedUser.virtualCardRequestedAt ? new Date(refreshedUser.virtualCardRequestedAt) : undefined,
-                };
-                setUser(parsedUser as UserProfile);
+                const parsedUser = parseUserDates(result.data);
+                setUser(parsedUser);
             } else {
                 toast({ variant: 'destructive', title: 'Erreur', description: result.error || 'Impossible de retrouver l\'utilisateur.' });
                 setUser(null);
@@ -983,7 +976,7 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
     
     if (loading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 p-4 md:p-6">
                 <Skeleton className="h-10 w-48" />
                 <Skeleton className="h-8 w-64" />
                 <div className="mt-6 grid gap-6">
@@ -996,7 +989,7 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
 
     if (!user) {
         return (
-             <div className="space-y-6">
+             <div className="space-y-6 p-4 md:p-6">
                  <Button variant="outline" size="sm" onClick={() => router.back()} className="mb-4">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Retour aux utilisateurs
