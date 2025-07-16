@@ -37,7 +37,7 @@ interface UserDetailClientProps {
     userId: string;
 }
 
-const parseUserDates = (profile: any) => {
+const parseUserDates = (profile: any): UserProfile | null => {
     if (!profile) return null;
     const parsed = { ...profile };
     const dateFields = ['dob', 'createdAt', 'lastSignInTime', 'cardRequestedAt', 'kycSubmittedAt', 'virtualCardRequestedAt'];
@@ -450,7 +450,7 @@ function PhysicalCardManagement({ user, onUpdate }: { user: UserProfile, onUpdat
             const refreshedUserResult = await getUserAction(user.uid);
             if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(parseUserDates(refreshedUserResult.data));
+            onUpdate(parseUserDates(refreshedUserResult.data)!);
             toast({ title: "Succès", description: successMessage });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erreur', description: (error as Error).message });
@@ -719,7 +719,7 @@ function VirtualCardManagement({ user, onUpdate }: { user: UserProfile, onUpdate
             const refreshedUserResult = await getUserAction(user.uid);
             if (!refreshedUserResult.success) throw new Error(refreshedUserResult.error);
 
-            onUpdate(parseUserDates(refreshedUserResult.data));
+            onUpdate(parseUserDates(refreshedUserResult.data)!);
             toast({ title: 'Succès', description: successMsg });
         } catch (error) {
             console.error(errorMsg, error);
