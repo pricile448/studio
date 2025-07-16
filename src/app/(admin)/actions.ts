@@ -6,7 +6,7 @@
  * These functions use the Admin SDK and are safe to be called from client components.
  */
 import { getAdminDb } from '@/lib/firebase/admin';
-import { deleteChatSession, hardDeleteMessage, getAllKycSubmissions as getAllKycSubmissionsFromDb, updateUserInFirestore, getAllTransfers, executeTransfer, updateTransferStatus } from '@/lib/firebase/firestore';
+import { deleteChatSession, hardDeleteMessage, getAllKycSubmissions as getAllKycSubmissionsFromDb, updateUserInFirestore, getAllTransfers, executeTransfer, updateTransferStatus, getAllUsers } from '@/lib/firebase/firestore';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 export async function resetConversation(chatId: string): Promise<{ success: boolean; error?: string }> {
@@ -39,6 +39,17 @@ export async function fetchKycSubmissions() {
         return { success: true, data: JSON.parse(JSON.stringify(submissions)) };
     } catch (error: any) {
         console.error("Error fetching KYC submissions:", error);
+        return { success: false, error: error.message };
+    }
+}
+
+export async function fetchAllUsers() {
+    try {
+        const adminDb = getAdminDb();
+        const users = await getAllUsers(adminDb);
+        return { success: true, data: JSON.parse(JSON.stringify(users)) };
+    } catch (error: any) {
+        console.error("Error fetching users:", error);
         return { success: false, error: error.message };
     }
 }
@@ -92,4 +103,3 @@ export async function executeTransferAction(userId: string, transactionId: strin
         return { success: false, error: error.message };
     }
 }
-

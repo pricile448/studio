@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAllUsers, type UserProfile } from '@/lib/firebase/firestore';
+import { type UserProfile } from '@/lib/firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -12,25 +12,30 @@ import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { getAdminDb } from '@/lib/firebase/admin';
+import { fetchAllUsers } from '@/app/(admin)/actions';
 
 export function UsersClient() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const adminDb = getAdminDb();
-                const userList = await getAllUsers(adminDb);
-                setUsers(userList);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des utilisateurs:", error);
-            } finally {
-                setLoading(false);
+        const loadUsers = async () => {
+            const result = await fetchAllUsers();
+            if (result.success && result.data) {
+                // The data is already serialized, so we need to parse dates
+                const parsedUsers = result.data.map((user: any) => ({
+                    ...user,
+                    createdAt: new Date(user.createdAt),
+                    lastSignInTime: user.lastSignInTime ? new Date(user.lastSignInTime) : undefined,
+                    dob: user.dob ? new Date(user.dob) : undefined,
+                }));
+                setUsers(parsedUsers);
+            } else {
+                console.error("Erreur lors de la récupération des utilisateurs:", result.error);
             }
+            setLoading(false);
         };
-        fetchUsers();
+        loadUsers();
     }, []);
 
     const getKycStatusVariant = (status: UserProfile['kycStatus']) => {
