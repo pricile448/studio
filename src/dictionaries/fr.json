@@ -739,4 +739,18 @@
         "retryButton": "Réessayer",
         "homeButton": "Retour à l'accueil"
     }
+    {
+      "login": {
+        "backToLogin": "Retour à la connexion",
+        // ... autres propriétés
+      },
+      "contactForm": {
+        "subjectPlaceholder": "Sujet de votre message",
+        // ... autres propriétés
+      },
+      "sidebar": {
+        "advisor": "Vue Conseiller",
+        // ... autres propriétés
+      }
+    }
 }
