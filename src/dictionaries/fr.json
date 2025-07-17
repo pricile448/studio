@@ -737,12 +737,6 @@
         "description": "Nous rencontrons actuellement des difficultés techniques. Notre équipe a été informée et travaille à la résolution du problème. Veuillez nous excuser pour la gêne occasionnée.",
         "retryButton": "Réessayer",
         "homeButton": "Retour à l'accueil"
-    }
-    "errorPage": {
-        "title": "Oups ! Une erreur est survenue.",
-        "description": "Nous rencontrons actuellement des difficultés techniques. Notre équipe a été informée et travaille à la résolution du problème. Veuillez nous excuser pour la gêne occasionnée.",
-        "retryButton": "Réessayer",
-        "homeButton": "Retour à l'accueil"
     },
     "login": {
         "backToLogin": "Retour à la connexion"
@@ -752,5 +746,5 @@
     },
     "sidebar": {
         "advisor": "Vue Conseiller"
-    }
+    },
 }
