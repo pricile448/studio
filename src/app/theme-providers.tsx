@@ -20,4 +20,12 @@ export function ThemeProviders({ children }: { children: ReactNode }) {
             <Toaster />
         </NextThemesProvider>
     );
+
+    const themeProps: ThemeProviderProps = {
+        attribute: 'class',
+        defaultTheme: 'system',
+        enableSystem: true,
+        disableTransitionOnChange: true,
+        children: null, // Ajoutez cette ligne
+      };
 }
