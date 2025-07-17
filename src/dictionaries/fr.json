@@ -739,7 +739,7 @@
         "retryButton": "Réessayer",
         "homeButton": "Retour à l'accueil"
     }
-      "login": {
+      "login":
         "backToLogin": "Retour à la connexion",
         // ... autres propriétés
       },
