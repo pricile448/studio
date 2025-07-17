@@ -739,7 +739,6 @@
         "retryButton": "Réessayer",
         "homeButton": "Retour à l'accueil"
     }
-    {
       "login": {
         "backToLogin": "Retour à la connexion",
         // ... autres propriétés
@@ -753,4 +752,3 @@
         // ... autres propriétés
       }
     }
-}
