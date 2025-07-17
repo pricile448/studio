@@ -152,9 +152,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authProfileUpdate.photoURL = data.photoURL;
     }
 
-    if (Object.keys(authProfileUpdate).length > 0 && auth.currentUser) {
-        await updateProfile(auth.currentUser, authProfileUpdate);
-    }
+if (Object.keys(authProfileUpdate).length > 0 && auth && auth.currentUser) {
+  await updateProfile(auth.currentUser, authProfileUpdate);
+}
     
     await refreshUserProfile();
   }
