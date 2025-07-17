@@ -1,115 +1,115 @@
 {
-  "logo": "AmCbunq",
-  "homePage": {
-      "slogan": "Votre avenir financier, simplifié et sécurisé.",
-      "nav": {
-          "home": "Accueil",
-          "features": "Fonctionnalités",
-          "pricing": "Tarifs",
-          "help": "Aide",
-          "openAccount": "Ouvrir un compte",
-          "login": "Connexion"
-      },
-      "hero": {
-          "title_part1": "La banque, simplifiée et ",
-          "title_highlight": "intelligente.",
-          "subtitle": "Votre avenir financier, simplifié et sécurisé.",
-          "ctaPrimary": "Commencez aujourd'hui",
-          "ctaSecondary": "En savoir plus"
-      },
-      "youthOffer": {
-          "title": "Vous avez entre 18 et 25 ans ?",
-          "line1": "Votre liberté financière commence ici !",
-          "line2": "Votre compte, vos règles, sans engagement.",
-          "line3": "AmCbunq. La banque qui croit en votre potentiel.",
-          "offer_year": "1 an",
-          "offer_subscription": "d'abonnement",
-          "offer_free": "offert",
-          "offer_commitment": "Sans engagement"
-      },
-      "featuresSection": {
-          "title": "Une expérience bancaire conçue pour vous",
-          "feature1": {
-              "title": "Gérez votre budget, sans effort",
-              "description": "Avec l'app AmCbunq, simplifiez votre gestion budgétaire au quotidien. Ouvrez un compte, bénéficiez d'une carte, suivez vos dépenses et la gestion de votre budget dans une seule application !",
-              "cta": "Découvrir l'application"
-          },
-          "feature2": {
-              "title": "Des cartes qui s'adaptent à vous",
-              "description": "Physique ou virtuelle, choisissez la carte qui vous convient. Profitez de paiements sécurisés et de plafonds personnalisables pour maîtriser vos dépenses.",
-              "cta": "Explorer les cartes"
-          },
-          "feature3": {
-              "title": "L'IA à votre service",
-              "description": "Notre assistant IA analyse vos dépenses pour vous fournir des conseils personnalisés et vous aider à identifier des opportunités d'économies. Prenez le contrôle de vos finances.",
-              "cta": "Voir les fonctionnalités IA"
-          }
-      },
-      "pricingSection": {
-          "title": "Des offres claires pour tous vos besoins",
-          "account": {
-              "title": "Compte et Carte AmCbunq",
-              "description": "Le compte du quotidien pour suivre vos dépenses et simplifier la gestion de votre budget.",
-              "features": [
-                  "Paiement de vos factures par carte",
-                  "Gestion de votre budget",
-                  "Carte Visa internationale",
-                  "Cartes virtuelles pour les achats en ligne",
-                  "Dépôts et retraits d'espèces en points de vente",
-                  "Cashback automatique sur vos achats"
-              ],
-              "price": "2,99 €/mois",
-              "cta": "Ouvrir un compte"
-          },
-          "bills": {
-              "title": "AmCbunq Factures",
-              "description": "Maîtrisez votre budget, décidez quand et comment régler vos dépenses grâce à nos services.",
-              "features": [
-                  "Paiement des factures en espèces",
-                  "Paiement de vos factures par carte"
-              ],
-              "price": "Gratuit",
-              "cta": "Télécharger l'app"
-          }
-      },
-      "testimonialsSection": {
-          "title": "Ce que disent nos clients",
-          "testimonial1": {
-              "quote": "AmCbunq a transformé la façon dont je gère mes finances. C'est simple, intuitif et incroyablement puissant. Je ne pourrais plus m'en passer !",
-              "name": "Sophie Dubois",
-              "role": "Cheffe de projet",
-              "avatar": "https://placehold.co/100x100.png"
-          },
-          "testimonial2": {
-              "quote": "La sécurité est ma priorité numéro un, et AmCbunq la prend très au sérieux. Je me sens en totale confiance pour gérer toutes mes transactions.",
-              "name": "Marc Lemaître",
-              "role": "Agriculteur",
-              "avatar": "https://placehold.co/100x100.png"
-          },
-          "testimonial3": {
-              "quote": "L'assistant IA est révolutionnaire. Il m'a aidé à trouver des économies que je n'aurais jamais vues par moi-même. Je recommande à 100%.",
-              "name": "Bernard ROUX",
-              "role": "Étudiant en commerce",
-              "avatar": "https://placehold.co/100x100.png"
-          }
-      },
-      "partnersSection": {
-          "title": "Nos partenaires",
-          "invitation": "Un établissement de paiement agréé et supervisé",
-          "description": "AmCbunq est agréé et réglementé par l'Autorité de Contrôle Prudentiel et de Résolution (ACPR). Vos fonds sont protégés et sécurisés conformément aux normes réglementaires les plus strictes. La sécurité de vos transactions et de vos données personnelles est notre priorité absolue."
-      },
-      "footer": {
-          "legal": "Mentions Légales",
-          "copyright": "© 2024 AmCbunq. Tous droits réservés."
-      },
-      "animatedFeatures": {
-          "mainAccount": "Compte principal",
-          "savings": "Épargne Express",
-          "stocks": "Actions et ETF",
-          "crypto": "Crypto"
-      }
-  },
-  "login": {
+    "logo": "AmCbunq",
+    "homePage": {
+        "slogan": "Votre avenir financier, simplifié et sécurisé.",
+        "nav": {
+            "home": "Accueil",
+            "features": "Fonctionnalités",
+            "pricing": "Tarifs",
+            "help": "Aide",
+            "openAccount": "Ouvrir un compte",
+            "login": "Connexion"
+        },
+        "hero": {
+            "title_part1": "La banque, simplifiée et ",
+            "title_highlight": "intelligente.",
+            "subtitle": "Votre avenir financier, simplifié et sécurisé.",
+            "ctaPrimary": "Commencez aujourd'hui",
+            "ctaSecondary": "En savoir plus"
+        },
+        "youthOffer": {
+            "title": "Vous avez entre 18 et 25 ans ?",
+            "line1": "Votre liberté financière commence ici !",
+            "line2": "Votre compte, vos règles, sans engagement.",
+            "line3": "AmCbunq. La banque qui croit en votre potentiel.",
+            "offer_year": "1 an",
+            "offer_subscription": "d'abonnement",
+            "offer_free": "offert",
+            "offer_commitment": "Sans engagement"
+        },
+        "featuresSection": {
+            "title": "Une expérience bancaire conçue pour vous",
+            "feature1": {
+                "title": "Gérez votre budget, sans effort",
+                "description": "Avec l'app AmCbunq, simplifiez votre gestion budgétaire au quotidien. Ouvrez un compte, bénéficiez d'une carte, suivez vos dépenses et la gestion de votre budget dans une seule application !",
+                "cta": "Découvrir l'application"
+            },
+            "feature2": {
+                "title": "Des cartes qui s'adaptent à vous",
+                "description": "Physique ou virtuelle, choisissez la carte qui vous convient. Profitez de paiements sécurisés et de plafonds personnalisables pour maîtriser vos dépenses.",
+                "cta": "Explorer les cartes"
+            },
+            "feature3": {
+                "title": "L'IA à votre service",
+                "description": "Notre assistant IA analyse vos dépenses pour vous fournir des conseils personnalisés et vous aider à identifier des opportunités d'économies. Prenez le contrôle de vos finances.",
+                "cta": "Voir les fonctionnalités IA"
+            }
+        },
+        "pricingSection": {
+            "title": "Des offres claires pour tous vos besoins",
+            "account": {
+                "title": "Compte et Carte AmCbunq",
+                "description": "Le compte du quotidien pour suivre vos dépenses et simplifier la gestion de votre budget.",
+                "features": [
+                    "Paiement de vos factures par carte",
+                    "Gestion de votre budget",
+                    "Carte Visa internationale",
+                    "Cartes virtuelles pour les achats en ligne",
+                    "Dépôts et retraits d'espèces en points de vente",
+                    "Cashback automatique sur vos achats"
+                ],
+                "price": "2,99 €/mois",
+                "cta": "Ouvrir un compte"
+            },
+            "bills": {
+                "title": "AmCbunq Factures",
+                "description": "Maîtrisez votre budget, décidez quand et comment régler vos dépenses grâce à nos services.",
+                "features": [
+                    "Paiement des factures en espèces",
+                    "Paiement de vos factures par carte"
+                ],
+                "price": "Gratuit",
+                "cta": "Télécharger l'app"
+            }
+        },
+        "testimonialsSection": {
+            "title": "Ce que disent nos clients",
+            "testimonial1": {
+                "quote": "AmCbunq a transformé la façon dont je gère mes finances. C'est simple, intuitif et incroyablement puissant. Je ne pourrais plus m'en passer !",
+                "name": "Sophie Dubois",
+                "role": "Cheffe de projet",
+                "avatar": "https://placehold.co/100x100.png"
+            },
+            "testimonial2": {
+                "quote": "La sécurité est ma priorité numéro un, et AmCbunq la prend très au sérieux. Je me sens en totale confiance pour gérer toutes mes transactions.",
+                "name": "Marc Lemaître",
+                "role": "Agriculteur",
+                "avatar": "https://placehold.co/100x100.png"
+            },
+            "testimonial3": {
+                "quote": "L'assistant IA est révolutionnaire. Il m'a aidé à trouver des économies que je n'aurais jamais vues par moi-même. Je recommande à 100%.",
+                "name": "Bernard ROUX",
+                "role": "Étudiant en commerce",
+                "avatar": "https://placehold.co/100x100.png"
+            }
+        },
+        "partnersSection": {
+            "title": "Nos partenaires",
+            "invitation": "Un établissement de paiement agréé et supervisé",
+            "description": "AmCbunq est agréé et réglementé par l'Autorité de Contrôle Prudentiel et de Résolution (ACPR). Vos fonds sont protégés et sécurisés conformément aux normes réglementaires les plus strictes. La sécurité de vos transactions et de vos données personnelles est notre priorité absolue."
+        },
+        "footer": {
+            "legal": "Mentions Légales",
+            "copyright": "© 2024 AmCbunq. Tous droits réservés."
+        },
+        "animatedFeatures": {
+            "mainAccount": "Compte principal",
+            "savings": "Épargne Express",
+            "stocks": "Actions et ETF",
+            "crypto": "Crypto"
+        }
+    },
+    "login": {
       "title": "Connexion",
       "description": "Entrez vos identifiants pour accéder à votre compte.",
       "emailLabel": "E-mail",
@@ -121,10 +121,9 @@
       "registerLink": "S'inscrire",
       "backToHome": "Retour à l'accueil",
       "inactivityLogoutTitle": "Session expirée",
-      "inactivityLogoutDescription": "Pour votre sécurité, vous avez été déconnecté pour cause d'inactivité.",
-      "backToLogin": "Retour à la connexion"
-  },
-  "forgotPassword": {
+      "inactivityLogoutDescription": "Pour votre sécurité, vous avez été déconnecté pour cause d'inactivité."
+    },
+    "forgotPassword": {
       "title": "Mot de passe oublié ?",
       "description": "Pas de souci. Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
       "submitButton": "Envoyer le lien de réinitialisation",
@@ -139,8 +138,8 @@
       "resetSuccessTitle": "Mot de passe réinitialisé !",
       "resetSuccessDescription": "Votre mot de passe a été mis à jour avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
       "emailInvalid": "Adresse e-mail invalide."
-  },
-  "register": {
+    },
+    "register": {
       "title": "Ouverture d'un compte chez AmCbunq",
       "description": "Inscrivez-vous pour commencer à gérer vos finances.",
       "firstNameLabel": "Prénom",
@@ -164,32 +163,32 @@
       "professionLabel": "Profession",
       "salaryLabel": "Revenu mensuel (approximatif en €)",
       "dobPlaceholder": "Sélectionnez une date"
-  },
-  "verifyEmail": {
-      "title": "Vérifiez votre adresse e-mail",
-      "description": "Nous avons envoyé un lien de vérification à {email}. Veuillez cliquer sur ce lien pour activer votre compte.",
-      "resendButton": "Renvoyer l'e-mail",
-      "backToLogin": "Retour à la connexion",
-      "emailSent": "E-mail envoyé !",
-      "emailSentDescription": "Un nouvel e-mail de vérification a été envoyé à votre adresse.",
-      "checkSpam": "Pensez également à vérifier votre dossier de courriers indésirables (spam).",
-      "verificationSuccessTitle": "E-mail Vérifié !",
-      "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Veuillez vous connecter avec vos nouveaux identifiants pour profiter de votre expérience bancaire.",
-      "proceedToLoginButton": "Aller à la connexion",
-      "verifyingTitle": "Vérification en cours...",
-      "verifyingDescription": "Veuillez patienter un instant.",
-      "verificationErrorTitle": "Erreur de vérification",
-      "invalidAction": "L'action demandée est invalide.",
-      "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien.",
-      "title_code": "Vérifiez votre adresse e-mail",
-      "description_code": "Nous avons envoyé un code de vérification à {email}. Veuillez saisir le code pour activer votre compte.",
-      "codeLabel": "Code de vérification",
-      "codeInvalidError": "Le code doit comporter 6 chiffres.",
-      "verifyButton": "Vérifier",
-      "noCodePrompt": "Vous n'avez pas reçu de code ?",
-      "spamNote": "NB : Parfois, en raison d'une forte demande, notre e-mail de bienvenue peut se retrouver dans votre dossier de spam. Pensez à y jeter un œil."
-  },
-  "sidebar": {
+    },
+    "verifyEmail": {
+        "title": "Vérifiez votre adresse e-mail",
+        "description": "Nous avons envoyé un lien de vérification à {email}. Veuillez cliquer sur ce lien pour activer votre compte.",
+        "resendButton": "Renvoyer l'e-mail",
+        "backToLogin": "Retour à la connexion",
+        "emailSent": "E-mail envoyé !",
+        "emailSentDescription": "Un nouvel e-mail de vérification a été envoyé à votre adresse.",
+        "checkSpam": "Pensez également à vérifier votre dossier de courriers indésirables (spam).",
+        "verificationSuccessTitle": "E-mail Vérifié !",
+        "verificationSuccessDescription": "Votre adresse e-mail a été vérifiée avec succès. Veuillez vous connecter avec vos nouveaux identifiants pour profiter de votre expérience bancaire.",
+        "proceedToLoginButton": "Aller à la connexion",
+        "verifyingTitle": "Vérification en cours...",
+        "verifyingDescription": "Veuillez patienter un instant.",
+        "verificationErrorTitle": "Erreur de vérification",
+        "invalidAction": "L'action demandée est invalide.",
+        "expiredLinkError": "Le lien de vérification est invalide ou a expiré. Veuillez demander un nouveau lien.",
+        "title_code": "Vérifiez votre adresse e-mail",
+        "description_code": "Nous avons envoyé un code de vérification à {email}. Veuillez saisir le code pour activer votre compte.",
+        "codeLabel": "Code de vérification",
+        "codeInvalidError": "Le code doit comporter 6 chiffres.",
+        "verifyButton": "Vérifier",
+        "noCodePrompt": "Vous n'avez pas reçu de code ?",
+        "spamNote": "NB : Parfois, en raison d'une forte demande, notre e-mail de bienvenue peut se retrouver dans votre dossier de spam. Pensez à y jeter un œil."
+    },
+    "sidebar": {
       "dashboard": "Mon Espace Client",
       "accounts": "Comptes",
       "iban": "Mon IBAN",
@@ -209,20 +208,19 @@
       "verified": "Vérifié",
       "unverified": "Non vérifié",
       "userMenu": {
-          "profile": "Profil",
-          "billing": "Facturation",
-          "settings": "Paramètres",
-          "logout": "Déconnexion"
+        "profile": "Profil",
+        "billing": "Facturation",
+        "settings": "Paramètres",
+        "logout": "Déconnexion"
       },
       "showBalances": "Afficher les soldes",
-      "hideBalances": "Masquer les soldes",
-      "advisor": "Vue Conseiller"
-  },
-  "sidebarGroups": {
-      "account": "Mon Compte",
-      "settingsAndMore": "Paramètres & Plus"
-  },
-  "dashboard": {
+      "hideBalances": "Masquer les soldes"
+    },
+     "sidebarGroups": {
+        "account": "Mon Compte",
+        "settingsAndMore": "Paramètres & Plus"
+    },
+    "dashboard": {
       "title": "Mon Espace Client",
       "totalBalance": "Solde Total",
       "greeting": "Bonjour",
@@ -232,64 +230,64 @@
       "creditCard": "Carte de Crédit",
       "recentTransactions": "Transactions Récentes",
       "transaction": {
-          "description": "Description",
-          "category": "Catégorie",
-          "date": "Date",
-          "amount": "Montant"
+        "description": "Description",
+        "category": "Catégorie",
+        "date": "Date",
+        "amount": "Montant"
       },
       "expenseChart": "Aperçu des Dépenses",
       "noExpenseData": "Aucune donnée de dépense à afficher.",
       "aiAssistant": {
-          "title": "Assistant Financier IA",
-          "description": "Obtenez des informations et des recommandations personnalisées basées sur votre historique de transactions.",
-          "button": "Obtenir des conseils IA",
-          "loading": "Analyse de vos finances...",
-          "insightsTitle": "Vos Perspectives Financières",
-          "overspendingAlert": "Alerte de Dépassement !",
-          "savingsAlert": "Opportunité d'Épargne !",
-          "noInsights": "Impossible de générer des informations pour le moment."
+        "title": "Assistant Financier IA",
+        "description": "Obtenez des informations et des recommandations personnalisées basées sur votre historique de transactions.",
+        "button": "Obtenir des conseils IA",
+        "loading": "Analyse de vos finances...",
+        "insightsTitle": "Vos Perspectives Financières",
+        "overspendingAlert": "Alerte de Dépassement !",
+        "savingsAlert": "Opportunité d'Épargne !",
+        "noInsights": "Impossible de générer des informations pour le moment."
       },
       "quickActions": {
-          "title": "Actions Rapides",
-          "makeTransfer": "Faire un virement",
-          "payBill": "Payer une facture",
-          "addBeneficiary": "Bénéficiaires",
-          "viewHistory": "Voir l'historique",
-          "settings": "Paramètres"
+        "title": "Actions Rapides",
+        "makeTransfer": "Faire un virement",
+        "payBill": "Payer une facture",
+        "addBeneficiary": "Bénéficiaires",
+        "viewHistory": "Voir l'historique",
+        "settings": "Paramètres"
       },
       "ourServicesTitle": "Nos Services",
       "ourServicesDescription": "Découvrez notre gamme de services conçus pour vous aider à faire fructifier votre patrimoine.",
       "carbonFootprintTitle": "Votre Empreinte Carbone",
       "carbonFootprintDescription": "Suivez l'impact environnemental de vos dépenses et contribuez à une planète plus verte.",
       "youthOffer": {
-          "title": "Vous avez entre 18 et 25 ans ?",
-          "subtitle": "Votre liberté financière commence ici !",
-          "line1": "Votre compte, vos règles, sans engagement.",
-          "line2": "AmCbunq. La banque qui croit en votre potentiel.",
-          "offer_year": "1 an",
-          "offer_subscription": "d'abonnement",
-          "offer_free": "offert",
-          "offer_commitment": "Sans engagement"
+        "title": "Vous avez entre 18 et 25 ans ?",
+        "subtitle": "Votre liberté financière commence ici !",
+        "line1": "Votre compte, vos règles, sans engagement.",
+        "line2": "AmCbunq. La banque qui croit en votre potentiel.",
+        "offer_year": "1 an",
+        "offer_subscription": "d'abonnement",
+        "offer_free": "offert",
+        "offer_commitment": "Sans engagement"
       },
       "verificationBanner": {
-          "title": "Vérification en attente",
-          "description": "Complétez votre vérification d'identité",
-          "button": "Vérifier maintenant",
-          "pending_title": "Vérification en cours",
-          "pending_description": "Vos documents sont en cours d'examen. Cela prend généralement de 24 à 48 heures."
+        "title": "Vérification en attente",
+        "description": "Complétez votre vérification d'identité",
+        "button": "Vérifier maintenant",
+        "pending_title": "Vérification en cours",
+        "pending_description": "Vos documents sont en cours d'examen. Cela prend généralement de 24 à 48 heures."
       },
-      "notifications": {
-          "title": "Notifications",
-          "welcomeTitle": "Bienvenue chez AmCbunq !",
-          "welcomeDescription": "Votre compte a été créé avec succès. Vous pouvez maintenant explorer toutes les fonctionnalités que nous offrons. Assurez-vous de compléter la vérification de votre profil dès que possible pour débloquer toutes les fonctionnalités.",
-          "verificationTitle": "Vérification du profil",
-          "verificationDescription": "Veuillez compléter votre vérification d'identité. Pour se conformer aux réglementations financières et assurer la sécurité de votre compte, c'est une étape nécessaire pour accéder à des fonctionnalités comme les virements et les services de carte.",
-          "viewAll": "Voir toutes les notifications",
-          "noNotifications": "Aucune nouvelle notification.",
-          "markAllAsRead": "Tout marquer comme lu"
+       "notifications": {
+        "title": "Notifications",
+        "welcomeTitle": "Bienvenue chez AmCbunq !",
+        "welcomeDescription": "Votre compte a été créé avec succès. Vous pouvez maintenant explorer toutes les fonctionnalités que nous offrons. Assurez-vous de compléter la vérification de votre profil dès que possible pour débloquer toutes les fonctionnalités.",
+        "verificationTitle": "Vérification du profil",
+        "verificationDescription": "Veuillez compléter votre vérification d'identité. Pour se conformer aux réglementations financières et assurer la sécurité de votre compte, c'est une étape nécessaire pour accéder à des fonctionnalités comme les virements et les services de carte.",
+        "viewAll": "Voir toutes les notifications",
+        "noNotifications": "Aucune nouvelle notification.",
+        "markAllAsRead": "Tout marquer como lu"
       }
-  },
-  "accounts": {
+    },
+    "accounts": {
       "title": "Mes Comptes",
       "totalBalance": "Solde Total",
       "totalBalanceDescription": "Actifs totaux sur l'ensemble de vos comptes.",
@@ -310,8 +308,8 @@
       "balanceLedger": "Solde",
       "accountNumber": "Numéro de Compte",
       "accountDetailsDescription": "Transactions récentes pour ce compte."
-  },
-  "transfers": {
+    },
+    "transfers": {
       "title": "Effectuer un Virement",
       "newTransfer": "Nouveau Virement",
       "newTransferDescription": "Envoyez de l'argent vers n'importe quel compte bancaire.",
@@ -341,9 +339,9 @@
       "unverified_title": "Effectuer un Virement",
       "unverified_description": "Complétez votre vérification d'identité pour envoyer et recevoir de l'argent.",
       "validation": {
-          "title": "Confirmer le virement ?",
-          "description": "Pour des raisons de sécurité, votre virement sera soumis à une validation par nos équipes avant d'être exécuté. Le montant ne sera pas débité immédiatement. Voulez-vous continuer ?",
-          "confirmButton": "Confirmer et envoyer pour validation"
+        "title": "Confirmer le virement ?",
+        "description": "Pour des raisons de sécurité, votre virement sera soumis à une validation par nos équipes avant d'être exécuté. Le montant ne sera pas débité immédiatement. Voulez-vous continuer ?",
+        "confirmButton": "Confirmer et envoyer pour validation"
       },
       "beneficiaryListTitle": "Liste des bénéficiaires",
       "noBeneficiaries": "Aucun bénéficiaire enregistré.",
@@ -352,76 +350,76 @@
       "deleteButton": "Supprimer",
       "beneficiaryDeleted": "Bénéficiaire supprimé",
       "beneficiaryDeletedDescription": "Le bénéficiaire a été supprimé avec succès."
-  },
-  "cards": {
-      "title": "Mes Cartes",
-      "orderCard": "Commander une nouvelle carte",
-      "cardBankName": "Banque AmCbunq",
-      "cardHolder": "Titulaire",
-      "validThru": "Expire fin",
-      "settings": "Paramètres de la carte",
-      "settingsDescription": "Gérez les paramètres et la sécurité de votre carte.",
-      "freeze": "Bloquer la carte",
-      "unfreeze": "Débloquer la carte",
-      "freezeDescription": "Bloquez temporairement votre carte.",
-      "setLimit": "Définir les plafonds",
-      "setLimitDescription": "Contrôlez vos dépenses mensuelles.",
-      "viewPin": "Voir le code PIN",
-      "viewPinDescription": "Consultez votre code PIN en toute sécurité.",
-      "orderCardTitle": "Commander une nouvelle carte physique",
-      "orderCardDescription": "Vous êtes sur le point de commander une carte. Ceci est gratuit. La carte sera envoyée à votre adresse de résidence enregistrée.",
-      "request_card_confirm_title": "Confirmer la demande de carte",
-      "request_card_confirm_description": "Confirmez-vous vouloir faire une demande pour une nouvelle carte physique ? Elle sera envoyée à votre adresse enregistrée.",
-      "confirmOrder": "Confirmer la commande",
-      "cancelButton": "Annuler",
-      "cardOrdered": "Carte commandée !",
-      "cardOrderedDescription": "Votre nouvelle carte est en route.",
-      "card_request_success": "Demande de carte envoyée !",
-      "cardFrozen": "La carte a été bloquée.",
-      "cardUnfrozen": "La carte a été débloquée.",
-      "limitUpdated": "Plafond de dépenses mis à jour.",
-      "setLimitTitle": "Définir le plafond de dépenses",
-      "setLimitDescription": "Saisissez un nouveau plafond de dépenses mensuel pour votre carte.",
-      "currentLimit": "Plafond actuel",
-      "newLimitLabel": "Nouveau plafond mensuel",
-      "saveButton": "Enregistrer le plafond",
-      "viewPinTitle": "Code PIN de votre carte",
-      "viewPinDescription": "Pour votre sécurité, ce code PIN ne sera affiché que pour une durée limitée.",
-      "yourPinIs": "Votre code PIN est :",
-      "closeButton": "Fermer",
-      "showPin": "Afficher le PIN",
-      "hidePin": "Masquer le PIN",
-      "unverified_title": "Gérer Vos Cartes",
-      "unverified_description": "Complétez votre vérification d'identité pour commander de nouvelles cartes et gérer les paramètres de votre carte.",
-      "request_pending_title": "Demande de carte en cours",
-      "request_pending_description": "Nous avons bien reçu votre demande de carte. Elle est en cours de traitement et vous serez notifié lorsqu'elle sera expédiée.",
-      "cardActive": "Carte Active",
-      "physicalCardTitle": "Choisir votre carte physique",
-      "physicalCardDescription": "Sélectionnez le design de carte qui vous correspond le mieux. Chaque carte offre les mêmes avantages.",
-      "essentielle": { "title": "Essentielle", "description": "Un design bleu classique et élégant." },
-      "precieuse": { "title": "Précieuse", "description": "Une finition dorée pour un style premium." },
-      "luminax": { "title": "Luminax", "description": "Un noir sophistiqué pour un look moderne." },
-      "requestSubmittedTitle": "Demande enregistrée",
-      "requestSubmittedDescriptionPhysical": "Votre demande de carte physique est enregistrée. Vous serez notifié lors de son expédition (délai plus long).",
-      "requestSubmittedDescriptionVirtual": "Votre demande de carte virtuelle est enregistrée. Elle sera disponible sur votre compte sous 24h.",
-      "physicalCard": "Carte Physique",
-      "orderPhysical": "Commander une carte physique",
-      "virtualCard": "Carte Virtuelle",
-      "magneticStripe": "Bande magnétique",
-      "generateVirtual": "Générer une carte virtuelle",
-      "noVirtualCards": "Vous n'avez aucune carte virtuelle pour le moment.",
-      "noPhysicalCard": "Aucune carte physique commandée",
-      "noPhysicalCardDescription": "Vous n'avez pas encore commandé de carte physique. Vous pouvez en commander une à tout moment.",
-      "selectCard": "Choisir",
-      "virtual_request_dialog_title": "Demander une carte virtuelle",
-      "virtual_request_dialog_description": "Confirmez-vous vouloir demander une nouvelle carte virtuelle ? Votre demande sera traitée par un conseiller.",
-      "virtual_request_pending_title": "Demande de carte virtuelle en cours",
-      "virtual_request_pending_description": "Votre demande est en cours de traitement par un conseiller. La carte sera disponible sous 24h.",
-      "suspended": "Suspendue",
-      "adminFrozenMessage": "Cette carte a été suspendue par un administrateur et ne peut être débloquée.",
-      "adminHiddenDetails": "La visibilité des détails est contrôlée par un administrateur."
-  },
-  "history": {
+    },
+    "cards": {
+        "title": "Mes Cartes",
+        "orderCard": "Commander une nouvelle carte",
+        "cardBankName": "Banque AmCbunq",
+        "cardHolder": "Titulaire",
+        "validThru": "Expire fin",
+        "settings": "Paramètres de la carte",
+        "settingsDescription": "Gérez les paramètres et la sécurité de votre carte.",
+        "freeze": "Bloquer la carte",
+        "unfreeze": "Débloquer la carte",
+        "freezeDescription": "Bloquez temporairement votre carte.",
+        "setLimit": "Définir les plafonds",
+        "setLimitDescription": "Contrôlez vos dépenses mensuelles.",
+        "viewPin": "Voir le code PIN",
+        "viewPinDescription": "Consultez votre code PIN en toute sécurité.",
+        "orderCardTitle": "Commander une nouvelle carte physique",
+        "orderCardDescription": "Vous êtes sur le point de commander une carte. Ceci est gratuit. La carte sera envoyée à votre adresse de résidence enregistrée.",
+        "request_card_confirm_title": "Confirmer la demande de carte",
+        "request_card_confirm_description": "Confirmez-vous vouloir faire une demande pour une nouvelle carte physique ? Elle sera envoyée à votre adresse enregistrée.",
+        "confirmOrder": "Confirmer la commande",
+        "cancelButton": "Annuler",
+        "cardOrdered": "Carte commandée !",
+        "cardOrderedDescription": "Votre nouvelle carte est en route.",
+        "card_request_success": "Demande de carte envoyée !",
+        "cardFrozen": "La carte a été bloquée.",
+        "cardUnfrozen": "La carte a été débloquée.",
+        "limitUpdated": "Plafond de dépenses mis à jour.",
+        "setLimitTitle": "Définir le plafond de dépenses",
+        "setLimitDescription": "Saisissez un nouveau plafond de dépenses mensuel pour votre carte.",
+        "currentLimit": "Plafond actuel",
+        "newLimitLabel": "Nouveau plafond mensuel",
+        "saveButton": "Enregistrer le plafond",
+        "viewPinTitle": "Code PIN de votre carte",
+        "viewPinDescription": "Pour votre sécurité, ce code PIN ne sera affiché que pour une durée limitée.",
+        "yourPinIs": "Votre code PIN est :",
+        "closeButton": "Fermer",
+        "showPin": "Afficher le PIN",
+        "hidePin": "Masquer le PIN",
+        "unverified_title": "Gérer Vos Cartes",
+        "unverified_description": "Complétez votre vérification d'identité pour commander de nouvelles cartes et gérer les paramètres de votre carte.",
+        "request_pending_title": "Demande de carte en cours",
+        "request_pending_description": "Nous avons bien reçu votre demande de carte. Elle est en cours de traitement et vous serez notifié lorsqu'elle sera expédiée.",
+        "cardActive": "Carte Active",
+        "physicalCardTitle": "Choisir votre carte physique",
+        "physicalCardDescription": "Sélectionnez le design de carte qui vous correspond le mieux. Chaque carte offre les mêmes avantages.",
+        "essentielle": { "title": "Essentielle", "description": "Un design bleu classique et élégant." },
+        "precieuse": { "title": "Précieuse", "description": "Une finition dorée pour un style premium." },
+        "luminax": { "title": "Luminax", "description": "Un noir sophistiqué pour un look moderne." },
+        "requestSubmittedTitle": "Demande enregistrée",
+        "requestSubmittedDescriptionPhysical": "Votre demande de carte physique est enregistrée. Vous serez notifié lors de son expédition (délai plus long).",
+        "requestSubmittedDescriptionVirtual": "Votre demande de carte virtuelle est enregistrée. Elle sera disponible sur votre compte sous 24h.",
+        "physicalCard": "Carte Physique",
+        "orderPhysical": "Commander une carte physique",
+        "virtualCard": "Carte Virtuelle",
+        "magneticStripe": "Bande magnétique",
+        "generateVirtual": "Générer une carte virtuelle",
+        "noVirtualCards": "Vous n'avez aucune carte virtuelle pour le moment.",
+        "noPhysicalCard": "Aucune carte physique commandée",
+        "noPhysicalCardDescription": "Vous n'avez pas encore commandé de carte physique. Vous pouvez en commander une à tout moment.",
+        "selectCard": "Choisir",
+        "virtual_request_dialog_title": "Demander une carte virtuelle",
+        "virtual_request_dialog_description": "Confirmez-vous vouloir demander une nouvelle carte virtuelle ? Votre demande sera traitée par un conseiller.",
+        "virtual_request_pending_title": "Demande de carte virtuelle en cours",
+        "virtual_request_pending_description": "Votre demande est en cours de traitement par un conseiller. La carte sera disponible sous 24h.",
+        "suspended": "Suspendue",
+        "adminFrozenMessage": "Cette carte a été suspendue par un administrateur et ne peut être débloquée.",
+        "adminHiddenDetails": "La visibilité des détails est contrôlée par un administrateur."
+    },
+    "history": {
       "title": "Historique des Transactions",
       "filters": "Filtres",
       "dateRange": "Sélectionner une période",
@@ -433,21 +431,21 @@
       "resetFiltersButton": "Réinitialiser",
       "noTransactions": "Aucune transaction trouvée pour la période sélectionnée.",
       "table": {
-          "date": "Date",
-          "description": "Description",
-          "category": "Catégorie",
-          "status": "Statut",
-          "amount": "Montant",
-          "statuses": {
-              "completed": "Terminé",
-              "pending": "En attente",
-              "failed": "Échoué",
-              "in_progress": "En cours",
-              "in_review": "En examen"
-          }
+        "date": "Date",
+        "description": "Description",
+        "category": "Catégorie",
+        "status": "Statut",
+        "amount": "Montant",
+        "statuses": {
+          "completed": "Terminé",
+          "pending": "En attente",
+          "failed": "Échoué",
+          "in_progress": "En cours",
+          "in_review": "En examen"
+        }
       }
-  },
-  "budgets": {
+    },
+    "budgets": {
       "title": "Mes Budgets",
       "createBudget": "Créer un budget",
       "spentOf": "Dépensé {spent} sur {total}",
@@ -464,8 +462,8 @@
       "budgetCreatedDescription": "Votre nouveau budget '{name}' a été créé.",
       "noBudgetsTitle": "Vous n'avez pas encore de budget",
       "noBudgetsDescription": "Créez un budget pour commencer à suivre vos dépenses et atteindre vos objectifs financiers."
-  },
-  "documents": {
+    },
+    "documents": {
       "title": "Mes Documents",
       "description": "Gérez vos documents téléchargés.",
       "upload": "Télécharger un document",
@@ -475,10 +473,284 @@
       "actions": "Actions",
       "serviceContract": "Contrat de Service.pdf",
       "privacyPolicy": "Politique de Confidentialité.pdf"
-  },
-  "billing": {
+    },
+    "billing": {
       "title": "Facturation des services",
       "description": "Veuillez utiliser les coordonnées bancaires suivantes pour régler vos services et abonnements AmCbunq. N'oubliez pas d'inclure votre référence client dans le libellé du virement.",
       "cardTitle": "Coordonnées bancaires AmCbunq",
       "noBillingTitle": "Aucune facturation en attente",
-      "noBillingDescription": "Vous n'avez actuellement aucun service à régler. Re
+      "noBillingDescription": "Vous n'avez actuellement aucun service à régler. Revenez plus tard."
+    },
+    "iban": {
+      "title": "Détails de mon IBAN",
+      "description": "Utilisez ces informations pour recevoir de l'argent.",
+      "accountDetails": "Détails du compte",
+      "accountHolder": "Titulaire du compte",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "copiedDescription": "a été copié dans votre presse-papiers.",
+      "downloadIban": "Télécharger l'IBAN",
+      "clientAddress": "Adresse du Client",
+      "unverified_title": "Accédez à votre IBAN",
+      "unverified_description": "Complétez votre vérification d'identité pour voir et utiliser vos détails IBAN pour recevoir des paiements.",
+      "pending_title": "Votre compte est validé !",
+      "pending_description": "Votre IBAN est en cours de création et sera disponible sur cette page dans les 24 heures ouvrées.",
+      "pending_button": "Retour au tableau de bord"
+    },
+    "more": {
+      "title": "Plus d'options",
+      "help": "Aide & Support",
+      "documents": "Mes Documents",
+      "exchange": "Change de devises",
+      "referrals": "Parrainer un ami"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "tabs": {
+        "profile": "Profil",
+        "security": "Sécurité",
+        "notifications": "Notifications",
+        "appearance": "Apparence"
+      },
+      "profile": {
+        "title": "Informations Personnelles",
+        "description": "Mettez à jour vos informations personnelles. Ces informations sont nécessaires pour la vérification de votre compte.",
+        "nameLabel": "Nom complet",
+        "firstNameLabel": "Prénom",
+        "lastNameLabel": "Nom",
+        "emailLabel": "Adresse e-mail",
+        "phoneLabel": "Numéro de téléphone",
+        "phoneDescription": "Pour tout changement de numéro, veuillez contacter le support.",
+        "dobLabel": "Date de naissance",
+        "dobPlaceholder": "Sélectionnez une date",
+        "addressGroupTitle": "Adresse Postale",
+        "streetLabel": "Adresse",
+        "cityLabel": "Ville",
+        "postalCodeLabel": "Code Postal",
+        "countryLabel": "Pays",
+        "saveButton": "Enregistrer les modifications",
+        "updateError": "Échec de la mise à jour du profil",
+        "saveSuccess": "Profil mis à jour avec succès !",
+        "uploadAvatarTitle": "Changer d'avatar",
+        "uploadAvatarDescription": "Cliquez sur l'image pour en télécharger une nouvelle.",
+        "uploadErrorTitle": "Erreur de Téléchargement",
+        "fileTooLargeError": "Le fichier est trop volumineux. Veuillez sélectionner une image de moins de 2 Mo.",
+        "avatarUpdateSuccess": "Avatar mis à jour avec succès !"
+      },
+      "security": {
+        "title": "Sécurité",
+        "description": "Mettez à jour votre mot de passe et gérez la sécurité de votre compte.",
+        "currentPasswordLabel": "Mot de passe actuel",
+        "newPasswordLabel": "Nouveau mot de passe",
+        "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+        "saveButton": "Mettre à jour le mot de passe",
+        "passwordUpdateSuccess": "Mot de passe mis à jour avec succès !",
+        "passwordUpdateErrorTitle": "Échec de la mise à jour",
+        "reauthenticationRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter et réessayer.",
+        "passwordLengthError": "Le mot de passe doit comporter au moins 6 caractères.",
+        "passwordMismatchError": "Les mots de passe ne correspondent pas.",
+        "currentPasswordIncorrect": "Le mot de passe actuel est incorrect.",
+        "passwordRequiredError": "Le mot de passe est requis.",
+        "inactivityTitle": "Déconnexion automatique",
+        "inactivityDescription": "Pour votre sécurité, choisissez la durée d'inactivité après laquelle votre session sera automatiquement fermée.",
+        "inactivityLabel": "Délai avant déconnexion",
+        "saveTimeoutButton": "Enregistrer le délai",
+        "saveSuccess": "Paramètre enregistré !",
+        "minutes_5": "5 minutes",
+        "minutes_15": "15 minutes",
+        "minutes_30": "30 minutes",
+        "never": "Jamais",
+        "lastConnectionTitle": "Dernière connexion",
+        "lastConnectionDescription": "Votre dernière connexion enregistrée",
+        "lastConnectionNever": "Jamais"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Configurez la manière dont vous recevez les notifications.",
+        "email": {
+          "title": "Notifications par e-mail",
+          "description": "Recevez des e-mails concernant l'activité de votre compte."
+        },
+        "promotions": {
+          "title": "E-mails marketing",
+          "description": "Recevez des e-mails sur les nouveaux produits, fonctionnalités et promotions."
+        },
+        "security": {
+          "title": "Alertes de sécurité",
+          "description": "Recevez des e-mails concernant les alertes de sécurité sur votre compte."
+        },
+        "saveButton": "Enregistrer les préférences",
+        "saveSuccess": "Préférences enregistrées !"
+      },
+      "appearance": {
+        "title": "Apparence",
+        "description": "Personnalisez l'apparence de votre tableau de bord.",
+        "theme": "Thème",
+        "themeLight": "Clair",
+        "themeDark": "Sombre",
+        "themeSystem": "Système",
+        "language": "Langue",
+        "languageEn": "Anglais",
+        "languageFr": "Français",
+        "languageDe": "Allemand",
+        "languageEs": "Espagnol",
+        "languagePt": "Portugais",
+        "saveButton": "Enregistrer"
+      }
+    },
+    "help": {
+      "title": "Aide & Support",
+      "faqTitle": "FAQ",
+      "faqDescription": "Trouvez les réponses aux questions fréquemment posées.",
+      "contactTitle": "Contact",
+      "contactDescription": "Vous ne trouvez pas ce que vous cherchez ? Contactez notre équipe de support.",
+      "faq": [
+        { "question": "Comment ouvrir un compte ?", "answer": "Vous pouvez ouvrir un compte directement depuis notre page d'accueil en cliquant sur 'Ouvrir un compte'. Le processus est rapide et ne prend que quelques minutes." },
+        { "question": "Quels documents sont nécessaires pour la vérification ?", "answer": "Pour la vérification, vous aurez besoin d'une pièce d'identité avec photo en cours de validité émise par le gouvernement (Passeport ou Carte d'identité), d'un justificatif de domicile (comme une facture d'électricité), et vous devrez prendre un selfie pour la vérification biométrique." },
+        { "question": "Mon argent est-il en sécurité ?", "answer": "Votre sécurité est notre priorité absolue. Nous utilisons un cryptage de pointe, une authentification à deux facteurs et nous respectons des normes réglementaires strictes pour protéger votre argent et vos données." },
+        { "question": "Y a-t-il des frais ?", "answer": "Nous croyons en une tarification transparente. Vous pouvez trouver notre structure de frais sur notre page de tarification. De nombreux services standard comme la tenue de compte sont gratuits." }
+      ],
+      "contactForm": {
+        "nameLabel": "Nom",
+        "namePlaceholder": "Votre nom",
+        "nameRequired": "Le nom est requis.",
+        "emailLabel": "E-mail",
+        "emailPlaceholder": "Votre e-mail",
+        "emailInvalid": "Adresse e-mail invalide.",
+        "subjectLabel": "Sujet",
+        "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+        "subjectRequired": "Le sujet est requis.",
+        "messageLabel": "Message",
+        "messagePlaceholder": "Décrivez votre problème ici...",
+        "messageRequired": "Le message est requis.",
+        "submitButton": "Envoyer le message",
+        "successTitle": "Message envoyé !",
+        "successDescription": "Merci de nous avoir contactés. Nous vous répondrons dès que possible.",
+        "errorTitle": "Erreur",
+        "errorDescription": "Échec de l'envoi du message. Veuillez réessayer plus tard."
+      },
+      "contactCta": {
+        "title": "Besoin d'aide supplémentaire ?",
+        "description": "Vous ne trouvez pas la réponse à votre question ? Connectez-vous à votre compte pour contacter notre équipe de support via la messagerie sécurisée.",
+        "loginButton": "Se connecter"
+      }
+    },
+    "chat": {
+      "title": "Messagerie",
+      "headerTitle": "Messagerie",
+      "headerDescription": "Posez vos questions directement à votre conseiller financier.",
+      "inputPlaceholder": "Écrivez votre message...",
+      "sendButton": "Envoyer",
+      "advisorName": "Conseiller",
+      "newMessageFromAdvisor": "Nouveau message de votre conseiller",
+      "welcomeMessage": "Ceci est le début de votre conversation.",
+      "welcomeMessageSubtext": "Vous pouvez poser des questions sur votre compte, les transactions ou tout autre sujet.",
+      "connectionError": "Erreur de connexion",
+      "connectionErrorText": "Impossible d'établir une connexion avec le service de messagerie. Veuillez réessayer plus tard."
+    },
+    "kyc": {
+      "title": "Vérification d'Identité",
+      "progress": "Étape {step} sur {totalSteps}",
+      "step1_title": "Vérifions votre identité",
+      "step1_desc": "Pour sécuriser votre compte et respecter la réglementation, nous devons vérifier votre identité. Ce processus est rapide et sécurisé.",
+      "step1_item1": "Une pièce d'identité avec photo en cours de validité (Passeport, Carte d'identité).",
+      "step1_item2": "Une photo récente de vous (selfie) à télécharger.",
+      "step1_item3": "Un justificatif de domicile récent (facture de services publics, relevé de banque).",
+      "step1_button": "Commencer la vérification",
+      "step2_title": "Téléchargez votre document",
+      "step2_desc": "Veuillez choisir le type de document que vous souhaitez utiliser et en télécharger une image claire.",
+      "step2_doc_type": "Type de document",
+      "step2_doc_passport": "Passeport",
+      "step2_doc_id": "Carte d'identité",
+      "step3_title_id": "Téléchargez votre carte d'identité",
+      "step3_title_passport": "Téléchargez votre passeport",
+      "step3_desc": "Veuillez télécharger une image claire et lisible du document complet.",
+      "step3_upload_button": "Choisir un fichier",
+      "step4_title": "Téléchargez votre justificatif de domicile",
+      "step4_desc": "Téléchargez une facture de services publics recente (moins de 3 mois) ou un relevé bancaire indiquant votre nom et votre adresse.",
+      "step5_title": "Vérification par selfie",
+      "step5_desc": "Prenez une photo de vous pour confirmer votre identité. Assurez-vous que votre visage est bien éclairé et entièrement visible.",
+      "step6_title": "Vérification soumise",
+      "step6_desc": "Merci d'avoir soumis vos documents. Nous examinons actuellement vos informations. Le délai de traitement est généralement de 24 à 48 heures. Nous vous informerons une fois le processus terminé.",
+      "step6_button": "Retour au tableau de bord",
+      "button_next": "Suivant",
+      "button_back": "Retour",
+      "button_submit": "Soumettre la vérification",
+      "unverified_title": "Vérification d'Identité Requise",
+      "unverified_description": "Pour accéder à cette fonctionnalité, vous devez d'abord compléter votre vérification d'identité. C'est un processus rapide et sécurisé pour protéger votre compte.",
+      "unverified_button": "Vérifier Mon Identité",
+      "unverified_budgets_title": "Gérer Vos Budgets",
+      "unverified_cards_title": "Gérer Vos Cartes",
+      "pending_title": "Vérification en cours",
+      "pending_description": "Vos documents sont en cours de vérification. Cela prend généralement entre 24 et 48 heures. Vous pouvez continuer à naviguer sur votre tableau de bord.",
+      "selected": "sélectionné",
+      "clickNext": "Veuillez cliquer sur 'Suivant' pour continuer.",
+      "readyToProceed": "Prêt à continuer ?",
+      "clickSubmit": "Cliquez sur 'Soumettre' pour finaliser votre demande de vérification.",
+      "file_selected": "Fichier sélectionné : {fileName}",
+      "missing_documents_desc": "Veuillez télécharger tous les documents requis avant de soumettre.",
+      "submission_error_desc": "Vos documents n'ont pas pu être soumis. Veuillez vérifier votre connexion et réessayer."
+    },
+    "notFound": {
+      "title": "Oups! Page introuvable.",
+      "description": "La page que vous recherchez a peut-être été supprimée, a changé de nom ou est temporairement indisponible.",
+      "button": "Retour à l'accueil"
+    },
+    "errors": {
+        "titles": {
+            "loginFailed": "Échec de la connexion",
+            "registrationFailed": "Inscription impossible",
+            "formIncomplete": "Formulaire incomplet",
+            "uploadFailed": "Échec de la soumission",
+            "fileTooLarge": "Fichier trop volumineux",
+            "transferFailed": "Virement échoué",
+            "networkError": "Erreur de connexion",
+            "unexpected": "Une erreur est survenue",
+            "passwordUpdateFailed": "Échec de la mise à jour"
+        },
+        "messages": {
+            "auth": {
+                "wrongCredentials": "L'adresse e-mail ou le mot de passe est incorrect. Veuillez vérifier vos informations et réessayer.",
+                "emailInUse": "Cette adresse e-mail est déjà utilisée. Veuillez vous connecter ou utiliser une autre adresse.",
+                "emailNotVerified": "Veuillez consulter votre boîte de réception et cliquer sur le lien de vérification avant de vous connecter.",
+                "weakPassword": "Pour votre sécurité, votre mot de passe doit contenir au moins 6 caractères.",
+                "reauthRequired": "Cette opération est sensible et nécessite une authentification récente. Veuillez vous reconnecter et réessayer."
+            },
+            "forms": {
+                "incomplete": "Veuillez remplir tous les champs obligatoires et corriger les erreurs avant de continuer."
+            },
+            "files": {
+                "uploadFailed": "Vos documents n'ont pas pu être envoyés. Veuillez vérifier votre connexion et réessayer.",
+                "sizeExceeded": "Le fichier dépasse la taille maximale autorisée. Veuillez choisir un fichier plus petit."
+            },
+            "api": {
+                "insufficientFunds": "Votre solde est insuffisant pour effectuer cette opération.",
+                "networkError": "Impossible de joindre nos serveurs. Veuillez vérifier votre connexion internet et réessayer.",
+                "unexpected": "Une erreur technique s'est produite. Notre équipe a été prévenue. Veuillez réessayer dans quelques instants."
+            }
+        }
+    },
+    "errorPage": {
+        "title": "Oups ! Une erreur est survenue.",
+        "description": "Nous rencontrons actuellement des difficultés techniques. Notre équipe a été informée et travaille à la résolution du problème. Veuillez nous excuser pour la gêne occasionnée.",
+        "retryButton": "Réessayer",
+        "homeButton": "Retour à l'accueil"
+    }
+    "errorPage": {
+        "title": "Oups ! Une erreur est survenue.",
+        "description": "Nous rencontrons actuellement des difficultés techniques. Notre équipe a été informée et travaille à la résolution du problème. Veuillez nous excuser pour la gêne occasionnée.",
+        "retryButton": "Réessayer",
+        "homeButton": "Retour à l'accueil"
+    },
+    "login": {
+        "backToLogin": "Retour à la connexion"
+    },
+    "contactForm": {
+        "subjectPlaceholder": "Sujet de votre message"
+    },
+    "sidebar": {
+        "advisor": "Vue Conseiller"
+    }
+}
