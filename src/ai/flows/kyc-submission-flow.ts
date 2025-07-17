@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -17,7 +18,7 @@ export async function submitKyc(input: KycEmailInput): Promise<KycSubmissionResu
     const adminDb = getAdminDb(); // Use Admin SDK
 
     // 1. Create the KYC submission document in a dedicated collection.
-    const submissionsCollectionRef = collection(adminDb, 'kycSubmissions');
+    const submissionsCollectionRef = collection(adminDb as any, 'kycSubmissions');
     const submissionData = {
         userId: input.userId,
         userName: input.userName,
@@ -28,7 +29,7 @@ export async function submitKyc(input: KycEmailInput): Promise<KycSubmissionResu
     await addDoc(submissionsCollectionRef, submissionData);
     
     // 2. Set the user's KYC status to 'pending' in their profile.
-    const userDocRef = doc(adminDb, 'users', input.userId);
+    const userDocRef = doc(adminDb as any, 'users', input.userId);
     await updateDoc(userDocRef, {
         kycStatus: 'pending',
         kycSubmittedAt: Timestamp.now(),
