@@ -9,9 +9,9 @@ export default async function DashboardLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { lang: Locale };
+  params: Promise<{ lang: Locale }>;
 }) {
-  const { lang } = params;
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   return (
     <Providers>
