@@ -34,7 +34,7 @@ const nextConfig = {
       ...config.resolve.alias,
       'node:events': 'events',
       'node:process': 'process',
-      'node:stream': 'stream',
+      'node:stream': 'stream-browserify',
       'node:util': 'util',
     };
 
