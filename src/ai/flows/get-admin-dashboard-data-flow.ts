@@ -9,16 +9,15 @@
 import { getAdmins, getAllUsers, getAllKycSubmissions } from '@/lib/firebase/firestore';
 import { getAdminDb } from '@/lib/firebase/admin';
 import type { AdminDashboardDataResult } from '@/lib/types';
-import type { Firestore } from 'firebase/firestore';
 
 
 export async function getAdminDashboardData(): Promise<AdminDashboardDataResult> {
     try {
         const adminDb = getAdminDb();
         const [users, kycSubmissions, admins] = await Promise.all([
-            getAllUsers(adminDb as Firestore),
-            getAllKycSubmissions(adminDb as Firestore),
-            getAdmins(adminDb as Firestore)
+            getAllUsers(adminDb as any),
+            getAllKycSubmissions(adminDb as any),
+            getAdmins(adminDb as any)
         ]);
 
         const stats = {

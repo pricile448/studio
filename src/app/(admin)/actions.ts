@@ -17,12 +17,12 @@ import {
     getAllUsers as getAllUsersFromDb,
     getUserFromFirestore as getUserFromFirestoreDb
 } from '@/lib/firebase/firestore';
-import { doc, updateDoc, serverTimestamp, type Firestore } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 export async function resetConversation(chatId: string): Promise<{ success: boolean; error?: string }> {
     try {
         const adminDb = getAdminDb();
-        await deleteChatSession(chatId, adminDb as Firestore);
+        await deleteChatSession(chatId, adminDb as any);
         return { success: true };
     } catch (error: any) {
         console.error("Error resetting conversation:", error);
@@ -33,7 +33,7 @@ export async function resetConversation(chatId: string): Promise<{ success: bool
 export async function deleteAdminMessage(chatId: string, messageId: string): Promise<{ success: boolean; error?: string }> {
     try {
         const adminDb = getAdminDb();
-        await hardDeleteMessage(chatId, messageId, adminDb as Firestore);
+        await hardDeleteMessage(chatId, messageId, adminDb as any);
         return { success: true };
     } catch (error: any) {
         console.error("Error deleting admin message:", error);
@@ -44,7 +44,7 @@ export async function deleteAdminMessage(chatId: string, messageId: string): Pro
 export async function fetchKycSubmissions() {
     try {
         const adminDb = getAdminDb();
-        const submissions = await getAllKycSubmissionsFromDb(adminDb as Firestore);
+        const submissions = await getAllKycSubmissionsFromDb(adminDb as any);
         // Convert Date objects to ISO strings for serialization
         return { success: true, data: JSON.parse(JSON.stringify(submissions)) };
     } catch (error: any) {
@@ -56,7 +56,7 @@ export async function fetchKycSubmissions() {
 export async function fetchAllUsers() {
     try {
         const adminDb = getAdminDb();
-        const users = await getAllUsersFromDb(adminDb as Firestore);
+        const users = await getAllUsersFromDb(adminDb as any);
         return { success: true, data: JSON.parse(JSON.stringify(users)) };
     } catch (error: any) {
         console.error("Error fetching users:", error);
@@ -67,11 +67,11 @@ export async function fetchAllUsers() {
 export async function updateKycStatus(userId: string, submissionId: string, newStatus: 'approved' | 'rejected') {
     try {
         const adminDb = getAdminDb();
-        const submissionRef = doc(adminDb as Firestore, 'kycSubmissions', submissionId);
+        const submissionRef = doc(adminDb as any, 'kycSubmissions', submissionId);
         await updateDoc(submissionRef, { status: newStatus, processedAt: serverTimestamp() });
 
         if (newStatus === 'approved') {
-            await updateUserInFirestoreDb(userId, { kycStatus: 'verified' }, adminDb as Firestore);
+            await updateUserInFirestoreDb(userId, { kycStatus: 'verified' }, adminDb as any);
         }
         
         return { success: true };
@@ -84,7 +84,7 @@ export async function updateKycStatus(userId: string, submissionId: string, newS
 export async function fetchAllTransfers() {
     try {
         const adminDb = getAdminDb();
-        const transfers = await getAllTransfersFromDb(adminDb as Firestore);
+        const transfers = await getAllTransfersFromDb(adminDb as any);
         return { success: true, data: JSON.parse(JSON.stringify(transfers)) };
     } catch (error: any) {
         console.error("Error fetching transfers:", error);
@@ -95,7 +95,7 @@ export async function fetchAllTransfers() {
 export async function updateTransferStatusAction(userId: string, transactionId: string, newStatus: 'in_progress' | 'failed' | 'in_review') {
     try {
         const adminDb = getAdminDb();
-        await updateTransferStatusInDb(userId, transactionId, newStatus, adminDb as Firestore);
+        await updateTransferStatusInDb(userId, transactionId, newStatus, adminDb as any);
         return { success: true };
     } catch (error: any) {
         console.error("Error updating transfer status:", error);
@@ -106,7 +106,7 @@ export async function updateTransferStatusAction(userId: string, transactionId: 
 export async function executeTransferAction(userId: string, transactionId: string) {
     try {
         const adminDb = getAdminDb();
-        await executeTransferInDb(userId, transactionId, adminDb as Firestore);
+        await executeTransferInDb(userId, transactionId, adminDb as any);
         return { success: true };
     } catch (error: any) {
         console.error("Error executing transfer:", error);
@@ -117,7 +117,7 @@ export async function executeTransferAction(userId: string, transactionId: strin
 export async function updateUserInFirestore(userId: string, data: any) {
     try {
         const adminDb = getAdminDb();
-        await updateUserInFirestoreDb(userId, data, adminDb as Firestore);
+        await updateUserInFirestoreDb(userId, data, adminDb as any);
         return { success: true };
     } catch (error: any) {
         console.error("Error updating user in Firestore:", error);
@@ -128,7 +128,7 @@ export async function updateUserInFirestore(userId: string, data: any) {
 export async function getUserFromFirestore(userId: string) {
      try {
         const adminDb = getAdminDb();
-        const user = await getUserFromFirestoreDb(userId, adminDb as Firestore);
+        const user = await getUserFromFirestoreDb(userId, adminDb as any);
         return { success: true, data: JSON.parse(JSON.stringify(user)) };
     } catch (error: any) {
         console.error("Error fetching user from Firestore:", error);
