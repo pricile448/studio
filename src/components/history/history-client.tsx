@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -26,11 +25,11 @@ type HistoryClientProps = {
 };
 
 const dateLocales: Record<Locale, typeof enUS> = {
-    en: enUS,
-    fr,
-    de,
-    es,
-    pt
+  en: enUS,
+  fr,
+  de,
+  es,
+  pt
 };
 
 export function HistoryClient({ dict, lang }: HistoryClientProps) {
@@ -84,15 +83,15 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
   };
   
   const formatDate = (date: Date) => {
-      return format(date, 'P', { locale: dateLocales[lang] });
+    return format(date, 'P', { locale: dateLocales[lang] });
   }
 
   if (loading || !userProfile) {
     return (
-        <div className="space-y-6">
-            <Skeleton className="h-8 w-1/4" />
-            <Skeleton className="h-64" />
-        </div>
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-1/4" />
+        <Skeleton className="h-64" />
+      </div>
     );
   }
 
@@ -105,131 +104,137 @@ export function HistoryClient({ dict, lang }: HistoryClientProps) {
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <CardTitle className="font-headline flex-1">{dict.filters}</CardTitle>
             <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                <Input
-                  placeholder={dict.table.description}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-auto md:w-[200px]"
-                />
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant={"outline"}
-                      className={cn(
-                        "w-full sm:w-auto md:w-[260px] justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date?.from ? (
-                        date.to ? (
-                          <>
-                            {format(date.from, "LLL dd, y", { locale: dateLocales[lang] })} -{" "}
-                            {format(date.to, "LLL dd, y", { locale: dateLocales[lang] })}
-                          </>
-                        ) : (
-                          format(date.from, "LLL dd, y", { locale: dateLocales[lang] })
-                        )
+              <Input
+                placeholder={dict.table.description}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-auto md:w-[200px]"
+              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full sm:w-auto md:w-[260px] justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date?.from ? (
+                      date.to ? (
+                        <>
+                          {format(date.from, "LLL dd, y", { locale: dateLocales[lang] })} -{" "}
+                          {format(date.to, "LLL dd, y", { locale: dateLocales[lang] })}
+                        </>
                       ) : (
-                        <span>{dict.dateRange}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={2}
-                      locale={dateLocales[lang]}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Select value={transactionType} onValueChange={setTransactionType}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder={dict.transactionType} />
-                    </SelectTrigger>
-                    <SelectContent>
-                    <SelectItem value="all">{dict.all}</SelectItem>
-                    <SelectItem value="income">{dict.income}</SelectItem>
-                    <SelectItem value="expense">{dict.expense}</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Button variant="ghost" onClick={resetFilters} className="w-full sm:w-auto">
-                    <X className="mr-2 h-4 w-4" />
-                    {dict.resetFiltersButton}
-                </Button>
+                        format(date.from, "LLL dd, y", { locale: dateLocales[lang] })
+                      )
+                    ) : (
+                      <span>{dict.dateRange}</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={setDate}
+                    numberOfMonths={2}
+                    locale={dateLocales[lang]}
+                  />
+                </PopoverContent>
+              </Popover>
+              <Select value={transactionType} onValueChange={setTransactionType}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder={dict.transactionType} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{dict.all}</SelectItem>
+                  <SelectItem value="income">{dict.income}</SelectItem>
+                  <SelectItem value="expense">{dict.expense}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="ghost" onClick={resetFilters} className="w-full sm:w-auto">
+                <X className="mr-2 h-4 w-4" />
+                {dict.resetFiltersButton}
+              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-            {/* Desktop table */}
-            <div className="hidden md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{dict.table.date}</TableHead>
-                    <TableHead>{dict.table.description}</TableHead>
-                    <TableHead>{dict.table.category}</TableHead>
-                    <TableHead>{dict.table.status}</TableHead>
-                    <TableHead className="text-right">{dict.table.amount}</TableHead>
+          {/* Desktop table */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{dict.table.date}</TableHead>
+                  <TableHead>{dict.table.description}</TableHead>
+                  <TableHead>{dict.table.category}</TableHead>
+                  <TableHead>{dict.table.status}</TableHead>
+                  <TableHead className="text-right">{dict.table.amount}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTransactions.length > 0 ? filteredTransactions.map((tx) => (
+                  <TableRow key={tx.id}>
+                    <TableCell>{formatDate(new Date(tx.date))}</TableCell>
+                    <TableCell>{tx.description}</TableCell>
+                    <TableCell>{tx.category}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={tx.status.toLowerCase() === 'completed' ? 'default' : 'secondary'} 
+                        className={tx.status.toLowerCase() === 'completed' ? 'bg-green-500/20 text-green-700 border-green-500/30 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' : ''}
+                      >
+                        {dict.table.statuses[tx.status.toLowerCase() as keyof typeof dict.table.statuses]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className={`text-right font-medium ${tx.amount > 0 ? 'text-accent' : ''}`}>
+                      {formatCurrency(tx.amount)}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTransactions.length > 0 ? filteredTransactions.map((tx) => (
-                    <TableRow key={tx.id}>
-                       <TableCell>{formatDate(new Date(tx.date))}</TableCell>
-                      <TableCell>{tx.description}</TableCell>
-                      <TableCell>{tx.category}</TableCell>
-                       <TableCell>
-                         <Badge variant={tx.status === 'Completed' ? 'default' : 'secondary'} className={tx.status === 'Completed' ? 'bg-green-500/20 text-green-700 border-green-500/30 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' : ''}>
-                          {dict.table.statuses[tx.status.toLowerCase() as keyof typeof dict.table.statuses]}
-                         </Badge>
-                       </TableCell>
-                      <TableCell className={`text-right font-medium ${tx.amount > 0 ? 'text-accent' : ''}`}>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-10">
+                      {dict.noTransactions}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {/* Mobile list */}
+          <div className="md:hidden">
+            <div className="space-y-4">
+              {filteredTransactions.length > 0 ? filteredTransactions.map((tx) => (
+                <div key={tx.id}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-medium">{tx.description}</p>
+                      <p className="text-sm text-muted-foreground">{formatDate(new Date(tx.date))} - {tx.category}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-semibold ${tx.amount > 0 ? 'text-accent' : ''}`}>
                         {formatCurrency(tx.amount)}
-                      </TableCell>
-                    </TableRow>
-                  )) : (
-                     <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-10">
-                            {dict.noTransactions}
-                        </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            {/* Mobile list */}
-            <div className="md:hidden">
-              <div className="space-y-4">
-                {filteredTransactions.length > 0 ? filteredTransactions.map((tx, index) => (
-                  <div key={tx.id}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className="font-medium">{tx.description}</p>
-                        <p className="text-sm text-muted-foreground">{formatDate(new Date(tx.date))} - {tx.category}</p>
-                      </div>
-                      <div className="text-right">
-                         <p className={`font-semibold ${tx.amount > 0 ? 'text-accent' : ''}`}>
-                          {formatCurrency(tx.amount)}
-                        </p>
-                        <Badge variant={tx.status === 'Completed' ? 'default' : 'secondary'} className={`mt-1 ${tx.status === 'Completed' ? 'bg-green-500/20 text-green-700 border-green-500/30 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' : ''}`}>
-                             {dict.table.statuses[tx.status.toLowerCase() as keyof typeof dict.table.statuses]}
-                        </Badge>
-                      </div>
+                      </p>
+                      <Badge 
+                        variant={tx.status.toLowerCase() === 'completed' ? 'default' : 'secondary'} 
+                        className={`mt-1 ${tx.status.toLowerCase() === 'completed' ? 'bg-green-500/20 text-green-700 border-green-500/30 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' : ''}`}
+                      >
+                        {dict.table.statuses[tx.status.toLowerCase() as keyof typeof dict.table.statuses]}
+                      </Badge>
                     </div>
                   </div>
-                )) : (
-                     <div className="text-center text-muted-foreground py-12">
-                        <p>{dict.noTransactions}</p>
-                    </div>
-                )}
-              </div>
+                </div>
+              )) : (
+                <div className="text-center text-muted-foreground py-12">
+                  <p>{dict.noTransactions}</p>
+                </div>
+              )}
             </div>
+          </div>
         </CardContent>
       </Card>
     </div>
