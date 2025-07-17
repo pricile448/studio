@@ -620,7 +620,7 @@
         "emailPlaceholder": "Votre e-mail",
         "emailInvalid": "Adresse e-mail invalide.",
         "subjectLabel": "Sujet",
-        "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+        "subjectPlaceholder": "Sujet de votre message",
         "subjectRequired": "Le sujet est requis.",
         "messageLabel": "Message",
         "messagePlaceholder": "Décrivez votre problème ici...",
@@ -737,14 +737,5 @@
         "description": "Nous rencontrons actuellement des difficultés techniques. Notre équipe a été informée et travaille à la résolution du problème. Veuillez nous excuser pour la gêne occasionnée.",
         "retryButton": "Réessayer",
         "homeButton": "Retour à l'accueil"
-    },
-    "loginPage": {
-        "backToLogin": "Retour à la connexion"
-    },
-    "contactForm": {
-        "subjectPlaceholder": "Sujet de votre message"
-    },
-    "sidebarExtended": {
-        "advisor": "Vue Conseiller"
     }
 }
