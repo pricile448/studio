@@ -6,7 +6,7 @@
  * This flow uses the Admin SDK to ensure it has the necessary permissions
  * to write to Firestore collections and sends a notification email.
  */
-import type Mailgun from 'mailgun.js';
+import type { AttachmentData } from 'mailgun.js/interfaces/AttachmentData';
 import { getAdminDb } from '@/lib/firebase/admin';
 import { collection, addDoc, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { sendSupportEmail } from '@/lib/mailgun';
@@ -53,7 +53,7 @@ export async function submitKyc(input: KycEmailInput): Promise<KycSubmissionResu
       Les documents sont joints à cet e-mail.
     `;
 
-    const attachments: Mailgun.AttachmentData[] = [
+    const attachments: AttachmentData[] = [
         { filename: input.idDocument.filename, data: Buffer.from(input.idDocument.data.split(",")[1], 'base64') },
         { filename: input.proofOfAddress.filename, data: Buffer.from(input.proofOfAddress.data.split(",")[1], 'base64') },
         { filename: input.selfie.filename, data: Buffer.from(input.selfie.data.split(",")[1], 'base64') }
