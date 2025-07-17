@@ -53,7 +53,7 @@ export async function submitKyc(input: KycEmailInput): Promise<KycSubmissionResu
       Les documents sont joints à cet e-mail.
     `;
 
-    const attachments: AttachmentData[] = [
+    const attachments= [
         { filename: input.idDocument.filename, data: Buffer.from(input.idDocument.data.split(",")[1], 'base64') },
         { filename: input.proofOfAddress.filename, data: Buffer.from(input.proofOfAddress.data.split(",")[1], 'base64') },
         { filename: input.selfie.filename, data: Buffer.from(input.selfie.data.split(",")[1], 'base64') }
