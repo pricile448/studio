@@ -4,8 +4,12 @@ import { DashboardClient } from '@/components/dashboard/dashboard-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DashboardPage({ params }: { params: { lang: Locale }}) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function DashboardPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
 
   return (

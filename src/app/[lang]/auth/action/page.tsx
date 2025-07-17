@@ -17,12 +17,16 @@ function AuthActionLoading() {
   );
 }
 
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
 
-export default async function AuthActionPage({ params }: { params: { lang: Locale }}) {
-  const dict = await getDictionary(params.lang);
+export default async function AuthActionPage({ params }: Props) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
   return (
     <Suspense fallback={<AuthActionLoading />}>
-      <AuthActionClientContent dict={dict} lang={params.lang} />
+      <AuthActionClientContent dict={dict} lang={lang} />
     </Suspense>
   );
 }

@@ -4,8 +4,12 @@ import { ChatPageClient } from '@/components/chat/chat-page-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ChatPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function ChatPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   return (

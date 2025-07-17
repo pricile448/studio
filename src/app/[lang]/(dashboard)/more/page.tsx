@@ -4,8 +4,12 @@ import { MoreClient } from '@/components/more/more-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DocumentsPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function DocumentsPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   return <MoreClient dict={dict} lang={lang} />;

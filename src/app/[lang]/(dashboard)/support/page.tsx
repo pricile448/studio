@@ -6,8 +6,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { HelpContactForm } from '@/components/help/help-contact-form';
 import { Lightbulb, Mail, MessageSquareQuote } from 'lucide-react';
 
-export default async function SupportPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function SupportPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   const helpDict = dict.help;
 

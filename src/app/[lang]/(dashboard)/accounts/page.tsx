@@ -4,8 +4,12 @@ import { AccountsClient } from '@/components/accounts/accounts-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AccountsPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function AccountsPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   return <AccountsClient dict={dict} lang={lang} />;

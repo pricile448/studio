@@ -7,7 +7,12 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'de' }, { lang: 'es' }, { lang: 'pt' }];
 }
 
-export default async function LoginPage({ params }: { params: { lang: Locale }}) {
-  const dict = await getDictionary(params.lang);
-  return <LoginClient dict={dict} lang={params.lang} />;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function LoginPage({ params }: Props) {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return <LoginClient dict={dict} lang={lang} />;
 }

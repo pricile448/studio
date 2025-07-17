@@ -2,8 +2,12 @@ import { type Locale, type Dictionary } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { IbanClient } from '@/components/iban/iban-client';
 
-export default async function IbanPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function IbanPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   const ibanDetails = {

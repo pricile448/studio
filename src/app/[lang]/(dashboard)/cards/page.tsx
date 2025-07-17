@@ -4,8 +4,12 @@ import { CardsClient } from '@/components/cards/cards-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CardsPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function CardsPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   return <CardsClient dict={dict} lang={lang} />;

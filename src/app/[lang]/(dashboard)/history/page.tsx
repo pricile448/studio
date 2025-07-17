@@ -4,8 +4,12 @@ import { HistoryClient } from '@/components/history/history-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HistoryPage({ params }: { params: { lang: Locale }}) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function HistoryPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   return <HistoryClient dict={dict.history} lang={lang} />;

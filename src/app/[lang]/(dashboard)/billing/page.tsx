@@ -5,8 +5,12 @@ import { BillingClient } from '@/components/billing/billing-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function BillingPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function BillingPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   
   return <BillingClient dict={dict} />;

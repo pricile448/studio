@@ -6,6 +6,5 @@ type Props = {
 
 export default async function AdminUserDetailPage({ params }: Props) {
   const { userId } = await params;
-
   return <UserDetailClient userId={userId} />;
 }

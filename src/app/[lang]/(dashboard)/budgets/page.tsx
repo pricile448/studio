@@ -4,8 +4,12 @@ import { BudgetsClient } from '@/components/budgets/budgets-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function BudgetsPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function BudgetsPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
 
   return <BudgetsClient 

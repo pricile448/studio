@@ -2,8 +2,12 @@ import { type Locale } from '@/lib/dictionaries';
 import { getDictionary } from '@/lib/get-dictionary';
 import { SettingsClient } from '@/components/settings/settings-client';
 
-export default async function SettingsPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+type Props = {
+  params: Promise<{ lang: Locale }>;
+}
+
+export default async function SettingsPage({ params }: Props) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
 
   return (
