@@ -1,25 +1,24 @@
-
 'use server';
 
 /**
- * @fileOverview Flow to retrieve data for the admin dashboard.
- * - getAdminDashboardData - Fetches stats and recent activity.
+ * @fileOverview Flow pour récupérer les données du tableau de bord admin.
+ * - getAdminDashboardData : récupère les stats et l'activité récente.
  */
 
 import { getAdmins, getAllUsers, getAllKycSubmissions } from '@/lib/firebase/firestore';
 import { getAdminDb } from '@/lib/firebase/admin';
 import type { AdminDashboardDataResult } from '@/lib/types';
 
-
 export async function getAdminDashboardData(): Promise<AdminDashboardDataResult> {
     try {
         const adminDb = getAdminDb();
-        const [users, kycSubmissions, admins] = await Promise.all([
+        const [users, kycSubmissions, rawUserProfiles] = await Promise.all([
             getAllUsers(adminDb as any),
             getAllKycSubmissions(adminDb as any),
             getAdmins(adminDb as any)
         ]);
 
+        // 📊 Statistiques globales
         const stats = {
             totalUsers: users.length,
             pendingKyc: kycSubmissions.filter(s => s.status === 'pending').length,
@@ -27,6 +26,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardDataResult>
             rejectedKyc: kycSubmissions.filter(s => s.status === 'rejected').length,
         };
 
+        // 👥 Derniers utilisateurs
         const recentUsers = users
             .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
             .slice(0, 5)
@@ -34,6 +34,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardDataResult>
                 id: user.uid,
                 type: 'user' as const,
                 timestamp: user.createdAt,
+                status: 'unknown', // 👈 Ajouté pour satisfaire le type
+                user: `${user.firstName} ${user.lastName}` || 'Utilisateur inconnu',
                 data: {
                     firstName: user.firstName,
                     lastName: user.lastName,
@@ -41,6 +43,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardDataResult>
                 },
             }));
 
+        // 🧾 Demandes KYC récentes
         const recentKyc = kycSubmissions
             .filter(kyc => kyc.status === 'pending')
             .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
@@ -49,28 +52,45 @@ export async function getAdminDashboardData(): Promise<AdminDashboardDataResult>
                 id: kyc.uid,
                 type: 'kyc' as const,
                 timestamp: kyc.submittedAt,
+                status: kyc.status || 'pending',
+                user: kyc.userName || 'Utilisateur inconnu',
                 data: {
                     userName: kyc.userName,
                 },
             }));
-        
+
+        // 🕒 Activité récente (fusionnée, triée et formatée)
         const recentActivity = [...recentUsers, ...recentKyc]
             .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
             .slice(0, 5)
-            .map(item => ({ ...item, timestamp: item.timestamp.toISOString() }));
+            .map(item => ({
+                ...item,
+                timestamp: item.timestamp.toISOString(), // ⏱️ Format ISO
+            }));
+
+        // 👮‍♂️ Admins transformés dans le bon format
+        const admins = rawUserProfiles.map(profile => ({
+            email: profile.email,
+            id: profile.uid,
+            role: profile.role || 'user',
+            lastLogin: profile.lastLogin,
+        }));
 
         return {
             success: true,
-            data: { stats, recentActivity, admins },
+            data: {
+                stats,
+                recentActivity,
+                admins,
+            },
         };
 
     } catch (error: any) {
-        console.error("Error in getAdminDashboardData:", error);
-        // Check for specific error indicating missing service account JSON
+        console.error("Erreur dans getAdminDashboardData:", error);
         if (error.message.includes('SERVICE_ACCOUNT_JSON')) {
             return {
                 success: false,
-                error: `La configuration du SDK Admin Firebase est incomplète. Assurez-vous que la variable d'environnement SERVICE_ACCOUNT_JSON est correctement définie.`,
+                error: `La configuration du SDK Admin Firebase est incomplète. Assurez-vous que la variable d'environnement SERVICE_ACCOUNT_JSON est bien définie.`,
             };
         }
         return {
