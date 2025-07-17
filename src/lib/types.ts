@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 const FileAttachmentSchema = z.object({
@@ -42,25 +41,46 @@ export type ContactSupportResult = z.infer<typeof ContactSupportResultSchema>;
 
 // Admin Dashboard Data Flow
 export const AdminDashboardDataSchema = z.object({
-    stats: z.object({
-        totalUsers: z.number(),
-        pendingKyc: z.number(),
-        approvedKyc: z.number(),
-        rejectedKyc: z.number(),
-    }),
-    recentActivity: z.array(z.object({
-        id: z.string(),
-        type: z.enum(['user', 'kyc']),
-        timestamp: z.string(), // ISO 8601 string
-        data: z.any(),
-    })),
-    admins: z.array(z.any()),
+  stats: z.object({
+    totalUsers: z.number(),
+    pendingKyc: z.number(),
+    approvedKyc: z.number(),
+    rejectedKyc: z.number(),
+  }),
+  recentActivity: z.array(z.object({
+    id: z.string(),
+    type: z.enum(['user', 'kyc']),
+    timestamp: z.string(), // ISO 8601 string
+    data: z.any(),
+  })),
+  admins: z.array(z.any()),
 });
 export type AdminDashboardData = z.infer<typeof AdminDashboardDataSchema>;
 
 export const AdminDashboardDataResultSchema = z.object({
-    success: z.boolean(),
-    data: AdminDashboardData.optional(),
-    error: z.string().optional(),
+  success: z.boolean(),
+  message: z.string().optional(),
+  error: z.string().optional(),
+  data: z.object({
+    stats: z.object({
+      totalUsers: z.number(),
+      pendingKyc: z.number(),
+      approvedKyc: z.number(),
+      rejectedKyc: z.number(),
+    }),
+    recentActivity: z.array(z.object({
+      id: z.string(),
+      type: z.string(),
+      user: z.string(),
+      timestamp: z.string(),
+      status: z.string(),
+    })),
+    admins: z.array(z.object({
+      id: z.string(),
+      email: z.string(),
+      role: z.string(),
+      lastLogin: z.string().optional(),
+    })),
+  }).optional()
 });
-export type AdminDashboardDataResult = z.infer<typeof AdminDashboardDataResultSchema>;
+export type AdminDashboardDataResult = z.infer<typeof AdminDashboardDataResultSchema>
