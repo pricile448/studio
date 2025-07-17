@@ -1,7 +1,7 @@
 
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import type { AttachmentData } from 'mailgun.js/interfaces/AttachmentData';
+import type { AttachmentData } from 'mailgun.js';
 
 interface EmailOptions {
   to: string;
