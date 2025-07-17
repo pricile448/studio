@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
@@ -6,26 +5,22 @@ import { type ThemeProviderProps } from 'next-themes/dist/types';
 import { Toaster } from '@/components/ui/toaster';
 import { ReactNode } from 'react';
 
-export function ThemeProviders({ children }: { children: ReactNode }) {
-    const themeProps: ThemeProviderProps = {
-        attribute: "class",
-        defaultTheme: "system",
-        enableSystem: true,
-        disableTransitionOnChange: true,
-    };
+interface ThemeProvidersProps {
+  children: ReactNode;
+}
 
-    return (
-        <NextThemesProvider {...themeProps}>
-            {children}
-            <Toaster />
-        </NextThemesProvider>
-    );
+export function ThemeProviders({ children }: ThemeProvidersProps) {
+  const baseThemeProps: ThemeProviderProps = {
+    attribute: 'class',
+    defaultTheme: 'system',
+    enableSystem: true,
+    disableTransitionOnChange: true,
+  };
 
-    const themeProps: ThemeProviderProps = {
-        attribute: 'class',
-        defaultTheme: 'system',
-        enableSystem: true,
-        disableTransitionOnChange: true,
-        children: null, // Ajoutez cette ligne
-      };
+  return (
+    <NextThemesProvider {...baseThemeProps}>
+      {children}
+      <Toaster />
+    </NextThemesProvider>
+  );
 }
