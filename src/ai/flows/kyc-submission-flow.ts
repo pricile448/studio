@@ -6,7 +6,7 @@
  * This flow uses the Admin SDK to ensure it has the necessary permissions
  * to write to Firestore collections and sends a notification email.
  */
-import type { Attachment } from 'mailgun.js';
+
 import { getAdminDb } from '@/lib/firebase/admin';
 import { collection, addDoc, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { sendSupportEmail } from '@/lib/mailgun';
