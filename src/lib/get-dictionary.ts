@@ -12,5 +12,5 @@ const dictionaries = {
 export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
   // Fallback to 'fr' if the locale is not found or invalid
   const loadDict = dictionaries[locale] ?? dictionaries.fr;
-  return loadDict();
+  return await loadDict();
 }

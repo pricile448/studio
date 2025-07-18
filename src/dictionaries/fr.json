@@ -120,6 +120,7 @@
       "registerPrompt": "Vous n'avez pas de compte ?",
       "registerLink": "S'inscrire",
       "backToHome": "Retour à l'accueil",
+      "backToLogin": "Retour à la connexion",
       "inactivityLogoutTitle": "Session expirée",
       "inactivityLogoutDescription": "Pour votre sécurité, vous avez été déconnecté pour cause d'inactivité."
     },
@@ -207,6 +208,7 @@
       "notifications": "Notifications",
       "verified": "Vérifié",
       "unverified": "Non vérifié",
+      "advisor": "Vue Conseiller",
       "userMenu": {
         "profile": "Profil",
         "billing": "Facturation",
@@ -621,6 +623,7 @@
         "emailInvalid": "Adresse e-mail invalide.",
         "subjectLabel": "Sujet",
         "subjectPlaceholder": "Sujet de votre message",
+        "placeholder": "Comment pouvons-nous vous aider ?",
         "subjectRequired": "Le sujet est requis.",
         "messageLabel": "Message",
         "messagePlaceholder": "Décrivez votre problème ici...",

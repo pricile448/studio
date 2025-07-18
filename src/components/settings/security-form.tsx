@@ -155,7 +155,7 @@ const inactivitySchema = z.object({
   inactivityTimeout: z.string(),
 });
 
-type InactivityFormValues = z.infer<ReturnType<typeof inactivitySchema>>;
+type InactivityFormValues = z.infer<typeof inactivitySchema>;
 
 function InactivityTimeoutForm({ dict, errorDict }: { dict: Dictionary['settings']['security'], errorDict: Dictionary['errors'] }) {
     const { user, userProfile, updateUserProfileData } = useAuth();

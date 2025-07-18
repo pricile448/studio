@@ -1,43 +1,17 @@
+'use server';
+
 // 1. Imports Firebase nécessaires
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  Timestamp 
-} from 'firebase/firestore';
+import admin from 'firebase-admin';
 
-// 2. Import de la fonction getAdminDb (à ajuster selon ton architecture)
-import { getAdminDb } from '../path/to/your/firebase/config'; // Ajuste le chemin
+// 2. Import de la fonction getAdminDb
+import { getAdminDb } from '@/lib/firebase/admin';
 
-// 3. Import de la fonction sendSupportEmail (à ajuster selon ton architecture)
-import { sendSupportEmail } from '../path/to/your/email/service'; // Ajuste le chemin
+// 3. Import de la fonction sendSupportEmail
+import { sendSupportEmail } from '@/lib/mailgun';
 
-// 4. Définition des types manquants
-interface KycEmailInput {
-  userId: string;
-  userName: string;
-  userEmail: string;
-  idDocument?: {
-    filename: string;
-    data: string; // Base64 data
-  };
-  proofOfAddress?: {
-    filename: string;
-    data: string; // Base64 data
-  };
-  selfie?: {
-    filename: string;
-    data: string; // Base64 data
-  };
-}
-
-interface KycSubmissionResult {
-  success: boolean;
-  message: string;
-  error?: string;
-}
-
+// 4. Import des types
+import { KycEmailInput, KycSubmissionResult } from '@/lib/types';
+// Définition de l'interface AttachmentData
 interface AttachmentData {
   filename: string;
   data: Buffer;
@@ -49,21 +23,21 @@ export async function submitKyc(input: KycEmailInput): Promise<KycSubmissionResu
     const adminDb = getAdminDb();
 
     // 1. Create the KYC submission document
-    const submissionsCollectionRef = collection(adminDb, 'kycSubmissions');
+    const submissionsCollectionRef = adminDb.collection('kycSubmissions');
     const submissionData = {
         userId: input.userId,
         userName: input.userName,
         userEmail: input.userEmail,
         status: 'pending' as const,
-        submittedAt: Timestamp.now(),
+        submittedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
-    const docRef = await addDoc(submissionsCollectionRef, submissionData);
+    const docRef = await submissionsCollectionRef.add(submissionData);
     
     // 2. Update user's KYC status
-    const userDocRef = doc(adminDb, 'users', input.userId);
-    await updateDoc(userDocRef, {
+    const userDocRef = adminDb.collection('users').doc(input.userId);
+    await userDocRef.update({
         kycStatus: 'pending',
-        kycSubmittedAt: Timestamp.now(),
+        kycSubmittedAt: admin.firestore.FieldValue.serverTimestamp(),
         kycSubmissionId: docRef.id, // Lier la soumission à l'utilisateur
     });
 

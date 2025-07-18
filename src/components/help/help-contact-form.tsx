@@ -88,7 +88,7 @@ export function HelpContactForm({ dict }: { dict: Dictionary['help'] }) {
             <FormItem>
               <FormLabel>{dict.contactForm.subjectLabel}</FormLabel>
               <FormControl>
-                <Input placeholder={dict.contactForm.subjectPlaceholder} {...field} />
+                <Input placeholder={dict.contactForm.placeholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

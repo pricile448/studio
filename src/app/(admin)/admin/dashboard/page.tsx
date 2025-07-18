@@ -7,15 +7,17 @@ import { Users, ShieldCheck, MessageSquare, Loader2, ShieldX, ShieldQuestion, Us
 import type { UserProfile } from '@/lib/firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr } from 'date-fns/locale/fr';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { AdminDashboardDataResult } from '@/lib/types';
 
 interface ActivityItem {
   id: string;
-  type: 'user' | 'kyc';
+  type: string;
   timestamp: Date;
   data: any;
+  status?: string;
+  user?: string;
 }
 
 function getInitials(name: string) {
@@ -30,7 +32,27 @@ function mapRawAdmins(raw: any[]): UserProfile[] {
     firstName: admin.firstName || '',
     lastName: admin.lastName || '',
     photoURL: admin.photoURL || '',
-    lastLogin: admin.lastLogin ? new Date(admin.lastLogin) : null,
+    lastLogin: admin.lastLogin ? new Date(admin.lastLogin) : undefined,
+    // Ajout des propriétés requises avec des valeurs par défaut
+    phone: admin.phone || '',
+    dob: admin.dob ? new Date(admin.dob) : new Date(),
+    pob: admin.pob || '',
+    nationality: admin.nationality || '',
+    residenceCountry: admin.residenceCountry || '',
+    address: admin.address || '',
+    city: admin.city || '',
+    postalCode: admin.postalCode || '',
+    profession: admin.profession || '',
+    salary: admin.salary || 0,
+    createdAt: admin.createdAt ? new Date(admin.createdAt) : new Date(),
+    kycStatus: admin.kycStatus || 'unverified',
+    cardStatus: admin.cardStatus || 'none',
+    accounts: admin.accounts || [],
+    transactions: admin.transactions || [],
+    beneficiaries: admin.beneficiaries || [],
+    budgets: admin.budgets || [],
+    documents: admin.documents || [],
+    virtualCards: admin.virtualCards || []
   }));
 }
 
@@ -67,11 +89,19 @@ export default function AdminDashboardPage() {
             prev[4],
           ]);
 
-          const parsedActivity = data.recentActivity.map(item => ({
-            ...item,
-            timestamp: new Date(item.timestamp),
-            data: item.data || {},
-          }));
+          const parsedActivity = data.recentActivity.map(item => {
+            // Créer un nouvel objet avec les propriétés nécessaires
+            const activityItem: ActivityItem = {
+              id: item.id,
+              type: item.type,
+              timestamp: new Date(item.timestamp),
+              data: {}, // Initialiser data comme un objet vide
+              status: item.status,
+              user: item.user
+            };
+            
+            return activityItem;
+          });
 
           setRecentActivity(parsedActivity);
           setAdmins(mapRawAdmins(data.admins));

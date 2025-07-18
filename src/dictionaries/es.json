@@ -121,6 +121,7 @@
       "registerPrompt": "¿No tiene una cuenta?",
       "registerLink": "Regístrese",
       "backToHome": "Volver al inicio",
+      "backToLogin": "Volver al inicio de sesión",
       "inactivityLogoutTitle": "Sesión expirada",
       "inactivityLogoutDescription": "Por su seguridad, se ha cerrado la sesión por inactividad."
     },

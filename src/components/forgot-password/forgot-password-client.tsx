@@ -22,6 +22,8 @@ const forgotPasswordSchema = (dict: any) => z.object({
   email: z.string().email({ message: dict.emailInvalid }),
 });
 
+type ForgotPasswordFormValues = z.infer<ReturnType<typeof forgotPasswordSchema>>;
+
 interface ForgotPasswordClientProps {
   dict: Dictionary;
   lang: Locale;
@@ -35,12 +37,12 @@ export function ForgotPasswordClient({ dict, lang }: ForgotPasswordClientProps) 
   const forgotPasswordDict = dict.forgotPassword;
   const errorDict = dict.errors;
 
-  const form = useForm<z.infer<ReturnType<typeof forgotPasswordSchema>>>({
+  const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema(forgotPasswordDict)),
     defaultValues: { email: '' },
   });
 
-  const onSubmit = async (values: z.infer<ReturnType<typeof forgotPasswordSchema>>) => {
+  const onSubmit = async (values: { email: string }) => {
     setIsSubmitting(true);
     try {
       await sendPasswordResetEmail(auth, values.email);

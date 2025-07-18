@@ -73,7 +73,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardDataResult>
             email: profile.email,
             id: profile.uid,
             role: profile.role || 'user',
-            lastLogin: profile.lastLogin,
+            lastLogin: profile.lastLogin ? profile.lastLogin.toISOString() : undefined,
         }));
 
         return {

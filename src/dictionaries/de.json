@@ -121,6 +121,7 @@
       "registerPrompt": "Haben Sie noch kein Konto?",
       "registerLink": "Registrieren",
       "backToHome": "Zurück zur Startseite",
+      "backToLogin": "Zurück zur Anmeldung",
       "inactivityLogoutTitle": "Sitzung abgelaufen",
       "inactivityLogoutDescription": "Zu Ihrer Sicherheit wurden Sie aufgrund von Inaktivität abgemeldet."
     },

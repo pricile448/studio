@@ -124,6 +124,8 @@ export type UserProfile = {
   profession: string;
   salary: number;
   photoURL?: string;
+  role?: string;
+  lastLogin?: Date;
   notificationPrefs?: {
     email: boolean;
     promotions: boolean;
@@ -702,12 +704,12 @@ export async function requestTransfer(userId: string, transferData: Omit<Transac
       throw new Error("Solde insuffisant pour effectuer cette opération, en tenant compte des virements déjà en cours.");
   }
 
-  const newTransaction: Omit<Transaction, 'id'> & { date: Timestamp } = {
+  const newTransaction: Omit<Transaction, 'id'> = {
     ...transferData,
     amount: -Math.abs(transferData.amount), // Outgoing transfers are debits
     status: 'pending',
     type: 'outgoing_transfer',
-    date: Timestamp.now()
+    date: new Date() // Utiliser Date au lieu de Timestamp
   };
 
   const currentTransactions = userData.transactions || [];

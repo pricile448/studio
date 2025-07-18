@@ -121,6 +121,7 @@
       "registerPrompt": "Don't have an account?",
       "registerLink": "Sign up",
       "backToHome": "Back to Home",
+      "backToLogin": "Back to Login",
       "inactivityLogoutTitle": "Session Expired",
       "inactivityLogoutDescription": "For your security, you have been logged out due to inactivity."
     },

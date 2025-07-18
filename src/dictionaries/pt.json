@@ -121,6 +121,7 @@
       "registerPrompt": "Não tem uma conta?",
       "registerLink": "Cadastre-se",
       "backToHome": "Voltar para o início",
+      "backToLogin": "Voltar para o login",
       "inactivityLogoutTitle": "Sessão Expirada",
       "inactivityLogoutDescription": "Por sua segurança, você foi desconectado por inatividade."
     },
