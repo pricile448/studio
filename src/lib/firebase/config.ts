@@ -28,6 +28,11 @@ function isFirebaseConfigValid(config: typeof firebaseConfig): boolean {
 }
 
 export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServices {
+  // ✅ AJOUT : Vérifier qu'on est côté client
+  if (typeof window === 'undefined') {
+    return { app: null, auth: null, db: null, storage: null };
+  }
+
   if (appInstances.has(appName)) {
     const app = appInstances.get(appName)!;
     if (!app) {
@@ -58,7 +63,7 @@ export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServ
 
   const app = getApps().find(app => app.name === appName) || initializeApp(firebaseConfig, appName);
   appInstances.set(appName, app);
-
+  
   return {
     app,
     auth: getAuth(app),
@@ -67,17 +72,56 @@ export function getFirebaseServices(appName: string = '[DEFAULT]'): FirebaseServ
   };
 }
 
-// Default export for convenience where only one instance is needed (client-side)
-const { app, auth, db, storage } = getFirebaseServices();
+// ✅ MODIFICATION : Exports lazy pour éviter l'exécution pendant le build
+let _app: FirebaseApp | null = null;
+let _auth: Auth | null = null;
+let _db: Firestore | null = null;
+let _storage: FirebaseStorage | null = null;
 
-// Handle the case where initialization might fail
-const authInstance = auth as Auth;
-const dbInstance = db as Firestore;
-const storageInstance = storage as FirebaseStorage;
+export const app = new Proxy({} as FirebaseApp, {
+  get(target, prop) {
+    if (!_app) {
+      const services = getFirebaseServices();
+      _app = services.app;
+    }
+    return _app ? (_app as any)[prop] : null;
+  }
+});
 
-export { 
-  app, 
-  authInstance as auth, 
-  dbInstance as db, 
-  storageInstance as storage 
-};
+export const auth = new Proxy({} as Auth, {
+  get(target, prop) {
+    if (!_auth) {
+      const services = getFirebaseServices();
+      _auth = services.auth;
+    }
+    return _auth ? (_auth as any)[prop] : null;
+  }
+});
+
+export const db = new Proxy({} as Firestore, {
+  get(target, prop) {
+    if (!_db) {
+      const services = getFirebaseServices();
+      _db = services.db;
+    }
+    return _db ? (_db as any)[prop] : null;
+  }
+});
+
+export const storage = new Proxy({} as FirebaseStorage, {
+  get(target, prop) {
+    if (!_storage) {
+      const services = getFirebaseServices();
+      _storage = services.storage;
+    }
+    return _storage ? (_storage as any)[prop] : null;
+  }
+});
+
+// ✅ AJOUT : Fonction d'initialisation explicite (optionnelle)
+export function initializeFirebase() {
+  if (typeof window !== 'undefined') {
+    return getFirebaseServices();
+  }
+  return { app: null, auth: null, db: null, storage: null };
+}
