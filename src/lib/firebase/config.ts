@@ -24,6 +24,16 @@ interface FirebaseServices {
 
 // Function to check if all necessary config values are present
 function isFirebaseConfigValid(config: typeof firebaseConfig): boolean {
+  // Ajout de debug temporaire
+  console.log('🔍 Debug Firebase config:', {
+    apiKey: config.apiKey ? 'SET ✅' : 'MISSING ❌',
+    authDomain: config.authDomain ? 'SET ✅' : 'MISSING ❌', 
+    projectId: config.projectId ? 'SET ✅' : 'MISSING ❌',
+    storageBucket: config.storageBucket ? 'SET ✅' : 'MISSING ❌',
+    messagingSenderId: config.messagingSenderId ? 'SET ✅' : 'MISSING ❌',
+    appId: config.appId ? 'SET ✅' : 'MISSING ❌',
+  });
+  
   return !!(config.apiKey && config.authDomain && config.projectId);
 }
 
