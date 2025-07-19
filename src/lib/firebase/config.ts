@@ -1,105 +1,95 @@
-import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
-import { getStorage, FirebaseStorage } from "firebase/storage";
+// Import des fonctions Firebase
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-// Configuration Firebase avec valeurs par défaut (solution temporaire)
+// Configuration Firebase avec fallback
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyA5wfRvUsB_Z7Xv4t-F0IoCa0LMEqB12LI",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyA5wf...", // Remplacez par votre vraie clé
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "amcbunq.firebaseapp.com",
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "amcbunq",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "amcbunq.firebasestorage.app",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "amcbunq.appspot.com",
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "466533825569",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:466533825569:web:873294f84a51aee5f63760",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "466533825569:we..." // Remplacez par votre vraie app ID
 };
 
-// Debug détaillé
-console.log("🔥 Firebase Environment Check:", {
-  allEnvKeys: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_FIREBASE_')),
+// Diagnostic des variables d'environnement
+console.log("🔍 Firebase Environment Check:", {
+  allEnvKeys: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_FIREBASE')),
   isClient: typeof window !== 'undefined',
-  nodeEnv: process.env.NODE_ENV,
+  nodeEnv: process.env.NODE_ENV
 });
 
+// Diagnostic de la configuration
 console.log("🔍 Firebase Config Values:", {
-  apiKey: firebaseConfig.apiKey?.substring(0, 15) + "...",
+  apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : "MISSING ❌",
   authDomain: firebaseConfig.authDomain || "MISSING ❌",
   projectId: firebaseConfig.projectId || "MISSING ❌",
   storageBucket: firebaseConfig.storageBucket || "MISSING ❌",
   messagingSenderId: firebaseConfig.messagingSenderId || "MISSING ❌",
-  appId: firebaseConfig.appId?.substring(0, 15) + "..." || "MISSING ❌",
+  appId: firebaseConfig.appId ? `${firebaseConfig.appId.substring(0, 10)}...` : "MISSING ❌"
 });
 
-// Validation
-const missingFields = Object.entries(firebaseConfig)
-  .filter(([key, value]) => !value)
-  .map(([key]) => key);
-
-if (missingFields.length > 0) {
-  console.log("🔥 Missing Firebase config fields:", missingFields);
-  console.log(`
-**************************************************
-USING FALLBACK VALUES - Environment variables not loaded!
-This is a temporary fix. Please check your NEXT_PUBLIC_FIREBASE_* variables.
-Current environment: ${process.env.NODE_ENV}
-Available env vars: ${Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_FIREBASE_')).join(', ')}
-**************************************************
-  `);
+// Vérification si on utilise les valeurs par défaut
+const usingFallback = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+if (usingFallback) {
+  console.warn("⚠️ USING FALLBACK VALUES - Variables d'environnement non détectées");
+} else {
+  console.log("✅ Variables d'environnement détectées");
 }
 
-// Initialize Firebase
-let app: FirebaseApp;
-try {
-  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-  console.log("✅ Firebase initialized successfully");
-} catch (error) {
-  console.error("❌ Firebase initialization failed:", error);
-  throw error;
-}
+// Initialisation de l'app Firebase
+const app = initializeApp(firebaseConfig);
 
-// Firebase services avec gestion d'erreur
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-let storage: FirebaseStorage | null = null;
+// Services Firebase
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-try {
-  auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
-  console.log("✅ All Firebase services initialized");
-} catch (error) {
-  console.error("❌ Firebase services initialization failed:", error);
-}
-
-// Proxies pour gérer les cas où les services ne sont pas initialisés
-const createServiceProxy = (service: any, serviceName: string) => {
-  if (!service) {
-    return new Proxy({}, {
-      get() {
-        console.warn(`🚫 ${serviceName} is not initialized. Authentication/database will not work.`);
-        return undefined;
+// Création des proxys pour le diagnostic
+function createServiceProxy(service: any, serviceName: string) {
+  return new Proxy(service, {
+    get(target, prop) {
+      const value = target[prop];
+      if (typeof value === 'function') {
+        return function(...args: any[]) {
+          console.log(`📡 ${serviceName} - Méthode appelée:`, prop);
+          return value.apply(target, args);
+        };
       }
-    });
-  }
-  return service;
-};
+      return value;
+    }
+  });
+}
 
-// Export des services avec proxy de sécurité
+// Proxys avec diagnostic
+const authProxy = createServiceProxy(auth, "Firebase Auth");
+const dbProxy = createServiceProxy(db, "Firebase Firestore");
+const storageProxy = createServiceProxy(storage, "Firebase Storage");
+
+// Exports principaux
+export { authProxy as auth };
+export { dbProxy as db };
+export { storageProxy as storage };
 export { app };
-export const authProxy = createServiceProxy(auth, "Firebase Auth");
-export const dbProxy = createServiceProxy(db, "Firestore");
-export const storageProxy = createServiceProxy(storage, "Firebase Storage");
-
-// Exports principaux (utilisez ces versions)
-export { authProxy as auth, dbProxy as db, storageProxy as storage };
 
 // Fonction de diagnostic
 export const diagnoseFirebase = () => {
-  console.log("🔍 Firebase Diagnosis:", {
-    appInitialized: !!app,
-    authInitialized: !!auth,
-    dbInitialized: !!db,
-    storageInitialized: !!storage,
-    envVarsFound: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_FIREBASE_')),
-    configUsed: firebaseConfig,
-  });
+  return {
+    config: firebaseConfig,
+    envVars: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_FIREBASE')),
+    usingFallback,
+    isClient: typeof window !== 'undefined'
+  };
+};
+
+// Export de la fonction getFirebaseServices pour la compatibilité
+export const getFirebaseServices = () => {
+  return {
+    auth,
+    db,
+    storage,
+    app
+  };
 };
