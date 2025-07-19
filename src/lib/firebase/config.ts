@@ -90,7 +90,7 @@ export const dbProxy = createServiceProxy(db, "Firestore");
 export const storageProxy = createServiceProxy(storage, "Firebase Storage");
 
 // Exports principaux (utilisez ces versions)
-export { auth: authProxy as Auth, db: dbProxy as Firestore, storage: storageProxy as FirebaseStorage };
+export { authProxy as auth, dbProxy as db, storageProxy as storage };
 
 // Fonction de diagnostic
 export const diagnoseFirebase = () => {
