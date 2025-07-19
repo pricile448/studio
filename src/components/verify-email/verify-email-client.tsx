@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { applyActionCode, sendEmailVerification, reload } from 'firebase/auth';
+import { Input } from '@/components/ui/input';
 
 interface VerifyEmailClientProps {
   dict: Dictionary;
@@ -29,47 +29,85 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  const [code, setCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   useEffect(() => {
-    const handleVerification = async () => {
-      if (user && !user.emailVerified) {
-        // This effect can be used to automatically detect verification
-        // or to handle action codes from URL if needed.
-        // For now, we rely on the user manually clicking the link in their email.
-      } else if (user && user.emailVerified) {
-        setShowSuccessDialog(true);
-      }
-    };
-    handleVerification();
+    if (user?.isEmailVerified) {
+      setShowSuccessDialog(true);
+    }
   }, [user]);
 
-  const handleResendEmail = async () => {
-    if (!user) return;
+  const handleResendCode = async () => {
+    if (!user?.email) return;
     setIsResending(true);
-    try {
-        await sendEmailVerification(user);
-        toast({
-            title: dict?.verifyEmail.emailSent || 'E-mail envoyé !',
-            description: dict?.verifyEmail.emailSentDescription || 'Un nouvel e-mail de vérification a été envoyé à votre adresse.',
-        });
-    } catch (error: any) {
-         toast({
-            variant: 'destructive',
-            title: 'Erreur',
-            description: error.message,
-        });
-    } finally {
-        setIsResending(false);
-    }
-  }
 
-  const handleProceedToDashboard = async () => {
-    if (!user) return;
-    await reload(user); // Ensure auth state is fresh
+    try {
+      const res = await fetch('/api/resend-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast({
+          title: dict?.verifyEmail.emailSent || 'Code envoyé',
+          description: dict?.verifyEmail.emailSentDescription || 'Un nouveau code a été envoyé à votre adresse e-mail.',
+        });
+      } else {
+        throw new Error(result.message || 'Erreur lors de l’envoi du code');
+      }
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: err.message,
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!user?.email || !code) return;
+    setIsVerifying(true);
+
+    try {
+      const res = await fetch('/api/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, code }),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast({ title: 'Succès', description: 'Votre e-mail a été vérifié.' });
+        setShowSuccessDialog(true);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Erreur',
+          description: result.message || 'Code invalide ou expiré.',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: err.message,
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleProceedToDashboard = () => {
     router.push(`/${lang}/dashboard`);
-  }
+  };
 
   if (loading || !dict) {
     return (
@@ -95,9 +133,9 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
       <Card className="mx-auto w-full max-w-md">
         <CardHeader className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <MailCheck className="h-6 w-6 text-primary" />
-            </div>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <MailCheck className="h-6 w-6 text-primary" />
+          </div>
           <CardTitle className="mt-4 text-2xl font-headline">{verifyDict.title}</CardTitle>
           <CardDescription>
             {verifyDict.description.replace('{email}', user?.email || '')}
@@ -106,13 +144,24 @@ export function VerifyEmailClient({ dict, lang }: VerifyEmailClientProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
+          <Input
+            placeholder="Code à 6 chiffres"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+          />
+          <Button onClick={handleVerifyCode} disabled={isVerifying || !code}>
+            {isVerifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Vérifier le code
+          </Button>
+
           <p className="text-sm text-muted-foreground">
             {verifyDict.noCodePrompt}{' '}
-            <Button variant="link" onClick={handleResendEmail} disabled={isResending} className="p-0 h-auto">
-              {isResending ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+            <Button variant="link" onClick={handleResendCode} disabled={isResending} className="p-0 h-auto">
+              {isResending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {verifyDict.resendButton}
             </Button>
           </p>
+
           <Button variant="outline" onClick={() => logout().then(() => router.push(`/${lang}/login`))}>
             {verifyDict.backToLogin}
           </Button>
