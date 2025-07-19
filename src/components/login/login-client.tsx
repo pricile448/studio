@@ -20,6 +20,7 @@ import { Loader2, LogOut, Eye, EyeOff } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { diagnoseFirebase } from '@/lib/firebase';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
